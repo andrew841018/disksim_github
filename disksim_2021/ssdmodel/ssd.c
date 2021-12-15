@@ -3666,7 +3666,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
   
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
-  Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];//include many physical block information
+  Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   int i;
   /*printf("hash_Pg:");
   for(i=0;i<1000;i++)
@@ -3684,7 +3684,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   {
     if(ptr_lru_node == NULL)
       break;
-    if(ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1)//logical group
+    if(ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1)
       break;
     if(ptr_lru_node == ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev)
     {
@@ -3694,7 +3694,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     ptr_lru_node = ptr_lru_node->next;
   }
-  if(ptr_lru_node != NULL)//if have this node, flag = 1...logical group
+  if(ptr_lru_node != NULL)//if have this node, flag = 1
   {
     Pg_hit_Lg++;
     Y_add_Lg_page_to_cache_buffer(lpn,ptr_buffer_cache);
