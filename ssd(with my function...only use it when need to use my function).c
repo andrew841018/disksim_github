@@ -2,7 +2,7 @@
 // ©2008 Microsoft Corporation. All Rights Reserved
 // 先搜尋 ininin 找到入口
  
-#include "ssd.h"
+#include "ssd.h" 
 #include "ssd_timing.h"
 #include "ssd_clean.h"
 #include "ssd_gang.h"
@@ -33,17 +33,18 @@
 #define YELLOW "\033[1;33m"
 
 /*parameter*/
-#define RWRATIO 0.4
+#define RWRATIO 0.4//hit rati=0.6---60%
 #define EVICTWINDOW 0.3
  
 #define STRIPING 1  //the sequential logical page is replaced in every channel
 #define LOCALITY 2  //the sequential logical page is replaced in a physical block
-#define LRUSIZE 64
+#define LRUSIZE 64//block size---64 pages 
 #define HASHSIZE 1000
 #define CHANNEL_NUM 8
 #define PLANE_NUM 8
 #define TOTAL_NODE ((512*1024*80)/64)
-
+//node means block
+//blk means sector number...
 int kick_node=0,kick_block_strip_node=0,kick_block_strip_sumpage=0;
 int kick_block_striping_page_count=0;
 int kick_page_striping_page_count=0;
@@ -208,6 +209,8 @@ void kick_read_intensive_page_from_buffer_cache(ioreq_event *curr,unsigned int c
 void add_read_intensive_page_to_list(unsigned int page_offset,lru_node *ptr_lru_node);
 void show_result(buffer_cache *ptr_buffer_cache);
 void record_all_request_access_count(char *trace_file_name);
+void A_collect_benefit(int blkno);
+void A_write_to_txt(int a);
 static void ssd_activate_elem(ssd_t *currdisk, int elem_num);
 //speed up the search time
 void add_node_to_read_access_list(unsigned int logical_number,double increase_score);
@@ -329,7 +332,46 @@ struct ssd *getssd (int devno)
    s = disksim->ssdinfo->ssds[devno];
    return (disksim->ssdinfo->ssds[devno]);
 }
-
+float write_count[100000000]={0},benefit[100000000]={0};
+char output_txt[100000000]={0},tmp[100000000]={0};//can't define inside the loop or it will core dump
+void A_collect_benefit(int lpn)
+{
+  int physical_block_num=(lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
+  write_count[physical_block_num]++;
+}
+//全部都執行完再跑這函式
+void A_write_to_txt(int g)//seems like need some variable in any function..even you won't use it....or it will error.
+{
+  
+  int i;
+  for(i=0;i<100000000;i++)
+	if(write_count[i]!=0)
+	{
+		FILE *w=fopen("write_count.txt","a+");
+		sprintf(output_txt,"%d",i);
+		strcat(output_txt," ");
+		sprintf(tmp,"%f",write_count[i]);
+		strcat(output_txt,tmp);
+		fprintf(w,"%s\n",output_txt);
+		fclose(w);
+	}
+  
+  for(i=0;i<100000000;i++){
+    if(write_count[i]!=0){
+		FILE *a=fopen("physical_block_number and benefit.txt","a+");
+        benefit[i]=(float)(write_count[i]/64);//64---number of page per block
+        benefit[i]*=(float)1/64;
+        sprintf(output_txt,"%d",i);//integet to string,output_txt=i
+        strcat(output_txt," ");
+        sprintf(tmp,"%f",benefit[i]);//output_txt+=benefit[i]
+        strcat(output_txt,tmp);
+        fprintf(a,"%s\n",output_txt);
+        fclose(a);
+  }
+  }
+  
+  
+}
 int ssd_set_depth (int devno, int inbusno, int depth, int slotno)
 {
    ssd_t *currdisk;
@@ -657,7 +699,6 @@ int ssd_logical_pageno(int blkno, ssd_t *s)
 
     // absolute page number is the block number as written by the above layer
     apn = blkno/s->params.page_size;
-
     // find the logical page number within the ssd element. we maintain the
     // mapping between the logical page number and the actual physical page
     // number. an alternative is that we could maintain the mapping between
@@ -1608,6 +1649,7 @@ static void ssd_media_access_request_element (ioreq_event *curr)
   req_check++;
   ssd_t *currdisk = getssd(curr->devno);
   int blkno = curr->blkno;
+  A_collect_benefit(ssd_logical_pageno(blkno,currdisk));
  //printf("req_check=%d|blkno=%d\n",req_check,blkno);
   int count = curr->bcount; //sh--req block count( must be multiple of 8)
   static int sta_elem_num = 0,sta_die_num = 0,sta_plane_num = 0,first_run_this = 0;
@@ -3555,12 +3597,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   lru_node *lru;
   int flag;
   /*add page to buffer cache*/
-  // fprintf(myoutput3, "////////////////////Hint queue Start/////////////////\n");
-  // for(h=0;h<global_HQ_size;h++)
-  // {
-  //   fprintf(myoutput3, "global_HQ:%d\n", global_HQ[h]);
-  // }
-  // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
   
   while(count > 0)
   {
@@ -3578,9 +3614,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
         page_RW_count->w_count = req_RW_count->page[i].w_count;
       }
     }
-    //add_page_to_cache_buffer(lpn,ptr_buffer_cache);
-    flag=0;
-    flag=Y_add_Pg_page_to_cache_buffer(lpn,ptr_buffer_cache);
+    add_page_to_cache_buffer(lpn,ptr_buffer_cache);
+   
     scount = ssd_choose_aligned_count(currdisk->params.page_size, blkno, count);
     
     assert(scount == currdisk->params.page_size);
@@ -3620,11 +3655,10 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   lru_node *ptr_lru_node = NULL;
-  unsigned int logical_node_num = lpn/LRUSIZE;
-  unsigned int offset_in_node = lpn % LRUSIZE;
+  unsigned int logical_node_num = lpn/LRUSIZE;//裝滿幾個block, LRUSIZE=block size
+  unsigned int offset_in_node = lpn % LRUSIZE;//第幾個page.....lpn=logical page number
   
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
-
   while(1)
   {
     if(ptr_lru_node == NULL)
@@ -3640,13 +3674,13 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
   if(ptr_lru_node == NULL)
   {
-    add_a_node_to_buffer_cache(lpn,logical_node_num,offset_in_node,ptr_buffer_cache,0);
+    add_a_node_to_buffer_cache(lpn,logical_node_num,offset_in_node,ptr_buffer_cache,1);//0=pg,1=lg
   }
   else
   {
     //remove the mark page int the hit node
     remove_mark_in_the_node(ptr_lru_node,ptr_buffer_cache);
-    add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
+    add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,1);
   }
 }
 
@@ -3654,7 +3688,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
   //fprintf(lpb_ppn, "Y_add_Pg_page\t");
-  int flag=0;//physical group
+  int flag=0;
   lru_node *ptr_lru_node = NULL, *Pg_node = NULL;
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
@@ -3934,12 +3968,15 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   lru_node *ptr_lru_node = NULL;
   //unsigned int logical_node_num = lpn/LRUSIZE;
   //unsigned int offset_in_node = lpn % LRUSIZE;
-  unsigned int logical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
-  unsigned int offset_in_node = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
+  unsigned int logical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;//其實是physical block
+  unsigned int offset_in_node = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;//physical offset
   //unsigned int physical_node_num, phy_node_offset;
   // physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
   // phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   
+  
+  
+
   ptr_lru_node = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE];
 
   while(1)
@@ -4049,9 +4086,8 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 		ptr_node->rw_intensive = 2;//write intensive
 	}
 	//add new node to hash table , for speed up
-  if(flag==0)
+  if(flag==0)//flag=0-->physical group
   {
-    //printf("flag==0\n");
     ptr_node->group_type=0;
     if(ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] == NULL)
     {
@@ -5914,7 +5950,11 @@ double remove_special_node(unsigned int logical_number)
 
 void show_result(buffer_cache *ptr_buffer_cache)
 {
+	A_write_to_txt(1);
 
+	//FILE *a=fopen("a.txt","a+");
+	//fprintf(a,"%s\n","hello");	
+	//fclose(a);
   //report the last result 
   statistic_the_data_in_every_stage();
 
