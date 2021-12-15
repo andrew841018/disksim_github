@@ -3684,7 +3684,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   {
     if(ptr_lru_node == NULL)
       break;
-    if(ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1)
+    if(ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1)//logical group
       break;
     if(ptr_lru_node == ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev)
     {
@@ -3694,7 +3694,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     ptr_lru_node = ptr_lru_node->next;
   }
-  if(ptr_lru_node != NULL)//if have this node, flag = 1
+  //only happen when satisfy 
+  //【ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1】this condition
+  if(ptr_lru_node != NULL)//if have this node, flag = 1...logical group
   {
     Pg_hit_Lg++;
     Y_add_Lg_page_to_cache_buffer(lpn,ptr_buffer_cache);
@@ -3779,7 +3781,7 @@ void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cac
   {
     if(Pg_node == NULL)
       break;
-    if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find
+    if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find...physical group
     {
       //printf("if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)\n");
 
@@ -3793,7 +3795,7 @@ void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cac
     }
     Pg_node = Pg_node->next;
   }
-  if((Pg_node != NULL)) //have node
+  if((Pg_node != NULL)) //have node must be physical
   {
     /* if((Pg_node->page[offset_in_node].strip==1))
     {
@@ -3825,7 +3827,7 @@ void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cac
       
       ptr_buffer_cache->ptr_head = Pg_node;
     }
-}
+  }
   /* else if((Pg_node != NULL) && (Pg_node->page[Pg_node->logical_node_num].strip==1))
   {
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
@@ -3835,7 +3837,7 @@ void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cac
   {
     if(ptr_lru_node == NULL)
       break;
-    if(ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1)
+    if(ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1)//logical group
       break;
     if(ptr_lru_node == ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev)
     {
@@ -4935,17 +4937,17 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
   
 // }
 void remove_mark_in_the_node(lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache)
-{
+{//ptr_lru_node in this function is physical block
   unsigned int i = 0;
   if(ptr_lru_node->rw_intensive == 1)
   {
     for(i = 0;i < LRUSIZE;i++)
     {
-      if(ptr_lru_node->page[i].exist == 1)
+      if(ptr_lru_node->page[i].exist == 1)//exist but no mark, PS:0 not exist
       {
         break;
       }
-      else if(ptr_lru_node->page[i].exist == 2)
+      else if(ptr_lru_node->page[i].exist == 2)//mark for special chip 
       {
         ptr_lru_node->page[i].exist = 1;
         remve_read_intensive_page(i,ptr_lru_node);  
@@ -4969,7 +4971,7 @@ void remove_mark_in_the_node(lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cac
   }
   else
   assert(0);
-  //when the hit node is the current mark node,we move the current mark node
+  //when the hit node(physical block) is the current mark node,we move the current mark node
   if(ptr_buffer_cache->ptr_current_mark_node == ptr_lru_node)
   {
     ptr_buffer_cache->ptr_current_mark_node = ptr_lru_node->prev;
