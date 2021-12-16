@@ -4076,7 +4076,6 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
       ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev->h_next = ptr_node;
       ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev = ptr_node;
       //printf("else4\n");
-      ///???
       ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] = ptr_node;
     }
   }
