@@ -3664,12 +3664,12 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
   //phy_node_offset=當下所在block中，第幾個page(page所在位置)
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
-  //也就是說，先將lpn轉成physical node number(physical block number)，再將physical block number當成index
-  //放入hash，設計過的hash會生成一個<write buffer size(number of block in write buffer)的隨機值X
-  //該page就會放入該block X(in write buffer)
-  //而在SSD中屬於同個block的page，在write buffer也會被放入同一個block X
-  ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];//在write buffer中logical block要放的位置(block number)
-  Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];//在write physical block要放的位置(block number)
+  //fprintf(lpb_ppn, "%d\n", lpn);
+  //fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
+  //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
+  
+  ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
+  Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   int i;
   /*printf("hash_Pg:");
   for(i=0;i<1000;i++)
