@@ -3736,13 +3736,12 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
   }
-  else//(B) enter there
+  else
   {
     //fprintf(lpb_ppn, "if(Pg_node != NULL)\tphysical_node_num=%d\n", physical_node_num);
     //printf("find node\n");
     //remove the mark page int the hit node
-    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);//有可能mark block是專給logical block使用的
-    //所以發現當下是physical block，則remove mark
+    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     /* if(myssd.node_page_nm[logical_node_num][offset_in_node]==1)
     {
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
@@ -4040,9 +4039,12 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	ptr_node = malloc(sizeof(lru_node));
 	assert(ptr_node);
 	memset(ptr_node,0,sizeof(struct _lru_node));
-  ptr_node->group_type=flag;//ptr_node means physical block
-	ptr_node->logical_node_num = logical_node_num;//去看傳過來的值，是physical node number....這裡logical_node_num，是賣羊頭掛狗肉
+  ptr_node->group_type=flag;
+	ptr_node->logical_node_num = logical_node_num;
   ptr_buffer_cache->total_buffer_block_num++;
+  //fprintf(lpb_lpn, "add_a_node_to_buffer_cache(logical_node_num=%d)\n", logical_node_num);
+  //printf("if(w_multiple == 0)\n");
+	//rw intensive
 	if(w_multiple == 0)
 	{
 		ptr_node->rw_intensive = 1;//read intensive
@@ -4056,7 +4058,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 		ptr_node->rw_intensive = 2;//write intensive
 	}
 	//add new node to hash table , for speed up
-  if(flag==0)//physical group
+  if(flag==0)
   {
     //printf("flag==0\n");
     ptr_node->group_type=0;

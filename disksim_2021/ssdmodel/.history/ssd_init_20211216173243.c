@@ -9,7 +9,7 @@
 
 /* read-only globals used during readparams phase */
 static char *statdesc_acctimestats  =   "Access time";
-page_level_mapping *lba_table;
+page_level_mapping *Flba_table;
 int table_size;
 /*
  * when the striping allocation == 1,represent the init logical page number with stripe

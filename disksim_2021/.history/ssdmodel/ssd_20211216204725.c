@@ -4043,6 +4043,9 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
   ptr_node->group_type=flag;//ptr_node means physical block
 	ptr_node->logical_node_num = logical_node_num;//去看傳過來的值，是physical node number....這裡logical_node_num，是賣羊頭掛狗肉
   ptr_buffer_cache->total_buffer_block_num++;
+  //fprintf(lpb_lpn, "add_a_node_to_buffer_cache(logical_node_num=%d)\n", logical_node_num);
+  //printf("if(w_multiple == 0)\n");
+	//rw intensive
 	if(w_multiple == 0)
 	{
 		ptr_node->rw_intensive = 1;//read intensive
@@ -4056,7 +4059,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 		ptr_node->rw_intensive = 2;//write intensive
 	}
 	//add new node to hash table , for speed up
-  if(flag==0)//physical group
+  if(flag==0)
   {
     //printf("flag==0\n");
     ptr_node->group_type=0;

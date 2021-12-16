@@ -3669,8 +3669,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //所以會靠指標一個一個找，由mapping表來對應，當找到該lpn對應的SSD physical block number的對應write buffer block number時
   //就將lpn的資料放入，否則就繼續找
   //PS:在SSD中屬於同個block的page，在write buffer也會被放入同一個block X
-  ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];//在write buffer中的logical block
-  Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];//在write buffer中的 physical block
+  ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];//在write buffer中logical block要放的位置(block number)
+  Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];//在write physical block要放的位置(block number)
   int i;
   /*printf("hash_Pg:");
   for(i=0;i<1000;i++)
@@ -3686,17 +3686,15 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   // search Lg_hash, if have this node, flag=1, else flag = 0
   while(1)
   {
-    if(ptr_lru_node == NULL)//ptr_lru_node----logical block.............(a)
-      break;    
-    if(ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1)//make sure it is logical group
-      break;////////////////(b)
+    if(ptr_lru_node == NULL)//ptr_lru_node----logical block
+      break;  
+    if(ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1)//logical group
+      break;
     //ptr_buffer_cache=write buffer
-    //current logical block equal to previous logical block,so,eliminate the current block
-    if(ptr_lru_node == ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev)///////////(c)
+    if(ptr_lru_node == ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev)
     {
       //fprintf(lpb_lpn, "if(ptr_lru_node == ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev)\nphysical_node_num=%d\n", physical_node_num);
-      ptr_lru_node = NULL;//eliminate the current block,because write buffer don't need 兩個相同的block
-      //若是兩個block相同，就直接hit 
+      ptr_lru_node = NULL;
       break;
     }
     ptr_lru_node = ptr_lru_node->next;
@@ -3704,45 +3702,44 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //only happen when satisfy 
   //【ptr_lru_node->logical_node_num == logical_node_num && ptr_lru_node->group_type == 1】this condition
   if(ptr_lru_node != NULL)//if have this node, flag = 1...logical group
-  {////(b) will get into there.
-    Pg_hit_Lg++;//logical block count in write buffer
+  {
+    Pg_hit_Lg++;//要寫入的logical page的確存在於write buffer內...(以physical擺放---Pg)
     Y_add_Lg_page_to_cache_buffer(lpn,ptr_buffer_cache);
     flag=1;
     return flag;
   }
 
-  while(1)//(a) and (c) condition will enter there
+  while(1)
   {
-    if(Pg_node == NULL)//(A)
+    if(Pg_node == NULL)
       break;
-    if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find physical group (B)
+    if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find
     {
       //fprintf(lpb_lpn, "if(Pg_node->logical_node_num == physical_node_num )\nphysical_node_num=%d\n", physical_node_num);
       break;
     }
-    //current physical block in the write buffer與上一個physical block相同
-    if(Pg_node == ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->h_prev)//only one node in hash   (C)
+    if(Pg_node == ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->h_prev)//only one node in hash
     {
       //fprintf(lpb_lpn, "if(Pg_node == ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->h_prev)\nPg_node->logical_node_num=%d\n", Pg_node->logical_node_num);
-      //
-      Pg_node = NULL;//eliminate the current physical block....write buffer內不需要兩個相同的block...浪費空間
+      Pg_node = NULL;
       break;
     }
     Pg_node = Pg_node->next;
   }
-  if(Pg_node == NULL)//(A),(C) enter there
+  if(Pg_node == NULL)
   {
-      flag=0;//physical group
+    //printf("add node\n");
+    //fprintf(lpb_ppn, "if(Pg_node == NULL)\tphysical_node_num=%d\n", physical_node_num);
+      flag=0;
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
   }
-  else//(B) enter there
+  else
   {
     //fprintf(lpb_ppn, "if(Pg_node != NULL)\tphysical_node_num=%d\n", physical_node_num);
     //printf("find node\n");
     //remove the mark page int the hit node
-    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);//有可能mark block是專給logical block使用的
-    //所以發現當下是physical block，則remove mark
+    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     /* if(myssd.node_page_nm[logical_node_num][offset_in_node]==1)
     {
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
@@ -4040,9 +4037,12 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	ptr_node = malloc(sizeof(lru_node));
 	assert(ptr_node);
 	memset(ptr_node,0,sizeof(struct _lru_node));
-  ptr_node->group_type=flag;//ptr_node means physical block
-	ptr_node->logical_node_num = logical_node_num;//去看傳過來的值，是physical node number....這裡logical_node_num，是賣羊頭掛狗肉
+  ptr_node->group_type=flag;
+	ptr_node->logical_node_num = logical_node_num;
   ptr_buffer_cache->total_buffer_block_num++;
+  //fprintf(lpb_lpn, "add_a_node_to_buffer_cache(logical_node_num=%d)\n", logical_node_num);
+  //printf("if(w_multiple == 0)\n");
+	//rw intensive
 	if(w_multiple == 0)
 	{
 		ptr_node->rw_intensive = 1;//read intensive
@@ -4056,7 +4056,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 		ptr_node->rw_intensive = 2;//write intensive
 	}
 	//add new node to hash table , for speed up
-  if(flag==0)//physical group
+  if(flag==0)
   {
     //printf("flag==0\n");
     ptr_node->group_type=0;

@@ -1,5 +1,5 @@
 // DiskSim SSD support
-// ï¿½2008 Microsoft Corporation. All Rights Reserved
+// ©2008 Microsoft Corporation. All Rights Reserved
 
 #include "ssd.h"
 #include "ssd_timing.h"
