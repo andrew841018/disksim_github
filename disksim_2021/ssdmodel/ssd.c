@@ -4070,13 +4070,17 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
     }
     else
     {
-      //printf("ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]=%d\n", ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->logical_node_num);
+      //ptr_buffer_cache->hash_pg代表write buffer中physical block暫存的地方，之後會
+      //assign給 ptr_node
+      //先將『ptr_buffer_cache->hash_pg--write buffer經過hash後，當下的資訊』
+      //『ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev--write buffer hash後，前一個的資訊』
+      //上述兩者分別存在ptr_node->h_next, ptr_node->h_prev中
+      //（這兩個分別代表，write buffer中physical block下一個資訊與前一個資訊）
       ptr_node->h_next = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE];
       ptr_node->h_prev = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev;
       ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev->h_next = ptr_node;
-      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev = ptr_node;
-      //printf("else4\n");
-      ///??? 
+      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev = ptr_node;//(1)
+      ///與(1)相同意義，因為下面這行表示current,而pre->next也是current
       ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] = ptr_node;
     }
 
