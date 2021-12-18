@@ -4078,8 +4078,12 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
       //（這兩個分別代表，write buffer中physical block下一個資訊與前一個資訊）
       ptr_node->h_next = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE];
       ptr_node->h_prev = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev;
-      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev->h_next = ptr_node;
-      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev = ptr_node;//(1)
+      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev->h_next = ptr_node;//(1)
+      //ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev----(a)
+      //ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_next---(b)
+      //(a),(b)不知出於何原因，他們的logical node number(=logical block number)無法被更改
+      //不管以何種方式assign，始終都不會變
+      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev = ptr_node;
       ///與(1)相同意義，因為下面這行表示current,而pre->next也是current
       ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] = ptr_node;
     }
