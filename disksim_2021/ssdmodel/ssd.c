@@ -78,6 +78,7 @@ typedef struct _buffer_cache
   struct _lru_node *hash_Pg[HASHSIZE];     //hash table,quickly find the node ,hash by mod HASHSIZE
   struct _lru_node *ptr_current_mark_node;  //pointer the current mark node head,the point from the lru to mru 
   unsigned int current_mark_offset;     //the offset of current mark node ,using with ptr_current_mark_node together
+  float benefit;//add by andrew
 }buffer_cache;
 typedef struct _buffer_page
 { 
@@ -4054,12 +4055,12 @@ void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num
   {
     substr=strtok(buffer,delim);
     physical_block_number=atoi(substr);
-    if(ptr_node->logical_node_num==physical_block_number){
+    if(ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->logical_node_num==physical_block_number){
       substr=strtok(NULL,delim);
-      ptr_node->benefit=atof(substr);
+      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->benefit=atof(substr);
       //make sure everything is all right
       FILE *b=fopen("b.txt","a+");
-      fprintf(b,"%d %f\n",ptr_node->logical_node_num,ptr_node->benefit);
+      fprintf(b,"%d %f\n",ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->logical_node_num,ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->benefit);
       fclose(b);
     }
   }
