@@ -112,6 +112,7 @@ typedef struct  _lru_node
   unsigned int hint_located;
   unsigned int StripWay;
   int group_type;//0=Pg,1=Lg
+  float benefit;//add by me...andrew
 }lru_node;
 typedef struct _current_block_info //¦¹structure¦³°O¿ýµÛ¸Ócur blk¦Y¨ìªº¬O¨º¤@­ÓLB(°²³]¬O¦Y¨ìW-intensiveªºpage)¤¤±qoffset¶}©l³sÄò cur_mark_cnt­Ópages
 {
