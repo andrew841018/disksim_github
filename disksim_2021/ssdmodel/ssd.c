@@ -215,6 +215,7 @@ void add_node_to_read_access_list(unsigned int logical_number,double increase_sc
 void increase_node_count(unsigned int logical_number,double increase_score);
 int remove_and_get_a_victim_logical_block(void);
 double remove_special_node(unsigned int logical_number);
+void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag);
 //global varibale----------------------------------------------------------------------------------------------------------------
 struct read_access_node *ptr_read_access_head_node = NULL;
 struct access_count rw_count[TOTAL_NODE];
@@ -3734,7 +3735,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   if(Pg_node == NULL)//(A),(C) enter there
   {
       flag=0;//physical group
-      add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
+      A_add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
+      //add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
   }
   else//(B) enter there
@@ -4032,6 +4034,118 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 //   }
 //   add_a_page_in_the_node(logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache);
 // }
+void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
+{
+  //printf("innn add node | flag=%d \n", flag);
+  //fprintf(lpb_ppn, "add_a_node_to_buffer_cache\t");
+	lru_node *ptr_node;
+	ptr_node = malloc(sizeof(lru_node));
+	assert(ptr_node);
+	memset(ptr_node,0,sizeof(struct _lru_node));
+  ptr_node->group_type=flag;//ptr_node means physical block
+	ptr_node->logical_node_num = logical_node_num;//去看傳過來的值，是physical node number....這裡logical_node_num，是賣羊頭掛狗肉
+  ptr_buffer_cache->total_buffer_block_num++;
+  char *substr=NULL;
+  char buffer[1024];//1024 mean nothing,just make sure string  long enough.
+  const char *const delim=" ";
+  int physical_block_number;
+  FILE *a=fopen("physical_block_number and benefit.txt","r");
+  while (fgets(buffer,1024,a)!=NULL)
+  {
+    substr=strtok(buffer,delim);
+    physical_block_number=atoi(substr);
+    if(ptr_node->logical_node_num==physical_block_number){
+      substr=strtok(NULL,delim);
+      ptr_node->benefit=atof(substr);
+      //make sure everything is all right
+      FILE *b=fopen("b.txt","a+");
+      fprintf(b,"%d %f\n",ptr_node->logical_node_num,ptr_node->benefit);
+      fclose(b);
+    }
+  }
+  fclose(a);
+	if(w_multiple == 0)
+	{
+		ptr_node->rw_intensive = 1;//read intensive
+	}
+	else if(w_multiple == 99999||w_multiple == 999999)
+	{
+		ptr_node->rw_intensive = 2;//write intensive
+	}
+	else
+	{
+		ptr_node->rw_intensive = 2;//write intensive
+	}
+	//add new node to hash table , for speed up
+  if(flag==0)//physical group
+  {
+    //printf("flag==0\n");
+    ptr_node->group_type=0;
+    if(ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] == NULL)
+    {
+      //for some unknown reason ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] = NULL
+      // so, assign ptr_node to it.
+      //printf("add node|");
+      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] = ptr_node;//current physial block
+      ptr_node->h_prev = ptr_node->h_next = ptr_node;
+    }
+    else
+    {
+      //ptr_buffer_cache->hash_pg代表write buffer中physical block暫存的地方，之後會
+      //assign給 ptr_node
+      //先將『ptr_buffer_cache->hash_pg--write buffer經過hash後，當下的資訊』
+      //『ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev--write buffer hash後，前一個的資訊』
+      //上述兩者分別存在ptr_node->h_next, ptr_node->h_prev中
+      //（這兩個分別代表，write buffer中physical block下一個資訊與前一個資訊）
+      ptr_node->h_next = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE];
+      ptr_node->h_prev = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev;
+      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev->h_next = ptr_node;//(1)
+      //ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev----(a)
+      //ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_next---(b)
+      //(a),(b)不知出於何原因，他們的logical node number(=logical block number)無法被更改
+      //不管以何種方式assign，始終都不會變
+      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev = ptr_node;
+      ///與(1)相同意義，因為下面這行表示current,而pre->next也是current
+      ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] = ptr_node;
+    }
+
+  }
+  else if(flag==1)//logical group
+  {
+    ptr_node->group_type=1;
+    //printf("flag==1\n");
+    if(ptr_buffer_cache->hash[logical_node_num % HASHSIZE] == NULL)
+    {
+      ptr_buffer_cache->hash[logical_node_num % HASHSIZE] = ptr_node;
+      ptr_node->h_prev = ptr_node->h_next = ptr_node;
+    }
+    else
+    {
+      ptr_node->h_next = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
+      ptr_node->h_prev = ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev;
+      ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev->h_next = ptr_node;
+      ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev = ptr_node;
+      ptr_buffer_cache->hash[logical_node_num % HASHSIZE] = ptr_node;
+    }
+  }
+	//add the node the the lru list
+	if(ptr_buffer_cache->ptr_head != NULL)
+	{
+    //printf("ptr_buffer_cache->ptr_head != NULL\n");
+		ptr_node->next = ptr_buffer_cache->ptr_head;
+		ptr_node->prev = ptr_buffer_cache->ptr_head->prev;
+		ptr_buffer_cache->ptr_head->prev->next = ptr_node;
+		ptr_buffer_cache->ptr_head->prev = ptr_node;
+		ptr_buffer_cache->ptr_head = ptr_node;
+	}
+	else //�@�}�l�O�Ū�
+	{
+    //printf("else ptr_buffer_cache->ptr_head != NULL\n");
+		ptr_buffer_cache->ptr_head = ptr_node->prev = ptr_node->next = ptr_node;
+	}
+  //printf("add_a_page_in_the_node\n");
+	add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
+}
 
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
 {
