@@ -4184,7 +4184,7 @@ void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num
       ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] = ptr_node;
     }
     FILE *a=fopen("a+.txt","a+");
-    fprintf(a,"%d %d\n",curr->blkno,ptr_node->logical_node_num);
+    fprintf(a,"%f %d %d\n",curr->time,curr->blkno,ptr_node->logical_node_num);
     fclose(a);
   }
   else if(flag==1)//logical group
