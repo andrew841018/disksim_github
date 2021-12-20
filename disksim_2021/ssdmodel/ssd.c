@@ -1613,8 +1613,12 @@ static void ssd_media_access_request_element (ioreq_event *curr)
   int count = curr->bcount; //sh--req block count( must be multiple of 8)
   static int sta_elem_num = 0,sta_die_num = 0,sta_plane_num = 0,first_run_this = 0;
   int i = 0,elem_num,plane_num;
-  unsigned int lpn;
+  unsigned int lpn=ssd_logical_pageno(blkno,curr);
   int hit = 0;
+  unsigned int physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
+  FILE *a=fopen("a+.txt","a+");
+  fprintf(a,"%d %d\n",curr->blkno,physical_node_num);
+  fclose(a);
    //when first request arrive,we initialized the cache 
   if(first_run_this == 0)
   {
@@ -4183,9 +4187,6 @@ void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num
       ///與(1)相同意義，因為下面這行表示current,而pre->next也是current
       ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE] = ptr_node;
     }
-    FILE *a=fopen("a+.txt","a+");
-    fprintf(a,"%f %d %d\n",curr->time,curr->blkno,ptr_node->logical_node_num);
-    fclose(a);
   }
   else if(flag==1)//logical group
   {
