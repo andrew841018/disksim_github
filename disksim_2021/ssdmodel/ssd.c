@@ -112,7 +112,6 @@ typedef struct  _lru_node
   unsigned int hint_located;
   unsigned int StripWay;
   int group_type;//0=Pg,1=Lg
-  float benefit;//add by me...andrew
 }lru_node;
 typedef struct _current_block_info //¦¹structure¦³°O¿ýµÛ¸Ócur blk¦Y¨ìªº¬O¨º¤@­ÓLB(°²³]¬O¦Y¨ìW-intensiveªºpage)¤¤±qoffset¶}©l³sÄò cur_mark_cnt­Ópages
 {
@@ -1605,7 +1604,9 @@ static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
   //fprintf(outputssd, "**************ssd inininininin\n");
-    
+  FILE *a=fopen("a+.txt","a+");
+  fprintf(a,"%d\n",curr->blkno);
+  close(a);  
   req_check++;
   ssd_t *currdisk = getssd(curr->devno);
   int blkno = curr->blkno;
