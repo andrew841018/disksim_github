@@ -187,12 +187,13 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache);
 void lsn2lpn(unsigned int input_lsa,unsigned  int input_scnt,unsigned int* req_lpn,unsigned int* req_cnt);
 //void add_a_node_to_buffer_cache(unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag);
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag);
+void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag,ioreq_event *curr);
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache,ioreq_event *curr);
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache);
 
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag);
 
- 
+   
 int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache);
 void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,unsigned int verify_channel,unsigned int verify_plane,int flag);
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache);
@@ -3733,9 +3734,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   if(Pg_node == NULL)//(A),(C) enter there
   {
       flag=0;//physical group
-     // add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
+      //add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       A_add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag,curr);
-
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
   }
   else//(B) enter there
@@ -4127,7 +4127,8 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
   //printf("add_a_page_in_the_node\n");
 	add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
 }
-void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag,ioreq_event *curr)
+
+void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
 {
   //printf("innn add node | flag=%d \n", flag);
   //fprintf(lpb_ppn, "add_a_node_to_buffer_cache\t");
@@ -4185,7 +4186,6 @@ void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num
     FILE *a=fopen("a+.txt","a+");
     fprintf(a,"%d %d\n",curr->blkno,ptr_node->logical_node_num);
     fclose(a);
-
   }
   else if(flag==1)//logical group
   {
@@ -4223,46 +4223,6 @@ void A_add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num
   //printf("add_a_page_in_the_node\n");
 	add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
 }
-// void add_a_page_in_the_node(unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache )
-// {
-//   if(ptr_lru_node->page[offset_in_node].exist != 0) 
-//   {
-//     ptr_buffer_cache->w_hit_count ++;
-//     if(ptr_lru_node->page[offset_in_node].lpn == page_RW_count->page_num)
-//     {
-//       LPN_RWtimes[ptr_lru_node->logical_node_num][0] += page_RW_count->r_count;
-//       LPN_RWtimes[ptr_lru_node->logical_node_num][1] += page_RW_count->w_count;
-//     }
-
-//   }
-//   else
-//   { 
-//     ptr_buffer_cache->w_miss_count ++;
-//     ptr_buffer_cache->total_buffer_page_num ++;
-//     ptr_lru_node->buffer_page_num++;
-//     ptr_lru_node->page[offset_in_node].exist = 1;
-//     ptr_lru_node->page[offset_in_node].lpn = logical_node_num * LRUSIZE + offset_in_node;
-    
-//     if(ptr_lru_node->page[offset_in_node].lpn == page_RW_count->page_num)
-//     {
-//       LPN_RWtimes[ptr_lru_node->logical_node_num][0] += page_RW_count->r_count;
-//       LPN_RWtimes[ptr_lru_node->logical_node_num][1] += page_RW_count->w_count;
-//     }
-//   }
-//   if(ptr_lru_node == ptr_buffer_cache->ptr_head)
-//     return ;
-//   ptr_lru_node->prev->next = ptr_lru_node->next;
-//   ptr_lru_node->next->prev = ptr_lru_node->prev;
-  
-//   ptr_lru_node->prev = ptr_buffer_cache->ptr_head->prev;
-//   ptr_lru_node->next = ptr_buffer_cache->ptr_head;
-  
-//   ptr_buffer_cache->ptr_head->prev->next = ptr_lru_node;
-//   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
-  
-//   ptr_buffer_cache->ptr_head = ptr_lru_node;
-  
-// }
 
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
