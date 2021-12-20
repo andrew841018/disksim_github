@@ -1605,8 +1605,8 @@ static void ssd_media_access_request_element (ioreq_event *curr)
   //printf(LIGHT_BLUE"inininininin\n"NONE);
   //fprintf(outputssd, "**************ssd inininininin\n");
   FILE *a=fopen("a+.txt","a+");
-  fprintf(a,"%d\n",curr->blkno);
-  close(a);  
+  fprintf(a,"%d \n",curr->blkno);
+  fclose(a);  
   req_check++;
   ssd_t *currdisk = getssd(curr->devno);
   int blkno = curr->blkno;
