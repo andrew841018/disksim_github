@@ -3,23 +3,23 @@
 #include <string.h>
 typedef struct write_buffer
 {
-  struct write_buffer *block[1184];
+  struct write_buffer *block[4000];//write buffer size=1184 blocks, 超過1183，用來存放那些不會被放入write buffer的資訊
   int physical_block_number=-1;
   int ppn=-1;//total 64 page...each block ppn from 0~63
   int full=0//0..not full,1...is full         
   float benefit;
   int free_block=40;//free block
   int duration=0;
+  int buffer_or_not=0;
 }buf;
 int main(){
     //write buffer size set to 10MB,contained 40 blocks
-    int free_block[1184]; 
     int count=0,i;
     char buffer[1024],buffer1[1024];
     char *substr=NULL,*substr1=NULL;
     int sector_number,sector_number1;
     const char *const delim=" ";
-    int physical_block_num,dur_count=0;
+    int physical_block_num,dur_count=0;//the index of char array which store duration of each block
     buf *wb;
     int b=0,b1=0;
     char dur[1184][100]={0};
@@ -50,15 +50,17 @@ int main(){
                       count++;
                       if(count==1184){
                            //kick block
-                           int min=10000,min_block_num;
+                           int min=10000,min_block_num,index;
                            int tmp_block_num;
                            float tmp_benefit;
-                           tmp_block_num=atoi(buffer1);
+                           tmp_block_num=atoi(buffer1);//current block number
                            substr1=strtok(NULL,delim);//third...benefit
-                           tmp_benefit=atof(buffer1);
+                           tmp_benefit=atof(buffer1);//current block benefit
+                           //find min benefit block in write buffer
                         for(k=0;k<count-1;k++){
                           if (min>wb->block[k]->benefit){
                             min=wb->block[k]->benefit;
+                            index=k;
                             min_block_num=wb->block[k]->physicak_block_number;
                           }
                         }
@@ -66,23 +68,31 @@ int main(){
                         if(tmp_benefit>min){
                           //kick min block from write buffer
                           
-                          sprintf(dur[dur_count],"%d",wb->block[min_block_num]->physical_block_number);
+                          sprintf(dur[dur_count],"%d",min_block_num);
                           strcat(dur[dur_count]," ");
-                          sprintf(dur[dur_count],"%d",wb->block[min_block_num]->duration);
+                          sprintf(dur[dur_count],"%d",wb->block[index]->duration);
                           dur_count++;
                           wb->block[min_block_num]->physical_block_number=-1;
                           wb->block[min_block_num]->duration=0;
                           wb->block[min_block_num]->free_block++;
                           wb->block[min_block_num]->ppn=-1;
+                          count--;
                           //current request write into block
-                          
+                          wb->block[count]->physical_block_number=tmp_block_num;
+                          wb->block[count]->buffer_or_not=1;
+                          wb->block[count]->benefit=tmp_benefit;
+                          wb->block[count]->ppn++;
+                          wb->block[count]->free_block--;
                         }
                         else{
                           //ignore current request...do nothing
-                          count--;
+                          //此時count=1184 
+                          wb->block[count]->physical_block_number=tmp_block_num;
+                          wb->block[count]->buffer_or_not=0;                      
                         }
 
                       }
+                      wb->block[count]->buffer_or_not=1;
                       wb->block[count]->ppn++
                       wb->block[count]->physical_block_number=atoi(buffer1);
                       substr1=strtok(NULL,delim);//third...benefit
@@ -97,11 +107,13 @@ int main(){
                         }
                         else{
                             count++;//write in new block
+                            wb->block[count]->buffer_or_not=1;
                             wb->block[count]->physical_block_number=atoi(buffer1);
                             substr1=strtok(NULL,delim);//third...benefit
                             wb->block[count]->benefit=atof(buffer1); 
                             wb->block[count]->ppn++;                         
                             wb->free_block--;
+                            wb->block[count]->buffer_or_not=1;
                             b=0;
                         }
                         
@@ -112,6 +124,7 @@ int main(){
                         wb->block[0]->benefit=atof(buffer1);
                         wb->block[count]->ppn++;
                         wb->free_block--;
+                        wb->block[count]->buffer_or_not=1;
                         b=1;
                     }    
                     ////////**************////////////// 以星號圈出的區間，只有第1~2個request會進入 
@@ -128,5 +141,11 @@ int main(){
         }
     }
     fclose(a);
+    fclose(b);
+    FILE *result=fopen("duration.txt","a+");
+    for(i=0;i<)
+    fclose(result);
+    FILE *result1=fopen("buffer_or_not.txt","a+");
+    fclose(result1);
     return 0;
 }
