@@ -143,9 +143,16 @@ int main(){
     fclose(a);
     fclose(b);
     FILE *result=fopen("duration.txt","a+");
-    for(i=0;i<)
+    for(i=0;i<1184;i++){
+      if(dur[i]!="0")
+        fprintf(result,"%s\n",dur[i]);
+    }
     fclose(result);
     FILE *result1=fopen("buffer_or_not.txt","a+");
+    for(i=0;i<count;i++){
+      if(wb->block[i]->physical_block_number!=-1)
+        fprintf(result1,"%d %d\n",wb->block[i]->physical_block_number,wb->block[i]->buffer_or_not);
+    }
     fclose(result1);
     return 0;
 }
