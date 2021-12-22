@@ -82,6 +82,10 @@ int main(){
                           sprintf(dur[dur_count],"%d",wb->block[index]->duration);
                           dur_count++;
                           wb->block[min_block_num]->physical_block_number=-1;
+                          //current bug...after physical_block_number set to -1
+                          //it will be used to min_block_num
+                          //and further use for wb->block[min_block_num]->...
+                          // it cause bug becuase use -1 as array index.
                           wb->block[min_block_num]->duration=0;
                           wb->block[min_block_num]->free_block++;
                           wb->block[min_block_num]->ppn=-1;
@@ -101,12 +105,15 @@ int main(){
                         }
 
                       }
-                      wb->block[count]->buffer_or_not=1;
-                      wb->block[count]->ppn++;
-                      wb->block[count]->physical_block_number=atoi(substr1);
-                      substr1=strtok(NULL,delim);//third...benefit
-                      wb->block[count]->benefit=atof(buffer1);
-                      wb->free_block--;    
+                      else{
+                      
+						  wb->block[count]->buffer_or_not=1;
+						  wb->block[count]->ppn++;
+						  wb->block[count]->physical_block_number=atoi(substr1);
+						  substr1=strtok(NULL,delim);//third...benefit
+						  wb->block[count]->benefit=atof(buffer1);
+						  wb->free_block--;  
+				  }  
                                        
                     }
                     ///****************/////
