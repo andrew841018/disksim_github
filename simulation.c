@@ -1,26 +1,35 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 typedef struct write_buffer
 {
   struct write_buffer *block[4000];//write buffer size=1184 blocks, 超過1183，用來存放那些不會被放入write buffer的資訊
-  int physical_block_number=-1;
-  int ppn=-1;//total 64 page...each block ppn from 0~63
-  int full=0//0..not full,1...is full         
+  int physical_block_number;
+  int ppn;//total 64 page...each block ppn from 0~63
+  int full;//0..not full,1...is full         
   float benefit;
-  int free_block=40;//free block
-  int duration=0;
-  int buffer_or_not=0;
+  int free_block;//free block
+  int duration;
+  int buffer_or_not;
 }buf;
 int main(){
     //write buffer size set to 10MB,contained 40 blocks
-    int count=0,i;
+    int count=0,i,k;
+    buf *wb;
     char buffer[1024],buffer1[1024];
     char *substr=NULL,*substr1=NULL;
     int sector_number,sector_number1;
     const char *const delim=" ";
     int physical_block_num,dur_count=0;//the index of char array which store duration of each block
-    buf *wb;
+    wb=malloc(sizeof(buf));
+    wb->free_block=40;
+    for(i=0;i<2;i++)
+		wb->block[i]=malloc(sizeof(buf));
+    for(i=0;i<2;i++){
+		wb->block[i]->ppn=-1;
+		wb->block[i]->duration=0;
+	}
     int b=0,b1=0;
     char dur[1184][100]={0};
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
@@ -31,13 +40,17 @@ int main(){
         //physical_block_num=atoi(buffer);
         substr=strtok(NULL,delim);//second num
         substr=strtok(NULL,delim);//third...sector_num
-        sector_number=atoi(buffer);
-        FILE *b=fopen("secotr and physical_block_num and benefit.txt","r");
-        while(fgets(buffer1,1024,b)!=NULL){
+        sector_number=atoi(substr);
+        FILE *a1=fopen("secotr and physical_block_num and benefit.txt","r");
+        while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//first...sector_num
-            sector_number1=atoi(buffer1);
+            sector_number1=atoi(substr1);
+            //printf("%d %d\n",sector_number1,sector_number);
+            //sleep(5);
             if(sector_number==sector_number1){
                 substr1=strtok(NULL,delim);//second---physical_block_number
+                //printf("ppn:%d\n",wb->block[count]->ppn);
+                //sleep(5);
                 if(wb->block[count]->ppn<63){  //ppn=62時進入，此時會將新的data寫滿ppn 63                 
                     for(i=0;i<count;i++){
                         b1=1;
@@ -53,15 +66,15 @@ int main(){
                            int min=10000,min_block_num,index;
                            int tmp_block_num;
                            float tmp_benefit;
-                           tmp_block_num=atoi(buffer1);//current block number
+                           tmp_block_num=atoi(substr1);//current block number
                            substr1=strtok(NULL,delim);//third...benefit
-                           tmp_benefit=atof(buffer1);//current block benefit
+                           tmp_benefit=atof(substr1);//current block benefit
                            //find min benefit block in write buffer
                         for(k=0;k<count-1;k++){
                           if (min>wb->block[k]->benefit){
                             min=wb->block[k]->benefit;
                             index=k;
-                            min_block_num=wb->block[k]->physicak_block_number;
+                            min_block_num=wb->block[k]->physical_block_number;
                           }
                         }
                         //min=min benefit block in write buffer
@@ -93,8 +106,8 @@ int main(){
 
                       }
                       wb->block[count]->buffer_or_not=1;
-                      wb->block[count]->ppn++
-                      wb->block[count]->physical_block_number=atoi(buffer1);
+                      wb->block[count]->ppn++;
+                      wb->block[count]->physical_block_number=atoi(substr1);
                       substr1=strtok(NULL,delim);//third...benefit
                       wb->block[count]->benefit=atof(buffer1);
                       wb->free_block--;                     
@@ -108,7 +121,7 @@ int main(){
                         else{
                             count++;//write in new block
                             wb->block[count]->buffer_or_not=1;
-                            wb->block[count]->physical_block_number=atoi(buffer1);
+                            wb->block[count]->physical_block_number=atoi(substr1);
                             substr1=strtok(NULL,delim);//third...benefit
                             wb->block[count]->benefit=atof(buffer1); 
                             wb->block[count]->ppn++;                         
@@ -119,9 +132,9 @@ int main(){
                         
                     }
                     if(count==0 && b==0){//一開始會執行這裡
-                        wb->block[0]->physical_block_number=atoi(buffer1);
+                        wb->block[0]->physical_block_number=atoi(substr1);
                         substr1=strtok(NULL,delim);//third
-                        wb->block[0]->benefit=atof(buffer1);
+                        wb->block[0]->benefit=atof(substr1);
                         wb->block[count]->ppn++;
                         wb->free_block--;
                         wb->block[count]->buffer_or_not=1;
@@ -133,15 +146,15 @@ int main(){
                 else{//block full.....ppn=63進入，此時已滿，無法再寫
                     wb->block[count]->full=1;
                 }
-              int j,k,min=10000;
+              int j,k,min=10000;			      
               for(j=0;j<count;j++)
                 wb->block[j]->duration++;    
             }
 
         }
+            fclose(a1);
     }
     fclose(a);
-    fclose(b);
     FILE *result=fopen("duration.txt","a+");
     for(i=0;i<1184;i++){
       if(dur[i]!="0")
