@@ -24,20 +24,20 @@ int main(){
     int physical_block_num,dur_count=0;//the index of char array which store duration of each block
     wb=malloc(sizeof(buf));
     wb->free_block=40;
-    for(i=0;i<2;i++)
+    for(i=0;i<4000;i++)
 		wb->block[i]=malloc(sizeof(buf));
-    for(i=0;i<2;i++){
+    for(i=0;i<4000;i++){
 		wb->block[i]->ppn=-1;
 		wb->block[i]->duration=0;
+		wb->block[i]->buffer_or_not=0;
 	}
     int b=0,b1=0;
     char dur[1184][100]={0};
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
-    FILE *a=fopen("run1_Postmark_2475.txt","r");
+    FILE *a=fopen("trace(run1_Postmark_2475).txt","r");
     while (fgets(buffer,1024,a)!=NULL)
     {
         substr=strtok(buffer,delim);//first number
-        //physical_block_num=atoi(buffer);
         substr=strtok(NULL,delim);//second num
         substr=strtok(NULL,delim);//third...sector_num
         sector_number=atoi(substr);
@@ -45,12 +45,8 @@ int main(){
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//first...sector_num
             sector_number1=atoi(substr1);
-            //printf("%d %d\n",sector_number1,sector_number);
-            //sleep(5);
             if(sector_number==sector_number1){
-                substr1=strtok(NULL,delim);//second---physical_block_number
-                //printf("ppn:%d\n",wb->block[count]->ppn);
-                //sleep(5);
+                substr1=strtok(NULL,delim);//second---physical_block_number            
                 if(wb->block[count]->ppn<63){  //ppn=62時進入，此時會將新的data寫滿ppn 63                 
                     for(i=0;i<count;i++){
                         b1=1;
@@ -110,9 +106,9 @@ int main(){
                       wb->block[count]->physical_block_number=atoi(substr1);
                       substr1=strtok(NULL,delim);//third...benefit
                       wb->block[count]->benefit=atof(buffer1);
-                      wb->free_block--;                     
+                      wb->free_block--;    
+                                       
                     }
-
                     ///****************/////
                     if(b==1){//第二個request到來時，會進入.....此時count還沒更改
                         if(atoi(buffer1)==wb->block[count]->physical_block_number){//write in same block
