@@ -4,7 +4,7 @@
 #include <errno.h>
 typedef struct write_buffer
 {
-  struct write_buffer *block[4000];//write buffer size=1184 blocks, 超過1183，用來存放那些不會被放入write buffer的資訊
+  struct write_buffer *block[1000000];//write buffer size=1184 blocks, 超過1183，用來存放那些不會被放入write buffer的資訊
   int physical_block_number;
   int ppn;//total 64 page...each block ppn from 0~63
   int full;//0..not full,1...is full         
@@ -27,15 +27,15 @@ int main(){
     int physical_block_num,dur_count=0;//the index of char array which store duration of each block
     wb=malloc(sizeof(buf));
     wb->free_block=40;	
-    for(i=0;i<4000;i++){
+    for(i=0;i<1000000;i++){
 		wb->block[i]=malloc(sizeof(buf));
 		wb->block[i]->ppn=-1;
 		wb->block[i]->duration=0;
 		wb->block[i]->buffer_or_not=-1;
 		wb->block[i]->physical_block_number=-1;
 	}
-    int b=0,b1=0;
-    char dur[1184][100]={0},temp[100];
+    int b1=0;
+    char dur[1184][100]={0},temp[100]={0};
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
     FILE *a=fopen("trace(run1_Postmark_2475).txt","r");
     while (fgets(buffer,1024,a)!=NULL)
@@ -71,7 +71,7 @@ int main(){
                            substr1=strtok(NULL,delim);//third...benefit
                            tmp_benefit=atof(substr1);//current block benefit
                            //find min benefit block in write buffer
-                        for(k=0;k<count;k++){
+                        for(k=0;k<=count;k++){
                           if (min>wb->block[k]->benefit && wb->block[k]->benefit!=0){
                             min=wb->block[k]->benefit;
                             block_index=k;
@@ -114,39 +114,7 @@ int main(){
 						  wb->free_block--;  
 						  wb->block[count]->sector_num=sector_number;
 				  }	  								
-                    }
-                    ///****************/////
-                    if(b==1){//第二個request到來時，會進入.....此時count還沒更改
-                        if(atoi(substr1)==wb->block[count]->physical_block_number){//write in same block
-							if(wb->block[count]->sector_num!=sector_number)
-								wb->block[count]->ppn++;
-                        }
-                        else{
-                            count++;//write in new block
-                            wb->block[count]->buffer_or_not=1;
-                            wb->block[count]->physical_block_number=atoi(substr1);
-                            substr1=strtok(NULL,delim);//third...benefit
-                            wb->block[count]->benefit=atof(substr1); 
-                            wb->block[count]->ppn++;                         
-                            wb->free_block--;
-                            wb->block[count]->sector_num=sector_number;
-                            wb->block[count]->buffer_or_not=1;
-                            b=0;
-                        }
-                        
-                    }
-                    if(count==0 && b==0){//一開始會執行這裡
-                        wb->block[0]->physical_block_number=atoi(substr1);
-                        substr1=strtok(NULL,delim);//third
-                        wb->block[0]->benefit=atof(substr1);
-                        wb->block[count]->ppn++;
-                        wb->block[count]->sector_num=sector_number;
-                        wb->free_block--;
-                        wb->block[count]->buffer_or_not=1;
-                        b=1;
-                    }    
-                    ////////**************////////////// 以星號圈出的區間，只有第1~2個request會進入 
-                                                     
+                    }                                                  
                 }
                 else{//block full.....ppn=63進入，此時已滿，無法再寫
                     wb->block[count]->full=1;
@@ -160,7 +128,7 @@ int main(){
             fclose(a1);
     }
     fclose(a);
-    
+    /*
     FILE *result=fopen("duration.txt","a+");
     for(i=0;i<1184;i++){
       if(dur[i]!="0")
@@ -172,6 +140,6 @@ int main(){
       if(wb->block[i]->ppn!=-1)
         fprintf(result1,"%d %d\n",wb->block[i]->physical_block_number,wb->block[i]->buffer_or_not);
     }
-    fclose(result1);
+    fclose(result1);*/
     return 0;
 }
