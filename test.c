@@ -13,8 +13,8 @@ int main(){
 	strcat(a[1]," ");
 	sprintf(b,"%d",k);
 	strcat(a[1],b);
-	if(1==1 && 2!=3)
-		printf("oh no\n");
+	for(i=0;i<-1;i++)
+		printf("sss\n");
 /*	FILE *a=fopen("run1_Postmark_2475.txt","r");	
 	while (fgets(buffer,1024,a)!=NULL){
 		substr=(char*)strtok(buffer,delim);
