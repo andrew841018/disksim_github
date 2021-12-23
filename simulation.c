@@ -16,10 +16,12 @@ typedef struct write_buffer
 }buf;
 int main(){
     //write buffer size set to 10MB,contained 40 blocks
-    int count=0,i,k;
+    int count=0,i,k,j;
     buf *wb;
     char buffer[1024],buffer1[1024];
     char *substr=NULL,*substr1=NULL;
+    int tmp_block_num;
+    float tmp_benefit;
     int sector_number,sector_number1;
     const char *const delim=" ";
     int physical_block_num,dur_count=0;//the index of char array which store duration of each block
@@ -29,14 +31,15 @@ int main(){
 		wb->block[i]=malloc(sizeof(buf));
 		wb->block[i]->ppn=-1;
 		wb->block[i]->duration=0;
-		wb->block[i]->buffer_or_not=0;
+		wb->block[i]->buffer_or_not=-1;
+		wb->block[i]->physical_block_number=-1;
 	}
     int b=0,b1=0;
     char dur[1184][100]={0},temp[100];
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
     FILE *a=fopen("trace(run1_Postmark_2475).txt","r");
     while (fgets(buffer,1024,a)!=NULL)
-    {
+    {		
         substr=strtok(buffer,delim);//first number
         substr=strtok(NULL,delim);//second num
         substr=strtok(NULL,delim);//third...sector_num
@@ -46,54 +49,54 @@ int main(){
             substr1=strtok(buffer1,delim);//first...sector_num
             sector_number1=atoi(substr1);
             if(sector_number==sector_number1){
-                substr1=strtok(NULL,delim);//second---physical_block_number            
-                if(wb->block[count]->ppn<63){  //ppn=62時進入，此時會將新的data寫滿ppn 63                 
-                    for(i=0;i<count;i++){
+                substr1=strtok(NULL,delim);//second---physical_block_number   
+                if(wb->block[count]->ppn<63){  //ppn=62時進入，此時會將新的data寫滿ppn 63   
+                    for(i=0;i<=count;i++){//the index,count is the block too 
                         b1=1;
-                        if(atoi(substr1)==wb->block[count]->physical_block_number){//write in same block
-							if(sector_number==
-                            wb->block[count]->ppn++;
-                            b1=2;
-                        }                      
+                        if(atoi(substr1)==wb->block[i]->physical_block_number){//write in same block
+							if(wb->block[i]->sector_num!=sector_number1)//judge whether new req hit the same page.
+								wb->block[i]->ppn++;
+							b1=2;
+							break;														
+                        }
                     }
+                    
                     if(b1==1){//進入for loop但沒進入condition----add a new block
                       count++;
-                      if(count==1184){
+                      if(count>=1184){
                            //kick block
-                           int min=10000,min_block_num,index;
-                           int tmp_block_num;
-                           float tmp_benefit;
+                           int min_block_num,block_index; 
+                           float min=10000;                         
                            tmp_block_num=atoi(substr1);//current block number
                            substr1=strtok(NULL,delim);//third...benefit
                            tmp_benefit=atof(substr1);//current block benefit
                            //find min benefit block in write buffer
                         for(k=0;k<count;k++){
-                          if (min>wb->block[k]->benefit){
+                          if (min>wb->block[k]->benefit && wb->block[k]->benefit!=0){
                             min=wb->block[k]->benefit;
-                            index=k;
+                            block_index=k;
                             min_block_num=wb->block[k]->physical_block_number;
                           }
-                        }
+                        }                        
                         //min=min benefit block in write buffer
                         if(tmp_benefit>min){
                           //kick min block from write buffer
-                          printf("wwwwws\n");
-                          sprintf(dur[dur_count],"%d",min_block_num);                      
+                          sprintf(dur[dur_count],"%d",min_block_num);                   
                           strcat(dur[dur_count]," ");
-                          sprintf(temp,"%d",wb->block[index]->duration);
+                          sprintf(temp,"%d",wb->block[block_index]->duration);
                           strcat(dur[dur_count],temp);
                           dur_count++;
-                          wb->block[index]->physical_block_number=-1;                    
-                          wb->block[index]->duration=0;
-                          wb->block[index]->free_block++;
-                          wb->block[index]->ppn=-1;
-                          count--;
+                          wb->block[block_index]->physical_block_number=-1;                    
+                          wb->block[block_index]->duration=0;
+                          wb->block[block_index]->free_block++;
+                          wb->block[block_index]->ppn=-1;    
+                          wb->block[block_index]->benefit=0;
                           //current request write into block.....create new block
-                          wb->block[count]->physical_block_number=tmp_block_num;
-                          wb->block[count]->buffer_or_not=1;
-                          wb->block[count]->benefit=tmp_benefit;
-                          wb->block[count]->ppn++;
-                          wb->block[count]->free_block--;
+                          wb->block[block_index]->physical_block_number=tmp_block_num;
+                          wb->block[block_index]->buffer_or_not=1;
+                          wb->block[block_index]->benefit=tmp_benefit;
+                          wb->block[block_index]->ppn++;
+                          wb->block[block_index]->free_block--;
                         }
                         else{
                           //ignore current request...do nothing
@@ -102,20 +105,20 @@ int main(){
                           wb->block[count]->buffer_or_not=0;                      
                         }
                       }
-                      else{  // if count<1184   .....create new block                
+                      else if(count<1184){  // if count<1184   .....create new block                
 						  wb->block[count]->buffer_or_not=1;
 						  wb->block[count]->ppn++;
 						  wb->block[count]->physical_block_number=atoi(substr1);
 						  substr1=strtok(NULL,delim);//third...benefit
 						  wb->block[count]->benefit=atof(substr1);
 						  wb->free_block--;  
-						  wb->block[count]->sector_num=sector_num;
-				  }                                       
+						  wb->block[count]->sector_num=sector_number;
+				  }	  								
                     }
                     ///****************/////
                     if(b==1){//第二個request到來時，會進入.....此時count還沒更改
                         if(atoi(substr1)==wb->block[count]->physical_block_number){//write in same block
-							if(wb->block[count]->sector_num!=sector_num)
+							if(wb->block[count]->sector_num!=sector_number)
 								wb->block[count]->ppn++;
                         }
                         else{
@@ -126,7 +129,7 @@ int main(){
                             wb->block[count]->benefit=atof(substr1); 
                             wb->block[count]->ppn++;                         
                             wb->free_block--;
-                            wb->block[count]->sector_num=sector_num;
+                            wb->block[count]->sector_num=sector_number;
                             wb->block[count]->buffer_or_not=1;
                             b=0;
                         }
@@ -137,7 +140,7 @@ int main(){
                         substr1=strtok(NULL,delim);//third
                         wb->block[0]->benefit=atof(substr1);
                         wb->block[count]->ppn++;
-                        wb->block[count]->sector_num=sector_num;
+                        wb->block[count]->sector_num=sector_number;
                         wb->free_block--;
                         wb->block[count]->buffer_or_not=1;
                         b=1;
@@ -148,16 +151,16 @@ int main(){
                 else{//block full.....ppn=63進入，此時已滿，無法再寫
                     wb->block[count]->full=1;
                 }
-              int j,k,min=10000;			      
-              for(j=0;j<count;j++)
-                wb->block[j]->duration++;    
+				for(j=0;j<count;j++)
+					wb->block[j]->duration++;		
             }
+		
 
         }
             fclose(a1);
     }
     fclose(a);
-    /*
+    
     FILE *result=fopen("duration.txt","a+");
     for(i=0;i<1184;i++){
       if(dur[i]!="0")
@@ -169,6 +172,6 @@ int main(){
       if(wb->block[i]->ppn!=-1)
         fprintf(result1,"%d %d\n",wb->block[i]->physical_block_number,wb->block[i]->buffer_or_not);
     }
-    fclose(result1);*/
+    fclose(result1);
     return 0;
 }
