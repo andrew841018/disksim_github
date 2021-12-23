@@ -54,7 +54,7 @@ int main(){
                 for(j=0;j<count;j++){
 					if(wb->block[j]->ppn>=63){
 						b=1;
-						full_block_num=j;
+						full_block_num=j;//which block is full
 					}
 				}  
                 if(b==0){  //ppn=62時進入，此時會將新的data寫滿ppn 63   
