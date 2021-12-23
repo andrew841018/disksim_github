@@ -24,7 +24,7 @@ int main(){
     float tmp_benefit;
     int sector_number,sector_number1;
     const char *const delim=" ";
-    int physical_block_num,dur_count=0;//the index of char array which store duration of each block
+    int physical_block_num,dur_count=0;//dur_count is the index of duration array, it mean which lpn 
     wb=malloc(sizeof(buf));
     wb->free_block=40;	
     for(i=0;i<10000;i++){
@@ -32,9 +32,10 @@ int main(){
 		wb->block[i]->ppn=-1;
 		wb->block[i]->duration=0;
 		wb->block[i]->buffer_or_not=-1;
+		wb->block[i]->full=0;
 		wb->block[i]->physical_block_number=-1;
 	}
-    int b1=0;
+    int b1=0,b=0,full_block_num;
     char dur[10000][100]={0},temp[100]={0};
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
     FILE *a=fopen("trace(run1_Postmark_2475).txt","r");
@@ -49,11 +50,17 @@ int main(){
             substr1=strtok(buffer1,delim);//first...sector_num
             sector_number1=atoi(substr1);
             if(sector_number==sector_number1){
-                substr1=strtok(NULL,delim);//second---physical_block_number   
-                if(wb->block[count]->ppn<63){  //ppn=62時進入，此時會將新的data寫滿ppn 63   
+                substr1=strtok(NULL,delim);//second---physical_block_number 
+                for(j=0;j<count;j++){
+					if(wb->block[j]->ppn>=63){
+						b=1;
+						full_block_num=j;
+					}
+				}  
+                if(b==0){  //ppn=62時進入，此時會將新的data寫滿ppn 63   
                     for(i=0;i<count;i++){
                         b1=1;
-                        if(atoi(substr1)==wb->block[i]->physical_block_number){//write in same block
+                        if(atoi(substr1)==wb->block[i]->physical_block_number && wb->block[i]->full==0){//write in same block
 							if(wb->block[i]->sector_num!=sector_number1)//judge whether new req hit the same page.
 								wb->block[i]->ppn++;
 							b1=2;
@@ -126,7 +133,7 @@ int main(){
                     }                                                  
                 }
                 else{//block full.....ppn=63進入，此時已滿，無法再寫
-                    wb->block[count-1]->full=1;
+                    wb->block[full_block_num]->full=1;
                 }
 				for(j=0;j<count;j++)
 					wb->block[j]->duration++;		
