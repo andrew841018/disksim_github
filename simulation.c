@@ -37,6 +37,7 @@ int main(){
 	}
     int b1=0,b=0,full_block_num;
     char dur[10000][100]={0},temp[100]={0};
+    int sector_count=0,block_count=0;
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
     FILE *a=fopen("trace(run1_Postmark_2475).txt","r");
     while (fgets(buffer,1024,a)!=NULL)
@@ -50,25 +51,33 @@ int main(){
             substr1=strtok(buffer1,delim);//first...sector_num
             sector_number1=atoi(substr1);
             if(sector_number==sector_number1){
+				sector_count++;
                 substr1=strtok(NULL,delim);//second---physical_block_number 
                 for(j=0;j<count;j++){
+					b=0;
 					if(wb->block[j]->ppn>=63){
 						b=1;
 						full_block_num=j;//which block is full
+						break;
 					}
 				}  
-                if(b==0){  //ppn=62時進入，此時會將新的data寫滿ppn 63   
+                if(b==0){  //ppn=62時進入，此時會將新的data寫滿ppn 63 
                     for(i=0;i<count;i++){
                         b1=1;
                         if(atoi(substr1)==wb->block[i]->physical_block_number && wb->block[i]->full==0){//write in same block
 							if(wb->block[i]->sector_num!=sector_number1)//judge whether new req hit the same page.
 								wb->block[i]->ppn++;
 							b1=2;
+							block_count++;
+							printf("a:%d %d\n",sector_count,block_count);
 							break;														
                         }
+                        printf("b:%d %d\n",sector_count,block_count);
                     }
                     if(b1==0){//first time will enter here.
 						count++;
+						block_count++;
+						printf("c:%d %d\n",sector_count,block_count);
 						wb->block[count-1]->buffer_or_not=1;
 						wb->block[count-1]->ppn++;
 						wb->block[count-1]->physical_block_number=atoi(substr1);
@@ -79,6 +88,8 @@ int main(){
 					}
                     if(b1==1){//進入for loop但沒進入condition----add a new block
                       count++;
+                      block_count++;
+                      printf("d:%d %d\n",sector_count,block_count);
                       if(wb->free_block==0){
                            //kick block
                            int min_block_num,block_index; 
@@ -116,7 +127,6 @@ int main(){
                         }
                         else{
                           //ignore current request...do nothing
-                          //此時count=1184 
                           wb->block[count-1]->physical_block_number=tmp_block_num;
                           wb->block[count-1]->buffer_or_not=0;                      
                         }
@@ -143,17 +153,19 @@ int main(){
     }
     fclose(a);
     
+    printf("detail:%d %d\n",sector_count,block_count);
+    /*
     FILE *result=fopen("duration.txt","a+");
-    for(i=0;i<10000;i++){
+    for(i=0;i<=dur_count;i++){
       if(dur[i]!="0")
         fprintf(result,"%s\n",dur[i]);
     }
     fclose(result);
     FILE *result1=fopen("buffer_or_not.txt","a+");
     for(i=0;i<count;i++){
-      if(wb->block[i]->ppn!=-1)
+      if(wb->block[i]->physical_block_number!=-1)
         fprintf(result1,"%d %d\n",wb->block[i]->physical_block_number,wb->block[i]->buffer_or_not);
     }
-    fclose(result1);
+    fclose(result1);*/
     return 0;
 }
