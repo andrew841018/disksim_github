@@ -4,7 +4,7 @@
 #include <errno.h>
 typedef struct write_buffer
 {
-  struct write_buffer *block[10000];//write buffer size=1184 blocks, 超過1183，用來存放那些不會被放入write buffer的資訊
+  struct write_buffer *block[20000];//write buffer size=1184 blocks, 超過1183，用來存放那些不會被放入write buffer的資訊
   int physical_block_number;
   int ppn;//total 64 page...each block ppn from 0~63
   int full;//0..not full,1...is full         
@@ -27,7 +27,7 @@ int main(){
     int physical_block_num,dur_count=0;//dur_count is the index of duration array, it mean which lpn 
     wb=malloc(sizeof(buf));
     wb->free_block=40;	
-    for(i=0;i<10000;i++){
+    for(i=0;i<20000;i++){
 		wb->block[i]=malloc(sizeof(buf));
 		wb->block[i]->ppn=-1;
 		wb->block[i]->duration=0;
@@ -54,11 +54,8 @@ int main(){
 				sector_count++;
                 substr1=strtok(NULL,delim);//second---physical_block_number 
                 for(j=0;j<count;j++){
-					b=0;
 					if(wb->block[j]->ppn>=63){
-						b=1;
-						full_block_num=j;//which block is full
-						break;
+						wb->block[j]->full=1;
 					}
 				}  
                 if(b==0){  //ppn=62時進入，此時會將新的data寫滿ppn 63 
@@ -69,15 +66,15 @@ int main(){
 								wb->block[i]->ppn++;
 							b1=2;
 							block_count++;
-							printf("a:%d %d\n",sector_count,block_count);
+							//printf("a:%d %d\n",sector_count,block_count);
 							break;														
                         }
-                        printf("b:%d %d\n",sector_count,block_count);
+                     //   printf("b:%d %d\n",sector_count,block_count);
                     }
                     if(b1==0){//first time will enter here.
 						count++;
 						block_count++;
-						printf("c:%d %d\n",sector_count,block_count);
+						//printf("c:%d %d\n",sector_count,block_count);
 						wb->block[count-1]->buffer_or_not=1;
 						wb->block[count-1]->ppn++;
 						wb->block[count-1]->physical_block_number=atoi(substr1);
@@ -89,7 +86,7 @@ int main(){
                     if(b1==1){//進入for loop但沒進入condition----add a new block
                       count++;
                       block_count++;
-                      printf("d:%d %d\n",sector_count,block_count);
+                      //printf("d:%d %d\n",sector_count,block_count);
                       if(wb->free_block==0){
                            //kick block
                            int min_block_num,block_index; 
@@ -125,7 +122,8 @@ int main(){
                           wb->block[block_index]->ppn++;
                           wb->free_block--;
                         }
-                        else{
+                        else{//if block size still not large enough,then create a new array
+							//store ignored data 
                           //ignore current request...do nothing
                           wb->block[count-1]->physical_block_number=tmp_block_num;
                           wb->block[count-1]->buffer_or_not=0;                      
@@ -142,9 +140,6 @@ int main(){
 				  }	  								
                     }                                                  
                 }
-                else{//block full.....ppn=63進入，此時已滿，無法再寫
-                    wb->block[full_block_num]->full=1;
-                }
 				for(j=0;j<count;j++)
 					wb->block[j]->duration++;		
             }
@@ -153,8 +148,7 @@ int main(){
     }
     fclose(a);
     
-    printf("detail:%d %d\n",sector_count,block_count);
-    /*
+    
     FILE *result=fopen("duration.txt","a+");
     for(i=0;i<=dur_count;i++){
       if(dur[i]!="0")
@@ -166,6 +160,6 @@ int main(){
       if(wb->block[i]->physical_block_number!=-1)
         fprintf(result1,"%d %d\n",wb->block[i]->physical_block_number,wb->block[i]->buffer_or_not);
     }
-    fclose(result1);*/
+    fclose(result1);
     return 0;
 }
