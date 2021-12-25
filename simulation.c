@@ -12,6 +12,7 @@ typedef struct write_buffer
   int free_block;//free block
   int duration;
   int buffer_or_not;
+  int sector_index;
   int sector_num[64];
 }buf;
 int main(){
@@ -33,6 +34,7 @@ int main(){
 		wb->block[i]->duration=0;
 		wb->block[i]->buffer_or_not=-1;
 		wb->block[i]->full=0;
+		wb->block[i]->sector_index=0;
 		wb->block[i]->physical_block_number=-1;
 		for(j=0;j<64;j++){
 			wb->block[i]->sector_num[j]=-1;
@@ -71,17 +73,16 @@ int main(){
 							}
 							if(b2==0){
 								wb->block[i]->ppn++;
-								page_count++;
-								wb->block[i]->sector_num[page_count]=sector_number;
+								wb->block[i]->sector_index++;
+								wb->block[i]->sector_num[wb->block[i]->sector_index]=sector_number;
 							}						
 							b1=2;
 							break;															
                         }
                     }
                     if(b1==0){//first time will enter here.
-						count++;
+						count++;						
 						kick_count++;
-						//printf("c:%d %d\n",sector_count,block_count);
 						wb->block[count-1]->buffer_or_not=1;
 						wb->block[count-1]->ppn++;
 						wb->block[count-1]->physical_block_number=atoi(substr1);
@@ -92,10 +93,8 @@ int main(){
 					}
                     if(b1==1){//進入for loop但沒進入condition----add a new block
                       count++;
-                      //printf("d:%d %d\n",sector_count,block_count);
                       if(wb->free_block==0){
-                           //kick block
-                           kick_count++;
+                           //kick block                          
                            int min_block_num,block_index; 
                            float min=10000;   
                            tmp_block_num=atoi(substr1);//current block number
@@ -125,6 +124,7 @@ int main(){
                           wb->block[block_index]->ppn=-1;    
                           wb->block[block_index]->benefit=0;
                           //current request write into block.....create new block
+                          kick_count++;
                           wb->block[block_index]->physical_block_number=tmp_block_num;
                           wb->block[block_index]->buffer_or_not=1;
                           wb->block[block_index]->benefit=tmp_benefit;
@@ -148,14 +148,10 @@ int main(){
 						  wb->block[count-1]->physical_block_number=atoi(substr1);
 						  substr1=strtok(NULL,delim);//third...benefit
 						  wb->block[count-1]->benefit=atof(substr1);
-						  wb->free_block--; 
-					
+						  wb->free_block--; 					
 				  }	  								
                     }                                                  
-                }
-               
-					
-                
+                }              					     
 				for(j=0;j<count;j++)
 					wb->block[j]->duration++;		
             }
@@ -163,20 +159,27 @@ int main(){
             fclose(a1);
     }
     fclose(a);
+    printf("count:%d\n",count);
+    printf("block number:%d\n",wb->block[count-1]->physical_block_number);
+    int real_buffer_count=0,real_not_buffer_count=0;
     for(i=0;i<count;i++){
-		if(wb->block[i]->buffer_or_not==1)
+		if(wb->block[i]->buffer_or_not==1){
 			kick_count--;
-		else
+			real_buffer_count++;
+		}		
+		else if(wb->block[i]->buffer_or_not==0){
 			ignore_count--;
+			real_not_buffer_count++;
+		}	
 			}
 		if(kick_count!=0)
-			printf("%d\n",kick_count);
+			printf("%d %d\n",kick_count,real_buffer_count);
 		if(ignore_count!=0)
-			printf("%d\n",ignore_count);
+			printf("%d %d\n",ignore_count,real_not_buffer_count);//-199...mean ignore more.
 		else if(ignore_count==0 && kick_count==0)
 			printf("successful \n");
-    
-   /* FILE *result=fopen("duration.txt","a+");
+    /*
+    FILE *result=fopen("duration.txt","a+");
     for(i=0;i<=dur_count;i++){
       if(dur[i]!="0")
         fprintf(result,"%s\n",dur[i]);
