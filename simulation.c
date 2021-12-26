@@ -125,15 +125,13 @@ int main(){
                           wb->free_block--;
                         }
                         else{
-                          //ignore current request...do nothing
-							count++;
+                          //ignore current request...do nothing						
 							int ignore=0;
 							for(k=40;k<count;k++){
-								//printf("%d %d\n",k,count);
-								//sleep(1);
 								if(wb->block[k]->physical_block_number==tmp_block_num)
 									ignore=1;
 							}
+							count++;
 							//count>41 mean:after entrer here once,for loop will execute.
 							if(ignore==0){
 								wb->block[count-1]->physical_block_number=tmp_block_num;
