@@ -39,10 +39,11 @@ int main(){
 		}
 	}
     int b1=0,b=0,b2=0,full_block_num,page_count=0;
-    char dur[10000][100]={0},temp[100]={0};
+    char dur[50000][100]={0},temp[100]={0};
     int sector_count=0,block_count=0;
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
+    FILE *result=fopen("duration.txt","a+");
     while (fgets(buffer,1024,a)!=NULL)
     {		
         substr=strtok(buffer,delim);//first number
@@ -113,8 +114,9 @@ int main(){
                         sprintf(dur[dur_count],"%d",min_block_num);                   
                         strcat(dur[dur_count]," ");
                         sprintf(temp,"%d",wb->block[block_index]->duration);
-                        strcat(dur[dur_count],temp);                       
-                        dur_count++;                                             
+                        strcat(dur[dur_count],temp);
+                        fprintf(result,"%s\n",dur[dur_count]);                                        
+                        //dur_count++;                                             
                         for(i=0;i<64;i++)
 							wb->block[block_index]->sector_num[i]=-1;                      
                         wb->block[block_index]->physical_block_number=-1;                    
@@ -142,7 +144,6 @@ int main(){
         }
             fclose(a1);
     }
-    
     fclose(a);/*
     printf("count:%d\n",count);
     printf("block number:%d\n",wb->block[count-1]->physical_block_number);
@@ -151,7 +152,7 @@ int main(){
     for(i=0;i<=dur_count;i++){
       if(dur[i]!="0")
         fprintf(result,"%s\n",dur[i]);
-    }
-    fclose(result);*/
+    }*/
+    fclose(result);
     return 0;
 }
