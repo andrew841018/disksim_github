@@ -3583,17 +3583,18 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
 	lpn=ssd_logical_pageno(blkno,currdisk);
 	unsigned int physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
-	int i;
+	int i,b=0;
 	for(i=0;i<1000000;i++){
 		if(sector_number[i]==blkno &&  block_number[i]==physical_node_num){
 			write_count[physical_node_num]++;
+			b=1;
 		}
-		else{
-			sector_number[req_counting]=curr->blkno;
-			block_number[req_counting]=physical_node_num;
-			req_counting++;
-			write_count[physical_node_num]++;
-		}
+	}
+	if(b==0){
+		sector_number[req_counting]=curr->blkno;
+		block_number[req_counting]=physical_node_num;
+		req_counting++;
+		write_count[physical_node_num]++;
 	}
 	
   while(count > 0)
