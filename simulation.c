@@ -115,7 +115,10 @@ int main(){
                         strcat(dur[dur_count]," ");
                         sprintf(temp,"%d",wb->block[block_index]->duration);
                         strcat(dur[dur_count],temp);
-                        fprintf(result,"%s\n",dur[dur_count]);                                        
+                        fprintf(result,"%s\n",dur[dur_count]);   
+                        test++;  
+                        if(test % 1000==0)                    
+							printf("%d\n",test);               
                         //dur_count++;                                             
                         for(i=0;i<64;i++)
 							wb->block[block_index]->sector_num[i]=-1;                      
@@ -128,7 +131,6 @@ int main(){
                         wb->block[block_index]->benefit=tmp_benefit;
                         wb->block[block_index]->sector_num[0]=sector_number;
                         wb->free_block--; 
-						sleep(1);
                       }
                       else if(wb->free_block>0){  // create new block  
 						  count++;            
@@ -144,7 +146,9 @@ int main(){
         }
             fclose(a1);
     }
-    fclose(a);/*
+    fclose(a); 
+    printf("final test:%d\n",test);
+    /*
     printf("count:%d\n",count);
     printf("block number:%d\n",wb->block[count-1]->physical_block_number);
     int real_buffer_count=0,real_not_buffer_count=0;
