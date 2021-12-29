@@ -1600,6 +1600,7 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
+int read_counting=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1656,7 +1657,7 @@ static void ssd_media_access_request_element (ioreq_event *curr)
           */
 
    assert(curr->flags&READ);
-   
+   read_counting++;
    curr->tempint2 = count;//sh- record "parent's total fs-block count"
 
    while (count != 0) {
@@ -3547,14 +3548,14 @@ int req_counting=0;
 void A_write_to_txt(int g){
 	int i;
 	char tmp[100]={0};
-	float benefit;
+	double benefit;
 	FILE *a=fopen("a+.txt","a+");	
 	for(i=0;i<1000000;i++){
 		if(sector_number[i]!=0 && block_number[i]!=0){
 			if(write_count[block_number[i]]!=0){
 				benefit=(float)write_count[i]/64;
 				benefit/=64;
-				sprintf(tmp,"%d %d %f",sector_number[i],block_number[i],benefit);
+				sprintf(tmp,"%d %d %.10f",sector_number[i],block_number[i],benefit);
 				fprintf(a,"%s\n",tmp);			
 			}
 			
@@ -3582,10 +3583,19 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
 	lpn=ssd_logical_pageno(blkno,currdisk);
 	unsigned int physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
-	sector_number[req_counting]=curr->blkno;
-	block_number[req_counting]=physical_node_num;
-	req_counting++;
-	write_count[physical_node_num]++;
+	int i;
+	for(i=0;i<1000000;i++){
+		if(sector_number[i]==blkno &&  block_number[i]==physical_node_num){
+			write_count[physical_node_num]++;
+		}
+		else{
+			sector_number[req_counting]=curr->blkno;
+			block_number[req_counting]=physical_node_num;
+			req_counting++;
+			write_count[physical_node_num]++;
+		}
+	}
+	
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -5941,6 +5951,11 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   A_write_to_txt(1);
+  FILE *info=fopen("info.txt","a+");
+  char buf[100]={0};
+  sprintf(buf,"%d",req_check);
+  fprintf(info,"%s\n",buf);
+  fclose(info);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);

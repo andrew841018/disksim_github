@@ -6,8 +6,8 @@ typedef struct _a{
 }a;
 int main(){
 	float benefit;
-	benefit=(float)5/64;
-	benefit/=64;
-	printf("%f\n",benefit);
+	benefit=(float)5/3040;
+	benefit/=4500;
+	printf("%.19f\n",benefit);
 	return 0;
 }
