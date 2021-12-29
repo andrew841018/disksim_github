@@ -272,7 +272,7 @@ typedef struct ioreq_ev {
    struct ioreq_ev *prev;
    int    bcount;
    int    blkno;
-   u_int  flags;//2->write   1->read
+   u_int  flags;
    u_int  busno;
    u_int  slotno;
    int    devno;

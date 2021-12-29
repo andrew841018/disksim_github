@@ -41,15 +41,19 @@ int main(){
     int b1=0,b=0,b2=0,full_block_num,page_count=0;
     char dur[50000][100]={0},temp[100]={0};
     int sector_count=0,block_count=0;
+    int req_type;
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
     FILE *result=fopen("duration.txt","a+");
     while (fgets(buffer,1024,a)!=NULL)
     {		
-        substr=strtok(buffer,delim);//first number
-        substr=strtok(NULL,delim);//second num
+        substr=strtok(buffer,delim);//time
+        substr=strtok(NULL,delim);//disk_number
         substr=strtok(NULL,delim);//third...sector_num
         sector_number=atoi(substr);
+        substr=strtok(NULL,delim);//total sector
+        substr=strtok(NULL,delim);//req_type
+        req_type=atoi(substr);
         FILE *a1=fopen("collected data(from disksim)/secotr and physical_block_num and benefit.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//first...sector_num
@@ -116,10 +120,9 @@ int main(){
                         sprintf(temp,"%d",wb->block[block_index]->duration);
                         strcat(dur[dur_count],temp);
                         fprintf(result,"%s\n",dur[dur_count]);   
-                        test++;  
+                        /*test++;  
                         if(test % 1000==0)                    
-							printf("%d\n",test);               
-                        //dur_count++;                                             
+							printf("%d\n",test); */              
                         for(i=0;i<64;i++)
 							wb->block[block_index]->sector_num[i]=-1;                      
                         wb->block[block_index]->physical_block_number=-1;                    
@@ -143,6 +146,9 @@ int main(){
                     }                                                  
                 }              					     		
             }
+            else if(req_type==0){
+				printf("%d\n",sector_number);
+			}
         }
             fclose(a1);
     }

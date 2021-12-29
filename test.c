@@ -5,19 +5,9 @@ typedef struct _a{
 	int l;
 }a;
 int main(){
-	char *substr=NULL,buffer[1024];
-	const char *const delim=" ";
-	int sector_number,i=55,k=22;
-	char a[1000][100]={0},b[100];
-	fclose(i);
-	for(i=0;i<40;i++)
-		b[100]=5;
-/*	FILE *a=fopen("run1_Postmark_2475.txt","r");	
-	while (fgets(buffer,1024,a)!=NULL){
-		substr=(char*)strtok(buffer,delim);
-		substr=(char*)strtok(NULL,delim);//second num
-        	substr=(char*)strtok(NULL,delim);//third...sector_num
-//        	sector_number=atoi(substr);*/
-//}
+	float benefit;
+	benefit=(float)5/64;
+	benefit/=64;
+	printf("%f\n",benefit);
 	return 0;
 }
