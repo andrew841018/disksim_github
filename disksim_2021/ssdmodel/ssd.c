@@ -7,6 +7,7 @@
 #include "ssd_clean.h"
 #include "ssd_gang.h"
 #include "ssd_init.h"
+#include "disksim_global.h"
 #include "syssim_driver.h"
 #include "modules/ssdmodel_ssd_param.h"
 #include <stdio.h>
@@ -3543,6 +3544,7 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 } 
 int sector_number[1000000]={0};
 int block_number[1000000]={0};
+int sector_count[1000000]={0};
 int write_count[1000000]={0};
 int req_counting=0;
 void A_write_to_txt(int g){
@@ -3570,32 +3572,28 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   unsigned int lpn,blkno,count,scount; //sector count
   ssd_t *currdisk;
   currdisk = getssd (curr->devno);
-  //page_RW_count->trace_time store the trace enter time,you can use it to match with tace file req.
   blkno = curr->blkno;
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
-  FILE *a1=fopen("a.txt","a+");
-  fprintf(a1,"time:%.6f\n",page_RW_count->trace_time);
-  fclose(a1);
-  /*add page to buffer cache*/
-  // fprintf(myoutput3, "////////////////////Hint queue Start/////////////////\n");
-  // for(h=0;h<global_HQ_size;h++)
-  // {
-  //   fprintf(myoutput3, "global_HQ:%d\n", global_HQ[h]);
-  // }
-  // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
 	lpn=ssd_logical_pageno(blkno,currdisk);
 	unsigned int physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
 	int i,b=0;
 	for(i=0;i<1000000;i++){
 		if(sector_number[i]==blkno){
+			sector_count[blkno]++;//index is sector number
 			write_count[block_number[i]]++;
+			b=1;
+		}
+		if(block_number[i]==physical_node_num){
+			sector_count[sector_number[i]]++;
+			write_count[i]++;
 			b=1;
 		}
 	}
 	if(b==0){
 		sector_number[req_counting]=curr->blkno;
+		sector_count[curr->blkno]++;
 		block_number[req_counting]=physical_node_num;
 		req_counting++;
 		write_count[physical_node_num]++;

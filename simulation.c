@@ -64,11 +64,16 @@ int main(){
             sector_number1=atoi(substr1);
             while(fgets(time_buf,1024,time)!=NULL){
 				subtime=strtok(time_buf,delim1);
+				subtime=strtok(NULL,delim1);			
 				req_time=atof(subtime);
 				if(trace_time==req_time)
 					time_b=1;
-			}
+				printf("%f %f\n",trace_time,req_time);
+				sleep(1);
+			}			
+			
             if(sector_number==sector_number1 && time_b==1){
+				
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
 						wb->block[j]->duration++;
@@ -105,7 +110,7 @@ int main(){
 						wb->free_block--;
 						wb->block[count-1]->sector_num[0]=sector_number; 													
 					}
-                    if(b1==1){//進入for loop但沒進入condition----add a new block                    
+                    if(b1==1){//進入for loop但沒進入condition----add a new block 
                       if(wb->free_block==0){
 						   
                            //kick block                          
@@ -121,9 +126,7 @@ int main(){
                             block_index=k;
                             min_block_num=wb->block[k]->physical_block_number;
                           }
-                        }                  
-                         
-                            
+                        }                                                                     
                         //min=min benefit block in write buffer
                           //kick min block from write buffer  
                         sprintf(dur[dur_count],"%d",min_block_num);                   
