@@ -19,12 +19,13 @@ int main(){
     int count=0,i,k,j,kick_count=0;
     buf *wb;
     int test=0;
-    char buffer[1024],buffer1[1024];
-    char *substr=NULL,*substr1=NULL;
+    char buffer[1024],buffer1[1024],time_buf[1024];
+    char *substr=NULL,*substr1=NULL,subtime=NULL;
     int tmp_block_num;
     float tmp_benefit;
     int sector_number,sector_number1;
     const char *const delim=" ";
+    const char *const delim1=":";
     int physical_block_num,dur_count=0;//dur_count is the index of duration array, it mean which lpn 
     wb=malloc(sizeof(buf));
     wb->free_block=40;	
@@ -41,24 +42,31 @@ int main(){
     int b1=0,b=0,b2=0,full_block_num,page_count=0;
     char dur[50000][100]={0},temp[100]={0};
     int sector_count=0,block_count=0;
-    int req_type;
+    double trace_time,req_time;
+    int time_b=0;
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
     FILE *result=fopen("duration.txt","a+");
+    FILE *time=fopen("collected data(from disksim)/trace_time.txt","r");
     while (fgets(buffer,1024,a)!=NULL)
     {		
         substr=strtok(buffer,delim);//time
+        trace_time=atof(substr);
         substr=strtok(NULL,delim);//disk_number
         substr=strtok(NULL,delim);//third...sector_num
         sector_number=atoi(substr);
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
-        req_type=atoi(substr);
         FILE *a1=fopen("collected data(from disksim)/sector and physical block number and benefit.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//first...sector_num
             sector_number1=atoi(substr1);
-            if(sector_number==sector_number1 && req_type==0){
+            while(fgets(time_buf,1024,time)!=NULL){
+				subtime=strtok(time_buf,delim1);
+				trace_time=atof(subtime);
+				
+			}
+            if(sector_number==sector_number1){
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
 						wb->block[j]->duration++;

@@ -23,9 +23,9 @@ syssim_driver.o: syssim_driver.c /usr/include/stdc-predef.h \
  /usr/include/i386-linux-gnu/bits/time.h \
  /usr/include/i386-linux-gnu/sys/sysmacros.h \
  /usr/include/i386-linux-gnu/bits/pthreadtypes.h /usr/include/alloca.h \
- /usr/include/i386-linux-gnu/bits/stdlib-float.h \
- /usr/include/i386-linux-gnu/sys/stat.h \
- /usr/include/i386-linux-gnu/bits/stat.h /usr/include/math.h \
+ /usr/include/i386-linux-gnu/bits/stdlib-float.h disksim_global.h \
+ disksim_rand48.h disksim_malloc.h disksim_bitstring.h inline.h \
+ /usr/include/string.h /usr/include/xlocale.h /usr/include/math.h \
  /usr/include/i386-linux-gnu/bits/math-vector.h \
  /usr/include/i386-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/i386-linux-gnu/bits/huge_val.h \
@@ -34,10 +34,12 @@ syssim_driver.o: syssim_driver.c /usr/include/stdc-predef.h \
  /usr/include/i386-linux-gnu/bits/inf.h \
  /usr/include/i386-linux-gnu/bits/nan.h \
  /usr/include/i386-linux-gnu/bits/mathdef.h \
- /usr/include/i386-linux-gnu/bits/mathcalls.h \
+ /usr/include/i386-linux-gnu/bits/mathcalls.h disksim_assertlib.h \
+ /usr/include/assert.h disksim_reqflags.h \
+ /usr/include/i386-linux-gnu/sys/stat.h \
+ /usr/include/i386-linux-gnu/bits/stat.h \
  /usr/include/i386-linux-gnu/sys/time.h /usr/include/unistd.h \
  /usr/include/i386-linux-gnu/bits/posix_opt.h \
  /usr/include/i386-linux-gnu/bits/environments.h \
  /usr/include/i386-linux-gnu/bits/confname.h /usr/include/getopt.h \
- /usr/include/assert.h syssim_driver.h disksim_interface.h \
- disksim_reqflags.h disksim_rand48.h
+ syssim_driver.h disksim_interface.h disksim_reqflags.h disksim_rand48.h

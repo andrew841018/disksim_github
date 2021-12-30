@@ -73,13 +73,13 @@ one block=64 pages
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <disksim_global.h>
 #include <sys/stat.h>
 #include <math.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <assert.h>
 #include <sys/time.h>
-       
 #include "syssim_driver.h"
 #include "disksim_interface.h"
 #include "disksim_rand48.h"
@@ -1898,7 +1898,6 @@ int main(int argc, char *argv[])
       req_RW_count = rw;
       RW_count* prw = (RW_count *)malloc( sizeof( RW_count ) );//分配空間
       page_RW_count = prw;
-    
     while(fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W)!= EOF) //接收新的request
     //while(myreqcount<reqamount)
     {
@@ -1914,6 +1913,8 @@ int main(int argc, char *argv[])
       // printf("%f\n",dirty_count );
       //printf("dirty_count=%f\n",dirty_count );
       CacheTime=time;
+      page_RW_count->trace_time=time;
+      //next two line add by andrew
       //fprintf(fwrite, "^now=%lf\n", now);
       sum_req_time =  sum_req_time + (time - perv_time);
       

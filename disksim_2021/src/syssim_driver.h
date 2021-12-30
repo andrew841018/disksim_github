@@ -82,6 +82,7 @@ typedef struct RW_count
 {
   unsigned page_num; // number flush array offset
   unsigned r_count;
+  double trace_time;
   unsigned w_count;
 } RW_count;
 typedef struct kick_req

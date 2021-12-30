@@ -1,0 +1,1 @@
+ ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/Dropbox/backup_disksim/run1_Postmark_2475.txt' 1 262144

@@ -3570,10 +3570,14 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   unsigned int lpn,blkno,count,scount; //sector count
   ssd_t *currdisk;
   currdisk = getssd (curr->devno);
+  //page_RW_count->trace_time store the trace enter time,you can use it to match with tace file req.
   blkno = curr->blkno;
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
+  FILE *a1=fopen("a.txt","a+");
+  fprintf(a1,"time:%.6f\n",page_RW_count->trace_time);
+  fclose(a1);
   /*add page to buffer cache*/
   // fprintf(myoutput3, "////////////////////Hint queue Start/////////////////\n");
   // for(h=0;h<global_HQ_size;h++)
@@ -5951,12 +5955,12 @@ void show_result(buffer_cache *ptr_buffer_cache)
 {
 
   //report the last result 
-  A_write_to_txt(1);
+/*	A_write_to_txt(1);
   FILE *info=fopen("info.txt","a+");
   char buf[100]={0};
   sprintf(buf,"%d",req_check);
   fprintf(info,"%s\n",buf);
-  fclose(info);
+  fclose(info);*/
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
