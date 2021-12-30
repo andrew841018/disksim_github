@@ -54,11 +54,11 @@ int main(){
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
         req_type=atoi(substr);
-        FILE *a1=fopen("collected data(from disksim)/secotr and physical block number and benefit.txt","r");
+        FILE *a1=fopen("collected data(from disksim)/sector and physical block number and benefit.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//first...sector_num
             sector_number1=atoi(substr1);
-            if(sector_number==sector_number1){
+            if(sector_number==sector_number1 && req_type==0){
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
 						wb->block[j]->duration++;
@@ -82,13 +82,13 @@ int main(){
 							if(b2==0){//access the same block,but different page
 								wb->block[i]->sector_index++;
 								wb->block[i]->sector_num[wb->block[i]->sector_index]=sector_number;
-							}						
+							}													
 							b1=2;
 							break;															
                         }
                     }
                     if(b1==0){//first time will enter here.
-						count++;						
+						count++;											
 						wb->block[count-1]->physical_block_number=atoi(substr1);
 						substr1=strtok(NULL,delim);//third...benefit
 						wb->block[count-1]->benefit=atof(substr1);
@@ -97,12 +97,13 @@ int main(){
 					}
                     if(b1==1){//進入for loop但沒進入condition----add a new block                    
                       if(wb->free_block==0){
+						   
                            //kick block                          
                            int min_block_num,block_index; 
                            float min=10000;   
                            tmp_block_num=atoi(substr1);//current block number
                            substr1=strtok(NULL,delim);//third...benefit
-                           tmp_benefit=atof(substr1);//current block benefit
+                           tmp_benefit=atof(substr1);//current block benefit                         
                            //find min benefit block in write buffer
                         for(k=0;k<count;k++){
                           if (min>wb->block[k]->benefit && wb->block[k]->benefit!=0){
@@ -110,16 +111,17 @@ int main(){
                             block_index=k;
                             min_block_num=wb->block[k]->physical_block_number;
                           }
-                        }                        
+                        }                  
+                         
+                            
                         //min=min benefit block in write buffer
-                          //kick min block from write buffer
-                          
-                          
+                          //kick min block from write buffer  
                         sprintf(dur[dur_count],"%d",min_block_num);                   
                         strcat(dur[dur_count]," ");
                         sprintf(temp,"%d",wb->block[block_index]->duration);
                         strcat(dur[dur_count],temp);
-                        fprintf(result,"%s\n",dur[dur_count]);   
+                        fprintf(result,"%s\n",dur[dur_count]);  
+                        printf("%d\n",min_block_num); 
                         /*test++;  
                         if(test % 1000==0)                    
 							printf("%d\n",test); */              
@@ -138,6 +140,7 @@ int main(){
                       else if(wb->free_block>0){  // create new block  
 						  count++;            
 						  wb->block[count-1]->sector_num[0]=sector_number;
+						 // printf("%d\n",atoi(substr1));
 						  wb->block[count-1]->physical_block_number=atoi(substr1);
 						  substr1=strtok(NULL,delim);//third...benefit
 						  wb->block[count-1]->benefit=atof(substr1);
@@ -146,23 +149,11 @@ int main(){
                     }                                                  
                 }              					     		
             }
-            else if(req_type==0){
-				printf("%d\n",sector_number);
-			}
         }
             fclose(a1);
     }
     fclose(a); 
     printf("final test:%d\n",test);
-    /*
-    printf("count:%d\n",count);
-    printf("block number:%d\n",wb->block[count-1]->physical_block_number);
-    int real_buffer_count=0,real_not_buffer_count=0;
-    FILE *result=fopen("duration.txt","a+");
-    for(i=0;i<=dur_count;i++){
-      if(dur[i]!="0")
-        fprintf(result,"%s\n",dur[i]);
-    }*/
     fclose(result);
     return 0;
 }
