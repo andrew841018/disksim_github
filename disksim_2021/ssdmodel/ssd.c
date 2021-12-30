@@ -3546,18 +3546,18 @@ int sector_number[1000000]={0};
 int block_number[1000000]={0};
 int sector_count[1000000]={0};
 int write_count[1000000]={0};
-int req_counting=0;
+int sector_counting=0,block_counting=0;
 void A_write_to_txt(int g){
 	int i;
 	char tmp[100]={0};
 	double benefit;
-	FILE *a=fopen("a+.txt","a+");	
+	FILE *a=fopen("a+.txt","a+");//sector number,block,number,benefit,sector_count
 	for(i=0;i<1000000;i++){
 		if(sector_number[i]!=0 && block_number[i]!=0){
 			if(write_count[block_number[i]]!=0){
 				benefit=(float)write_count[block_number[i]]/64;
 				benefit/=64;
-				sprintf(tmp,"%d %d %.20f",sector_number[i],block_number[i],benefit);
+				sprintf(tmp,"%d %d %.20f %d",sector_number[i],block_number[i],benefit,sector_count[i]);
 				fprintf(a,"%s\n",tmp);			
 			}
 			
@@ -3585,17 +3585,20 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 			write_count[block_number[i]]++;
 			b=1;
 		}
-		if(block_number[i]==physical_node_num){
+		if(block_number[i]==physical_node_num){//old block new sector
 			sector_count[sector_number[i]]++;
+			sector_number[sector_counting]=curr->blkno;
+			sector_counting++;
 			write_count[i]++;
 			b=1;
 		}
 	}
 	if(b==0){
-		sector_number[req_counting]=curr->blkno;
+		sector_number[sector_counting]=curr->blkno;
 		sector_count[curr->blkno]++;
-		block_number[req_counting]=physical_node_num;
-		req_counting++;
+		block_number[block_counting]=physical_node_num;
+		sector_counting++;
+		block_counting++;
 		write_count[physical_node_num]++;
 	}
 	
