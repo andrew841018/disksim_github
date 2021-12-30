@@ -3553,9 +3553,9 @@ void A_write_to_txt(int g){
 	for(i=0;i<1000000;i++){
 		if(sector_number[i]!=0 && block_number[i]!=0){
 			if(write_count[block_number[i]]!=0){
-				benefit=(float)write_count[i]/64;
+				benefit=(float)write_count[block_number[i]]/64;
 				benefit/=64;
-				sprintf(tmp,"%d %d %.10f",sector_number[i],block_number[i],benefit);
+				sprintf(tmp,"%d %d %.20f",sector_number[i],block_number[i],benefit);
 				fprintf(a,"%s\n",tmp);			
 			}
 			
@@ -3585,8 +3585,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	unsigned int physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
 	int i,b=0;
 	for(i=0;i<1000000;i++){
-		if(sector_number[i]==blkno &&  block_number[i]==physical_node_num){
-			write_count[physical_node_num]++;
+		if(sector_number[i]==blkno){
+			write_count[block_number[i]]++;
 			b=1;
 		}
 	}
