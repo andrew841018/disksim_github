@@ -22,31 +22,31 @@ import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\'
-data=np.loadtxt(addr+'duration.txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'duration.txt',delimiter=' ')#cached request index,benefit,size,duration
 req=np.loadtxt(addr+"trace(run1_Postmark_2475).txt",delimiter=' ')
 duration_label=[]
 count=0
-cache_index=[]
+duration_index=[]
 x_train=[]##cached request
 x_test=[]
 zero=0
 one=0
 two=0
-for i in range(len(data)):
+for i in range(len(duration)):
     #data[i][3]=duration
     #data[i][2]=cache size
-    if data[i][1]<10000:#duration<cache_size  10000(KB)=10MB
+    if duration[i][1]<10000:#duration<write buffer size  10000(KB)=10MB
         duration_label.append(0)#class 0=soon label
         zero+=1
-        cache_index.append(data[i][0])
-    if 10000<data[i][1] and data[i][1]<5*10000:
+        duration_index.append(duration[i][0])
+    if 10000<duration[i][1] and duration[i][1]<5*10000:
         duration_label.append(1)#class 1=mean label
         one+=1
-        cache_index.append(data[i][0])
-    if 5*10000<data[i][1]: 
+        duration_index.append(duration[i][0])
+    if 5*10000<duration[i][1]: 
         duration_label.append(2)#class 2=late label
         two+=1
-        cache_index.append(data[i][0])
+        duration_index.append(duration[i][0])
     
 duration_label=np.array(duration_label)
 c=0
