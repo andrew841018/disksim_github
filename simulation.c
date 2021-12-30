@@ -20,7 +20,7 @@ int main(){
     buf *wb;
     int test=0;
     char buffer[1024],buffer1[1024],time_buf[1024];
-    char *substr=NULL,*substr1=NULL,subtime=NULL;
+    char *substr=NULL,*substr1=NULL,*subtime=NULL;
     int tmp_block_num;
     float tmp_benefit;
     int sector_number,sector_number1;
@@ -42,14 +42,15 @@ int main(){
     int b1=0,b=0,b2=0,full_block_num,page_count=0;
     char dur[50000][100]={0},temp[100]={0};
     int sector_count=0,block_count=0;
-    double trace_time,req_time;
-    int time_b=0;
+    double trace_time,req_time;//req_time= enter ssd req timing
+    int time_b;
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
     FILE *result=fopen("duration.txt","a+");
     FILE *time=fopen("collected data(from disksim)/trace_time.txt","r");
     while (fgets(buffer,1024,a)!=NULL)
     {		
+		time_b=0;
         substr=strtok(buffer,delim);//time
         trace_time=atof(substr);
         substr=strtok(NULL,delim);//disk_number
@@ -63,10 +64,11 @@ int main(){
             sector_number1=atoi(substr1);
             while(fgets(time_buf,1024,time)!=NULL){
 				subtime=strtok(time_buf,delim1);
-				trace_time=atof(subtime);
-				
+				req_time=atof(subtime);
+				if(trace_time==req_time)
+					time_b=1;
 			}
-            if(sector_number==sector_number1){
+            if(sector_number==sector_number1 && time_b==1){
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
 						wb->block[j]->duration++;
@@ -161,6 +163,7 @@ int main(){
             fclose(a1);
     }
     fclose(a); 
+    fclose(time);
     printf("final test:%d\n",test);
     fclose(result);
     return 0;
