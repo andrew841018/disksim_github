@@ -54,7 +54,7 @@ int main(){
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
         req_type=atoi(substr);
-        FILE *a1=fopen("collected data(from disksim)/secotr and physical_block_num and benefit.txt","r");
+        FILE *a1=fopen("collected data(from disksim)/secotr and physical block number and benefit.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//first...sector_num
             sector_number1=atoi(substr1);
