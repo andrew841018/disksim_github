@@ -3564,11 +3564,19 @@ void A_write_to_txt(int g){
 	}
 	fclose(a);	
 }
-char tmp[100];
+
 int init=1;
+void init_array(){//static:assign before program execute...can use it to to some init
+	int i;
+
+	char tmp[100];
+	for(i=0;i<1000000;i++){
+		sector_number[i]=-1;
+		block_number[i]=-1;
+	}
+}
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
-	
   int t=0,h=0;
   static int full_cache = 0;
   unsigned int lpn,blkno,count,scount; //sector count
@@ -3578,36 +3586,31 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
+  
 	lpn=ssd_logical_pageno(blkno,currdisk);
 	unsigned int physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
 	int i,b=0;
-	FILE *test=fopen("testing.txt","a+");
-	for(i=0;i<1000000;i++){
-		sector_number[i]=-1;
-		block_number[i]=-1;
-	}
 	//bug:what if sector_number=0 or physical block number=0?
 	for(i=0;i<1000000;i++){		
-		if(init==1)
+		if(init==1){
+			init_array();
 			break;
-		if(sector_number[i]==blkno){
-			sector_count[blkno]++;//index is sector number
-			write_count[block_number[i]]++;
-			b=1;
 		}
-		if(block_number[i]==physical_node_num){//old block new sector
-			sector_count[sector_number[i]]++;
-			sector_number[sector_counting]=curr->blkno;
-			sector_counting++;
-			write_count[block_number[i]]++;
-			b=1;
-		}
-		if(sector_number[i]!=-1){
-			sprintf(tmp,"sector:%d %d block:%d %d",sector_number[i],blkno,block_number[i],physical_node_num);
-			fprintf(test,"%s\n",tmp);
-			}		
+		if(sector_number[i]!=-1 && block_number[i]!=-1){
+			if(sector_number[i]==blkno){
+				sector_count[blkno]++;//index is sector number
+				write_count[block_number[i]]++;
+				b=1;
+			}
+			else if(block_number[i]==physical_node_num){//old block new sector
+				sector_count[sector_number[i]]++;
+				sector_number[sector_counting]=curr->blkno;
+				sector_counting++;
+				write_count[block_number[i]]++;
+				b=1;
+			}
+		}	
 	}
-	fclose(test);
 	if(b==0){
 		sector_number[sector_counting]=curr->blkno;
 		sector_count[curr->blkno]++;
@@ -3615,9 +3618,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		sector_counting++;
 		block_counting++;
 		write_count[physical_node_num]++;
-		init=0;		
+		init=0;				
 	}
-	
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -5973,12 +5975,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  /*A_write_to_txt(1);
-  FILE *info=fopen("info.txt","a+");
-  char buf[100]={0};
-  sprintf(buf,"%d",req_check);
-  fprintf(info,"%s\n",buf);
-  fclose(info);*/
+  A_write_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);

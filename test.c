@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 int main(){
-	char b[100];
+	char b[1];
 	int i=50;
 	FILE *a=fopen("test.txt","a+");
 	sprintf(b,"%d",i);
