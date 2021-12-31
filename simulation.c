@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 typedef struct write_buffer
 {
   struct write_buffer *block[40];//write buffer size=1184 blocks, 超過1183，用來存放那些不會被放入write buffer的資訊
@@ -16,11 +17,13 @@ typedef struct write_buffer
 }buf;
 int main(){
     //write buffer size set to 10MB,contained 40 blocks
+    clock_t start,end;
+    start=clock();
     int count=0,i,k,j,kick_count=0;
     buf *wb;
     int test=0;
-    char buffer[1024],buffer1[1024],time_buf[1024];
-    char *substr=NULL,*substr1=NULL,*subtime=NULL;
+    char buffer[1024],buffer1[1024];
+    char *substr=NULL,*substr1=NULL;
     int tmp_block_num;
     float tmp_benefit;
     int sector_number,sector_number1;
@@ -47,32 +50,19 @@ int main(){
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
     FILE *result=fopen("duration.txt","a+");
-    FILE *time=fopen("collected data(from disksim)/trace_time.txt","r");
     while (fgets(buffer,1024,a)!=NULL)
     {		
-		time_b=0;
         substr=strtok(buffer,delim);//time
-        trace_time=atof(substr);
         substr=strtok(NULL,delim);//disk_number
         substr=strtok(NULL,delim);//third...sector_num
         sector_number=atoi(substr);
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
-        FILE *a1=fopen("collected data(from disksim)/sector and physical block number and benefit.txt","r");
+        FILE *a1=fopen("collected data(from disksim)/sector num-phy block num-benefit-sector count.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
-            substr1=strtok(buffer1,delim);//first...sector_num
-            sector_number1=atoi(substr1);
-            while(fgets(time_buf,1024,time)!=NULL){
-				subtime=strtok(time_buf,delim1);
-				subtime=strtok(NULL,delim1);			
-				req_time=atof(subtime);
-				if(trace_time==req_time)
-					time_b=1;
-				printf("%f %f\n",trace_time,req_time);
-				sleep(1);
-			}			
-			
-            if(sector_number==sector_number1 && time_b==1){
+            substr1=strtok(buffer1,delim);//sector_num
+            sector_number1=atoi(substr1);					
+            if(sector_number==sector_number1){
 				
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
@@ -169,5 +159,8 @@ int main(){
     fclose(time);
     printf("final test:%d\n",test);
     fclose(result);
+    end=clock();
+    double diff=end-start;
+    printf("this program excution time is: %f\n",diff/CLOCKS_PER_SEC);
     return 0;
 }

@@ -5975,7 +5975,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  A_write_to_txt(1);
+ // A_write_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
