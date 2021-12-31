@@ -22,8 +22,8 @@ int main(){
     int count=0,i,k,j,kick_count=0;
     buf *wb;
     int test=0;
-    char buffer[1024],buffer1[1024];
-    char *substr=NULL,*substr1=NULL;
+    char buffer[1024],buffer1[1024],buffer0[1024];
+    char *substr=NULL,*substr1=NULL,*substr0=NULL;
     int tmp_block_num;
     float tmp_benefit;
     int sector_number,sector_number1;
@@ -44,10 +44,23 @@ int main(){
 	}
     int b1=0,b=0,b2=0,full_block_num,page_count=0;
     char dur[50000][100]={0},temp[100]={0};
-    int sector_count=0,block_count=0;
+    int write_buffer_sector_count[1000000];
     double trace_time,req_time;//req_time= enter ssd req timing
-    int time_b;
+    
+    
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
+	FILE *info=fopen("collected data(from disksim)/sector num-phy block num-benefit-sector count.txt","r");
+	while(fgets(buffer0,1024,info)!=NULL){
+		substr0=strtok(buffer0,delim);//sector number
+		sector_number=atoi(substr0);
+		substr0=strtok(NULL,delim);//physical block number
+		substr0=strtok(NULL,delim);//benefit
+		substr0=strtok(NULL,delim);//sector count;
+		write_buffer_sector_count[sector_number]=atoi(substr0);
+	}
+	fclose(info);
+	
+	
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
     FILE *result=fopen("duration.txt","a+");
     while (fgets(buffer,1024,a)!=NULL)
@@ -62,8 +75,8 @@ int main(){
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//sector_num
             sector_number1=atoi(substr1);					
-            if(sector_number==sector_number1){
-				
+            if(sector_number==sector_number1 && write_buffer_sector_count[sector_number]>0){
+				write_buffer_sector_count[sector_number]--;
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
 						wb->block[j]->duration++;
@@ -124,10 +137,9 @@ int main(){
                         sprintf(temp,"%d",wb->block[block_index]->duration);
                         strcat(dur[dur_count],temp);
                         fprintf(result,"%s\n",dur[dur_count]);  
-                        printf("%d\n",min_block_num); 
-                        /*test++;  
+                        test++;  
                         if(test % 1000==0)                    
-							printf("%d\n",test); */              
+							printf("%d\n",test);             
                         for(i=0;i<64;i++)
 							wb->block[block_index]->sector_num[i]=-1;                      
                         wb->block[block_index]->physical_block_number=-1;                    
@@ -156,8 +168,6 @@ int main(){
             fclose(a1);
     }
     fclose(a); 
-    fclose(time);
-    printf("final test:%d\n",test);
     fclose(result);
     end=clock();
     double diff=end-start;
