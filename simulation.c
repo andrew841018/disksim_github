@@ -15,7 +15,9 @@ typedef struct write_buffer
   int sector_index;
   int sector_num[64];;//total 64 page...each block ppn from 0~63
 }buf;
+int write_buffer_sector_count[1000000];
 int main(){
+	int req_count=0;
     //write buffer size set to 10MB,contained 40 blocks
     clock_t start,end;
     start=clock();
@@ -43,20 +45,18 @@ int main(){
 		}
 	}
     int b1=0,b=0,b2=0,full_block_num,page_count=0;
-    char dur[50000][100]={0},temp[100]={0};
-    int write_buffer_sector_count[1000000];
-    double trace_time,req_time;//req_time= enter ssd req timing
-    
+    char dur[50000][100]={0},temp[100]={0};  
     
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
 	FILE *info=fopen("collected data(from disksim)/sector num-phy block num-benefit-sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
 		substr0=strtok(buffer0,delim);//sector number
-		sector_number=atoi(substr0);
+		sector_number=atoi(substr0);		
 		substr0=strtok(NULL,delim);//physical block number
 		substr0=strtok(NULL,delim);//benefit
 		substr0=strtok(NULL,delim);//sector count;
 		write_buffer_sector_count[sector_number]=atoi(substr0);
+		req_count+=atoi(substr0);
 	}
 	fclose(info);
 	
@@ -75,7 +75,7 @@ int main(){
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//sector_num
             sector_number1=atoi(substr1);					
-            if(sector_number==sector_number1 && write_buffer_sector_count[sector_number]>0){
+            if(sector_number==sector_number1 && write_buffer_sector_count[sector_number]>0){				
 				write_buffer_sector_count[sector_number]--;
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
@@ -171,6 +171,7 @@ int main(){
     fclose(result);
     end=clock();
     double diff=end-start;
-    printf("this program excution time is: %f\n",diff/CLOCKS_PER_SEC);
+    printf("req_count:%d\n",req_count);
+    printf("total excution time(s):%f\n",diff/CLOCKS_PER_SEC);
     return 0;
 }
