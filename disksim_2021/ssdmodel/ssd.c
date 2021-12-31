@@ -3580,7 +3580,6 @@ void init_array(){//static:assign before program execute...can use it to to some
 		block_number[i]=-1;
 	}
 }
-int count_andrew=0;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -3592,7 +3591,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
-  
 	lpn=ssd_logical_pageno(blkno,currdisk);
 	unsigned int physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
 	int i,b=0;
@@ -3604,21 +3602,20 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		}
 		if(sector_number[i]!=-1 && block_number[i]!=-1){
 			if(sector_number[i]==blkno){
-				count_andrew++;
 				FILE *info=fopen("info.txt","a+");
 				char fbi[100];
-				sprintf(fbi,"A-request_count(by me):%d",count_andrew);
+				sprintf(fbi,"A-request_count(by me):%d %d",count_andrew,new_year);
 				fprintf(info,"%s\n",fbi);
 				fclose(info);
 				sector_count[blkno]++;//index is sector number
 				write_count[block_number[i]]++;
 				b=1;
+				break;
 			}
 			else if(block_number[i]==physical_node_num){//old block new sector
-				count_andrew++;
 				FILE *info=fopen("info.txt","a+");
 				char fbi[100];
-				sprintf(fbi,"B-request_count(by me):%d",count_andrew);
+				sprintf(fbi,"B-request_count(by me):%d %d",count_andrew,new_year);
 				fprintf(info,"%s\n",fbi);
 				fclose(info);
 				sector_count[sector_number[i]]++;
@@ -3626,6 +3623,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 				sector_counting++;
 				write_count[block_number[i]]++;
 				b=1;
+				break;
 			}
 		}	
 	}
