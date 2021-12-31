@@ -73,7 +73,6 @@ one block=64 pages
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include <disksim_global.h>
 #include <sys/stat.h>
 #include <math.h>
 #include <sys/time.h>
