@@ -1600,7 +1600,6 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
-int request_count=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1639,12 +1638,6 @@ static void ssd_media_access_request_element (ioreq_event *curr)
 
    if(!(curr->flags&READ))
    {
-	  request_count++;
-	  FILE *info=fopen("info.txt","a+");
-	  char fbi[100];
-	  sprintf(fbi,"request_count(by disksim):%d ",request_count);
-	  fprintf(info,"%s",fbi);
-	  fclose(info); 
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
@@ -3555,7 +3548,7 @@ void A_write_to_txt(int g){
 	int i;
 	char tmp[100]={0};
 	double benefit;
-	FILE *a=fopen("a+.txt","a+");//sector number,block,number,benefit,sector_count
+	FILE *a=fopen("sector num-phy block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
 	for(i=0;i<1000000;i++){
 		if(sector_number[i]!=-1 && block_number[i]!=-1){
 			if(write_count[block_number[i]]!=0){				
@@ -3594,7 +3587,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	lpn=ssd_logical_pageno(blkno,currdisk);
 	unsigned int physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
 	int i,b=0;
-	//bug:what if sector_number=0 or physical block number=0?
 	for(i=0;i<1000000;i++){		
 		if(init==1){
 			init_array();
@@ -3602,22 +3594,12 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		}
 		if(sector_number[i]!=-1 && block_number[i]!=-1){
 			if(sector_number[i]==blkno){
-				FILE *info=fopen("info.txt","a+");
-				char fbi[100];
-				sprintf(fbi,"A-request_count(by me):%d %d",count_andrew,new_year);
-				fprintf(info,"%s\n",fbi);
-				fclose(info);
 				sector_count[blkno]++;//index is sector number
 				write_count[block_number[i]]++;
 				b=1;
 				break;
 			}
-			else if(block_number[i]==physical_node_num){//old block new sector
-				FILE *info=fopen("info.txt","a+");
-				char fbi[100];
-				sprintf(fbi,"B-request_count(by me):%d %d",count_andrew,new_year);
-				fprintf(info,"%s\n",fbi);
-				fclose(info);
+			else if(block_number[i]==physical_node_num){//old block new sector				
 				sector_count[sector_number[i]]++;
 				sector_number[sector_counting]=curr->blkno;
 				sector_counting++;
@@ -3628,12 +3610,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		}	
 	}
 	if(b==0){
-		count_andrew++;
-		FILE *info=fopen("info.txt","a+");
-		char fbi[100];
-		sprintf(fbi,"C-request_count(by me):%d",count_andrew);
-		fprintf(info,"%s\n",fbi);
-		fclose(info);
 		sector_number[sector_counting]=curr->blkno;
 		sector_count[curr->blkno]++;
 		block_number[block_counting]=physical_node_num;
@@ -5997,12 +5973,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
- // A_write_to_txt(1);
-	char req_counting[100];
-	FILE *info=fopen("info.txt","a+");
-	sprintf(req_counting,"%d",request_count);
-	fprintf(info,"%s\n",req_counting);
-	fclose(info);
+  A_write_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
