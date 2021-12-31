@@ -3602,8 +3602,10 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 			write_count[block_number[i]]++;
 			b=1;
 		}
-		sprintf(tmp,"sector:%d %d block:%d %d",sector_number[i],blkno,block_number[i],physical_node_num);
-		fprintf(test,"%s\n",tmp);		
+		if(sector_number[i]!=-1){
+			sprintf(tmp,"sector:%d %d block:%d %d",sector_number[i],blkno,block_number[i],physical_node_num);
+			fprintf(test,"%s\n",tmp);
+			}		
 	}
 	fclose(test);
 	if(b==0){
@@ -5970,6 +5972,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 {
 
   //report the last result 
+  
   /*A_write_to_txt(1);
   FILE *info=fopen("info.txt","a+");
   char buf[100]={0};
