@@ -23,6 +23,7 @@ int main(){
     start=clock();
     int count=0,i,k,j,kick_count=0;
     buf *wb;
+    int enter=0;
     int test=0;
     char buffer[1024],buffer1[1024],buffer0[1024];
     char *substr=NULL,*substr1=NULL,*substr0=NULL;
@@ -46,7 +47,7 @@ int main(){
 	}
     int b1=0,b=0,b2=0,full_block_num,page_count=0;
     char dur[50000][100]={0},temp[100]={0};  
-    
+    int req_type;
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
 	FILE *info=fopen("collected data(from disksim)/sector num-phy block num-benefit-sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
@@ -71,11 +72,14 @@ int main(){
         sector_number=atoi(substr);
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
+        req_type=atoi(substr);
+        
         FILE *a1=fopen("collected data(from disksim)/sector num-phy block num-benefit-sector count.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//sector_num
-            sector_number1=atoi(substr1);					
-            if(sector_number==sector_number1 && write_buffer_sector_count[sector_number]>0){				
+            sector_number1=atoi(substr1);
+            if(req_type==0 && sector_number==sector_number1 && write_buffer_sector_count[sector_number]>0){				
+				enter++;
 				write_buffer_sector_count[sector_number]--;
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
@@ -136,10 +140,7 @@ int main(){
                         strcat(dur[dur_count]," ");
                         sprintf(temp,"%d",wb->block[block_index]->duration);
                         strcat(dur[dur_count],temp);
-                        fprintf(result,"%s\n",dur[dur_count]);  
-                        test++;  
-                        if(test % 1000==0)                    
-							printf("%d\n",test);             
+                        fprintf(result,"%s\n",dur[dur_count]);               
                         for(i=0;i<64;i++)
 							wb->block[block_index]->sector_num[i]=-1;                      
                         wb->block[block_index]->physical_block_number=-1;                    
@@ -171,7 +172,7 @@ int main(){
     fclose(result);
     end=clock();
     double diff=end-start;
-    printf("req_count:%d\n",req_count);
+    //printf("req_count:%d enter:%d\n",req_count,enter);
     printf("total excution time(s):%f\n",diff/CLOCKS_PER_SEC);
     return 0;
 }
