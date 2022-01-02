@@ -1601,6 +1601,7 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
+int a_count=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1639,6 +1640,7 @@ static void ssd_media_access_request_element (ioreq_event *curr)
 
    if(!(curr->flags&READ))
    {
+	  a_count++;
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
@@ -3564,13 +3566,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
-  /*add page to buffer cache*/
-  // fprintf(myoutput3, "////////////////////Hint queue Start/////////////////\n");
-  // for(h=0;h<global_HQ_size;h++)
-  // {
-  //   fprintf(myoutput3, "global_HQ:%d\n", global_HQ[h]);
-  // }
-  // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
   
   while(count > 0)
   {
@@ -3676,7 +3671,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
 }
-
+int req=0;
 void A_write_to_txt(int g){
 	int i;
 	char tmp[100];
@@ -3689,6 +3684,8 @@ void A_write_to_txt(int g){
 				benefit/=64;
 				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
 				fprintf(a,"%s\n",tmp);
+				req+=sector_count[sector_num[i]];
+				
 			}
 		}
 	}
@@ -5961,7 +5958,12 @@ void show_result(buffer_cache *ptr_buffer_cache)
 {
 
   //report the last result
-  A_write_to_txt(1); 
+  A_write_to_txt(1);
+  char tmp[100]; 
+  FILE *info=fopen("info.txt","a+");
+  sprintf(tmp,"number of req enter write buffer:%d number of req write to txt:%d",a_count,req);
+  fprintf(info,"%s\n",tmp);
+  fclose(info);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);

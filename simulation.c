@@ -49,13 +49,13 @@ int main(){
     char dur[50000][100]={0},temp[100]={0};  
     int req_type;
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
-	FILE *info=fopen("collected data(from disksim)/sector num-phy block num-benefit-sector count.txt","r");
+	FILE *info=fopen("collected data(from disksim)/sector num and logical block num and benefit and sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
 		substr0=strtok(buffer0,delim);//sector number
 		sector_number=atoi(substr0);		
 		substr0=strtok(NULL,delim);//physical block number
 		substr0=strtok(NULL,delim);//benefit
-		substr0=strtok(NULL,delim);//sector count;
+		substr0=strtok(NULL,delim);//sector count;		
 		write_buffer_sector_count[sector_number]=atoi(substr0);
 		req_count+=atoi(substr0);
 	}
@@ -64,22 +64,28 @@ int main(){
 	
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
     FILE *result=fopen("duration.txt","a+");
+    int p=0;
     while (fgets(buffer,1024,a)!=NULL)
     {		
+		p=0;
         substr=strtok(buffer,delim);//time
         substr=strtok(NULL,delim);//disk_number
         substr=strtok(NULL,delim);//third...sector_num
         sector_number=atoi(substr);
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
-        req_type=atoi(substr);
-        
-        FILE *a1=fopen("collected data(from disksim)/sector num-phy block num-benefit-sector count.txt","r");
+        req_type=atoi(substr);     
+        FILE *a1=fopen("collected data(from disksim)/sector num and logical block num and benefit and sector count.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//sector_num
-            sector_number1=atoi(substr1);
+            sector_number1=atoi(substr1);  
+           /* if(sector_number==8){
+				printf("sector:%d sector1:%d req_type:%d sector_count:%d\n",sector_number,sector_number1,req_type,write_buffer_sector_count[sector_number]);
+				sleep(1);
+			}  */ 
             if(req_type==0 && sector_number==sector_number1 && write_buffer_sector_count[sector_number]>0){				
 				enter++;
+				p=1;
 				write_buffer_sector_count[sector_number]--;
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
@@ -164,15 +170,17 @@ int main(){
 				  }	  								
                     }                                                  
                 }              					     		
-            }
-        }
+            }         
+        }        
+       
             fclose(a1);
     }
     fclose(a); 
     fclose(result);
     end=clock();
     double diff=end-start;
-    //printf("req_count:%d enter:%d\n",req_count,enter);
+    printf("req_count:%d enter:%d\n",req_count,enter);
     printf("total excution time(s):%f\n",diff/CLOCKS_PER_SEC);
+    
     return 0;
 }
