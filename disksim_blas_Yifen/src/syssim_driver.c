@@ -79,7 +79,7 @@ one block=64 pages
 #include <unistd.h>
 #include <assert.h>
 #include <sys/time.h>
-       
+#include <time.h>       
 #include "syssim_driver.h"
 #include "disksim_interface.h"
 #include "disksim_rand48.h"
@@ -2015,6 +2015,8 @@ void calculate_predict()
 } 
 int main(int argc, char *argv[]) 
 {
+  clock_t start,end;
+  start=clock();
   unsigned long diffall;
   gettimeofday(&start1, NULL); 
   int i;
@@ -2424,5 +2426,8 @@ int main(int argc, char *argv[])
   //fclose(evict_fread);
   fclose(fread);
   fclose(fwrite);
+  end=clock();
+  double diff=end-start;
+  printf("total spend %f sec for excution\n",diff/CLOCKS_PER_SEC);
   exit(0);
 }

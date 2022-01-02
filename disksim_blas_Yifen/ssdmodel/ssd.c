@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/time.h>
+#include <time.h>       
+
 //define-------------------------------------------------------
      
 #define NONE "\033[m"
