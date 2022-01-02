@@ -3595,7 +3595,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 			if(sector_number[i]==blkno){
 				sector_count[blkno]++;//index is sector number
 				write_count[block_number[i]]++;
-				b=1;
+				b=1; 
 				break;
 			}
 			else if(block_number[i]==physical_node_num){//old block new sector				
