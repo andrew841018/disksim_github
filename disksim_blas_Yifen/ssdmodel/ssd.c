@@ -3542,6 +3542,7 @@ int sector_count[1000000];
 int sector_num[1000000];
 int block_count[1000000];
 int block_num[1000000];
+int sector_index=0,block_index=0;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -3580,6 +3581,9 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     }
     //add_page_to_cache_buffer(lpn,ptr_buffer_cache);
     flag=0;
+    sector_num[sector_index]=blkno;
+    sector_index++;
+    sector_count[blkno]++;
     flag=Y_add_Pg_page_to_cache_buffer(lpn,ptr_buffer_cache);
     scount = ssd_choose_aligned_count(currdisk->params.page_size, blkno, count);
     
