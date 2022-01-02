@@ -3543,6 +3543,15 @@ int sector_num[1000000];
 int block_count[1000000];
 int block_num[1000000];
 int sector_index=0,block_index=0;
+int init=1;
+void init_array(){
+	int i;
+	char tmp[100];
+	for(i=0;i<1000000;i++){
+		sector_num[i]=-1;
+		block_num[i]=-1;
+	}
+}
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -3581,9 +3590,23 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     }
     //add_page_to_cache_buffer(lpn,ptr_buffer_cache);
     flag=0;
-    sector_num[sector_index]=blkno;
-    sector_index++;
-    sector_count[blkno]++;
+    if(init==1){
+		init_array();
+		init=0;
+	}
+    int b=0;  
+    for(i=0;i<1000000;i++){
+		if(sector_num[i]!=-1 && sector_num[i]==blkno){//overwrite				
+			sector_count[blkno]++;
+			b=1;
+			break;
+		}
+  }
+  if(b==0){//create new sector or block
+	  sector_num[sector_index]=blkno;
+	  sector_index++;
+	  sector_count[blkno]++;
+  } 
     flag=Y_add_Pg_page_to_cache_buffer(lpn,ptr_buffer_cache);
     scount = ssd_choose_aligned_count(currdisk->params.page_size, blkno, count);
     
@@ -3654,6 +3677,24 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 
+void A_write_to_txt(int g){
+	int i;
+	char tmp[100];
+	double benefit;
+	FILE *a=fopen("a.txt","a+");
+	for(i=0;i<1000000;i++){
+		if(sector_num[i]!=-1 && block_num[i]!=-1){
+			if(block_count[block_num[i]]!=0){
+				benefit=(float)block_count[block_num[i]]/64;
+				benefit/=64;
+				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
+				fprintf(a,"%s\n",tmp);
+			}
+		}
+	}
+	fclose(a);
+}
+
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3663,6 +3704,20 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
   unsigned int physical_node_num, phy_node_offset;
+  int b=0;
+  int i;
+  for(i=0;i<1000000;i++){
+	if(block_num[i]!=-1 && block_num[i]==logical_node_num){//overwrite				
+		block_count[logical_node_num]++;
+		b=1;
+		break;
+	}
+  }
+  if(b==0){//create new sector or block
+	  block_num[block_index]=logical_node_num;
+	  block_index++;
+	  block_count[logical_node_num]++;
+  }
   physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   //fprintf(lpb_ppn, "%d\n", lpn);
@@ -3670,7 +3725,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));	
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  int i;
   /*printf("hash_Pg:");
   for(i=0;i<1000;i++)
   {
@@ -5906,7 +5960,8 @@ double remove_special_node(unsigned int logical_number)
 void show_result(buffer_cache *ptr_buffer_cache)
 {
 
-  //report the last result 
+  //report the last result
+  A_write_to_txt(1); 
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
