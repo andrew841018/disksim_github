@@ -3557,7 +3557,7 @@ void init_array(){
 	}
 }
 int req=0;
-char *special;
+char special[100];
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -3571,7 +3571,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   lru_node *lru;
   int flag;
   int wb=1;
-  special="access confirm";
+  strcpy(special,"access confirm");
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -3702,7 +3702,7 @@ void A_write_to_txt(int g){
 				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
 				//fprintf(a,"%s\n",tmp);
 				final+=sector_count[sector_num[i]];								
-				sprintf(tmp,"write to txt:%d",final);										
+				sprintf(tmp,"write to txt:%d %s",final,special);										
 				fprintf(info,"%s\n",tmp);
 			}
 		}		
@@ -3721,8 +3721,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   unsigned int offset_in_node = lpn % LRUSIZE;
   unsigned int physical_node_num, phy_node_offset;
   
-  while(*special=="access confirm"){//bug:somehow when final_count=12 A_write_to_txt will execute twice.
-	  
+  while(strcmp(special,"access confirm")==0){//bug:somehow when final_count=12 A_write_to_txt will execute twice.	  
 	  int b=0;
 	  int i;	  
 	  for(i=0;i<1000000;i++){
@@ -3738,8 +3737,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		  block_count[logical_node_num]++;
 	  }
 	  A_write_to_txt(1);
-	  *special="permission deied"; 
-	  break;
+	  break;	  
 }
   
   physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
