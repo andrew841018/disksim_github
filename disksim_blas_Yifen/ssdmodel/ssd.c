@@ -3617,7 +3617,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	  sprintf(tmp,"write to txt(not in function):%d",final_count);
 	  fprintf(info,"%s ",tmp);
 	  fclose(info);	
-    only_for_you(lpn,ptr_buffer_cache);	      
+	  only_for_you(lpn,ptr_buffer_cache);	      
 	  wb=0;		  
 	}
 			
@@ -3694,17 +3694,19 @@ void A_write_to_txt(int g){
 	int i;
 	char tmp[100];
 	double benefit;
+	int count_test=0;
 	FILE *info=fopen("info+.txt","a+");	
 	//FILE *a=fopen("a.txt","a+");		
 	for(i=0;i<1000000;i++){
 		if(sector_num[i]!=-1 && block_num[i]!=-1){			
 			if(block_count[block_num[i]]!=0){
+				count_test++;
 				benefit=(float)block_count[block_num[i]]/64;
 				benefit/=64;
 				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
 				//fprintf(a,"%s\n",tmp);
 				final+=sector_count[sector_num[i]];								
-				sprintf(tmp,"write to txt:%d",final);										
+				sprintf(tmp,"write to txt:%d %d",final,count_test);										
 				fprintf(info,"%s\n",tmp);
 			}
 		}		
@@ -3717,11 +3719,11 @@ void only_for_you(unsigned int lpn,buffer_cache *ptr_buffer_cache){//for the bug
 	int b=0;
 	int i;	  
 	for(i=0;i<1000000;i++){
-    if(block_num[i]==logical_node_num){//overwrite				
-      block_count[logical_node_num]++;
-      b=1;
-      break;
-      }
+		if(block_num[i]==logical_node_num){//overwrite				
+		  block_count[logical_node_num]++;
+		  b=1;
+		  break;
+		  }
 	  }
 	if(b==0){//create new sector or block
 		block_num[block_index]=logical_node_num;
