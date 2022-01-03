@@ -3548,20 +3548,23 @@ typedef struct write_buffer
 {
 	struct write_buffer *block[100000000];
 	struct write_buffer *sector[10000000];
-	int block_num;
 	int block_count;
+ // int sector_num;
+ // int block_num;
 	int sector_count;
-	int sector_num;
 	
-}wb;
+}buf;
 void init_array(){
 	int i;
 	for(i=0;i<100000000;i++){
-		
+		wb->block[i]=malloc(sizeof(buf));
+    wb->sector[i]=malloc(sizeof(buf));
+    wb->block[i]->block_count=0;
+    wb->sector[i]->sector_count=0;
 	}
 }
 int final=0;
-/*
+
 void A_write_to_txt(int g){
 	int i;
 	char tmp[100];
@@ -3569,44 +3572,26 @@ void A_write_to_txt(int g){
 	int count_test=0;
 	FILE *info=fopen("info+.txt","a+");	
 	//FILE *a=fopen("a.txt","a+");		
-	for(i=0;i<1000000;i++){
-		if(sector_num[i]!=-1 && block_num[i]!=-1){			
-			if(block_count[block_num[i]]!=0){
-				count_test++;
-				benefit=(float)block_count[block_num[i]]/64;
-				benefit/=64;
-				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
-				//fprintf(a,"%s\n",tmp);
-				fprintf(info,"%s\n",tmp);
-				final+=sector_count[sector_num[i]];
-				sprintf(tmp,"write to txt:%d number of block:%d sector_num:%d block_num:%d i:%d",final,count_test,sector_num[i],block_num[i],i);										
-				fprintf(info,"%s\n",tmp);
-			}
-		}		
-	}
+	for(i=0;i<100000000;i++){
+    for(j=0;j<100000000;j++){
+      if(wb->block[i]->block_count==0)
+        break;
+      else if(wb->block[i]->sector[j]->sector_count>0){
+        count_test++;
+        benefit=(float)wb->block[i]->block_count/64;
+        benefit/=64;
+        sprintf(tmp,"%d %d %.20f %d",j,i,benefit,wb->block[i]->sector[j]->sector_count);
+        //fprintf(a,"%s\n",tmp);
+        fprintf(info,"%s\n",tmp);
+        final+=wb->block[i]->sector[j]->sector_count;
+        sprintf(tmp,"write to txt:%d number of block:%d sector_num:%d block_num:%d",final,count_test,j,i);										
+        fprintf(info,"%s\n",tmp);
+      }
+    }								
+	}		
 	fclose(info);
 	//fclose(a);	
 }
-
-void only_for_you(unsigned int lpn){//for the bug....suck you
-  unsigned int logical_node_num = lpn/LRUSIZE;
-	int b=0;
-	int i;	  
-	for(i=0;i<1000000;i++){
-		if(block_num[i]==logical_node_num){//overwrite				
-		  block_count[logical_node_num]++;
-		  b=1;
-		  break;
-		  }
-	  }
-	if(b==0){//create new sector or block
-		block_num[block_index]=logical_node_num;
-		block_index++;
-		block_count[logical_node_num]++;
-	}
-	A_write_to_txt(1);
-}*/
-int max=0;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
 	int t=0,h=0;
@@ -3618,33 +3603,36 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
 	lru_node *lru;
 	int flag;
-	/*
+	buf *wb;
+  lpn = ssd_logical_pageno(blkno,currdisk);
+  unsigned int logical_node_num = lpn/LRUSIZE;
+  wb=malloc(sizeof(buf));
 	char tmp[100];
 	if(init==1){
 		init_array();
 		init=0;
 	}
 	int b=0,i; 
-	for(i=0;i<1000000;i++){
-		if(sector_num[i]==blkno){//overwrite
-			final_count++;	
-			sector_count[blkno]++;
-			b=1;			
-			break;						
-		}
-	 }	
+	if(wb->block[logical_node_num]->sector[blkno]->sector_count>=1){//overwrite...old sector old block
+		final_count++;	
+		wb->block[logical_node_num]->sector[blkno]->sector_count++;
+    wb->block[logical_node_num]->block_count++;
+		b=1;			
+	}	
+  if(wb->block[logical_node_num]->block_count>=1 && wb->block[logical_node_num]->sector[blkno]->sector_count==0){//write to different sector but same block
+    wb->block[logical_node_num]->block_count++;
+    b=1;
+  }
 	if(b==0){//create new sector or block
 		final_count++;
-		sector_num[sector_index]=blkno;		  
-		sector_index++;
-		sector_count[blkno]++;	 		  
+    wb->block[logical_node_num]->sector[blkno]->sector_count++;
+    wb->block[logical_node_num]->block_count++;
 	 }
 	FILE *info=fopen("info+.txt","a+");
 	sprintf(tmp,"write to txt(not in function):%d blkno:%d",final_count,blkno);
 	fprintf(info,"%s\n",tmp);
 	fclose(info);	
-	only_for_you(lpn);	*/      
-	
+	A_write_to_txt(1);
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
