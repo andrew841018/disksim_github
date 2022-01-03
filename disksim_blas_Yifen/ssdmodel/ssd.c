@@ -3541,38 +3541,101 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   return strip_way;
 } 
 
-int sector_count[1000000]={0};
-int sector_num[1000000];
-int block_count[1000000]={0};
-int block_num[1000000];
+long int sector_count[10000000000]={0};
+long int sector_num[10000000000];
+long int block_count[10000000000]={0};
+long int block_num[10000000000];
 int final_count=0;
 int sector_index=0,block_index=0;
 int init=1;
 void init_array(){
 	int i;
-	char tmp[100];
-	for(i=0;i<1000000;i++){
+	for(i=0;i<10000000000;i++){
 		sector_num[i]=-1;
 		block_num[i]=-1;
 	}
 }
-int req=0;
-int wb1;
-unsigned count;
+int final=0;
+void A_write_to_txt(int g){
+	int i;
+	char tmp[100];
+	double benefit;
+	int count_test=0;
+	FILE *info=fopen("info+.txt","a+");	
+	//FILE *a=fopen("a.txt","a+");		
+	for(i=0;i<10000000000;i++){
+		if(sector_num[i]!=-1 && block_num[i]!=-1){			
+			if(block_count[block_num[i]]!=0){
+				count_test++;
+				benefit=(float)block_count[block_num[i]]/64;
+				benefit/=64;
+				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
+				//fprintf(a,"%s\n",tmp);
+				fprintf(info,"%s\n",tmp);
+				final+=sector_count[sector_num[i]];
+				sprintf(tmp,"write to txt:%d number of block:%d sector_num:%d block_num:%d i:%d",final,count_test,sector_num[i],block_num[i],i);										
+				fprintf(info,"%s\n",tmp);
+			}
+		}		
+	}
+	fclose(info);
+	//fclose(a);	
+}
+void only_for_you(unsigned int lpn){//for the bug....suck you
+  unsigned int logical_node_num = lpn/LRUSIZE;
+	int b=0;
+	int i;	  
+	for(i=0;i<10000000000;i++){
+		if(block_num[i]==logical_node_num){//overwrite				
+		  block_count[logical_node_num]++;
+		  b=1;
+		  break;
+		  }
+	  }
+	if(b==0){//create new sector or block
+		block_num[block_index]=logical_node_num;
+		block_index++;
+		block_count[logical_node_num]++;
+	}
+	A_write_to_txt(1);
+}
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
-  int t=0,h=0;
-  static int full_cache = 0;
-  unsigned int lpn,blkno,scount; //sector count
-  ssd_t *currdisk;
-  currdisk = getssd (curr->devno);
-  blkno = curr->blkno;
-  
-  count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
-  lru_node *lru;
-  int flag;
-  int wb=1;
-  wb1=1;
+	int t=0,h=0;
+	static int full_cache = 0;
+	unsigned int lpn,blkno,count,scount; //sector count
+	ssd_t *currdisk;
+	currdisk = getssd (curr->devno);
+	blkno = curr->blkno;
+	count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
+	lru_node *lru;
+	int flag;
+	char tmp[100];
+	if(init==1){
+		init_array();
+		init=0;
+	}
+	int b=0,i; 
+	for(i=0;i<10000000000;i++){
+		if(sector_num[i]==blkno){//overwrite
+			final_count++;	
+			sector_count[blkno]++;
+			b=1;			
+			break;						
+		}
+	 }	
+	if(b==0){//create new sector or block
+		final_count++;
+		sector_num[sector_index]=blkno;		  
+		sector_index++;
+		sector_count[blkno]++;	 		  
+	 }
+	FILE *info=fopen("info+.txt","a+");
+	sprintf(tmp,"write to txt(not in function):%d blkno:%d",final_count,blkno);
+	fprintf(info,"%s\n",tmp);
+	fclose(info);	
+	only_for_you(lpn);	      
+	
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -3590,37 +3653,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       }
     }
     //add_page_to_cache_buffer(lpn,ptr_buffer_cache);
-    flag=0;
-    char tmp[100];
-    while(wb==1){  
-		if(init==1){
-			init_array();
-			init=0;
-		}
-				
-		int b=0; 
-		for(i=0;i<1000000;i++){
-			if(sector_num[i]==blkno){//overwrite
-				final_count++;	
-				sector_count[blkno]++;
-				b=1;			
-				break;						
-			}
-	  }	
-	  if(b==0){//create new sector or block
-		  final_count++;
-		  sector_num[sector_index]=blkno;		  
-		  sector_index++;
-		  sector_count[blkno]++;	 		  
-	  }
-	  FILE *info=fopen("info+.txt","a+");
-	  sprintf(tmp,"write to txt(not in function):%d",final_count);
-	  fprintf(info,"%s ",tmp);
-	  fclose(info);	
-	  only_for_you(lpn,ptr_buffer_cache);	      
-	  wb=0;		  
-	}
-			
+    flag=0;    			
     flag=Y_add_Pg_page_to_cache_buffer(lpn,ptr_buffer_cache);
     scount = ssd_choose_aligned_count(currdisk->params.page_size, blkno, count);
     assert(scount == currdisk->params.page_size);
@@ -3688,49 +3721,6 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     remove_mark_in_the_node(ptr_lru_node,ptr_buffer_cache);
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
-}
-int final=0;
-void A_write_to_txt(int g){
-	int i;
-	char tmp[100];
-	double benefit;
-	int count_test=0;
-	FILE *info=fopen("info+.txt","a+");	
-	//FILE *a=fopen("a.txt","a+");		
-	for(i=0;i<1000000;i++){
-		if(sector_num[i]!=-1 && block_num[i]!=-1){			
-			if(block_count[block_num[i]]!=0){
-				count_test++;
-				benefit=(float)block_count[block_num[i]]/64;
-				benefit/=64;
-				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
-				//fprintf(a,"%s\n",tmp);
-				final+=sector_count[sector_num[i]];								
-				sprintf(tmp,"write to txt:%d %d",final,count_test);										
-				fprintf(info,"%s\n",tmp);
-			}
-		}		
-	}
-	fclose(info);
-	//fclose(a);	
-}
-void only_for_you(unsigned int lpn,buffer_cache *ptr_buffer_cache){//for the bug....suck you
-  unsigned int logical_node_num = lpn/LRUSIZE;
-	int b=0;
-	int i;	  
-	for(i=0;i<1000000;i++){
-		if(block_num[i]==logical_node_num){//overwrite				
-		  block_count[logical_node_num]++;
-		  b=1;
-		  break;
-		  }
-	  }
-	if(b==0){//create new sector or block
-		block_num[block_index]=logical_node_num;
-		block_index++;
-		block_count[logical_node_num]++;
-	}
-	A_write_to_txt(1);
 }
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {

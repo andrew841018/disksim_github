@@ -1,68 +1,7 @@
-write to txt(not in function):1 write to txt:1 1
-write to txt(not in function):2 write to txt:2 1
-write to txt(not in function):3 write to txt:3 1
-write to txt(not in function):4 write to txt:4 1
-write to txt(not in function):5 write to txt:5 1
-write to txt(not in function):6 write to txt:6 1
-write to txt(not in function):7 write to txt:7 1
-write to txt(not in function):8 write to txt:8 1
-write to txt(not in function):9 write to txt:9 1
-write to txt(not in function):10 write to txt:10 1
-write to txt(not in function):11 write to txt:11 1
-write to txt(not in function):12 write to txt:12 1
-write to txt:13 2
-write to txt(not in function):13 write to txt:14 1
-write to txt:15 2
-write to txt(not in function):14 write to txt:16 1
-write to txt:17 2
-write to txt(not in function):15 write to txt:18 1
-write to txt:19 2
-write to txt(not in function):16 write to txt:20 1
-write to txt:21 2
-write to txt(not in function):17 write to txt:22 1
-write to txt:23 2
-write to txt(not in function):18 write to txt:24 1
-write to txt:25 2
-write to txt(not in function):19 write to txt:26 1
-write to txt:27 2
-write to txt(not in function):20 write to txt:28 1
-write to txt:29 2
-write to txt(not in function):21 write to txt:30 1
-write to txt:31 2
-write to txt(not in function):22 write to txt:32 1
-write to txt:33 2
-write to txt:34 3
-write to txt(not in function):23 write to txt:35 1
-write to txt:36 2
-write to txt:37 3
-write to txt(not in function):24 write to txt:38 1
-write to txt:39 2
-write to txt:40 3
-write to txt(not in function):25 write to txt:41 1
-write to txt:42 2
-write to txt:43 3
-write to txt(not in function):26 write to txt:44 1
-write to txt:45 2
-write to txt:46 3
-write to txt(not in function):27 write to txt:47 1
-write to txt:48 2
-write to txt:49 3
-write to txt(not in function):28 write to txt:50 1
-write to txt:51 2
-write to txt:52 3
-write to txt(not in function):29 write to txt:53 1
-write to txt:54 2
-write to txt:55 3
-write to txt(not in function):30 write to txt:56 1
-write to txt:57 2
-write to txt:58 3
-write to txt(not in function):31 write to txt:59 1
-write to txt:60 2
-write to txt:61 3
-write to txt(not in function):32 write to txt:62 1
-write to txt:63 2
-write to txt:64 3
-write to txt(not in function):33 write to txt:65 1
-write to txt:66 2
-write to txt:67 3
-write to txt:68 4
+write to txt(not in function):1 count:16 blkno:0
+write to txt(not in function):1 count:16 blkno:0
+write to txt(not in function):1 count:16 blkno:0
+write to txt(not in function):1 count:16 blkno:0
+write to txt(not in function):1 blkno:0
+write to txt(not in function):1 blkno:0
+write to txt(not in function):1 blkno:0
