@@ -3557,12 +3557,13 @@ void init_array(){
 	}
 }
 int req=0;
-char special[100];
+int wb1;
+unsigned count;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
   static int full_cache = 0;
-  unsigned int lpn,blkno,count,scount; //sector count
+  unsigned int lpn,blkno,scount; //sector count
   ssd_t *currdisk;
   currdisk = getssd (curr->devno);
   blkno = curr->blkno;
@@ -3571,7 +3572,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   lru_node *lru;
   int flag;
   int wb=1;
-  strcpy(special,"access confirm");
+  wb1=1;
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -3702,7 +3703,7 @@ void A_write_to_txt(int g){
 				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
 				//fprintf(a,"%s\n",tmp);
 				final+=sector_count[sector_num[i]];								
-				sprintf(tmp,"write to txt:%d %s",final,special);										
+				sprintf(tmp,"write to txt:%d count:%d",final,count);										
 				fprintf(info,"%s\n",tmp);
 			}
 		}		
@@ -3710,7 +3711,7 @@ void A_write_to_txt(int g){
 	fclose(info);
 	//fclose(a);	
 }
-
+int only_for_you=0;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3721,7 +3722,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   unsigned int offset_in_node = lpn % LRUSIZE;
   unsigned int physical_node_num, phy_node_offset;
   
-  while(strcmp(special,"access confirm")==0){//bug:somehow when final_count=12 A_write_to_txt will execute twice.	  
+  if(wb1==1 && only_for_you==0){//bug:somehow when final_count=12 A_write_to_txt will execute twice.	  	  
 	  int b=0;
 	  int i;	  
 	  for(i=0;i<1000000;i++){
@@ -3737,7 +3738,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		  block_count[logical_node_num]++;
 	  }
 	  A_write_to_txt(1);
-	  break;	  
+	  only_for_you=5438;
+	  wb1=0;
 }
   
   physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
