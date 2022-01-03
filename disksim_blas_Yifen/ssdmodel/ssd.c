@@ -3603,6 +3603,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
 	lru_node *lru;
 	int flag;
+  //wb->block[i]->sector[j]->sector_number....i=logical_block_number,j=sector number
 	buf *wb;
   lpn = ssd_logical_pageno(blkno,currdisk);
   unsigned int logical_node_num = lpn/LRUSIZE;
