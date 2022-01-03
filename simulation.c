@@ -36,11 +36,11 @@ int main(){
     wb=malloc(sizeof(buf));
     wb->free_block=40;	
     for(i=0;i<wb->free_block;i++){
-		wb->block[i]=malloc(sizeof(buf));
-		wb->block[i]->duration=0;
-		wb->block[i]->full=0;
-		wb->block[i]->sector_index=0;
-		wb->block[i]->physical_block_number=-1;
+      wb->block[i]=malloc(sizeof(buf));
+      wb->block[i]->duration=0;
+      wb->block[i]->full=0;
+      wb->block[i]->sector_index=0;
+      wb->block[i]->physical_block_number=-1;
 		for(j=0;j<64;j++){
 			wb->block[i]->sector_num[j]=-1;
 		}
