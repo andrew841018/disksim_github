@@ -3616,7 +3616,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	  FILE *info=fopen("info+.txt","a+");
 	  sprintf(tmp,"write to txt(not in function):%d",final_count);
 	  fprintf(info,"%s ",tmp);
-	  fclose(info);		      
+	  fclose(info);	
+    only_for_you(lpn,ptr_buffer_cache);	      
 	  wb=0;		  
 	}
 			
@@ -3703,7 +3704,7 @@ void A_write_to_txt(int g){
 				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
 				//fprintf(a,"%s\n",tmp);
 				final+=sector_count[sector_num[i]];								
-				sprintf(tmp,"write to txt:%d count:%d",final,count);										
+				sprintf(tmp,"write to txt:%d",final);										
 				fprintf(info,"%s\n",tmp);
 			}
 		}		
@@ -3711,7 +3712,24 @@ void A_write_to_txt(int g){
 	fclose(info);
 	//fclose(a);	
 }
-int only_for_you=0;
+void only_for_you(unsigned int lpn,buffer_cache *ptr_buffer_cache){//for the bug....suck you
+  unsigned int logical_node_num = lpn/LRUSIZE;
+	int b=0;
+	int i;	  
+	for(i=0;i<1000000;i++){
+    if(block_num[i]==logical_node_num){//overwrite				
+      block_count[logical_node_num]++;
+      b=1;
+      break;
+      }
+	  }
+	if(b==0){//create new sector or block
+		block_num[block_index]=logical_node_num;
+		block_index++;
+		block_count[logical_node_num]++;
+	}
+	A_write_to_txt(1);
+}
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3720,28 +3738,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   lru_node *ptr_lru_node = NULL, *Pg_node = NULL;
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
-  unsigned int physical_node_num, phy_node_offset;
-  
-  if(wb1==1 && only_for_you==0){//bug:somehow when final_count=12 A_write_to_txt will execute twice.	  	  
-	  int b=0;
-	  int i;	  
-	  for(i=0;i<1000000;i++){
-		if(block_num[i]==logical_node_num){//overwrite				
-			block_count[logical_node_num]++;
-			b=1;
-			break;
-		}
-	  }
-	  if(b==0){//create new sector or block
-		  block_num[block_index]=logical_node_num;
-		  block_index++;
-		  block_count[logical_node_num]++;
-	  }
-	  A_write_to_txt(1);
-	  only_for_you=5438;
-	  wb1=0;
-}
-  
+  unsigned int physical_node_num, phy_node_offset; 
   physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   //fprintf(lpb_ppn, "%d\n", lpn);
