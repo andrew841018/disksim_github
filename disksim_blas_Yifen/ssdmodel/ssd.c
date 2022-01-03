@@ -98,6 +98,15 @@ typedef struct _buffer_page
   unsigned int rcover;
   unsigned int wcover;
 }buffer_page;
+typedef struct write_buffer
+{
+	struct write_buffer *block[100000000];
+	struct write_buffer *sector[10000000];
+	int block_count;
+ // int sector_num;
+ // int block_num;
+	int sector_count;
+}buf;
 typedef struct  _lru_node
 {
   unsigned int logical_node_num;        //logical_node_num == lpn / LRUSIZE
@@ -210,7 +219,7 @@ void add_read_intensive_page_to_list(unsigned int page_offset,lru_node *ptr_lru_
 void show_result(buffer_cache *ptr_buffer_cache);
 void record_all_request_access_count(char *trace_file_name);
 static void ssd_activate_elem(ssd_t *currdisk, int elem_num);
-void A_write_to_txt(int g);
+void A_write_to_txt(int g,buf *wb);
 //speed up the search time
 void add_node_to_read_access_list(unsigned int logical_number,double increase_score);
 void increase_node_count(unsigned int logical_number,double increase_score);
@@ -3540,33 +3549,20 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   // }
   return strip_way;
 } 
-
 int final_count=0;
-int sector_index=0,block_index=0;
 int init=1;
-typedef struct write_buffer
-{
-	struct write_buffer *block[100000000];
-	struct write_buffer *sector[10000000];
-	int block_count;
- // int sector_num;
- // int block_num;
-	int sector_count;
-	
-}buf;
-void init_array(){
+void init_array(buf *wb){
 	int i;
 	for(i=0;i<100000000;i++){
 		wb->block[i]=malloc(sizeof(buf));
-    wb->sector[i]=malloc(sizeof(buf));
-    wb->block[i]->block_count=0;
-    wb->sector[i]->sector_count=0;
+		wb->sector[i]=malloc(sizeof(buf));
+		wb->block[i]->block_count=0;
+		wb->sector[i]->sector_count=0;
 	}
 }
 int final=0;
-
-void A_write_to_txt(int g){
-	int i;
+void A_write_to_txt(int g,buf *wb){
+	int i,j;
 	char tmp[100];
 	double benefit;
 	int count_test=0;
@@ -3605,12 +3601,12 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	int flag;
   //wb->block[i]->sector[j]->sector_number....i=logical_block_number,j=sector number
 	buf *wb;
-  lpn = ssd_logical_pageno(blkno,currdisk);
-  unsigned int logical_node_num = lpn/LRUSIZE;
-  wb=malloc(sizeof(buf));
+	lpn = ssd_logical_pageno(blkno,currdisk);
+	unsigned int logical_node_num = lpn/LRUSIZE;
+	wb=malloc(sizeof(buf));
 	char tmp[100];
 	if(init==1){
-		init_array();
+		init_array(wb);
 		init=0;
 	}
 	int b=0,i; 
@@ -3633,7 +3629,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	sprintf(tmp,"write to txt(not in function):%d blkno:%d",final_count,blkno);
 	fprintf(info,"%s\n",tmp);
 	fclose(info);	
-	A_write_to_txt(1);
+	A_write_to_txt(1,wb);
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -3658,8 +3654,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
-  if(max<blkno)
-	max=blkno;
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -3694,8 +3688,6 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   lru_node *ptr_lru_node = NULL;
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
-  if(max<logical_node_num)
-	max=logical_node_num;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
 
   while(1)
@@ -5963,12 +5955,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 {
 
   //report the last result
-	//A_write_to_txt(1);
-	char tmp[100];
-	FILE *info=fopen("info.txt","a+");
-	sprintf(tmp,"%d",max);
-	fprintf(info,"%s\n",tmp);
-	fclose(info);
+	//A_write_to_txt(1);	
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
