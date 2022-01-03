@@ -1,0 +1,110 @@
+write to txt:1 wb:1 a_count:1 sector:0 sector count:1 total sector count:1 a_count:1
+write to txt:2 wb:1 a_count:2 sector:0 sector count:1 total sector count:2 a_count:2
+write to txt:3 wb:1 a_count:3 sector:0 sector count:1 total sector count:3 a_count:3
+write to txt:4 wb:1 a_count:4 sector:0 sector count:1 total sector count:4 a_count:4
+write to txt:5 wb:1 a_count:5 sector:0 sector count:1 total sector count:5 a_count:5
+write to txt:6 wb:1 a_count:6 sector:0 sector count:1 total sector count:6 a_count:6
+write to txt:7 wb:1 a_count:7 sector:0 sector count:1 total sector count:7 a_count:7
+write to txt:8 wb:1 a_count:8 sector:0 sector count:1 total sector count:8 a_count:8
+write to txt:9 wb:1 a_count:9 sector:0 sector count:1 total sector count:9 a_count:9
+write to txt:10 wb:1 a_count:10 sector:0 sector count:1 total sector count:10 a_count:10
+write to txt:11 wb:1 a_count:11 sector:0 sector count:1 total sector count:11 a_count:11
+write to txt:12 wb:1 a_count:12 sector:0 sector count:1 total sector count:12 a_count:12
+sector:32 sector count:1 total sector count:13 a_count:12
+write to txt:13 wb:1 a_count:13 sector:0 sector count:1 total sector count:14 a_count:13
+sector:32 sector count:1 total sector count:15 a_count:13
+write to txt:14 wb:1 a_count:14 sector:0 sector count:1 total sector count:16 a_count:14
+sector:32 sector count:1 total sector count:17 a_count:14
+write to txt:15 wb:1 a_count:15 sector:0 sector count:1 total sector count:18 a_count:15
+sector:32 sector count:1 total sector count:19 a_count:15
+write to txt:16 wb:1 a_count:16 sector:0 sector count:1 total sector count:20 a_count:16
+sector:32 sector count:1 total sector count:21 a_count:16
+write to txt:17 wb:1 a_count:17 sector:0 sector count:1 total sector count:22 a_count:17
+sector:32 sector count:1 total sector count:23 a_count:17
+write to txt:18 wb:1 a_count:18 sector:0 sector count:1 total sector count:24 a_count:18
+sector:32 sector count:1 total sector count:25 a_count:18
+write to txt:19 wb:1 a_count:19 sector:0 sector count:1 total sector count:26 a_count:19
+sector:32 sector count:1 total sector count:27 a_count:19
+write to txt:20 wb:1 a_count:20 sector:0 sector count:1 total sector count:28 a_count:20
+sector:32 sector count:1 total sector count:29 a_count:20
+write to txt:21 wb:1 a_count:21 sector:0 sector count:1 total sector count:30 a_count:21
+sector:32 sector count:1 total sector count:31 a_count:21
+write to txt:22 wb:1 a_count:22 sector:0 sector count:1 total sector count:32 a_count:22
+sector:32 sector count:1 total sector count:33 a_count:22
+sector:128 sector count:1 total sector count:34 a_count:22
+write to txt:23 wb:1 a_count:23 sector:0 sector count:1 total sector count:35 a_count:23
+sector:32 sector count:1 total sector count:36 a_count:23
+sector:128 sector count:1 total sector count:37 a_count:23
+write to txt:24 wb:1 a_count:24 sector:0 sector count:1 total sector count:38 a_count:24
+sector:32 sector count:1 total sector count:39 a_count:24
+sector:128 sector count:1 total sector count:40 a_count:24
+write to txt:25 wb:1 a_count:25 sector:0 sector count:1 total sector count:41 a_count:25
+sector:32 sector count:1 total sector count:42 a_count:25
+sector:128 sector count:1 total sector count:43 a_count:25
+write to txt:26 wb:1 a_count:26 sector:0 sector count:1 total sector count:44 a_count:26
+sector:32 sector count:1 total sector count:45 a_count:26
+sector:128 sector count:1 total sector count:46 a_count:26
+write to txt:27 wb:1 a_count:27 sector:0 sector count:1 total sector count:47 a_count:27
+sector:32 sector count:1 total sector count:48 a_count:27
+sector:128 sector count:1 total sector count:49 a_count:27
+write to txt:28 wb:1 a_count:28 sector:0 sector count:1 total sector count:50 a_count:28
+sector:32 sector count:1 total sector count:51 a_count:28
+sector:128 sector count:1 total sector count:52 a_count:28
+write to txt:29 wb:1 a_count:29 sector:0 sector count:1 total sector count:53 a_count:29
+sector:32 sector count:1 total sector count:54 a_count:29
+sector:128 sector count:1 total sector count:55 a_count:29
+write to txt:30 wb:1 a_count:30 sector:0 sector count:1 total sector count:56 a_count:30
+sector:32 sector count:1 total sector count:57 a_count:30
+sector:128 sector count:1 total sector count:58 a_count:30
+write to txt:31 wb:1 a_count:31 sector:0 sector count:1 total sector count:59 a_count:31
+sector:32 sector count:1 total sector count:60 a_count:31
+sector:128 sector count:1 total sector count:61 a_count:31
+write to txt:32 wb:1 a_count:32 sector:0 sector count:1 total sector count:62 a_count:32
+sector:32 sector count:1 total sector count:63 a_count:32
+sector:128 sector count:1 total sector count:64 a_count:32
+write to txt:33 wb:1 a_count:33 sector:0 sector count:1 total sector count:65 a_count:33
+sector:32 sector count:1 total sector count:66 a_count:33
+sector:128 sector count:1 total sector count:67 a_count:33
+sector:216 sector count:1 total sector count:68 a_count:33
+write to txt:34 wb:1 a_count:34 sector:0 sector count:1 total sector count:69 a_count:34
+sector:32 sector count:1 total sector count:70 a_count:34
+sector:128 sector count:1 total sector count:71 a_count:34
+sector:216 sector count:1 total sector count:72 a_count:34
+write to txt:35 wb:1 a_count:35 sector:0 sector count:1 total sector count:73 a_count:35
+sector:32 sector count:1 total sector count:74 a_count:35
+sector:128 sector count:1 total sector count:75 a_count:35
+sector:216 sector count:1 total sector count:76 a_count:35
+write to txt:36 wb:1 a_count:36 sector:0 sector count:1 total sector count:77 a_count:36
+sector:32 sector count:1 total sector count:78 a_count:36
+sector:128 sector count:1 total sector count:79 a_count:36
+sector:216 sector count:1 total sector count:80 a_count:36
+write to txt:37 wb:1 a_count:37 sector:0 sector count:1 total sector count:81 a_count:37
+sector:32 sector count:1 total sector count:82 a_count:37
+sector:128 sector count:1 total sector count:83 a_count:37
+sector:216 sector count:1 total sector count:84 a_count:37
+write to txt:38 wb:1 a_count:38 sector:0 sector count:1 total sector count:85 a_count:38
+sector:32 sector count:1 total sector count:86 a_count:38
+sector:128 sector count:1 total sector count:87 a_count:38
+sector:216 sector count:1 total sector count:88 a_count:38
+write to txt:39 wb:1 a_count:39 sector:0 sector count:1 total sector count:89 a_count:39
+sector:32 sector count:1 total sector count:90 a_count:39
+sector:128 sector count:1 total sector count:91 a_count:39
+sector:216 sector count:1 total sector count:92 a_count:39
+write to txt:40 wb:1 a_count:40 sector:0 sector count:1 total sector count:93 a_count:40
+sector:32 sector count:1 total sector count:94 a_count:40
+sector:128 sector count:1 total sector count:95 a_count:40
+sector:216 sector count:1 total sector count:96 a_count:40
+write to txt:41 wb:1 a_count:41 sector:0 sector count:1 total sector count:97 a_count:41
+sector:32 sector count:1 total sector count:98 a_count:41
+sector:128 sector count:1 total sector count:99 a_count:41
+sector:216 sector count:1 total sector count:100 a_count:41
+write to txt:42 wb:1 a_count:42 sector:0 sector count:1 total sector count:101 a_count:42
+sector:32 sector count:1 total sector count:102 a_count:42
+sector:128 sector count:1 total sector count:103 a_count:42
+sector:216 sector count:1 total sector count:104 a_count:42
+sector:248 sector count:1 total sector count:105 a_count:42
+write to txt:43 wb:1 a_count:43 sector:0 sector count:1 total sector count:106 a_count:43
+sector:32 sector count:1 total sector count:107 a_count:43
+sector:128 sector count:1 total sector count:108 a_count:43
+sector:216 sector count:1 total sector count:109 a_count:43
+sector:248 sector count:1 total sector count:110 a_count:43
