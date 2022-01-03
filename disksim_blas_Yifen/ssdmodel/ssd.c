@@ -3541,21 +3541,27 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   return strip_way;
 } 
 
-long int sector_count[10000000000]={0};
-long int sector_num[10000000000];
-long int block_count[10000000000]={0};
-long int block_num[10000000000];
 int final_count=0;
 int sector_index=0,block_index=0;
 int init=1;
+typedef struct write_buffer
+{
+	struct write_buffer *block[100000000];
+	struct write_buffer *sector[10000000];
+	int block_num;
+	int block_count;
+	int sector_count;
+	int sector_num;
+	
+}wb;
 void init_array(){
 	int i;
-	for(i=0;i<10000000000;i++){
-		sector_num[i]=-1;
-		block_num[i]=-1;
+	for(i=0;i<100000000;i++){
+		
 	}
 }
 int final=0;
+/*
 void A_write_to_txt(int g){
 	int i;
 	char tmp[100];
@@ -3563,7 +3569,7 @@ void A_write_to_txt(int g){
 	int count_test=0;
 	FILE *info=fopen("info+.txt","a+");	
 	//FILE *a=fopen("a.txt","a+");		
-	for(i=0;i<10000000000;i++){
+	for(i=0;i<1000000;i++){
 		if(sector_num[i]!=-1 && block_num[i]!=-1){			
 			if(block_count[block_num[i]]!=0){
 				count_test++;
@@ -3581,11 +3587,12 @@ void A_write_to_txt(int g){
 	fclose(info);
 	//fclose(a);	
 }
+
 void only_for_you(unsigned int lpn){//for the bug....suck you
   unsigned int logical_node_num = lpn/LRUSIZE;
 	int b=0;
 	int i;	  
-	for(i=0;i<10000000000;i++){
+	for(i=0;i<1000000;i++){
 		if(block_num[i]==logical_node_num){//overwrite				
 		  block_count[logical_node_num]++;
 		  b=1;
@@ -3598,7 +3605,8 @@ void only_for_you(unsigned int lpn){//for the bug....suck you
 		block_count[logical_node_num]++;
 	}
 	A_write_to_txt(1);
-}
+}*/
+int max=0;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
 	int t=0,h=0;
@@ -3610,13 +3618,14 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
 	lru_node *lru;
 	int flag;
+	/*
 	char tmp[100];
 	if(init==1){
 		init_array();
 		init=0;
 	}
 	int b=0,i; 
-	for(i=0;i<10000000000;i++){
+	for(i=0;i<1000000;i++){
 		if(sector_num[i]==blkno){//overwrite
 			final_count++;	
 			sector_count[blkno]++;
@@ -3634,7 +3643,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	sprintf(tmp,"write to txt(not in function):%d blkno:%d",final_count,blkno);
 	fprintf(info,"%s\n",tmp);
 	fclose(info);	
-	only_for_you(lpn);	      
+	only_for_you(lpn);	*/      
 	
   while(count > 0)
   {
@@ -3660,7 +3669,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
-  
+  if(max<blkno)
+	max=blkno;
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -3695,7 +3705,8 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   lru_node *ptr_lru_node = NULL;
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
-  
+  if(max<logical_node_num)
+	max=logical_node_num;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
 
   while(1)
@@ -5963,7 +5974,12 @@ void show_result(buffer_cache *ptr_buffer_cache)
 {
 
   //report the last result
-	//A_write_to_txt(1);	
+	//A_write_to_txt(1);
+	char tmp[100];
+	FILE *info=fopen("info.txt","a+");
+	sprintf(tmp,"%d",max);
+	fprintf(info,"%s\n",tmp);
+	fclose(info);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);

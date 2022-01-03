@@ -1,7 +1,0 @@
-write to txt(not in function):1 count:16 blkno:0
-write to txt(not in function):1 count:16 blkno:0
-write to txt(not in function):1 count:16 blkno:0
-write to txt(not in function):1 count:16 blkno:0
-write to txt(not in function):1 blkno:0
-write to txt(not in function):1 blkno:0
-write to txt(not in function):1 blkno:0
