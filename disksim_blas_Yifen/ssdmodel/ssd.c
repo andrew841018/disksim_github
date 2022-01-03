@@ -3557,7 +3557,7 @@ void init_array(){
 	}
 }
 int req=0;
-int wb1;
+char *special;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -3571,7 +3571,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   lru_node *lru;
   int flag;
   int wb=1;
-  wb1=1;
+  special="access confirm";
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -3611,11 +3611,11 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		  sector_num[sector_index]=blkno;		  
 		  sector_index++;
 		  sector_count[blkno]++;	 		  
-	  } 
+	  }
 	  FILE *info=fopen("info+.txt","a+");
-	  sprintf(tmp,"write to txt:%d wb:%d a_count:%d",final_count,wb,a_count);
+	  sprintf(tmp,"write to txt(not in function):%d",final_count);
 	  fprintf(info,"%s ",tmp);
-	  fclose(info);		    
+	  fclose(info);		      
 	  wb=0;		  
 	}
 			
@@ -3700,9 +3700,9 @@ void A_write_to_txt(int g){
 				benefit=(float)block_count[block_num[i]]/64;
 				benefit/=64;
 				sprintf(tmp,"%d %d %.20f %d",sector_num[i],block_num[i],benefit,sector_count[sector_num[i]]);
-				//fprintf(a,"%s\n",tmp);			
-				final+=sector_count[sector_num[i]];	
-				sprintf(tmp,"sector:%d sector count:%d total sector count:%d a_count:%d",sector_num[i],sector_count[sector_num[i]],final,a_count);										
+				//fprintf(a,"%s\n",tmp);
+				final+=sector_count[sector_num[i]];								
+				sprintf(tmp,"write to txt:%d",final);										
 				fprintf(info,"%s\n",tmp);
 			}
 		}		
@@ -3720,7 +3720,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
   unsigned int physical_node_num, phy_node_offset;
-  while(wb1==1){
+  
+  while(*special=="access confirm"){//bug:somehow when final_count=12 A_write_to_txt will execute twice.
+	  
 	  int b=0;
 	  int i;	  
 	  for(i=0;i<1000000;i++){
@@ -3735,8 +3737,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		  block_index++;
 		  block_count[logical_node_num]++;
 	  }
-	  A_write_to_txt(1);  
-	  wb1=0;
+	  A_write_to_txt(1);
+	  *special="permission deied"; 
+	  break;
 }
   
   physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
