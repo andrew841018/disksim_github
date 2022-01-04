@@ -3581,6 +3581,13 @@ void A_write_to_txt(int max,buf *wb){
 	fclose(info);
 	//fclose(a);	
 }
+void init_struct(buf wb,int i){
+  wb->block[i]->sector_index=0;
+  wb->block[i]->block_num=-1;
+  wb->block[i]->block_count=0;
+  wb->block[i]->sector[wb->block[i]->sector_index]->sector_num=-1;
+  wb->block[i]->sector[wb->block[i]->sector_index]->sector_count=0;
+}
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
 	int t=0,h=0;
@@ -3597,7 +3604,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	unsigned int logical_node_num = lpn/LRUSIZE;
 	wb=malloc(sizeof(buf));
 	char tmp[100];
-	int b=0,i,j;//b=0, initial;b=1,overwrite;b=2,something wrong...alarm
+	int b=0,i,j;
+/*
   int max=0;
   //算出目前write buffer內有最多sector的block的數量，當成是max
   for(i=0;i<block_index;i++)
@@ -3637,10 +3645,11 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     if(b==1)
       break;
   }
-	
+	*/
 	if(b==0){//create new sector and block
 		final_count++;
 		wb->block[block_index]=malloc(sizeof(buf));
+    wb->block[block_index]->sector_index=0;
 		wb->block[block_index]->sector[wb->block[block_index]->sector_index]=malloc(sizeof(buf));
 		wb->block[block_index]->block_num=logical_node_num;//assign block number
 		wb->block[block_index]->sector[wb->block[block_index]->sector_index]->sector_num=blkno;//assign sector number
@@ -3648,12 +3657,13 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		wb->block[block_index]->sector[wb->block[block_index]->sector_index]->sector_count++;
 		block_index++;
 		wb->block[block_index]->sector_index++;//第block_index個block，的sector_index，也就是紀錄該block寫到第幾個sector
-	 }
+	  b=1;
+   }
 	FILE *info=fopen("info+.txt","a+");
 	sprintf(tmp,"write to txt(not in function):%d sector num:%d sector count:%d block num:%d block count:%d",final_count,blkno,wb->block[block_index-1]->sector[wb->block[block_index-1]->sector_index]->sector_count,logical_node_num,wb->block[block_index-1]->block_count);
 	fprintf(info,"%s\n",tmp);
 	fclose(info);	
-	A_write_to_txt(max,wb);
+	//A_write_to_txt(max,wb);
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
