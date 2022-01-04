@@ -3650,7 +3650,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		wb->block[block_index]->sector_index++;//第block_index個block，的sector_index，也就是紀錄該block寫到第幾個sector
 	 }
 	FILE *info=fopen("info+.txt","a+");
-	sprintf(tmp,"write to txt(not in function):%d blkno:%d block count:%d sector num:%d sector count:%d",final_count,blkno,wb->block[block_index-1]->block_count,blkno,);
+	sprintf(tmp,"write to txt(not in function):%d sector num:%d sector count:%d block num:%d block count:%d",final_count,blkno,wb->block[block_index-1]->sector[wb->block[block_index-1]->sector_index]->sector_count,logical_node_num,wb->block[block_index-1]->block_count);
 	fprintf(info,"%s\n",tmp);
 	fclose(info);	
 	A_write_to_txt(max,wb);
