@@ -1,5 +1,0 @@
-write to txt(not in function):1 blkno:0 block count:1
-hello
-write to txt(not in function):2 blkno:32 block count:1
-hello
-write to txt:1 sector_num:0 block_num:0
