@@ -98,13 +98,15 @@ typedef struct _buffer_page
   unsigned int rcover;
   unsigned int wcover;
 }buffer_page;
+int block_index=0;
 typedef struct write_buffer
 {
 	struct write_buffer *block[100000000];
 	struct write_buffer *sector[10000000];
 	int block_count;
- // int sector_num;
- // int block_num;
+  int block_num;
+  int sector_index;
+  int sector_num;
 	int sector_count;
 }buf;
 typedef struct  _lru_node
@@ -3550,16 +3552,6 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   return strip_way;
 } 
 int final_count=0;
-int init=1;
-void init_array(buf *wb){
-	int i;
-	for(i=0;i<100000000;i++){
-		wb->block[i]=malloc(sizeof(buf));
-		wb->sector[i]=malloc(sizeof(buf));
-		wb->block[i]->block_count=0;
-		wb->sector[i]->sector_count=0;
-	}
-}
 int final=0;
 void A_write_to_txt(int g,buf *wb){
 	int i,j;
@@ -3568,19 +3560,19 @@ void A_write_to_txt(int g,buf *wb){
 	int count_test=0;
 	FILE *info=fopen("info+.txt","a+");	
 	//FILE *a=fopen("a.txt","a+");		
-	for(i=0;i<100000000;i++){
-    for(j=0;j<100000000;j++){
+	for(i=0;i<max;i++){
+    for(j=0;j<max;j++){
       if(wb->block[i]->block_count==0)
         break;
-      else if(wb->block[i]->sector[j]->sector_count>0){
+      else if(wb->block[i]->sector[j]->sector_count>0){//this line is unnecessary just for double check
         count_test++;
         benefit=(float)wb->block[i]->block_count/64;
         benefit/=64;
         sprintf(tmp,"%d %d %.20f %d",j,i,benefit,wb->block[i]->sector[j]->sector_count);
         //fprintf(a,"%s\n",tmp);
-        fprintf(info,"%s\n",tmp);
+        //fprintf(info,"%s\n",tmp);
         final+=wb->block[i]->sector[j]->sector_count;
-        sprintf(tmp,"write to txt:%d number of block:%d sector_num:%d block_num:%d",final,count_test,j,i);										
+        sprintf(tmp,"write to txt:%d sector_num:%d block_num:%d",final,j,i);										
         fprintf(info,"%s\n",tmp);
       }
     }								
@@ -3599,7 +3591,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
 	lru_node *lru;
 	int flag;
-  //wb->block[i]->sector[j]->sector_number....i=logical_block_number,j=sector number
 	buf *wb;
 	lpn = ssd_logical_pageno(blkno,currdisk);
 	unsigned int logical_node_num = lpn/LRUSIZE;
@@ -3609,27 +3600,61 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		init_array(wb);
 		init=0;
 	}
-	int b=0,i; 
-	if(wb->block[logical_node_num]->sector[blkno]->sector_count>=1){//overwrite...old sector old block
-		final_count++;	
-		wb->block[logical_node_num]->sector[blkno]->sector_count++;
-    wb->block[logical_node_num]->block_count++;
-		b=1;			
-	}	
-  if(wb->block[logical_node_num]->block_count>=1 && wb->block[logical_node_num]->sector[blkno]->sector_count==0){//write to different sector but same block
-    wb->block[logical_node_num]->block_count++;
-    b=1;
+	int b=0,i;//b=0, initial;b=1,overwrite;b=2,something wrong...alarm
+  int max=0;
+  //算出目前write buffer內有最多sector的block的數量，當成是max
+  for(i=0;i<block_index;i++)
+    if(max<wb->block[i]->sector_index)
+      max=wb->block[i]->sector_index;
+
+  for(i=0;i<max;i++){//because sector_index is bigger
+    for(j=0;j<max;j++){
+      if(wb->block[i]->block_num==logical_node_num && wb->block[i]->sector[j]->sector_num==blkno){//overwrite...old sector old block=overwrite sector
+        if(logical_node_num==0 || blkno==0){
+          if(wb->block[i]->block_count>0 &&  wb->block[i]->sector[j]->sector_count>0){//avoid block 0 or sector 0 situation
+            b==1;
+          }
+        }
+        else{//在條件式內，block & sector又都不等於0，可放心overwrite
+          b=1;
+        }
+        if(b==1){
+          final_count++;	
+          wb->block[i]->block_count++;
+          wb->block[i]->sector[j]->sector_count++;
+          break; 
+        }
+        
+      }
+      else if(wb->block[i]->block_num==logical_node_num){//write to different sector but same block
+        wb->block[i]->block_count++;
+        wb->block[i]->sector[wb->block[i]->sector_index]=malloc(sizeof(buf));
+        wb->block[i]->sector[wb->block[i]->sector_index]->sector_num=blkno;
+        wb->block[i]->sector[wb->block[i]->sector_index]->sector_count++;
+        wb->block[i]->sector_index++;
+        b=1;
+      }
+    }
+    if(b==1)
+      break;
   }
-	if(b==0){//create new sector or block
+	
+	if(b==0){//create new sector and block
 		final_count++;
-    wb->block[logical_node_num]->sector[blkno]->sector_count++;
-    wb->block[logical_node_num]->block_count++;
+    wb->block[block_index]=malloc(sizeof(buf));
+    wb->block[block_index]->sector[wb->block[block_index]->sector_index]=malloc(sizeof(buf));
+    wb->block[block_index]->block_num=logical_node_num;//assign block number
+    wb->block[block_index]->sector[wb->block[block_index]->sector_index]->sector_num=blkno;//assign sector number
+    wb->block[block_index]->block_count++;
+    wb->block[block_index]->sector[sector_index]->sector_count++;
+    block_index++;
+    wb->block[block_index]->sector_index++;//第block_index個block，的sector_index，也就是紀錄該block寫到第幾個sector
 	 }
 	FILE *info=fopen("info+.txt","a+");
 	sprintf(tmp,"write to txt(not in function):%d blkno:%d",final_count,blkno);
 	fprintf(info,"%s\n",tmp);
 	fclose(info);	
-	A_write_to_txt(1,wb);
+	A_write_to_txt(max,wb);
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
