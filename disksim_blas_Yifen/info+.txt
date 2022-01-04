@@ -1,5 +1,5 @@
-write to txt(not in function):1 sector num:0 sector count:0 block num:0 block count:1
+write to txt(not in function):1 blkno:0 block count:1
 hello
-write to txt(not in function):2 sector num:32 sector count:1 block num:0 block count:1
+write to txt(not in function):2 blkno:32 block count:1
 hello
 write to txt:1 sector_num:0 block_num:0
