@@ -3553,29 +3553,30 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 } 
 int final_count=0;
 int final=0;
-void A_write_to_txt(int g,buf *wb){
+void A_write_to_txt(int max,buf *wb){
 	int i,j;
 	char tmp[100];
 	double benefit;
 	int count_test=0;
-	FILE *info=fopen("info+.txt","a+");	
+	FILE *info=fopen("info+.txt","a+");
+	fprintf(info,"%s\n","hello");	
 	//FILE *a=fopen("a.txt","a+");		
 	for(i=0;i<max;i++){
-    for(j=0;j<max;j++){
-      if(wb->block[i]->block_count==0)
-        break;
-      else if(wb->block[i]->sector[j]->sector_count>0){//this line is unnecessary just for double check
-        count_test++;
-        benefit=(float)wb->block[i]->block_count/64;
-        benefit/=64;
-        sprintf(tmp,"%d %d %.20f %d",j,i,benefit,wb->block[i]->sector[j]->sector_count);
-        //fprintf(a,"%s\n",tmp);
-        //fprintf(info,"%s\n",tmp);
-        final+=wb->block[i]->sector[j]->sector_count;
-        sprintf(tmp,"write to txt:%d sector_num:%d block_num:%d",final,j,i);										
-        fprintf(info,"%s\n",tmp);
-      }
-    }								
+		for(j=0;j<max;j++){
+		  if(wb->block[i]->block_count==0)
+			break;
+		  else if(wb->block[i]->sector[j]->sector_count>0){//this line is unnecessary just for double check
+			count_test++;
+			benefit=(float)wb->block[i]->block_count/64;
+			benefit/=64;
+			sprintf(tmp,"%d %d %.20f %d",j,i,benefit,wb->block[i]->sector[j]->sector_count);
+			//fprintf(a,"%s\n",tmp);
+			//fprintf(info,"%s\n",tmp);
+			final+=wb->block[i]->sector[j]->sector_count;
+			sprintf(tmp,"write to txt:%d sector_num:%d block_num:%d",final,j,i);										
+			fprintf(info,"%s\n",tmp);
+		  }
+		}								
 	}		
 	fclose(info);
 	//fclose(a);	
@@ -3596,11 +3597,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	unsigned int logical_node_num = lpn/LRUSIZE;
 	wb=malloc(sizeof(buf));
 	char tmp[100];
-	if(init==1){
-		init_array(wb);
-		init=0;
-	}
-	int b=0,i;//b=0, initial;b=1,overwrite;b=2,something wrong...alarm
+	int b=0,i,j;//b=0, initial;b=1,overwrite;b=2,something wrong...alarm
   int max=0;
   //算出目前write buffer內有最多sector的block的數量，當成是max
   for(i=0;i<block_index;i++)
@@ -3627,12 +3624,14 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
         
       }
       else if(wb->block[i]->block_num==logical_node_num){//write to different sector but same block
+        final_count++;
         wb->block[i]->block_count++;
         wb->block[i]->sector[wb->block[i]->sector_index]=malloc(sizeof(buf));
         wb->block[i]->sector[wb->block[i]->sector_index]->sector_num=blkno;
         wb->block[i]->sector[wb->block[i]->sector_index]->sector_count++;
         wb->block[i]->sector_index++;
-        b=1;
+        b=1; 
+        break;      
       }
     }
     if(b==1)
@@ -3641,17 +3640,17 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	
 	if(b==0){//create new sector and block
 		final_count++;
-    wb->block[block_index]=malloc(sizeof(buf));
-    wb->block[block_index]->sector[wb->block[block_index]->sector_index]=malloc(sizeof(buf));
-    wb->block[block_index]->block_num=logical_node_num;//assign block number
-    wb->block[block_index]->sector[wb->block[block_index]->sector_index]->sector_num=blkno;//assign sector number
-    wb->block[block_index]->block_count++;
-    wb->block[block_index]->sector[sector_index]->sector_count++;
-    block_index++;
-    wb->block[block_index]->sector_index++;//第block_index個block，的sector_index，也就是紀錄該block寫到第幾個sector
+		wb->block[block_index]=malloc(sizeof(buf));
+		wb->block[block_index]->sector[wb->block[block_index]->sector_index]=malloc(sizeof(buf));
+		wb->block[block_index]->block_num=logical_node_num;//assign block number
+		wb->block[block_index]->sector[wb->block[block_index]->sector_index]->sector_num=blkno;//assign sector number
+		wb->block[block_index]->block_count++;
+		wb->block[block_index]->sector[wb->block[block_index]->sector_index]->sector_count++;
+		block_index++;
+		wb->block[block_index]->sector_index++;//第block_index個block，的sector_index，也就是紀錄該block寫到第幾個sector
 	 }
 	FILE *info=fopen("info+.txt","a+");
-	sprintf(tmp,"write to txt(not in function):%d blkno:%d",final_count,blkno);
+	sprintf(tmp,"write to txt(not in function):%d blkno:%d block count:%d sector num:%d sector count:%d",final_count,blkno,wb->block[block_index-1]->block_count,blkno,);
 	fprintf(info,"%s\n",tmp);
 	fclose(info);	
 	A_write_to_txt(max,wb);
