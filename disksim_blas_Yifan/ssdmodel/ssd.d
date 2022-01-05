@@ -8,7 +8,7 @@ ssd.o: ssd.c /usr/include/stdc-predef.h ssd.h ../src//disksim_global.h \
  /usr/include/i386-linux-gnu/gnu/stubs-32.h \
  /usr/include/i386-linux-gnu/bits/types.h \
  /usr/include/i386-linux-gnu/bits/typesizes.h /usr/include/time.h \
- /usr/lib/gcc/i686-linux-gnu/5/include/stddef.h /usr/include/endian.h \
+ /usr/lib/gcc/i686-linux-gnu/4.8/include/stddef.h /usr/include/endian.h \
  /usr/include/i386-linux-gnu/bits/endian.h \
  /usr/include/i386-linux-gnu/bits/byteswap.h \
  /usr/include/i386-linux-gnu/bits/byteswap-16.h \
@@ -19,7 +19,7 @@ ssd.o: ssd.c /usr/include/stdc-predef.h ssd.h ../src//disksim_global.h \
  /usr/include/i386-linux-gnu/sys/sysmacros.h \
  /usr/include/i386-linux-gnu/bits/pthreadtypes.h /usr/include/stdio.h \
  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
- /usr/lib/gcc/i686-linux-gnu/5/include/stdarg.h \
+ /usr/lib/gcc/i686-linux-gnu/4.8/include/stdarg.h \
  /usr/include/i386-linux-gnu/bits/stdio_lim.h \
  /usr/include/i386-linux-gnu/bits/sys_errlist.h /usr/include/stdlib.h \
  /usr/include/i386-linux-gnu/bits/waitflags.h \
@@ -45,10 +45,10 @@ ssd.o: ssd.c /usr/include/stdc-predef.h ssd.h ../src//disksim_global.h \
  ../src//disksim_stat.h ../src//disksim_ioqueue.h ../src//disksim_disk.h \
  ../src//disksim_ioqueue.h ../diskmodel/include/diskmodel/dm.h \
  ../diskmodel/include/diskmodel/dm_types.h /usr/include/inttypes.h \
- /usr/lib/gcc/i686-linux-gnu/5/include/stdint.h /usr/include/stdint.h \
+ /usr/lib/gcc/i686-linux-gnu/4.8/include/stdint.h /usr/include/stdint.h \
  /usr/include/i386-linux-gnu/bits/wchar.h ../src//disksim_bus.h \
  ../src//config.h ssd_timing.h ssd_clean.h modules/ssdmodel_ssd_param.h \
  ssd_gang.h ssd_init.h ../src//syssim_driver.h \
  ../src//disksim_interface.h \
- /usr/lib/gcc/i686-linux-gnu/5/include/stdbool.h \
+ /usr/lib/gcc/i686-linux-gnu/4.8/include/stdbool.h \
  /usr/include/i386-linux-gnu/sys/time.h

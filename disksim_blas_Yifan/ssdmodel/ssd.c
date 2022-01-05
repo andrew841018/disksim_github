@@ -98,10 +98,10 @@ typedef struct _buffer_page
 }buffer_page;
 typedef struct write_buffer
 {
-  unsigned int block_num;
+  int block_num;
   struct write_buffer *block[1000000];
   struct write_buffer *sector[1000000];
-  unsigned int sector_num;
+  int sector_num;
   unsigned int block_count;
   unsigned int sector_count;
   unsigned int sector_index;
@@ -3581,7 +3581,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   buf *wb;
   wb=malloc(sizeof(buf));
   int b=0;
-  if(init==1){ 
+  if(b==0){ //create new block
     init_struct(wb,block_index,2);
   }
   /*add page to buffer cache*/
