@@ -1609,6 +1609,7 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
+int block_index=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -3554,7 +3555,7 @@ void init_struct(buf *wb,int curr_index,int type){
     wb->block[curr_index]->sector_index=0;
   }
   if(type==1){//init sector
-    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]=malloc(sizeof(buf));
+    wb->block[curr_index]->sector[wb->block[i]->sector_index]=malloc(sizeof(buf));
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
   }
@@ -3566,7 +3567,7 @@ void init_struct(buf *wb,int curr_index,int type){
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
 }
-int block_index=0;
+
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
