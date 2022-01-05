@@ -3548,9 +3548,10 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 int init=1;
 int block_index=0;
 void init_struct(buf *wb,int curr_index,int type){
+  int i;
   wb->block[curr_index]=malloc(sizeof(buf));
   if(type==1){//init sector
-    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]=malloc(sizeof(buf));
+	wb->block[i]->sector[wb->block[i]->sector_index]=malloc(sizeof(buf));
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
   }
@@ -3558,7 +3559,7 @@ void init_struct(buf *wb,int curr_index,int type){
     wb->block[curr_index]->block_count=0;
     wb->block[curr_index]->block_num=-1;
     wb->block[curr_index]->sector_index=0;
-    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]=malloc(sizeof(buf));
+	wb->block[i]->sector[wb->block[i]->sector_index]=malloc(sizeof(buf));
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
 }
@@ -3688,11 +3689,12 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   wb=malloc(sizeof(buf));
   int b=0;
   int i,j;
+  init_struct(wb,block_index,2);
   for(i=0;i<block_index;i++){
     for(j=0;j<wb->block[i]->sector_index;j++){
       if(wb->block[i]->block_count==0)
         break;
-      if(wb->block[i]->sector[j]->sector_num=blk){//same block same sector...sector overwrite
+      if(wb->block[i]->sector[j]->sector_num=blkno){//same block same sector...sector overwrite
         wb->block[i]->block_count++;
         wb->block[i]->sector[j]->sector_count++;
         wb->block[i]->sector_index++;
@@ -3702,7 +3704,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       else if(wb->block[i]->block_num==logical_node_num){//same block different sector...block overwrite
         init_struct(wb,i,1);//init sector
         wb->block[i]->block_count++;
-        wb->block[i]->sector[j]->sector_num=blk;
+        wb->block[i]->sector[j]->sector_num=blkno;
         wb->block[i]->sector[j]->sector_count++;
         wb->block[i]->sector_index++;
         b=1;
@@ -3711,6 +3713,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     if(b==1)
       break;
+    if(block_index==3){
+		printf("ssss");
+	}
   }
   if(b==0){ //create new block
     init_struct(wb,block_index,2); //type:1...sector,2...both
@@ -3727,7 +3732,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  int i;
   /*printf("hash_Pg:");
   for(i=0;i<1000;i++)
   {
