@@ -3546,25 +3546,25 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   return strip_way;
 } 
 int init=1;
-void init_struct(buf *wb,int i,int type){
+void init_struct(buf *wb,int curr_index,int type){
   wb->block[i]=malloc(sizeof(buf));
   if(type==0){//init block    
-    wb->block[i]->block_count=0;
-    wb->block[i]->block_num=-1;
-    wb->block[i]->sector_index=0;
+    wb->block[curr_index]->block_count=0;
+    wb->block[curr_index]->block_num=-1;
+    wb->block[curr_index]->sector_index=0;
   }
   if(type==1){//init sector
-    wb->block[i]->sector[wb->block[i]->sector_index]=malloc(sizeof(buf));
-    wb->block[i]->sector[wb->block[i]->sector_index]->sector_num=-1;
-    wb->block[i]->sector[wb->block[i]->sector_index]->sector_count=0;
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]=malloc(sizeof(buf));
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
   }
   if(type==2)//init both
-    wb->block[i]->block_count=0;
-    wb->block[i]->block_num=-1;
-    wb->block[i]->sector_index=0;
-    wb->block[i]->sector[wb->block[i]->sector_index]=malloc(sizeof(buf));
-    wb->block[i]->sector[wb->block[i]->sector_index]->sector_num=-1;
-    wb->block[i]->sector[wb->block[i]->sector_index]->sector_count=0;
+    wb->block[curr_index]->block_count=0;
+    wb->block[curr_index]->block_num=-1;
+    wb->block[curr_index]->sector_index=0;
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]=malloc(sizeof(buf));
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
 }
 int block_index=0;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
