@@ -96,6 +96,16 @@ typedef struct _buffer_page
   unsigned int rcover;
   unsigned int wcover;
 }buffer_page;
+typedef struct write_buffer
+{
+  unsigned int block_num;
+  struct write_buffer *block[1000000];
+  struct write_buffer *sector[1000000];
+  unsigned int sector_num;
+  unsigned int block_count;
+  unsigned int sector_count;
+  unsigned int sector_index;
+}buf;
 typedef struct  _lru_node
 {
   unsigned int logical_node_num;        //logical_node_num == lpn / LRUSIZE
@@ -3535,9 +3545,28 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   // }
   return strip_way;
 } 
-
-
-
+int init=1;
+int block_index=0;
+void init_struct(buf *wb,int curr_index,int type){
+  wb->block[curr_index]=malloc(sizeof(buf));
+  if(type==0){//init block    
+    wb->block[curr_index]->block_count=0;
+    wb->block[curr_index]->block_num=-1;
+    wb->block[curr_index]->sector_index=0;
+  }
+  if(type==1){//init sector
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]=malloc(sizeof(buf));
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
+  }
+  if(type==2)//init both
+    wb->block[curr_index]->block_count=0;
+    wb->block[curr_index]->block_num=-1;
+    wb->block[curr_index]->sector_index=0;
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]=malloc(sizeof(buf));
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
+}
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -3548,7 +3577,13 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   blkno = curr->blkno;
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
-  int flag;
+  int flag; 
+  buf *wb;
+  wb=malloc(sizeof(buf));
+  int b=0;
+  if(init==1){ 
+    init_struct(wb,block_index,2);
+  }
   /*add page to buffer cache*/
   // fprintf(myoutput3, "////////////////////Hint queue Start/////////////////\n");
   // for(h=0;h<global_HQ_size;h++)
