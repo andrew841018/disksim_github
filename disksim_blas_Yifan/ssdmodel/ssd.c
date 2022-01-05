@@ -1609,7 +1609,6 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
-int block_index=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -3547,6 +3546,7 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   return strip_way;
 } 
 int init=1;
+int block_index=0;
 void init_struct(buf *wb,int curr_index,int type){
   wb->block[curr_index]=malloc(sizeof(buf));
   if(type==0){//init block    
