@@ -3693,12 +3693,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   wb=malloc(sizeof(buf));
   int b=0;
   int i,j;
+  /*
   wb=init_struct(wb,block_index,2);
   wb->block[0]->block_num=999;
   for(i=0;i<block_index;i++){
     for(j=0;j<wb->block[i]->sector_index;j++){
-      if(wb->block[i]->block_count==0)
-        break;
       if(wb->block[i]->sector[j]->sector_num=blkno){//same block same sector...sector overwrite
         wb->block[i]->block_count++;
         wb->block[i]->sector[j]->sector_count++;
@@ -3721,7 +3720,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     if(block_index==3){
 		printf("ssss");
 	}
-  }/*
+  }*/
   if(b==0){ //create new block
     wb=init_struct(wb,block_index,2); //type:1...sector,2...both
     wb->block[block_index]->block_num=logical_node_num;
@@ -3730,7 +3729,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     wb->block[block_index]->sector[wb->block[block_index]->sector_index]->sector_count++;
     wb->block[block_index]->sector_index++;
     block_index++;
-  }*/
+  }
   
 
 
