@@ -3,11 +3,11 @@ ssd_clean.o: ssd_clean.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/i386-linux-gnu/bits/wordsize.h \
  /usr/include/i386-linux-gnu/gnu/stubs.h \
  /usr/include/i386-linux-gnu/gnu/stubs-32.h \
- /usr/lib/gcc/i686-linux-gnu/4.8/include/stddef.h \
+ /usr/lib/gcc/i686-linux-gnu/5/include/stddef.h \
  /usr/include/i386-linux-gnu/bits/types.h \
  /usr/include/i386-linux-gnu/bits/typesizes.h /usr/include/libio.h \
  /usr/include/_G_config.h /usr/include/wchar.h \
- /usr/lib/gcc/i686-linux-gnu/4.8/include/stdarg.h \
+ /usr/lib/gcc/i686-linux-gnu/5/include/stdarg.h \
  /usr/include/i386-linux-gnu/bits/stdio_lim.h \
  /usr/include/i386-linux-gnu/bits/sys_errlist.h /usr/include/assert.h \
  /usr/include/string.h /usr/include/xlocale.h ssd.h \
@@ -45,7 +45,7 @@ ssd_clean.o: ssd_clean.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  ../src//disksim_stat.h ../src//disksim_ioqueue.h ../src//disksim_disk.h \
  ../src//disksim_ioqueue.h ../diskmodel/include/diskmodel/dm.h \
  ../diskmodel/include/diskmodel/dm_types.h /usr/include/inttypes.h \
- /usr/lib/gcc/i686-linux-gnu/4.8/include/stdint.h /usr/include/stdint.h \
+ /usr/lib/gcc/i686-linux-gnu/5/include/stdint.h /usr/include/stdint.h \
  /usr/include/i386-linux-gnu/bits/wchar.h ../src//disksim_bus.h \
  ../src//config.h ssd_clean.h modules/ssdmodel_ssd_param.h ssd_utils.h \
  ../src//syssim_driver.h ../src//disksim_interface.h
