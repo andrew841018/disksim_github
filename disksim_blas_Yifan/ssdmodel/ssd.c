@@ -3549,11 +3549,6 @@ int init=1;
 int block_index=0;
 void init_struct(buf *wb,int curr_index,int type){
   wb->block[curr_index]=malloc(sizeof(buf));
-  if(type==0){//init block    
-    wb->block[curr_index]->block_count=0;
-    wb->block[curr_index]->block_num=-1;
-    wb->block[curr_index]->sector_index=0;
-  }
   if(type==1){//init sector
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]=malloc(sizeof(buf));
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
@@ -3567,25 +3562,18 @@ void init_struct(buf *wb,int curr_index,int type){
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
 }
+unsigned blkno;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
   static int full_cache = 0;
-  unsigned int lpn,blkno,count,scount; //sector count
+  unsigned int lpn,count,scount; //sector count
   ssd_t *currdisk;
   currdisk = getssd (curr->devno);
   blkno = curr->blkno;
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag; 
-  buf *wb;
-  lpn = ssd_logical_pageno(blkno,currdisk);
-  unsigned logical_node_num = lpn/LRUSIZE;
-  wb=malloc(sizeof(buf));
-  int b=0;
-  if(b==0){ //create new block
-    init_struct(wb,block_index,2);
-  }
   /*add page to buffer cache*/
   // fprintf(myoutput3, "////////////////////Hint queue Start/////////////////\n");
   // for(h=0;h<global_HQ_size;h++)
@@ -3696,7 +3684,47 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //fprintf(lpb_ppn, "%d\n", lpn);
   //fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
   //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
+  buf *wb;
+  wb=malloc(sizeof(buf));
+  int b=0;
+  int i,j;
+  for(i=0;i<block_index;i++){
+    for(j=0;j<wb->block[i]->sector_index;j++){
+      if(wb->block[i]->block_count==0)
+        break;
+      if(wb->block[i]->sector[j]->sector_num=blk){//same block same sector...sector overwrite
+        wb->block[i]->block_count++;
+        wb->block[i]->sector[j]->sector_count++;
+        wb->block[i]->sector_index++;
+        b=1;
+        break;
+      }
+      else if(wb->block[i]->block_num==logical_node_num){//same block different sector...block overwrite
+        init_struct(wb,i,1);//init sector
+        wb->block[i]->block_count++;
+        wb->block[i]->sector[j]->sector_num=blk;
+        wb->block[i]->sector[j]->sector_count++;
+        wb->block[i]->sector_index++;
+        b=1;
+        break;
+      }
+    }
+    if(b==1)
+      break;
+  }
+  if(b==0){ //create new block
+    init_struct(wb,block_index,2); //type:1...sector,2...both
+    wb->block[block_index]->block_num=logical_node_num;
+    wb->block[block_index]->block_count++;
+    wb->block[block_index]->sector[wb->block[block_index]->sector_index]->sector_num=blkno;
+    wb->block[block_index]->sector[wb->block[block_index]->sector_index]->sector_count++;
+    wb->block[block_index]->sector_index++;
+    block_index++;
+
+  }
   
+
+
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   int i;
