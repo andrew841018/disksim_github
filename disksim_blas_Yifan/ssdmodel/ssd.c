@@ -3547,7 +3547,7 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 } 
 int init=1;
 void init_struct(buf *wb,int curr_index,int type){
-  wb->block[i]=malloc(sizeof(buf));
+  wb->block[curr_index]=malloc(sizeof(buf));
   if(type==0){//init block    
     wb->block[curr_index]->block_count=0;
     wb->block[curr_index]->block_num=-1;
