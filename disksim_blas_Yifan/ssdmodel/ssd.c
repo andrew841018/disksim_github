@@ -3579,6 +3579,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   lru_node *lru;
   int flag; 
   buf *wb;
+  lpn = ssd_logical_pageno(blkno,currdisk);
+  unsigned logical_node_num = lpn/LRUSIZE;
   wb=malloc(sizeof(buf));
   int b=0;
   if(b==0){ //create new block
