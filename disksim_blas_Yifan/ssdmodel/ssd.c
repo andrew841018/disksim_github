@@ -3555,7 +3555,7 @@ void init_struct(buf *wb,int curr_index,int type){
     wb->block[curr_index]->sector_index=0;
   }
   if(type==1){//init sector
-    wb->block[curr_index]->sector[wb->block[i]->sector_index]=malloc(sizeof(buf));
+    wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]=malloc(sizeof(buf));
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_num=-1;
     wb->block[curr_index]->sector[wb->block[curr_index]->sector_index]->sector_count=0;
   }
