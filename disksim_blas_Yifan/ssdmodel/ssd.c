@@ -1609,6 +1609,7 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
+int request=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -3568,6 +3569,7 @@ buf *init_struct(buf *wb,int curr_index,int type){
 unsigned blkno;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
+  request++;
   int t=0,h=0;
   static int full_cache = 0;
   unsigned int lpn,count,scount; //sector count
