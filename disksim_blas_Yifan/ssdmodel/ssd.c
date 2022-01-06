@@ -3645,7 +3645,7 @@ int count[10000][10000]={0};//count[block_index][sector_index]....block index!=b
 int block_index=0;
 int sector_index[1000000]={0};//sector_index[block_index]
 int sector_index=0;
-int block_count[1000000]={0};
+int block_count[1000000]={0};//calculate this in the show...
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3674,28 +3674,27 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
         sector_num[i][j]=-1;
     
 	  init=0;
-  }
-  int max=0,sector_index;
-  if(max<block_index)
-	max=block_index;
-  if(max<sector_index)
-	max=sector_index;
-  for(i=0;i<max;i++){
-	if(sector_num[i]==blkno){//sector overwrite(same block same sector)
-		sector_count[i]++;
-		block_count[i]++;
-		b=1;
-		break;
-	}
-	else if(block_num[i]==logical_node_num){//block overwrite but sector not
-		//we need two dimension array
-		block_count[i]++;
-		sector_num[sector_index[i]]=blkno;
-		sector_count[sector_index[i]]++;
-		sector_index[i]++;
-		b=1;
-		break;
-	}
+  }  
+  int sector;
+  for(i=0;i<block_num;i++){
+    for(j=0;j<sector_index[block_num[i]];j++){
+      if(sector_num[i][j]==blkno){//sector overwrite(same block same sector)
+            count[i][j]++;
+            b=1;
+            break;
+          }
+      else if(block_num[i]==logical_node_num){//block overwrite but sector not
+            //we need two dimension array
+            sector=sector_index[i];//number of sector in block i
+            sector_num[i][sector]=blkno;
+            sector_index[i]++;
+            count[i][sector]++;
+            b=1;
+            break;
+          }
+    }
+    if(b==1)
+      break;
   }
   
   if(b==0){//new block and sector
