@@ -5951,7 +5951,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 		  if(block_num[i]==-1)
 					break;
 		  if(sector_num[i][j]!=-1){
-			  sprintf(tmp,"%d",sector_num[i][j],sector_count[i][j],block_num[i]);
+			  sprintf(tmp,"sector num:%d sector count:%d block num:%d",sector_num[i][j],sector_count[i][j],block_num[i]);
 			  fprintf(a,"%s\n",tmp);
 		  }
 	  }
