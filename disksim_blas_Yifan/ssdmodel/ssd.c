@@ -113,12 +113,6 @@ typedef struct  _lru_node
   unsigned int StripWay;
   int group_type;//0=Pg,1=Lg
 }lru_node;
-typedef struct write_buffer{
-  struct *write_buffer block[10000];
-  struct *write_buffer sector[10000];
-  unsigned int block_num;
-  unsigned int sector_num;
-}buf;
 typedef struct _current_block_info //¦¹structure¦³°O¿ýµÛ¸Ócur blk¦Y¨ìªº¬O¨º¤@­ÓLB(°²³]¬O¦Y¨ìW-intensiveªºpage)¤¤±qoffset¶}©l³sÄò cur_mark_cnt­Ópages
 {
   lru_node *ptr_lru_node;             //point to current mark node,only using in write intensive
@@ -3543,32 +3537,18 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 } 
 
 
-
+unsigned int count,blkno;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
   static int full_cache = 0;
-  unsigned int lpn,blkno,count,scount; //sector count
+  unsigned int lpn,scount; //sector count
   ssd_t *currdisk;
   currdisk = getssd (curr->devno);
   blkno = curr->blkno;
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
-  buf *wb;
-  wb=malloc(sizeof(buf));
-  wb->block[0]=malloc(sizeof(buf));
-  wb->block_num=13;
-  wb->block[0]->block_num=33;
-  wb->block[0]->sector[0]=malloc(sizeof(buf));
-  wb->block[0]->sector[0]->sector_num=34;
-  /*add page to buffer cache*/
-  // fprintf(myoutput3, "////////////////////Hint queue Start/////////////////\n");
-  // for(h=0;h<global_HQ_size;h++)
-  // {
-  //   fprintf(myoutput3, "global_HQ:%d\n", global_HQ[h]);
-  // }
-  // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
   
   while(count > 0)
   {
@@ -3658,6 +3638,12 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 
+int init=1;
+int block_num[1000000];
+int sector_num[1000000];
+int block_count[1000000]={0};
+int sector_count[1000000]={0};
+int block_index=0,sector_index=0;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3675,7 +3661,22 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  int i;
+  int i,b=0;
+  if(init==1){
+	for(i=0;i<1000000;i++){
+		block_num[i]=-1;
+		sector_num[i]=-1;
+	}
+	init=0;
+  }
+  if(b==0){
+	block_num[block_index]=logical_node_num;
+	block_count[block_index]++;
+	sector_count[sector_index]++;
+	sector_num[sector_index]=blkno;
+	block_index++;
+	sector_index++;
+  }
   /*printf("hash_Pg:");
   for(i=0;i<1000;i++)
   {
