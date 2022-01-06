@@ -3665,60 +3665,49 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   
   int i,j,b=0;
   if(init==1){
-    for(i=0;i<1000000;i++){
-      block_num[i]=-1;
-    }
-    for(i=0;i<10000;i++)
-      for(j=0;j<10000;j++)
-        sector_num[i][j]=-1;
-    
-	  init=0;
-  }  
-  int sector;
-  for(i=0;i<block_index;i++){
-    for(j=0;j<sector_index[i];j++){
-      if(sector_num[i][j]==blkno){//sector overwrite(same block same sector)
-            sector_count[i][j]++;
-            b=1;
-            break;
-          }
-      else if(block_num[i]==logical_node_num){//block overwrite but sector not
-            //we need two dimension array
-            sector=sector_index[i];//number of sector in block i
-            sector_num[i][sector]=blkno;
-            sector_index[i]++;
-            sector_count[i][sector]++;
-            b=1;
-            break;
-          }
-    }
-    if(b==1)
-      break;
-  }
-  
-  if(b==0){//new block and sector
+	    for(i=0;i<1000000;i++){
+	      block_num[i]=-1;
+	    }
+	    for(i=0;i<10000;i++)
+	      for(j=0;j<10000;j++)
+			sector_num[i][j]=-1;	    
+		  init=0;
+	  }  
+	  int sector;
+	  for(i=0;i<block_index;i++){
+	    for(j=0;j<block_index;j++){
+	      if(sector_num[i][sector_index[j]-1]==blkno){//sector overwrite(same block same sector)
+		    sector_count[i][sector_index[j]-1]++;
+		    b=1;
+		    break;
+		  }
+	      else if(block_num[i]==logical_node_num){//block overwrite but sector not
+		    //we need two dimension array
+		    sector=sector_index[i];//number of sector in block i
+		    sector_num[i][sector]=blkno;
+		    sector_index[i]++;		    
+		    sector_count[i][sector]++;
+		    b=1;
+		    break;
+		  }
+	    }
+	    if(b==1)
+	      break;
+	  }
+	  
+	  if(b==0){//new block and sector
 
-    block_num[block_index]=logical_node_num;
-  //sector_index[block_index] mean the block number=block_index, and this block current writing
-  //sector number is sector_index[block_index] 
-    sector=sector_index[block_index];
-    sector_num[block_index][sector]=blkno;
-    block_index++;
-    sector_index[block_index]++;
-    sector_count[block_index][sector]++;//sector count;
-  }
-  /*printf("hash_Pg:");
-  for(i=0;i<1000;i++)
-  {
-    if(ptr_buffer_cache->hash_Pg[i] == NULL)
-    {
-    }
-    else
-      printf("%d|",ptr_buffer_cache->hash_Pg[i]->logical_node_num);
-  }
-  printf("\n");*/
- 
-  // search Lg_hash, if have this node, flag=1, else flag = 0
+	    block_num[block_index]=logical_node_num;
+	  //sector_index[block_index] mean the block number=block_index, and this block current writing
+	  //sector number is sector_index[block_index] 
+	    sector=sector_index[block_index];
+	    sector_num[block_index][sector]=blkno;
+	    sector_count[block_index][sector]++;//sector count;
+	    sector_index[block_index]++;	    
+	    block_index++;
+	    
+	  }
+  
   while(1)
   {
     if(ptr_lru_node == NULL)
