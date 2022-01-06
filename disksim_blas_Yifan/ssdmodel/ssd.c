@@ -113,6 +113,12 @@ typedef struct  _lru_node
   unsigned int StripWay;
   int group_type;//0=Pg,1=Lg
 }lru_node;
+typedef struct write_buffer{
+  struct *write_buffer block[10000];
+  struct *write_buffer sector[10000];
+  unsigned int block_num;
+  unsigned int sector_num;
+}buf;
 typedef struct _current_block_info //¦¹structure¦³°O¿ýµÛ¸Ócur blk¦Y¨ìªº¬O¨º¤@­ÓLB(°²³]¬O¦Y¨ìW-intensiveªºpage)¤¤±qoffset¶}©l³sÄò cur_mark_cnt­Ópages
 {
   lru_node *ptr_lru_node;             //point to current mark node,only using in write intensive
@@ -3549,6 +3555,13 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
+  buf *wb;
+  wb=malloc(sizeof(buf));
+  wb->block[0]=malloc(sizeof(buf));
+  wb->block_num=13;
+  wb->block[0]->block_num=33;
+  wb->block[0]->sector[0]=malloc(sizeof(buf));
+  wb->block[0]->sector[0]->sector_num=34;
   /*add page to buffer cache*/
   // fprintf(myoutput3, "////////////////////Hint queue Start/////////////////\n");
   // for(h=0;h<global_HQ_size;h++)
