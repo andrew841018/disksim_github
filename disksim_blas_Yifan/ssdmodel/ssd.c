@@ -3641,10 +3641,9 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 int init=1;
 int block_num[1000000];
 int sector_num[10000][10000];//sector_num[block_index][sector_index]
-int count[10000][10000]={0};//count[block_index][sector_index]....block index!=block number(sector too)
+int sector_count[10000][10000]={{0}};//count[block_index][sector_index]....block index!=block number(sector too)
 int block_index=0;
 int sector_index[1000000]={0};//sector_index[block_index]
-int sector_index=0;
 int block_count[1000000]={0};//calculate this in the show...
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -3676,10 +3675,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	  init=0;
   }  
   int sector;
-  for(i=0;i<block_num;i++){
-    for(j=0;j<sector_index[block_num[i]];j++){
+  for(i=0;i<block_index;i++){
+    for(j=0;j<sector_index[i];j++){
       if(sector_num[i][j]==blkno){//sector overwrite(same block same sector)
-            count[i][j]++;
+            sector_count[i][j]++;
             b=1;
             break;
           }
@@ -3688,7 +3687,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
             sector=sector_index[i];//number of sector in block i
             sector_num[i][sector]=blkno;
             sector_index[i]++;
-            count[i][sector]++;
+            sector_count[i][sector]++;
             b=1;
             break;
           }
@@ -3706,7 +3705,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     sector_num[block_index][sector]=blkno;
     block_index++;
     sector_index[block_index]++;
-    count[block_index][sector]++;//sector count;
+    sector_count[block_index][sector]++;//sector count;
   }
   /*printf("hash_Pg:");
   for(i=0;i<1000;i++)
@@ -5942,10 +5941,22 @@ double remove_special_node(unsigned int logical_number)
 
 void show_result(buffer_cache *ptr_buffer_cache)
 {
-
   //report the last result 
   statistic_the_data_in_every_stage();
-
+  FILE *a=fopen("a.txt","a+");
+  char tmp[100];
+  int i,j;
+  for(i=0;i<block_index;i++){
+	  for(j=0;j<sector_index[i];j++){
+		  if(block_num[i]==-1)
+					break;
+		  if(sector_num[i][j]!=-1){
+			  sprintf(tmp,"%d",sector_num[i][j],sector_count[i][j],block_num[i]);
+			  fprintf(a,"%s\n",tmp);
+		  }
+	  }
+  }
+  fclose(a);
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
