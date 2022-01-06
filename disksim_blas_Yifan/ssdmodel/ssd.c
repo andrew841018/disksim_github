@@ -3640,7 +3640,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 
 int init=1;
 int block_num[1000000];
-int sector_num[1000000];
+int sector_num[10000][10000];//sector_num[block_index][sector_index]
 int count[10000][10000]={0};//count[block_index][sector_index]....block index!=block number(sector too)
 int block_index=0;
 int sector_index[1000000]={0};//sector_index[block_index]
@@ -3664,15 +3664,18 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   
-  int i,b=0;
+  int i,j,b=0;
   if(init==1){
-	for(i=0;i<1000000;i++){
-		block_num[i]=-1;
-		sector_num[i]=-1;
-	}
-	init=0;
+    for(i=0;i<1000000;i++){
+      block_num[i]=-1;
+    }
+    for(i=0;i<10000;i++)
+      for(j=0;j<10000;j++)
+        sector_num[i][j]=-1;
+    
+	  init=0;
   }
-  int max=0;
+  int max=0,sector_index;
   if(max<block_index)
 	max=block_index;
   if(max<sector_index)
@@ -3696,12 +3699,15 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   }
   
   if(b==0){//new block and sector
-	block_num[block_index]=logical_node_num;
-//sector_index[block_index] mean the block number=block_index, and this block current writing
-//sector number is sector_index[block_index] 
-	sector_num[sector_index]=blkno;
-	block_index++;
-	sector_index[block_index]++;
+
+    block_num[block_index]=logical_node_num;
+  //sector_index[block_index] mean the block number=block_index, and this block current writing
+  //sector number is sector_index[block_index] 
+    sector=sector_index[block_index];
+    sector_num[block_index][sector]=blkno;
+    block_index++;
+    sector_index[block_index]++;
+    count[block_index][sector]++;//sector count;
   }
   /*printf("hash_Pg:");
   for(i=0;i<1000;i++)
