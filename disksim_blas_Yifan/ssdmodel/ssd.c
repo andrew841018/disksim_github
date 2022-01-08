@@ -3650,6 +3650,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //printf("Y_add_Pg_page_to_cache_buffer\n");
   //fprintf(lpb_ppn, "Y_add_Pg_page\t");
   int flag=0;
+  char tmp[100];
   lru_node *ptr_lru_node = NULL, *Pg_node = NULL;
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
@@ -3659,54 +3660,64 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //fprintf(lpb_ppn, "%d\n", lpn);
   //fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
   //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
-  
+  FILE *info=fopen("info.txt","a+");
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  
   int i,j,b=0;
   if(init==1){
-	    for(i=0;i<1000000;i++){
-	      block_num[i]=-1;
+		for(i=0;i<10000;i++){
+			block_num[i]=-1;
 	    }
-	    for(i=0;i<10000;i++)
-	      for(j=0;j<10000;j++)
-			sector_num[i][j]=-1;	    
-		  init=0;
+		for(i=0;i<10000;i++)
+			for(j=0;j<10000;j++)
+				sector_num[i][j]=-1;	    
+		init=0;
 	  }  
 	  int sector;
 	  for(i=0;i<block_index;i++){
-	    for(j=0;j<block_index;j++){
-	      if(sector_num[i][sector_index[j]-1]==blkno){//sector overwrite(same block same sector)
-		    sector_count[i][sector_index[j]-1]++;
-		    b=1;
-		    break;
-		  }
-	      else if(block_num[i]==logical_node_num){//block overwrite but sector not
-		    //we need two dimension array
-		    sector=sector_index[i];//number of sector in block i
-		    sector_num[i][sector]=blkno;
-		    sector_index[i]++;		    
-		    sector_count[i][sector]++;
-		    b=1;
-		    break;
-		  }
+	    for(j=0;j<sector_index[i];j++){	    	    	
+	      if(sector_num[i][j]==blkno && block_num[i]==logical_node_num){//sector overwrite(same block same sector)	
+			sector_count[i][j]++;		
+			b=1;
+			break;
+		  }	      
 	    }
 	    if(b==1)
 	      break;
 	  }
-	  
-	  if(b==0){//new block and sector
-
+	  if(b==0){
+		  for(i=0;i<block_index;i++){
+		  	if(block_num[i]==logical_node_num){//block overwrite but sector not
+			    //we need two dimension array
+				sector=sector_index[i];//num of sector in block i
+				sector_num[i][sector]=blkno;
+				sector_index[i]++;		    
+				sector_count[i][sector]++;								
+				b=1;
+				break;
+			}			
+			for(j=0;j<sector_index[i];j++){
+					
+				if(sector_num[i][j]=blkno){
+					sprintf(tmp,"logical_node_num:%d block number[%d]:%d sector num[%d][%d]:%d sector_index[%d]:%d sector_count[%d][%d]:%d",logical_node_num,i,block_num[i],i,j,sector_num[i][j],i,sector_index[i],i,j,sector_count[i][j]);
+					fprintf(info,"%s\n",tmp);
+					//fclose(info);
+				}
+			}		
+				
+		}		
+	}  
+	if(b==0){//new block and sector
 	    block_num[block_index]=logical_node_num;
 	  //sector_index[block_index] mean the block number=block_index, and this block current writing
 	  //sector number is sector_index[block_index] 
 	    sector=sector_index[block_index];
-	    sector_num[block_index][sector]=blkno;
-	    sector_count[block_index][sector]++;//sector count;
-	    sector_index[block_index]++;	    
-	    block_index++;
-	    
+	    sector_num[block_index][sector]=blkno;	    
+	    sector_count[block_index][sector]++;//sector count;	    	    
+	    sector_index[block_index]++;
+	    block_index++;	    
 	  }
+
   
   while(1)
   {
@@ -5940,7 +5951,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 		  if(block_num[i]==-1)
 					break;
 		  if(sector_num[i][j]!=-1){
-			  sprintf(tmp,"sector num:%d sector count:%d block num:%d",sector_num[i][j],sector_count[i][j],block_num[i]);
+			  sprintf(tmp,"sector num:%d sector count:%d block num:%d block index:%d sector index:%d",sector_num[i][j],sector_count[i][j],block_num[i],i,j);
 			  fprintf(a,"%s\n",tmp);
 		  }
 	  }
