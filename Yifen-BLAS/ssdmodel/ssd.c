@@ -5956,13 +5956,13 @@ void show_result(buffer_cache *ptr_buffer_cache)
   FILE *a=fopen("a.txt","a+");
   char tmp[100];
   int i,j;
-  for(i=0;i<block_index;i++){
-	  for(j=0;j<sector_index[i];j++){
-		  if(block_num[i]==-1)
-					break;
-		  if(sector_num[i][j]!=-1){
-			  sprintf(tmp,"sector num:%d sector count:%d block num:%d block index:%d sector index:%d",sector_num[i][j],sector_count[i][j],block_num[i],i,j);
-			  fprintf(a,"%s\n",tmp);
+	for(i=0;i<block_index;i++){
+		for(j=0;j<sector_index[i];j++){
+			if(block_num[i]==-1)
+				break;
+			if(sector_num[i][j]!=-1){
+				sprintf(tmp,"sector num:%d sector count:%d block num:%d block index:%d sector index:%d",sector_num[i][j],sector_count[i][j],block_num[i],i,j);
+				fprintf(a,"%s\n",tmp);
 		  }
 	  }
   }
