@@ -3689,12 +3689,12 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		  for(i=0;i<block_index;i++){
 		  	if(block_num[i]==logical_node_num){//block overwrite but sector not
 			    //we need two dimension array
-				sector=sector_index[i];//num of sector in block i
-				sector_num[i][sector]=blkno;
-				sector_index[i]++;		    
-				sector_count[i][sector]++;								
-				b=1;
-				break;
+          sector=sector_index[i];//num of sector in block i
+          sector_num[i][sector]=blkno;
+          sector_index[i]++;		    
+          sector_count[i][sector]++;								
+          b=1; 
+          break;
 			}			
 			for(j=0;j<sector_index[i];j++){
 					
