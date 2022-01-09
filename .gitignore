@@ -98,4 +98,33 @@
 ./Yifen-BLAS-disksim/flush1-65535-16000.txt
 ./original(used for compare with current simulation)/secotr and physical_block_num and benefit.txt
 ./original(used for compare with current simulation)/trace(run1_Postmark_2475).txt
+./valid/ascii.trace
+./valid/maxtor146g/layout.mappings
+./valid/ajw.1week.srt
+./disksim (sean-PC's conflicted copy 2011-10-04).PS
+./ssdmodel/valid/ssd-iozone-aligned2-100K.trace
+./ssdmodel/valid/ssd-postmark-aligned2.trace
+./flush1-ug15-160.txt
+./iozone
+./flush1-my-md4.txt
+./src/syssim_2020
+./src/iozone
+./src/test70000.txt
+./src/syssim
+./src/num_test70000.txt
+./src/syssim_driver.o
+./src/disksim
+./src/libdisksim.a
+./flush1-ug15-40.txt
+./flush1-md4-09.txt
+./disksim.PS
+./pcmark
+./diskmodel/layout_g4_tools/g4_skews
+./check.txt
+./flush1-myiozone09.txt
+./flush1-seq10.txt
+./lib/libdisksim.a
+./flush1-65535-16000-12.txt
+./flush1-seq40.txt
+./flush1-65535-16000.txt
 

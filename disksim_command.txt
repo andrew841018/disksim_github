@@ -3,5 +3,5 @@ for window(vmware):
 
 
 for mac:
- ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/桌面/disksim/disksim_github/trace/run1_Postmark_2475.txt' 1 262144
+ ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/disksim_github/trace/run1_Postmark_2475.txt' 1 262144
 
