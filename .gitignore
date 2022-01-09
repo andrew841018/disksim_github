@@ -66,38 +66,36 @@
 ./AI/trace(run1_Postmark_2475).txt
 ./trace/run1_Postmark_2475.txt
 ./collected data(from disksim)/trace(run1_Postmark_2475).txt
-./disksim_blas_Yifan/disksim (sean-PC's conflicted copy 2011-10-04).PS
-./disksim_blas_Yifan/ssdmodel/valid/ssd-iozone-aligned2-100K.trace
-./disksim_blas_Yifan/ssdmodel/valid/ssd-postmark-aligned2.trace
-./disksim_blas_Yifan/diskmodel/layout_g4_tools/g4_skews
-./disksim_blas_Yifan/flush1-65535-16000-12.txt
-./disksim_blas_Yifan/lib/libdisksim.a
-./disksim_blas_Yifan/flush1-my-md4.txt
-./disksim_blas_Yifan/flush1-md4-09.txt
-./disksim_blas_Yifan/src/syssim_2020-TWO.txt
-./disksim_blas_Yifan/src/iozone
-./disksim_blas_Yifan/src/syssim
-./disksim_blas_Yifan/src/libdisksim.a
-./disksim_blas_Yifan/src/syssim_2020
-./disksim_blas_Yifan/src/test70000.txt
-./disksim_blas_Yifan/src/syssim_driver.o
-./disksim_blas_Yifan/src/num_test70000.txt
-./disksim_blas_Yifan/src/disksim
-./disksim_blas_Yifan/flush1-seq10.txt
-./disksim_blas_Yifan/iozone
-./disksim_blas_Yifan/flush1-myiozone09.txt
-./disksim_blas_Yifan/check.txt
-./disksim_blas_Yifan/flush1-ug15-160.txt
-./disksim_blas_Yifan/flush1-seq40.txt
-./disksim_blas_Yifan/valid/maxtor146g/layout.mappings
-./disksim_blas_Yifan/valid/ajw.1week.srt
-./disksim_blas_Yifan/valid/ascii.trace
-./disksim_blas_Yifan/pcmark
-./disksim_blas_Yifan/disksim.PS
-./disksim_blas_Yifan/flush1-ug15-40.txt
-./disksim_blas_Yifan/flush1-65535-16000.txt
-./disksim_blas_Yifan/info.txt
 ./trace(run1_Postmark_2475).txt
+./Yifen-BLAS-disksim/disksim (sean-PC's conflicted copy 2011-10-04).PS
+./Yifen-BLAS-disksim/ssdmodel/valid/ssd-iozone-aligned2-100K.trace
+./Yifen-BLAS-disksim/ssdmodel/valid/ssd-postmark-aligned2.trace
+./Yifen-BLAS-disksim/diskmodel/layout_g4_tools/g4_skews
+./Yifen-BLAS-disksim/flush1-65535-16000-12.txt
+./Yifen-BLAS-disksim/lib/libdisksim.a
+./Yifen-BLAS-disksim/flush1-my-md4.txt
+./Yifen-BLAS-disksim/flush1-md4-09.txt
+./Yifen-BLAS-disksim/src/iozone
+./Yifen-BLAS-disksim/src/syssim
+./Yifen-BLAS-disksim/src/libdisksim.a
+./Yifen-BLAS-disksim/src/syssim_2020
+./Yifen-BLAS-disksim/src/test70000.txt
+./Yifen-BLAS-disksim/src/syssim_driver.o
+./Yifen-BLAS-disksim/src/num_test70000.txt
+./Yifen-BLAS-disksim/src/disksim
+./Yifen-BLAS-disksim/flush1-seq10.txt
+./Yifen-BLAS-disksim/iozone
+./Yifen-BLAS-disksim/flush1-myiozone09.txt
+./Yifen-BLAS-disksim/check.txt
+./Yifen-BLAS-disksim/flush1-ug15-160.txt
+./Yifen-BLAS-disksim/flush1-seq40.txt
+./Yifen-BLAS-disksim/valid/maxtor146g/layout.mappings
+./Yifen-BLAS-disksim/valid/ajw.1week.srt
+./Yifen-BLAS-disksim/valid/ascii.trace
+./Yifen-BLAS-disksim/pcmark
+./Yifen-BLAS-disksim/disksim.PS
+./Yifen-BLAS-disksim/flush1-ug15-40.txt
+./Yifen-BLAS-disksim/flush1-65535-16000.txt
 ./original(used for compare with current simulation)/secotr and physical_block_num and benefit.txt
 ./original(used for compare with current simulation)/trace(run1_Postmark_2475).txt
 
