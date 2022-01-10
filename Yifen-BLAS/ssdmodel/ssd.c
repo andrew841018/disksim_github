@@ -3656,7 +3656,7 @@ void write_benefit_to_txt(int g){
     }
     block_count[i]=c;
   }
-  FILE *info=fopen("(logical)sector num-phy block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
+  FILE *info=fopen("sector num-logical block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
 	for(i=0;i<10000;i++){
     for(j=0;j<10000;j++){
       if(block_count[i]!=0){
@@ -5977,7 +5977,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 {
   //report the last result 
   statistic_the_data_in_every_stage();
-  FILE *a=fopen("a.txt","a+");
+/*  FILE *a=fopen("a.txt","a+");
   char tmp[100];
   int i,j;
 	for(i=0;i<block_index;i++){
@@ -5990,7 +5990,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 		  }
 	  }
   }
-  fclose(a);
+  fclose(a);*/
   write_benefit_to_txt(1);
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
