@@ -3645,6 +3645,30 @@ int sector_count[10000][10000]={{0}};//count[block_index][sector_index]....block
 int block_index=0;
 int sector_index[1000000]={0};//sector_index[block_index]
 int block_count[1000000]={0};//calculate this in the show...
+void write_benefit_to_txt(int g){
+  int i,j,c;
+  double benefit;
+  char tmp[100];
+  for(i=0;i<10000;i++){
+    c=0;
+    for(j=0;j<10000;j++){
+      c+=sector_count[i][j];//calculate total count in block i
+    }
+    block_count[i]=c;
+  }
+  FILE *info=fopen("(logical)sector num-phy block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
+	for(i=0;i<10000;i++){
+    for(j=0;j<10000;j++){
+      if(block_count[i]!=0){
+        benefit=(float)block_count[i]/64;
+        benefit/=64;
+        sprintf(tmp,"%d %d %.20f %d",sector_num[i][j],block_num[i],benefit,sector_count[i][j]);
+        fprintf(info,"%s\n",tmp);
+    }
+    }
+	}
+	fclose(info);	
+}
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
 	//printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3660,7 +3684,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	//fprintf(lpb_ppn, "%d\n", lpn);
 	//fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
 	//fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
-	FILE *info=fopen("info.txt","a+");
+	//FILE *info=fopen("info.txt","a+");
 	ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
 	Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
 	int i,j,b=0;
@@ -3727,7 +3751,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	    sector_index[block_index]++;
 	    block_index++;	    
 	  }
-	fclose(info);
+	//fclose(info);
   
   while(1)
   {
@@ -5967,6 +5991,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	  }
   }
   fclose(a);
+  write_benefit_to_txt(1);
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
