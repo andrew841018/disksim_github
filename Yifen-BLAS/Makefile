@@ -44,9 +44,6 @@ all:
 	$(MAKE) -C diskmodel/layout_g4_tools
         # If dixtrac is included, build it with the distribution
 	if [ -d dixtrac ]; then $(MAKE) -C dixtrac ; fi
-add:
-	rm -f src/syssim_2020-TWO.txt src/syssim_2020-Three-hq.txt
-	mv 'sector num-logical block num-benefit-sector count.txt' '/home/andrew/Desktop/disksim' 
 andrew_clean:
 	rm -f src/syssim_driver.o ssdmodel/ssd.o
 clean:
