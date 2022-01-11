@@ -83,7 +83,11 @@ int main(){
 				printf("sector:%d sector1:%d req_type:%d sector_count:%d\n",sector_number,sector_number1,req_type,write_buffer_sector_count[sector_number]);
 				sleep(1);
 			}  */ 
+			if(sector_number==3328)
+				printf("write:%d req_type:%d count:%d\n",sector_number1,req_type, write_buffer_sector_count[sector_number]);
             if(req_type==0 && sector_number==sector_number1 && write_buffer_sector_count[sector_number]>0){				
+				if(sector_number==3328)
+					printf("enter:%d\n",sector_number);
 				enter++;
 				p=1;
 				write_buffer_sector_count[sector_number]--;
@@ -169,9 +173,14 @@ int main(){
 						  wb->free_block--; 					
 				  }	  								
                     }                                                  
-                }              					     		
-            }         
-        }              
+                } 
+             break;              					     		
+            }             
+                  
+        }   
+        if(p==0){
+			printf("not enter:%d\n",sector_number);
+		}           
             fclose(a1);
     }
     fclose(a); 
@@ -179,7 +188,7 @@ int main(){
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
-    printf("total excution time(s):%f\n",diff/CLOCKS_PER_SEC);
+    printf("total excution time(s):%20.f\n",diff/CLOCKS_PER_SEC);
     
     return 0;
 }
