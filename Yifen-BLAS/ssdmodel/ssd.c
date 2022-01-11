@@ -1,7 +1,7 @@
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
 // 先搜尋 ininin 找到入口
- 
+  
 #include "ssd.h"
 #include "ssd_timing.h"
 #include "ssd_clean.h"
