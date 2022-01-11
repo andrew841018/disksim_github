@@ -3,14 +3,13 @@
 #include<string.h>
 int main(){
 	int i;
-	
-	char tmp[100];
-	for(i=0;i<10;i++){
-		FILE *a=fopen("a.txt","w+");
-		sprintf(tmp,"%d",i);
-		fprintf(a,"%s\n",tmp);
-		fclose(a);
+	FILE *a=fopen("a.txt","w");
+	for(i=0;i<120;i++){
+		fprintf(a,"%d\n",i);			
 	}
+	fclose(a);
+	a=fopen("a.txt","w");
+	
 	
 	/*
 	float benefit;

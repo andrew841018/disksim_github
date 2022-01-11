@@ -1,37 +1,37 @@
 /*做"memory cache"發生的事,(計算dirty ratio and 定時flush/hint,計算timer and 定量flush/hint,計算sum_block_count*/
 /*應該要export給write buffer的:sum_block_count,定時hint,定量hint*/
 /*141行跟822行有問題*/ 
-/*    
+/*       
  * DiskSim Storage Subsystem Simulation Environment (Version 4.0)
  * Revision Authors: John Bucy, Greg Ganger
  * Contributors: John Griffin, Jiri Schindler, Steve Schlosser
  *         
  * Copyright (c) of Carnegie Mellon University, 2001-2008.
- *     
+ *         
  * This software is being provided by the copyright holders under the
  * following license. By obtaining, using and/or copying this software,
  * you agree that you have read, understood, and will comply with the
- * following terms and conditions:
- * 
+ * following terms and conditions:  
+ *           
  * Permission to reproduce, use, and prepare derivative works of this
  * software is granted provided the copyright and "No Warranty" statements
  * are included with all reproductions and derivative works and associated
  * documentation. This software may also be redistributed without charge
  * provided that the copyright and "No Warranty" statements are included
  * in all redistributions.
- *
+ * 
  * NO WARRANTY. THIS SOFTWARE IS FURNISHED ON AN "AS IS" BASIS.
  * CARNEGIE MELLON UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER
  * EXPRESSED OR IMPLIED AS TO THE MATTER INCLUDING, BUT NOT LIMITED
  * TO: WARRANTY OF FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY
- * OF RESULTS OR RESULTS OBTAINED FROM USE OF THIS SOFTWARE. CARNEGIE
+ * OF RESULTS OR RESULTS OBTAINED FROM USE OF THIS SOFTWARE. CARNEGIE 
  * MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND WITH RESPECT
  * TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
  * COPYRIGHT HOLDERS WILL BEAR NO LIABILITY FOR ANY USE OF THIS SOFTWARE
- * OR DOCUMENTATION.
- * 
- */      
-
+ * OR DOCUMENTATION. 
+ *  
+ */         
+ 
 /*
  * A sample skeleton for a system simulator that calls DiskSim as
  * a slave.
@@ -124,7 +124,10 @@ int unique_page=0;
 struct timeval start,start1;
 struct timeval end,end1;
 
-
+int fa_hint_count=0;
+int ft_hint_count=0;
+int rp_hint_count=0;
+ 
 
 #define BLOCK 4096
 #define SECTOR  512 
@@ -291,6 +294,7 @@ void write_back_hint(Hint_Queue* HintQ, Queue* queue , FILE *fwrite, struct disk
           {
             global_HQ_node[global_HQ_node_size]=(current_Point->blockNumber/8)/64;
             global_HQ_node_size++;
+            fa_hint_count++;
           }
           
           current_Point->Hint_Dirty = 0;
@@ -327,6 +331,7 @@ void write_back_hint(Hint_Queue* HintQ, Queue* queue , FILE *fwrite, struct disk
         {
           global_HQ_node[global_HQ_node_size]=(current_Point->blockNumber/8)/64;
           global_HQ_node_size++;
+          fa_hint_count++;
         }
          
         current_Point->Hint_Dirty = 0;
@@ -547,6 +552,7 @@ void period_write_back_hint(Hint_Queue* HintQ, Hash *hash , Queue* queue , FILE 
         {
           global_HQ_node[global_HQ_node_size]=(current_Point2->blockNumber/8)/64;
           global_HQ_node_size++;
+          ft_hint_count++;
         }
         /*Hint_page *temp = (Hint_page*)malloc( sizeof( Hint_page ) );//分配空間
         temp->page_num = current_Point2->blockNumber/8;
@@ -922,6 +928,7 @@ void replacement_hint(Hint_Queue* HintQ, Queue* queue , FILE *fwrite , struct di
         {
           global_HQ_node[global_HQ_node_size]=(current_Point->blockNumber/8)/64;
           global_HQ_node_size++;
+          rp_hint_count++;
         }
       /*Hint_page *temp = (Hint_page*)malloc( sizeof( Hint_page ) );//分配空間
       temp->page_num = current_Point->blockNumber/8;
@@ -1029,77 +1036,7 @@ void replacement(Queue* queue , Hash* hash , FILE *fwrite , unsigned incoming_bl
       }
       reMark_hint_dirty(queue);
 //***************************************************************************************************
-    //fprintf(outputfd, "dirty_count/Mem = %f\n", (dirty_count/Mem));
-      //   double next_Nflush_time, next_Tflush_time, next_Rep_time, Nflush_time_diff, next_R_time, AvgReplaceTime;
-      //   Hint_Queue* HintQ = createHint_Queue(8192);//16 page
-      //   int hint_g=0;
-      //   Clear_Global_hint_Queue();
-      //  //fprintf(outputfd, "###################!!!@@@定量flush hint@@@!!!#######################\n");
-      //  //printf("dirty_count/Mem=%lf\n", dirty_count/Mem);
-      //  //fprintf(outputfd, "dirty_count/Mem=%lf\n", dirty_count/Mem);
-      //   //---------------------------------------------------
-      //   write_back_hint(HintQ, queue, fwrite, disksim, 1);//first do hint rep
-      //   hint_g++;
-      //   int clean2dirty_tmp=clean2dirty;
-      //   while(hint_g<HINTGROUP)
-      //   {
-      //     printf("\twhile(hint_g=%d <HINTGROUP)\n", hint_g);
-      //     //fprintf(outputfd, "\tpredict_Ntime=%lf\n", predict_Ntime);
-      //     next_Nflush_time = Count_Next_Nflush_time(Ntime, clean2dirty_tmp);
-      //     next_Rep_time = Count_Next_Rep_time(Rtime);
-      //     Nflush_time_diff = next_Nflush_time - Ntime;
-      //     next_Tflush_time=((int)(predict_Ntime/5)+1)*5;
-          
-      //     if(next_Nflush_time>=next_Tflush_time)
-      //     {
-      //       //-------N0|>---T0[--T1--T2--]N1|>----
-      //       printf("-------N0|>---T0[--T1--T2--]N1|>----\n");
-      //       //fprintf(outputfd, "-------N0|>---T0[--T1--T2--]N1|>----\n" );
-      //       Thint_times=0;
-      //       all_Thint_clear=0;
-      //       period_write_back_hint(HintQ, hash, queue ,fwrite,disksim);
-      //       hint_g++;
-      //       //printf("\t===Tflush===\n");
-      //       //fprintf(outputfd, "\t===Tflush===\n");
-      //       //fprintf(outputfd, "\tTflush|time=%lf\n", next_Tflush_time);
-      //       int i;
-      //       int N=Nflush_time_diff - (next_Tflush_time - predict_Ntime);
-      //       for(i=0;i<N/5 ; i++)
-      //       {
-      //         if(hint_g==HINTGROUP)break;
-      //         Thint_times++;
-      //         if(all_Thint_clear==0)period_write_back_hint(HintQ, hash, queue ,fwrite,disksim);
-      //         printf("\t\t===Tflush===\n");
-      //         //fprintf(outputfd, "\t\t===Tflush===\n");
-      //        //fprintf(outputfd, "\t\tTflush|time=%lf\n", next_Tflush_time);
-      //         next_Tflush_time=next_Tflush_time+5;
-      //         hint_g++;
-      //        //fprintf(outputfd, "\t\tnext_Tflush_time=%lf|hint_g=%d\n", next_Tflush_time, hint_g);
-      //       }
-      //       if(hint_g==HINTGROUP)break;
-      //       write_back_hint(HintQ, queue, fwrite, disksim, 0);
-      //       hint_g++;
-      //       //next_Tflush_time=next_Tflush_time+5;
-      //       //period_write_back)//first do period write back
-      //     }
-      //     else if(next_Nflush_time<next_Tflush_time)
-      //     {
-      //       if(next_Nflush_time>=next_Rep_time)
-      //       {
-      //         write_back_hint(HintQ, queue, fwrite, disksim, 1);
-      //         hint_g++;
-      //       }
-      //       //-------N0|>-----N1|>----T0----
-      //       printf("-------N0|>-----N1|>----T0----\n");
-      //       //fprintf(outputfd, "-------N0|>-----N1|>----T0----\n" );
-      //       write_back_hint(HintQ, queue, fwrite, disksim, 0);
-      //       hint_g++;
-      //     }
-      //     clean2dirty_tmp=clean2dirty_tmp+FLUSHBACK;
-      //     predict_Ntime = next_Nflush_time;
-      //   }
-      //   reMark_hint_dirty(queue);
-  }
+  } 
   else
   {
     // fprintf(myoutput, "/////////////////////////////////////////////////////////////////////////////////////= %d\n");
@@ -1508,6 +1445,7 @@ void ReferencePage( Queue* queue, Hash* hash, double Req_time, long int Req_devn
     hit_ratio++;
     if(Req_type == 0)
     {   //新進來的是write
+      write_ratio++;
       if(reqPage->Req_type == 1 )
       {  //原本的是read
         clean2dirty++;
@@ -1541,6 +1479,7 @@ void ReferencePage( Queue* queue, Hash* hash, double Req_time, long int Req_devn
     //做跟上面一樣的事
     hit_ratio++;
     if(Req_type == 0){  //if type of new request is 0(write) , update type of the new reqest , //and dirty always is true;
+      write_ratio++;
       if(reqPage->Req_type == 1 ){  
         clean2dirty++;
         reqPage->Req_type = Req_type;  
@@ -1654,90 +1593,10 @@ void ReferencePage( Queue* queue, Hash* hash, double Req_time, long int Req_devn
         //printf("before period_write_back_hint( 1\n");
         period_write_back_hint(HintQ, hash, queue ,fwrite,disksim);//定時flush hint
         
-        // hint_g++;
-        // int clean2dirty_tmp=clean2dirty;
-        // predict_Ntime=Ntime;
-        // predict_Ttime=Ttime;
-        // //fprintf(Nflush_hintflow, "%lf,", now);
-        // while(1)
-        // {
-        //   printf("in while\n");
-        //   if(hint_g>=HINTGROUP)break;
-        //  //fprintf(outputfd, "\tpredict_Ttime=%lf\n", predict_Ttime);
-        //  //fprintf(outputfd, "\tpredict_Ntime=%lf\n", predict_Ntime);
-        //   next_Tflush_time=((int)(predict_Ttime/5)+2)*5;
-        //   next_Nflush_time = Count_Next_Nflush_time(predict_Ntime, clean2dirty_tmp);
-        //   //fprintf(Nflush_hintflow, "%lf,", next_Nflush_time);
-        //   Nflush_time_diff=next_Nflush_time-predict_Ntime;
-        //   next_Rep_time = Count_Next_Rep_time(Rtime);
-        //  //fprintf(outputfd, "\tnext_Tflush_time=%lf\n", next_Tflush_time);
-        //  //fprintf(outputfd, "\tnext_Nflush_time=%lf\n", next_Nflush_time);
-        //  //fprintf(outputfd, "\tNflush_time_diff=%lf\n", Nflush_time_diff);
-
-        //   if(next_Tflush_time>=next_Nflush_time)
-        //   {
-        //     if(next_Tflush_time>=next_Rep_time)
-        //     {
-        //       write_back_hint(HintQ, queue, fwrite, disksim, 1);
-        //       hint_g++;
-        //     } 
-        //    //printf("-------T0|>-----N0>>[--N1---]T1|>---------\n");
-        //    //fprintf(outputfd, "-------T0|>-----N0>>[--N1---]T1|>---------\n" );
-        //     //-------T0|>-----N0>>[--N1---]T1|>---------
-        //     global_write_back_Point = queue->rear;
-        //     //fprintf(outputfd, "in Thint's write_back\n");
-        //     //printf("before write_back_hint(2\n");
-        //     write_back_hint(HintQ, queue, fwrite, disksim, 0);
-        //     //printf("after write_back_hint(2\n");
-        //     clean2dirty_tmp=clean2dirty_tmp+FLUSHBACK;
-        //     hint_g++;
-        //     if(Nflush_time_diff!=0 && next_Nflush_time != 0)
-        //     {
-        //       for(i=0;i<(next_Tflush_time - next_Nflush_time)/Nflush_time_diff ; i++)
-        //       { 
-        //         //printf("hint_g=%d \n", hint_g);
-        //         if(hint_g>=HINTGROUP)break;
-        //         //printf("(next_Tflush_time - next_Nflush_time)/Nflush_time_diff = ",(next_Tflush_time - next_Nflush_time)/Nflush_time_diff);
-        //         next_Nflush_time=next_Nflush_time+Nflush_time_diff;
-        //         write_back_hint(HintQ, queue, fwrite, disksim, 0);
-        //         clean2dirty_tmp=clean2dirty_tmp+FLUSHBACK;
-        //         hint_g++;
-        //        //fprintf(outputfd, "\t\tnext_Nflush_time=%lf|hint_g=%d\n", next_Nflush_time, hint_g);
-        //       }
-        //     }
-        //     if(hint_g>=HINTGROUP)break;
-        //     Thint_times++;
-        //     //printf("before period_write_back_hint(2\n");
-        //     if(all_Thint_clear==0)period_write_back_hint(HintQ, hash, queue ,fwrite,disksim);
-        //     hint_g++;
-        //     predict_Ntime=next_Nflush_time;//N1
-        //     predict_Ttime=next_Tflush_time;//T1
-        //   }
-        //   else if(next_Tflush_time<next_Nflush_time)
-        //   { 
-        //     if(next_Tflush_time>=next_Rep_time)
-        //     {
-        //       write_back_hint(HintQ, queue, fwrite, disksim, 1);
-        //       hint_g++;
-        //     }
-        //     //-------T0|>-----T1|>----N0---------
-        //     //printf("-------T0|>-----T1|>----N0---------\n");
-        //    //fprintf(outputfd, "-------T0|>-----T1|>----N0---------\n" );
-            //if(next_R_time < next_Nflush_time)
             if(RH==1)
             {
               replacement_hint(HintQ, queue, fwrite, disksim);
             }
-        //     Thint_times++;
-        //     if(all_Thint_clear==0)
-        //     {
-        //       period_write_back_hint(HintQ, hash, queue ,fwrite,disksim);
-        //     }
-        //     predict_Ntime=next_Nflush_time;//N0
-        //     predict_Ttime=next_Tflush_time;//T1
-        //     hint_g++;
-        //   }
-        // }
          reMark_hint_dirty(queue);
       }
       //fprintf(outputfd, "dirty_count/Mem = %f\n", (dirty_count/Mem));
@@ -1757,72 +1616,6 @@ void ReferencePage( Queue* queue, Hash* hash, double Req_time, long int Req_devn
         //fprintf(outputfd, "in Nhint's write_back\n");
         write_back_hint(HintQ, queue, fwrite, disksim, 0);
         hint_g++;
-
-        // int clean2dirty_tmp=clean2dirty;
-        // //fprintf(Nflush_hintflow, "%lf,", now);
-        // while(hint_g<HINTGROUP)
-        // {
-        //   printf("\tpredict_Ntime=%lf\n", predict_Ntime);
-        //   //fprintf(outputfd, "\tpredict_Ntime=%lf\n", predict_Ntime);
-        //   next_Nflush_time = Count_Next_Nflush_time(predict_Ntime, clean2dirty_tmp);
-        //   next_Rep_time = Count_Next_Rep_time(Rtime);
-        //   Nflush_time_diff = next_Nflush_time - predict_Ntime;
-        //   next_Tflush_time=((int)(predict_Ntime/5)+1)*5;
-          
-        //   if(next_Nflush_time>=next_Tflush_time)
-        //   {
-        //     // if(next_Nflush_time>=next_Rep_time)
-        //     // {
-        //     //   write_back_hint(HintQ, queue, fwrite, disksim, 1);
-        //     //   hint_g++;
-        //     // }
-        //     //-------N0|>---T0[--T1--T2--]N1|>----
-        //     //printf("-------N0|>---T0[--T1--T2--]N1|>----\n");
-        //     //fprintf(outputfd, "-------N0|>---T0[--T1--T2--]N1|>----\n" );
-        //     //fprintf(outputfd, "\tnext_Nflush_time>=next_Tflush_time\n");
-        //     Thint_times=0;
-        //     all_Thint_clear=0;
-        //     period_write_back_hint(HintQ, hash, queue ,fwrite,disksim);
-        //     hint_g++;
-        //     //printf("\t===Tflush===\n");
-        //     //fprintf(outputfd, "\t===Tflush===\n");
-        //     //fprintf(outputfd, "\tTflush|time=%lf\n", next_Tflush_time);
-            
-        //     // for(i=0;i<(Nflush_time_diff - (next_Tflush_time - predict_Ntime))/5 ; i++)
-        //     // {
-        //     //   if(hint_g>=HINTGROUP)break;
-        //     //   Thint_times++;
-        //     //   if(all_Thint_clear==0)period_write_back_hint(HintQ, hash, queue ,fwrite,disksim);
-        //     //   //printf("\t\t===Tflush===\n");
-        //     //   //fprintf(outputfd, "\t\t===Tflush===\n");
-        //     //  //fprintf(outputfd, "\t\tTflush|time=%lf\n", next_Tflush_time);
-        //     //   next_Tflush_time=next_Tflush_time+5;
-        //     //   hint_g++;
-        //     //  //fprintf(outputfd, "\t\tnext_Tflush_time=%lf|hint_g=%d\n", next_Tflush_time, hint_g);
-        //     // }
-        //     // if(hint_g>=HINTGROUP)break;
-        //     // write_back_hint(HintQ, queue, fwrite, disksim, 0);
-        //     // hint_g++;
-        //     //next_Tflush_time=next_Tflush_time+5;
-        //     //period_write_back)//first do period write back
-        //   }
-        //   // else if(next_Nflush_time<next_Tflush_time)
-        //   // {
-        //   //   if(next_Nflush_time>=next_Rep_time)
-        //   //   {
-        //   //     write_back_hint(HintQ, queue, fwrite, disksim, 1);
-        //   //     hint_g++;
-        //   //   }
-        //   //   //-------N0|>-----N1|>----T0----
-        //   //   //printf("-------N0|>-----N1|>----T0----\n");
-        //   //   //fprintf(outputfd, "-------N0|>-----N1|>----T0----\n" );
-        //   //   //fprintf(outputfd, "in Nhint's second write_back\n");
-        //   //   write_back_hint(HintQ, queue, fwrite, disksim, 0);
-        //   //   hint_g++;
-        //   // }
-        //   clean2dirty_tmp=clean2dirty_tmp+FLUSHBACK;
-        //   predict_Ntime = next_Nflush_time;
-        //}
         reMark_hint_dirty(queue);
       }
     }
@@ -2038,16 +1831,16 @@ int main(int argc, char *argv[])
  
   struct  timeval  time_period_s,time_period_e;
   unsigned long count_time;
-
+ 
   double time=0,mytime=0,my_prev_time=0,total_avg_time=0;
   double avg_time[10]={0.0};
   int avg_count=0,x=0;
   float req_temp_count=0,req_last_count=0;
   int reqamount=0,myreqcount=0;
   int test_RQ=0;
-
+  
   double prstime=0;
-
+     
   //printf("tv_sec:%ld\n",Global_time);
   printf("<<<ssd_ARR=%d>>\n",ssd_ARR);
   printf("tv_sec:%ld\n",Global_time);
@@ -2074,7 +1867,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "usage: %s <param file> <output file> <#sectors> <input trace file> <max_req> <memory_size(#pages)>\n",argv[0]);
     exit(1);
   }
-
+ 
   FILE *fread = fopen(argv[4],"r");
   MAXREQ = atoi(argv[5]);
   Mem = atoi(argv[6]);
@@ -2095,7 +1888,7 @@ int main(int argc, char *argv[])
            0,
            0);
 /////////原本就有↑////////////////
-   
+    
   if (fread == NULL)
     perror ("Error opening file");
   else 
@@ -2123,8 +1916,8 @@ int main(int argc, char *argv[])
       CacheTime=time;
       //fprintf(fwrite, "^now=%lf\n", now);
       sum_req_time =  sum_req_time + (time - perv_time);
-  
-  
+      
+   
       mytime = time - my_prev_time;
       //fprintf(myoutput,"time:%lf,mytime:%lf,my_prev_time:%lf\n",time,mytime,my_prev_time);
       sum_time = sum_time + mytime;
@@ -2136,7 +1929,7 @@ int main(int argc, char *argv[])
       avg_count++;
       if(avg_count==10)
       {
-        
+          
         for(x=0;x<avg_count;x++)
         {
           total_avg_time = total_avg_time + avg_time[x];
@@ -2145,12 +1938,12 @@ int main(int argc, char *argv[])
         total_avg_time = total_avg_time/10;
         avg_count=0;
         //memset(avg_time,'/0',sizeof(avg_time))
-      }
+      } 
       //fprintf(myoutput,"total_avg_time:%lf\n",total_avg_time);
       //if(sum_time>=total_avg_time)
-      if(test_RQ==100)
+      if(test_RQ==500)
       {
-        
+         
         req_temp_count=ReqCount-req_last_count;
         //Rcount=req_temp_count;
         Rcount = test_RQ;
@@ -2267,7 +2060,7 @@ int main(int argc, char *argv[])
             if(block_count_Point->prev != NULL) block_count_Point = block_count_Point->prev; 
             else break;
           }
-          
+            
         }
         //fprintf(fwrite, "^^^^now=%lf\n", now);//把新的req放到MRU    
         dr = CacheTime - diff;//算時間的QQ 
@@ -2294,7 +2087,7 @@ int main(int argc, char *argv[])
           //sleep(10);
           printf("----實際執行定時flush----\n");
           //fprintf(outputfd,"////////////////////實際執行定時flush//////////////////////\n");
-          
+            
           Ttime=CacheTime;
           period_write_back(hash, q,fwrite,disksim,1); //實際執行定時flush
           //sleep(10);
@@ -2313,13 +2106,13 @@ int main(int argc, char *argv[])
             if(block_count_Point->prev != NULL) block_count_Point = block_count_Point->prev; 
             else break;
           }
-        } 
-        //printf("Queue:");
+        }   
+        //printf("Queue:");  
         /*fprintf(outputfd, "Queue:");
         QNode *p = q->front;
         while(1)
         {
-          //printf("[%d|d=%d]",p->blockNumber,p->Dirty);
+          //printf("[%d|d=%d]",p->blockNumber,p->Dirty); 
           fprintf(outputfd, "[%d|d=%d]",p->blockNumber,p->Dirty);
           if(p->next==NULL)break;
           else p=p->next;
@@ -2347,7 +2140,7 @@ int main(int argc, char *argv[])
       //fprintf(myoutput,"!!!!!!ALL = %ld\n",count_time);
       my_prev_time = time;
       //mytime = 0;
-     
+       
     }///////////////////////////////////////////////////////////////////////////////////////////////////////////////////scanf
 
   }
@@ -2371,20 +2164,20 @@ int main(int argc, char *argv[])
     }
   }*/
   int j=0;
- 
+  
   /*while(j<=1000){
     QNode *cur = hash->array[j];
     if(cur!= NULL)
      printf("blkno = %d , invalid = %d\n",cur->blockNumber ,cur->invalid);
      cur = cur->next;
     j++;
-  }*/
+  }*/ 
  /* while(print_cur != NULL){
         printf ("%d\n", print_cur->F_blockNumber);
         print_cur = print_cur->F_next;
       }*/
  // printf ("invalid =%d\n", cur->invalid);
-  //float acratio_FA=0,acratio_R=0;
+  //float acratio_FA=0,acratio_R=0; 
   gettimeofday(&end1, NULL);
   diffall=1000000 * (end1.tv_sec-start1.tv_sec)+ end1.tv_usec-start1.tv_usec;
   prstime = tot_Rtime/Sumcount;
@@ -2401,6 +2194,10 @@ int main(int argc, char *argv[])
   printf(LIGHT_GREEN"[CHEN] Pd_FA_count=%d,Pd_R_count=%d\n",pdFA_count,pdR_count);
   printf(LIGHT_GREEN"[CHEN] FA_count=%d,R_count=%d\n",FA_count,R_count);
   printf(LIGHT_GREEN"[CHEN] tot_Rtime=%ld,prstime=%lf\n",tot_Rtime,prstime);
+  printf(LIGHT_GREEN"[CHEN] fa_hint_count=%d\n",fa_hint_count);
+  printf(LIGHT_GREEN"[CHEN] ft_hint_count=%d\n",ft_hint_count);
+  printf(LIGHT_GREEN"[CHEN] rp_hint_count=%d\n",rp_hint_count);
+  printf(LIGHT_GREEN"[CHEN] total_hint_count=%d\n",fa_hint_count+ft_hint_count+rp_hint_count);
 //-----------------------------------------------------------------------------------------------------------------------
   fprintf(finaloutput,"Unique page=%d\n",unique_page);
   fprintf(finaloutput,"flush個數=%d, replacement個數=%d\n", flushgj4, replacegj4);
@@ -2411,12 +2208,16 @@ int main(int argc, char *argv[])
   fprintf(finaloutput,"[CHEN] Pd_FA_count=%d,Pd_R_count=%d\n",pdFA_count,pdR_count);
   fprintf(finaloutput,"[CHEN] FA_count=%d,R_count=%d\n",FA_count,R_count);
   fprintf(finaloutput,"[CHEN] tot_Rtime=%ld,prstime=%lf\n",tot_Rtime,prstime);
+  fprintf(finaloutput,"[CHEN] fa_hint_count=%d\n",fa_hint_count);
+  fprintf(finaloutput,"[CHEN] ft_hint_count=%d\n",ft_hint_count);
+  fprintf(finaloutput,"[CHEN] rp_hint_count=%d\n",rp_hint_count);
+  fprintf(finaloutput,"[CHEN] total_hint_count=%d\n",fa_hint_count+ft_hint_count+rp_hint_count);
 //-----------------------------------------------------------------------------------------------------------------------   
-
+ 
   /* NOTE: it is bad to use this internal disksim call from external... */
   DISKSIM_srand48(1);
  
- 
+   
   disksim_interface_shutdown(disksim, now);
   printf("\n****Response time****");
   fprintf(finaloutput,"\n****Response time****");
@@ -2424,5 +2225,22 @@ int main(int argc, char *argv[])
   //fclose(evict_fread);
   fclose(fread);
   fclose(fwrite);
+  fclose(Nflush_hintflow);
+  fclose(Nflush_flow);
+  fclose(outputfd);
+  fclose(outputssd);
+  fclose(myoutput);
+  fclose(myoutput2);
+  fclose(myoutput3);
+  fclose(myoutput4);
+  fclose(myoutput5);
+  myoutput = fopen("src/syssim_2020-flush.txt","w");
+  myoutput2 = fopen("src/syssim_2020-TWO.txt","w");
+  myoutput3 = fopen("src/syssim_2020-Three-hq.txt","w");
+  myoutput4 = fopen("src/syssim_2020-four-wbh.txt","w");
+  myoutput5 = fopen("src/syssim_rtime","w");
+  fclose(finaloutput);
+  fclose(gc_info);
+  fclose(gc_info2);
   exit(0);
 }

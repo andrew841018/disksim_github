@@ -3538,85 +3538,50 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   // }
   return strip_way;
 } 
-int sector_number[1000000];
-int block_number[1000000];
-int sector_count[1000000]={0};
-int write_count[1000000]={0};
-int sector_counting=0,block_counting=0;
-void A_write_to_txt(int g){
-	int i;
-	char tmp[100]={0};
-	double benefit;
-	FILE *a=fopen("sector num-phy block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
-	for(i=0;i<1000000;i++){
-		if(sector_number[i]!=-1 && block_number[i]!=-1){
-			if(write_count[block_number[i]]!=0){				
-				benefit=(float)write_count[block_number[i]]/64;
-				benefit/=64;
-				sprintf(tmp,"%d %d %.20f %d",sector_number[i],block_number[i],benefit,sector_count[sector_number[i]]);
-				fprintf(a,"%s\n",tmp);	
-					
-			}			
+int init=1;
+int block_num[1000000];
+int sector_num[10000][10000];//sector_num[block_index][sector_index]
+int sector_count[10000][10000]={{0}};//count[block_index][sector_index]....block index!=block number(sector too)
+int block_index=0;
+int sector_index[1000000]={0};//sector_index[block_index]
+int block_count[1000000]={0};//calculate this in the show...
+void write_benefit_to_txt(int g){
+  int i,j,c;
+  double benefit;
+  char tmp[100];
+  for(i=0;i<10000;i++){
+    c=0;
+    for(j=0;j<10000;j++){
+      c+=sector_count[i][j];//calculate total count in block i
+    }
+    block_count[i]=c;
+  }
+  FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
+	for(i=0;i<10000;i++){
+		for(j=0;j<10000;j++){
+		  if(block_count[i]!=0 && sector_num[i][j]!=-1){
+			benefit=(float)block_count[i]/64;
+			benefit/=64;
+			sprintf(tmp,"%d %d %.20f %d",sector_num[i][j],block_num[i],benefit,sector_count[i][j]);
+			fprintf(info,"%s\n",tmp);
+		}
 		}
 	}
-	fclose(a);	
+	fclose(info);	
 }
-
-int init=1;
-void init_array(){//static:assign before program execute...can use it to to some init
-	int i;
-
-	char tmp[100];
-	for(i=0;i<1000000;i++){
-		sector_number[i]=-1;
-		block_number[i]=-1;
-	}
-}
+unsigned count,blkno;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
   static int full_cache = 0;
-  unsigned int lpn,blkno,count,scount; //sector count
+  unsigned int lpn,scount; //sector count
   ssd_t *currdisk;
   currdisk = getssd (curr->devno);
   blkno = curr->blkno;
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
-	lpn=ssd_logical_pageno(blkno,currdisk);
-	unsigned int physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
-	int i,b=0;
-	for(i=0;i<1000000;i++){		
-		if(init==1){
-			init_array();
-			break;
-		}
-		if(sector_number[i]!=-1 && block_number[i]!=-1){
-			if(sector_number[i]==blkno){
-				sector_count[blkno]++;//index is sector number
-				write_count[block_number[i]]++;
-				b=1; 
-				break;
-			}
-			else if(block_number[i]==physical_node_num){//old block new sector				
-				sector_count[sector_number[i]]++;
-				sector_number[sector_counting]=curr->blkno;
-				sector_counting++;
-				write_count[block_number[i]]++;
-				b=1;
-				break;
-			}
-		}	
-	}
-	if(b==0){
-		sector_number[sector_counting]=curr->blkno;
-		sector_count[curr->blkno]++;
-		block_number[block_counting]=physical_node_num;
-		sector_counting++;
-		block_counting++;
-		write_count[physical_node_num]++;
-		init=0;				
-	}
+  
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -3719,22 +3684,75 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //fprintf(lpb_ppn, "%d\n", lpn);
   //fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
   //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
+  int i,j,b=0;
+    if(init==1){
+		for(i=0;i<10000;i++){
+			block_num[i]=-1;
+	    }
+		for(i=0;i<10000;i++)
+			for(j=0;j<10000;j++)
+				sector_num[i][j]=-1;	    
+		init=0;
+	  }
+	else{
+		//sprintf(tmp,"block index:%d",block_index);
+		//fprintf(info,"%s\n",tmp);
+	}	  
+	  int sector;
+	  for(i=0;i<block_index;i++){
+	    for(j=0;j<sector_index[i];j++){		
+	      if(sector_num[i][j]==blkno && block_num[i]==physical_node_num){//sector overwrite(same block same sector)	
+			//program won't enter there
+			sector_count[i][j]++;		
+			b=1;
+			break;
+		  }	      
+	    }
+	    if(b==1)
+	      break;
+	  }
+	  if(b==0){
+		  for(i=0;i<block_index;i++){			  
+		  	if(block_num[i]==physical_node_num){//block overwrite but sector not
+			    //we need two dimension array
+				sector=sector_index[i];//num of sector in block i
+				sector_num[i][sector]=blkno;
+				sector_index[i]++;		    
+				sector_count[i][sector]++;								
+				b=1;
+				break;
+			}
+						
+			for(j=0;j<sector_index[i];j++){				
+				if(sector_num[i][j]==blkno){
+					//sprintf(tmp,"logical_node_num:%d block number[%d]:%d sector num[%d][%d]:%d sector_index[%d]:%d sector_count[%d][%d]:%d",logical_node_num,i,block_num[i],i,j,sector_num[i][j],i,sector_index[i],i,j,sector_count[i][j]);
+					//fprintf(info,"%s\n",tmp);
+					//fclose(info);
+				} 
+			}	
+				
+		}		
+	}  
+	if(b==0){//new block and sector
+	    block_num[block_index]=physical_node_num;
+	  //sector_index[block_index] mean the block number=block_index, and this block current writing
+	  //sector number is sector_index[block_index] 
+	    sector=sector_index[block_index];
+	    sector_num[block_index][sector]=blkno;	
+	    /*fprintf(info,"%s\n","create one:");
+	    sprintf(tmp,"block_num[%d]:%d sector_index[%d]:%d sector num[%d][%d]:%d",block_index,block_num[block_index],block_index,sector_index[block_index],block_index,sector_index[block_index],sector_num[block_index][sector_index[block_index]]);
+		fprintf(info,"%s ",tmp);    
+	    sprintf(tmp,"sector_count[%d][%d]:%d",block_index,sector,sector_count[block_index][sector]);
+		fprintf(info,"%s\n",tmp);*/	
+	    sector_count[block_index][sector]++;//sector count;	    	    
+	    sector_index[block_index]++;
+	    block_index++;	    
+	  }
+	//fclose(info);
   
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  int i;
-  /*printf("hash_Pg:");
-  for(i=0;i<1000;i++)
-  {
-    if(ptr_buffer_cache->hash_Pg[i] == NULL)
-    {
-    }
-    else
-      printf("%d|",ptr_buffer_cache->hash_Pg[i]->logical_node_num);
-  }
-  printf("\n");*/
- 
-  // search Lg_hash, if have this node, flag=1, else flag = 0
+
   while(1)
   {
     if(ptr_lru_node == NULL)
@@ -5972,7 +5990,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  A_write_to_txt(1);
+  write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);

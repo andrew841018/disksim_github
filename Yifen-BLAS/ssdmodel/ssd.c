@@ -3658,14 +3658,14 @@ void write_benefit_to_txt(int g){
   }
   FILE *info=fopen("sector num-logical block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
 	for(i=0;i<10000;i++){
-    for(j=0;j<10000;j++){
-      if(block_count[i]!=0 && sector_num[i][j]!=-1){
-        benefit=(float)block_count[i]/64;
-        benefit/=64;
-        sprintf(tmp,"%d %d %.20f %d",sector_num[i][j],block_num[i],benefit,sector_count[i][j]);
-        fprintf(info,"%s\n",tmp);
-    }
-    }
+		for(j=0;j<10000;j++){
+		  if(block_count[i]!=0 && sector_num[i][j]!=-1){
+			benefit=(float)block_count[i]/64;
+			benefit/=64;
+			sprintf(tmp,"%d %d %.20f %d",sector_num[i][j],block_num[i],benefit,sector_count[i][j]);
+			fprintf(info,"%s\n",tmp);
+		}
+		}
 	}
 	fclose(info);	
 }

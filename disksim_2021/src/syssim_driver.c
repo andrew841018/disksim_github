@@ -2239,6 +2239,11 @@ int main(int argc, char *argv[])
   fclose(finaloutput);
   fclose(gc_info);
   fclose(gc_info2);
+  myoutput = fopen("src/syssim_2020-flush.txt","w");
+  myoutput2 = fopen("src/syssim_2020-TWO.txt","w");
+  myoutput3 = fopen("src/syssim_2020-Three-hq.txt","w");
+  myoutput4 = fopen("src/syssim_2020-four-wbh.txt","w");
+  myoutput5 = fopen("src/syssim_rtime","w");
   end=clock();
   double diff=end-start;
   printf("total spend %f sec for excution\n",diff/CLOCKS_PER_SEC);
