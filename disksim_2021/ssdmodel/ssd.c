@@ -3569,7 +3569,7 @@ void write_benefit_to_txt(int g){
 	}
 	fclose(info);	
 }
-unsigned count,blkno;
+unsigned int count,blkno;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -3681,6 +3681,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   unsigned int physical_node_num, phy_node_offset;
   physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
+  ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
+  Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   //fprintf(lpb_ppn, "%d\n", lpn);
   //fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
   //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
@@ -3709,7 +3711,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		  }	      
 	    }
 	    if(b==1)
-	      break;
+			break;
 	  }
 	  if(b==0){
 		  for(i=0;i<block_index;i++){			  
@@ -3750,8 +3752,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	  }
 	//fclose(info);
   
-  ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
-  Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+  
 
   while(1)
   {

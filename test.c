@@ -1,15 +1,16 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+
 int main(){
-	int i;
-	FILE *a=fopen("a.txt","w");
+	
+	/*FILE *a=fopen("a.txt","w");
 	for(i=0;i<120;i++){
 		fprintf(a,"%d\n",i);			
 	}
 	fclose(a);
 	a=fopen("a.txt","w");
-	
+	*/
 	
 	/*
 	float benefit;

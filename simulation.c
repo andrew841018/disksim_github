@@ -49,7 +49,7 @@ int main(){
     char dur[50000][100]={0},temp[100]={0};  
     int req_type;
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
-	FILE *info=fopen("collected data(from disksim)/sector num and logical block num and benefit and sector count.txt","r");
+	FILE *info=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
 		substr0=strtok(buffer0,delim);//sector number
 		sector_number=atoi(substr0);		
@@ -75,7 +75,7 @@ int main(){
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
         req_type=atoi(substr);     
-        FILE *a1=fopen("collected data(from disksim)/sector num and logical block num and benefit and sector count.txt","r");
+        FILE *a1=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//sector_num
             sector_number1=atoi(substr1);  
@@ -149,15 +149,15 @@ int main(){
                         fprintf(result,"%s\n",dur[dur_count]);               
                         for(i=0;i<64;i++)
 							wb->block[block_index]->sector_num[i]=-1;                      
-                        wb->block[block_index]->physical_block_number=-1;                    
-                        wb->block[block_index]->duration=0;
-                        wb->free_block++;
-                        wb->block[block_index]->benefit=0;
-                          //current request write into block.....create new block
-                        wb->block[block_index]->physical_block_number=tmp_block_num;
-                        wb->block[block_index]->benefit=tmp_benefit;
-                        wb->block[block_index]->sector_num[0]=sector_number;
-                        wb->free_block--; 
+							wb->block[block_index]->physical_block_number=-1;                    
+							wb->block[block_index]->duration=0;
+							wb->free_block++;
+							wb->block[block_index]->benefit=0;
+							  //current request write into block.....create new block
+							wb->block[block_index]->physical_block_number=tmp_block_num;
+							wb->block[block_index]->benefit=tmp_benefit;
+							wb->block[block_index]->sector_num[0]=sector_number;
+							wb->free_block--; 
                       }
                       else if(wb->free_block>0){  // create new block  
 						  count++;            
@@ -171,8 +171,7 @@ int main(){
                     }                                                  
                 }              					     		
             }         
-        }        
-       
+        }              
             fclose(a1);
     }
     fclose(a); 
