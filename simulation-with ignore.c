@@ -50,7 +50,7 @@ int main(){
         substr=strtok(NULL,delim);//second num
         substr=strtok(NULL,delim);//third...sector_num
         sector_number=atoi(substr);
-        FILE *a1=fopen("collected data(from disksim)/sector num-logical block num-benefit-sector count.txt","r");
+        FILE *a1=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
           substr1=strtok(buffer1,delim);//first...sector_num
           sector_number1=atoi(substr1);
