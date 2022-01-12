@@ -3,7 +3,8 @@
 #include<string.h>
 
 int main(){
-	
+	char *tmp[100];
+	strcpy(tmp,"ssss");
 	/*FILE *a=fopen("a.txt","w");
 	for(i=0;i<120;i++){
 		fprintf(a,"%d\n",i);			

@@ -16,12 +16,17 @@ typedef struct write_buffer
   int sector_num[64];;//total 64 page...each block ppn from 0~63
 }buf;
 int write_buffer_sector_count[1000000];
-int main(){
+int exist[1000000]={0};
+int position[1000000];
+char tmp[1000000][1024];
+int main(){	
 	int req_count=0;
     //write buffer size set to 10MB,contained 40 blocks
     clock_t start,end;
     start=clock();
     int count=0,i,k,j,kick_count=0;
+    for(i=0;i<1000000;i++)
+		position[i]=-1;
     buf *wb;
     int enter=0;
     int test=0;
@@ -47,12 +52,16 @@ int main(){
 	}
     int b1=0,b=0,b2=0,full_block_num,page_count=0;
     char dur[50000][100]={0},temp[100]={0};  
-    int req_type;
+    int req_type,c=1;   
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
 	FILE *info=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
-		substr0=strtok(buffer0,delim);//sector number
-		sector_number=atoi(substr0);		
+		substr0=strtok(buffer0,delim);//sector number	
+		sector_number=atoi(substr0);
+		if(exist[sector_number]!=1)
+			position[sector_number]=c;
+		exist[sector_number]=1;				
+		c++;	
 		substr0=strtok(NULL,delim);//physical block number
 		substr0=strtok(NULL,delim);//benefit
 		substr0=strtok(NULL,delim);//sector count;		
@@ -60,37 +69,29 @@ int main(){
 		req_count+=atoi(substr0);
 	}
 	fclose(info);
-	
-	
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
     FILE *result=fopen("duration.txt","a+");
-    int p=0;
+    int special_condition=0;
     while (fgets(buffer,1024,a)!=NULL)
     {		
-		p=0;
         substr=strtok(buffer,delim);//time
         substr=strtok(NULL,delim);//disk_number
         substr=strtok(NULL,delim);//third...sector_num
         sector_number=atoi(substr);
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
-        req_type=atoi(substr);     
+        req_type=atoi(substr);  
+        special_condition=0;       
         FILE *a1=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
         while(fgets(buffer1,1024,a1)!=NULL){
             substr1=strtok(buffer1,delim);//sector_num
-            sector_number1=atoi(substr1);  
-           /* if(sector_number==8){
-				printf("sector:%d sector1:%d req_type:%d sector_count:%d\n",sector_number,sector_number1,req_type,write_buffer_sector_count[sector_number]);
-				sleep(1);
-			}  */ 
-			if(sector_number==3328)
-				printf("write:%d req_type:%d count:%d\n",sector_number1,req_type, write_buffer_sector_count[sector_number]);
-            if(req_type==0 && sector_number==sector_number1 && write_buffer_sector_count[sector_number]>0){				
-				if(sector_number==3328)
-					printf("enter:%d\n",sector_number);
+            sector_number1=atoi(substr1);
+            position[sector_number]--;
+            if(position[sector_number]==0)
+				special_condition=1;
+			//printf("sector:%d %d\n",sector_number,position[sector_number]);
+		   if(req_type==0 && exist[sector_number]==1 &&special_condition==1){																				
 				enter++;
-				p=1;
-				write_buffer_sector_count[sector_number]--;
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
 						wb->block[j]->duration++;
@@ -105,6 +106,7 @@ int main(){
                 if(b==0){  //ppn=62時進入，此時會將新的data寫滿ppn 63 
                     for(i=0;i<count;i++){
                         b1=1;
+                        
                         if(atoi(substr1)==wb->block[i]->physical_block_number && wb->block[i]->full==0){//write in same block
 							for(j=0;j<64;j++){
 								if(wb->block[i]->sector_num[j]==sector_number1){//judge whether new req hit the same page.									
@@ -126,10 +128,9 @@ int main(){
 						wb->block[count-1]->benefit=atof(substr1);
 						wb->free_block--;
 						wb->block[count-1]->sector_num[0]=sector_number; 													
-					}
+					}						 		
                     if(b1==1){//進入for loop但沒進入condition----add a new block 
-                      if(wb->free_block==0){
-						   
+                      if(wb->free_block==0){						   
                            //kick block                          
                            int min_block_num,block_index; 
                            float min=10000;   
@@ -171,16 +172,13 @@ int main(){
 						  substr1=strtok(NULL,delim);//third...benefit
 						  wb->block[count-1]->benefit=atof(substr1);
 						  wb->free_block--; 					
-				  }	  								
+				  }				 	  								
                     }                                                  
                 } 
-             break;              					     		
-            }             
-                  
-        }   
-        if(p==0){
-			printf("not enter:%d\n",sector_number);
-		}           
+              break;            					     		
+            }            
+                 
+        }            
             fclose(a1);
     }
     fclose(a); 
@@ -188,7 +186,6 @@ int main(){
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
-    printf("total excution time(s):%20.f\n",diff/CLOCKS_PER_SEC);
-    
+    printf("total excution time(s):%20.f\n",diff/CLOCKS_PER_SEC);    
     return 0;
 }
