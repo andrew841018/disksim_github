@@ -17,6 +17,8 @@ typedef struct write_buffer
 }buf;
 int exist[1000000]={0};
 int block[1000000],write_count[1000000];
+int ignore_bool[1000000]={0},ignore_num[1000000];
+int ig=0;
 double benefit[1000000];
 int main(){	
 	int req_count=0;
@@ -26,14 +28,16 @@ int main(){
     int count=0,i,k,j,kick_count=0;
     for(i=0;i<1000000;i++){
         block[i]=-1;
+        ignore_num[i]=-1;
         write_count[i]=0;
         benefit[i]=0;
     }
     buf *wb;
+    
     int enter=0;
-    int test=0;
-    char buffer[1024],buffer1[1024],buffer0[1024];
-    char *substr=NULL,*substr1=NULL,*substr0=NULL;
+    int test=0,hit_count=0;
+    char buffer[1024],buffer0[1024];
+    char *substr=NULL,*substr0=NULL;
     int tmp_block_num,free_block;
     float tmp_benefit;
     int sector_number,sector_number1;
@@ -98,23 +102,24 @@ int main(){
 				}  
 		}
             if(b==0){  //ppn=62時進入，此時會將新的data寫滿ppn 63 
-				
-                for(i=0;i<count;i++){
-                    b1=1;                                     
-                    if(block[sector_number]==wb->block[i]->physical_block_number && wb->block[i]->full==0){//write in same block
-                        for(j=0;j<64;j++){
-                            if(wb->block[i]->sector_num[j]==sector_number){//judge whether new req hit the same page.									
-                                b2=1;
-                            }						
-                        }
-                        if(b2==0){//access the same block,but different page
-                            wb->block[i]->sector_index++;
-                            wb->block[i]->sector_num[wb->block[i]->sector_index]=sector_number;
-                        }													
-                        b1=2;
-                        break;															
-                    }
-                }
+				if(count<=40){
+					for(i=0;i<count;i++){
+						b1=1;   
+						if(block[sector_number]==wb->block[i]->physical_block_number && wb->block[i]->full==0){//write in same block
+							for(j=0;j<64;j++){
+								if(wb->block[i]->sector_num[j]==sector_number){//judge whether new req hit the same page.									
+									b2=1;
+								}						
+							}
+							if(b2==0){//access the same block,but different page
+								wb->block[i]->sector_index++;
+								wb->block[i]->sector_num[wb->block[i]->sector_index]=sector_number;
+							}													
+							b1=2;
+							break;															
+						}
+					}
+			}
                 if(b1==0){//first time will enter here.					
                     count++;											
                     wb->block[count-1]->physical_block_number=block[sector_number];
@@ -131,13 +136,15 @@ int main(){
                         tmp_block_num=sector_number;//current block number
                         tmp_benefit=benefit[sector_number];//current block benefit                         
                         //find min benefit block in write buffer
-                    for(k=0;k<count;k++){
-                        if (min>wb->block[k]->benefit && wb->block[k]->benefit!=0){
-                            min=wb->block[k]->benefit;
-                            block_index=k;
-                            min_block_num=wb->block[k]->physical_block_number;
-                        }
-                    }                                                                     
+                    if(count<=40){
+						for(k=0;k<count;k++){
+							if (min>wb->block[k]->benefit && wb->block[k]->benefit!=0){
+								min=wb->block[k]->benefit;
+								block_index=k;
+								min_block_num=wb->block[k]->physical_block_number;
+							}
+						}
+					}                                                                     
                     //min=min benefit block in write buffer
                         //kick min bloif(tmp_benefit>min){
                     //kick min block from write buffer
@@ -148,7 +155,8 @@ int main(){
 						strcat(dur[dur_count]," ");
 						sprintf(temp,"%d",wb->block[block_index]->duration);
 						strcat(dur[dur_count],temp);
-						printf("%s\n",dur[dur_count]);
+						//test++;
+						//printf("%s %d\n",dur[dur_count],test);
 						for(i=0;i<64;i++)
 						  wb->block[block_index]->sector_num[i]=-1;                      
 						wb->block[block_index]->physical_block_number=-1;                    
@@ -163,19 +171,29 @@ int main(){
 						free_block--;
                   }                 
                   else{
+					  //test++;
                     //ignore current request...do nothing						
                     int ignore=0;
-                    for(k=40;k<count;k++){
-                      if(wb->block[k]->physical_block_number==tmp_block_num)
+                    for(k=0;k<ig;k++){
+                      if(ignore_num[k]==tmp_block_num){
                         ignore=1;
-                    }
-                    count++;
+                        hit_count++;
+                        printf("hit in ssd:%d %d\n",ignore_num[k],hit_count);
+                        break;
+					  }
+                    }       
+                                
                     //count>41 mean:after entrer here once,for loop will execute.
                     if(ignore==0){
-					  wb->block[count-1]=malloc(sizeof(buf));
-                      wb->block[count-1]->physical_block_number=tmp_block_num;
-                      wb->block[count-1]->buffer_or_not=0;
-                  }   
+					  ignore_num[ig]=tmp_block_num;
+                      ignore_bool[ig]=0;
+                      test++;
+                      printf("%d %d\n",ignore_num[ig],test);
+                      ig++;
+                  }  
+                  
+                  
+ 
                   }
 				}
 				else if(free_block>0){  // create new block  
@@ -197,7 +215,8 @@ int main(){
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
-    printf("total excution time(s):%f\n",diff/CLOCKS_PER_SEC);    
+    printf("total excution time(s):%f\n",diff/CLOCKS_PER_SEC); 
+    printf("hit count:%d ignore new:%d",hit_count,test);   
     return 0;
 
 }
