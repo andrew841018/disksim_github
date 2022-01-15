@@ -32,6 +32,7 @@ int main(){
     }
     buf *wb;
     int enter=0;
+    int testing[100]={0};
     int test=0;
     char buffer[1024],buffer1[1024],buffer0[1024];
     char *substr=NULL,*substr1=NULL,*substr0=NULL;
@@ -72,7 +73,7 @@ int main(){
 	}
 	fclose(info);
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
-    FILE *result=fopen("duration.txt","a+");
+    //FILE *result=fopen("duration.txt","a+");
     while (fgets(buffer,1024,a)!=NULL)
     {		
         substr=strtok(buffer,delim);//time
@@ -96,21 +97,21 @@ int main(){
             }  
             if(b==0){  //ppn=62時進入，此時會將新的data寫滿ppn 63 
                 for(i=0;i<count;i++){
-                    b1=1;                  
-                    if(block[sector_number]==wb->block[i]->physical_block_number && wb->block[i]->full==0){//write in same block
+                    b1=1;                                                       
+                    if(block[sector_number]==wb->block[i]->physical_block_number){//write in same block
                         for(j=0;j<64;j++){
                             if(wb->block[i]->sector_num[j]==sector_number){//judge whether new req hit the same page.									
                                 b2=1;
                             }						
                         }
-                        if(b2==0){//access the same block,but different page
+                        if(b2==0 && wb->block[i]->full==0){//access the same block,but different page
                             wb->block[i]->sector_index++;
                             wb->block[i]->sector_num[wb->block[i]->sector_index]=sector_number;
-                        }													
-                        b1=2;
-                        break;															
+                        }	                      											
+                        b1=2; 
+                        break;                                             															
                     }
-                }
+                }          
                 if(b1==0){//first time will enter here.
                     count++;											
                     wb->block[count-1]->physical_block_number=block[sector_number];
@@ -123,8 +124,9 @@ int main(){
                         //kick block                          
                         int min_block_num,block_index; 
                         float min=10000;   
-                        tmp_block_num=sector_number;//current block number
-                        tmp_benefit=benefit[sector_number];//current block benefit                         
+                        tmp_block_num=block[sector_number];//current block number
+                        tmp_benefit=benefit[sector_number];//current block benefit
+                                                 
                         //find min benefit block in write buffer
                     for(k=0;k<count;k++){
                         if (min>wb->block[k]->benefit && wb->block[k]->benefit!=0){
@@ -132,43 +134,48 @@ int main(){
                             block_index=k;
                             min_block_num=wb->block[k]->physical_block_number;
                         }
-                    }                                                                     
+                    }                                                                                   
                     //min=min benefit block in write buffer
                         //kick min block from write buffer  
                     sprintf(dur[dur_count],"%d",min_block_num);                   
                     strcat(dur[dur_count]," ");
                     sprintf(temp,"%d",wb->block[block_index]->duration);
                     strcat(dur[dur_count],temp);
-                    fprintf(result,"%s\n",dur[dur_count]);               
-                    for(i=0;i<64;i++)
+                    //fprintf(result,"%s\n",dur[dur_count]);               
+                    for(i=0;i<64;i++){
                         wb->block[block_index]->sector_num[i]=-1;                      
-                        wb->block[block_index]->physical_block_number=-1;                    
-                        wb->block[block_index]->duration=0;
-                        wb->free_block++;
-                        wb->block[block_index]->benefit=0;
-                            //current request write into block.....create new block
-                        wb->block[block_index]->physical_block_number=tmp_block_num;
-                        wb->block[block_index]->benefit=tmp_benefit;
-                        wb->block[block_index]->sector_num[0]=sector_number;
-                        wb->free_block--; 
                     }
+                    wb->block[block_index]->physical_block_number=-1;                    
+                    wb->block[block_index]->duration=0;
+                    wb->free_block++;
+                    wb->block[block_index]->benefit=0;
+                    //current request write into block.....create new block
+                    wb->block[block_index]->physical_block_number=tmp_block_num;
+                    wb->block[block_index]->benefit=tmp_benefit;
+                    wb->block[block_index]->sector_num[0]=sector_number;
+                    wb->free_block--;                   
+                    }                        
                     else if(wb->free_block>0){  // create new block  
                         count++;            
                         wb->block[count-1]->sector_num[0]=sector_number;
                         // printf("%d\n",atoi(substr1));
                         wb->block[count-1]->physical_block_number=block[sector_number];
                         wb->block[count-1]->benefit=benefit[sector_number];
-                        wb->free_block--; 					
-                }				 	  								
+                        wb->free_block--; 	
+                        				
+                }                                                                            				 	  								
                 }                                                  
             } 
         }            
     }
     fclose(a); 
-    fclose(result);
+   //fclose(result);
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
-    printf("total excution time(s):%20.f\n",diff/CLOCKS_PER_SEC);    
+    printf("total excution time(s):%20.f\n",diff/CLOCKS_PER_SEC); 
+    for(i=0;i<40;i++){
+        printf("%d\n",wb->block[i]->physical_block_number);
+    }   
     return 0;
 }
