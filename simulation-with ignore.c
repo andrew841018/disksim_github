@@ -35,7 +35,7 @@ int main(){
     buf *wb;
     
     int enter=0;
-    int test=0,hit_count=0;
+    int test=0,hit_count=0,testing[100]={0};
     char buffer[1024],buffer0[1024];
     char *substr=NULL,*substr0=NULL;
     int tmp_block_num,free_block;
@@ -116,12 +116,14 @@ int main(){
 								wb->block[i]->sector_num[wb->block[i]->sector_index]=sector_number;
 							}													
 							b1=2;
+                            testing[2]++;
 							break;															
 						}
 					}
 			}
                 if(b1==0){//first time will enter here.					
                     count++;
+                    testing[0]++;
                     wb->block[count-1]->physical_block_number=block[sector_number];
                     wb->block[count-1]->benefit=benefit[sector_number];
                     free_block--;                   
@@ -151,11 +153,10 @@ int main(){
                     
                     if(tmp_benefit>min){
                     //kick min block from write buffer
-						sprintf(dur[dur_count],"%d",min_block_num);                   
-						strcat(dur[dur_count]," ");
-						sprintf(temp,"%d",wb->block[block_index]->duration);
-						strcat(dur[dur_count],temp);
-						//test++;
+                        fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
+                        testing[0]++;
+						testing[1]++;
+                        //test++;
 						//printf("%s %d\n",dur[dur_count],test);
 						for(i=0;i<64;i++){
 						    wb->block[block_index]->sector_num[i]=-1; 
@@ -189,13 +190,15 @@ int main(){
 					  ignore_num[ig]=tmp_block_num;
                       ignore_bool[ig]=0;
                       test++;
+                      testing[0]++;
                      // printf("%d %d\n",ignore_num[ig],test);
                       ig++;
                   }                                 
                   }
 				}
 				else if(free_block>0){  // create new block  
-					count++;    	
+					count++;    
+                    testing[0]++;	
 					wb->block[count-1]=malloc(sizeof(buf)); 
 					wb->block[count-1]->sector_num[0]=sector_number;
 					// printf("%d\n",atoi(substr1));
@@ -207,16 +210,16 @@ int main(){
                 }                                                  
             } 
         }    
-        }  
-        for(i=0;i<40;i++)
-            printf("%d\n",wb->block[i]->physical_block_number);     
+        }              
     fclose(a); 
     fclose(result);
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
     printf("total excution time(s):%f\n",diff/CLOCKS_PER_SEC); 
-    printf("hit count:%d ignore new:%d",hit_count,test);   
+    printf("ignore hit count:%d ignore new block:%d total block:%d\n",hit_count,test,testing[0]); 
+    printf("number of block kick from write buffer:%d\n",testing[1]);  
+    printf("hit in write buffer block:%d\n",testing[2]);
     return 0;
 
 }
