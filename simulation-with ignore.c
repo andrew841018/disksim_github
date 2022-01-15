@@ -105,13 +105,13 @@ int main(){
 				if(count<=40){
 					for(i=0;i<count;i++){
 						b1=1;   
-						if(block[sector_number]==wb->block[i]->physical_block_number && wb->block[i]->full==0){//write in same block
+						if(block[sector_number]==wb->block[i]->physical_block_number){//write in same block
 							for(j=0;j<64;j++){
 								if(wb->block[i]->sector_num[j]==sector_number){//judge whether new req hit the same page.									
 									b2=1;
 								}						
 							}
-							if(b2==0){//access the same block,but different page
+							if(b2==0 && wb->block[i]->full==0){//access the same block,but different page
 								wb->block[i]->sector_index++;
 								wb->block[i]->sector_num[wb->block[i]->sector_index]=sector_number;
 							}													
@@ -121,7 +121,7 @@ int main(){
 					}
 			}
                 if(b1==0){//first time will enter here.					
-                    count++;											
+                    count++;
                     wb->block[count-1]->physical_block_number=block[sector_number];
                     wb->block[count-1]->benefit=benefit[sector_number];
                     free_block--;                   
@@ -157,8 +157,9 @@ int main(){
 						strcat(dur[dur_count],temp);
 						//test++;
 						//printf("%s %d\n",dur[dur_count],test);
-						for(i=0;i<64;i++)
-						  wb->block[block_index]->sector_num[i]=-1;                      
+						for(i=0;i<64;i++){
+						    wb->block[block_index]->sector_num[i]=-1; 
+                        }                     
 						wb->block[block_index]->physical_block_number=-1;                    
 						wb->block[block_index]->duration=0;
 						free_block++;
@@ -190,21 +191,18 @@ int main(){
                       test++;
                      // printf("%d %d\n",ignore_num[ig],test);
                       ig++;
-                  }  
-                  
-                  
- 
+                  }                                 
                   }
 				}
 				else if(free_block>0){  // create new block  
-					count++;    					
+					count++;    	
 					wb->block[count-1]=malloc(sizeof(buf)); 
 					wb->block[count-1]->sector_num[0]=sector_number;
 					// printf("%d\n",atoi(substr1));
 					wb->block[count-1]->physical_block_number=block[sector_number];
 					wb->block[count-1]->benefit=benefit[sector_number];
-					free_block--; 	
-								
+					free_block--; 
+                    
 			}				 	  								
                 }                                                  
             } 

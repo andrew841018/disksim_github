@@ -152,7 +152,7 @@ int main(){
                     wb->free_block--;                   
                     }                        
                     else if(wb->free_block>0){  // create new block  
-                        count++;            
+                        count++;
                         wb->block[count-1]->sector_num[0]=sector_number;
                         // printf("%d\n",atoi(substr1));
                         wb->block[count-1]->physical_block_number=block[sector_number];
