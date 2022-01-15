@@ -58,7 +58,7 @@ int main(){
     char dur[50000][100]={0},temp[100]={0};  
     int req_type;   
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
-	FILE *info=fopen("collected data(from disksim)/sector num-logical block num-benefit-sector count.txt","r");
+	FILE *info=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
 		substr0=strtok(buffer0,delim);//sector number	
 		sector_number=atoi(substr0);
@@ -73,7 +73,7 @@ int main(){
 	}
 	fclose(info);
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
-    //FILE *result=fopen("duration.txt","a+");
+    FILE *result=fopen("duration.txt","a+");
     while (fgets(buffer,1024,a)!=NULL)
     {		
         substr=strtok(buffer,delim);//time
@@ -136,12 +136,8 @@ int main(){
                         }
                     }                                                                                   
                     //min=min benefit block in write buffer
-                        //kick min block from write buffer  
-                    sprintf(dur[dur_count],"%d",min_block_num);                   
-                    strcat(dur[dur_count]," ");
-                    sprintf(temp,"%d",wb->block[block_index]->duration);
-                    strcat(dur[dur_count],temp);
-                    //fprintf(result,"%s\n",dur[dur_count]);               
+                        //kick min block from write buffer                  
+                    fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);               
                     for(i=0;i<64;i++){
                         wb->block[block_index]->sector_num[i]=-1;                      
                     }
@@ -169,13 +165,11 @@ int main(){
         }            
     }
     fclose(a); 
-   //fclose(result);
+   fclose(result);
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
     printf("total excution time(s):%20.f\n",diff/CLOCKS_PER_SEC); 
-    for(i=0;i<40;i++){
-        printf("%d\n",wb->block[i]->physical_block_number);
-    }   
+     
     return 0;
 }
