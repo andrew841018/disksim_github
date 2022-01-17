@@ -221,7 +221,7 @@ int main(){
     //因此有可能出現以下情形:某些write request會寫入write buffer同時也會做某些大量寫入處理(但不在write buffer)
     //此時我的判斷會認為該request是寫入，且存在於write buffer，因此將這個request放入，但其實這個reuqest實際寫入write buffer的次數
     //不會那麼多(程式將write buffer外處理的那些寫入也一併算入)
- 
+  
 
     //但我在抓資料時，只抓寫入write buffer的次數，因此benefit是正確的，整個simulation也是正確，只是如果特別去注意max ignore count
     //會發現有點矛盾，但不影響結果
