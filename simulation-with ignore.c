@@ -215,7 +215,8 @@ int main(){
                 }                                                  
             } 
         }    
-    }              
+    }    
+              
     float max=0;
     for(i=0;i<1000000;i++){
         if(max<ignore_block_count[i] && ignore_block_count[i]!=0){

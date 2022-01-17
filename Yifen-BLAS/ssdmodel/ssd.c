@@ -3692,9 +3692,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		for(i=0;i<10000;i++){
 			block_num[i]=-1;
 	    }
-		for(i=0;i<10000;i++)
-			for(j=0;j<10000;j++)
-				sector_num[i][j]=-1;	    
+		for(i=0;i<10000;i++){
+			for(j=0;j<10000;j++){
+				sector_num[i][j]=-1;
+			}
+		}	    
 		init=0;
 	  }
 	else{
@@ -3724,16 +3726,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				sector_count[i][sector]++;								
 				b=1;
 				break;
-			}
-						
-			for(j=0;j<sector_index[i];j++){				
-				if(sector_num[i][j]==blkno){
-					//sprintf(tmp,"logical_node_num:%d block number[%d]:%d sector num[%d][%d]:%d sector_index[%d]:%d sector_count[%d][%d]:%d",logical_node_num,i,block_num[i],i,j,sector_num[i][j],i,sector_index[i],i,j,sector_count[i][j]);
-					//fprintf(info,"%s\n",tmp);
-					//fclose(info);
-				} 
-			}	
-				
+			}													
 		}		
 	}  
 	if(b==0){//new block and sector
