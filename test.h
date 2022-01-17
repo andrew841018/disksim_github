@@ -1,1 +1,1 @@
-extern ppp=123;
+extern int ppp=0;
