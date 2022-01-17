@@ -216,7 +216,16 @@ int main(){
             } 
         }    
     }    
-              
+    //若仔細檢查ignore部分，會發現有max block count in ignore>min block count in write buffer，
+    //那是因為在模擬時，會將disksim當中不寫入write buffer的request也一併寫入，因為只判斷是否寫入和該sector是否存在於write buffer
+    //因此有可能出現以下情形:某些write request會寫入write buffer同時也會做某些大量寫入處理(但不在write buffer)
+    //此時我的判斷會認為該request是寫入，且存在於write buffer，因此將這個request放入，但其實這個reuqest實際寫入write buffer的次數
+    //不會那麼多(程式將write buffer外處理的那些寫入也一併算入)
+
+
+    //但我在抓資料時，只抓寫入write buffer的次數，因此benefit是正確的，整個simulation也是正確，只是如果特別去注意max ignore count
+    //會發現有點矛盾，但不影響結果
+
     float max=0;
     for(i=0;i<1000000;i++){
         if(max<ignore_block_count[i] && ignore_block_count[i]!=0){
