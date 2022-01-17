@@ -61,18 +61,18 @@ int main(){
     char dur[50000][100]={0},temp[100]={0};  
     int req_type;  
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
-	FILE *info=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
+	FILE *info=fopen("collected data(from disksim)/sector num-logical block num-benefit-sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
 		substr0=strtok(buffer0,delim);//sector number	
 		sector_number=atoi(substr0);
 		exist[sector_number]=1;				
 		substr0=strtok(NULL,delim);//physical block number
         block[sector_number]=atoi(substr0);
-		substr0=strtok(NULL,delim);//benefit
+		substr0=strtok(NULL,delim);//benefit     
         benefit[sector_number]=atof(substr0);
 		substr0=strtok(NULL,delim);//sector count;
-        write_count[sector_number]=atoi(substr0);		
-		req_count+=atoi(substr0);
+        write_count[sector_number]=atoi(substr0);      
+		req_count+=atoi(substr0);      
 	}
 	fclose(info);
 	
@@ -88,7 +88,11 @@ int main(){
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
         req_type=atoi(substr);        
-        if(req_type==0 && exist[sector_number]==1){																							
+        if(req_type==0 && exist[sector_number]==1){	
+            if(block[sector_number]==79759){
+                testing[3]++;
+                //printf("%d\n",testing[3]);
+                }																						
             enter++;
             if(count<=40){
 				for(j=0;j<count;j++){
@@ -150,8 +154,7 @@ int main(){
                         }                                                                     
                         //min=min benefit block in write buffer
                             //kick min bloif(tmp_benefit>min){
-                        //kick min block from write buffer
-                        printf("block num:%d tmp:%f min:%f\n",tmp_block_num,tmp_benefit,min);
+                        //kick min block from write buffer                
                         if(tmp_benefit>min){
                         //kick min block from write buffer
                             fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
@@ -182,7 +185,10 @@ int main(){
                             if(ignore_num[k]==tmp_block_num){
                                 ignore=1;
                                 hit_count++;
-                                ignore_block_count[tmp_block_num]++;
+                                ignore_block_count[tmp_block_num]++;                               
+                                if(tmp_block_num==79759){
+                                  //  printf("sector:%d count:%d\n",sector_number,ignore_block_count[tmp_block_num]);
+                                }
                             //  printf("hit in ssd:%d %d\n",ignore_num[k],hit_count);
                                 break;
                             }
@@ -215,13 +221,13 @@ int main(){
                 }                                                  
             } 
         }    
-    }    
+    }              
     //若仔細檢查ignore部分，會發現有max block count in ignore>min block count in write buffer，
     //那是因為在模擬時，會將disksim當中不寫入write buffer的request也一併寫入，因為只判斷是否寫入和該sector是否存在於write buffer
     //因此有可能出現以下情形:某些write request會寫入write buffer同時也會做某些大量寫入處理(但不在write buffer)
     //此時我的判斷會認為該request是寫入，且存在於write buffer，因此將這個request放入，但其實這個reuqest實際寫入write buffer的次數
     //不會那麼多(程式將write buffer外處理的那些寫入也一併算入)
-  
+ 
 
     //但我在抓資料時，只抓寫入write buffer的次數，因此benefit是正確的，整個simulation也是正確，只是如果特別去注意max ignore count
     //會發現有點矛盾，但不影響結果
@@ -233,7 +239,15 @@ int main(){
             tmp_block_num=i;
         }
     }
-    printf("block num:%d block_count:%f\n",tmp_block_num,smax);
+    float min=10000;
+    int t;
+    for(i=0;i<40;i++){
+        if(wb->block[i]->benefit<min){
+            min=wb->block[i]->benefit;
+            t=wb->block[i]->physical_block_number;
+        }
+    }
+    printf("write buffer min block:%d count:%f block num:%d block_count:%f\n",t,min*64*64,tmp_block_num,max);
     fclose(a); 
     fclose(buffer_tag);
     fclose(result);
