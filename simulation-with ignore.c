@@ -17,7 +17,7 @@ typedef struct write_buffer
 }buf;
 int exist[1000000]={0};
 int block[1000000],write_count[1000000];
-int ignore_bool[1000000]={0},ignore_num[1000000];
+int ignore_block_count[1000000]={0},ignore_num[1000000];
 int ig=0;
 double benefit[1000000];
 int main(){	
@@ -61,7 +61,7 @@ int main(){
     char dur[50000][100]={0},temp[100]={0};  
     int req_type;  
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
-	FILE *info=fopen("collected data(from disksim)/sector num-logical block num-benefit-sector count.txt","r");
+	FILE *info=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
 		substr0=strtok(buffer0,delim);//sector number	
 		sector_number=atoi(substr0);
@@ -77,7 +77,7 @@ int main(){
 	fclose(info);
 	
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
-    //FILE *result=fopen("duration.txt","w");
+    FILE *result=fopen("duration.txt","w");
     FILE *buffer_tag=fopen("buffer_or_not","w");
     while (fgets(buffer,1024,a)!=NULL)
     {		
@@ -151,10 +151,10 @@ int main(){
                         //min=min benefit block in write buffer
                             //kick min bloif(tmp_benefit>min){
                         //kick min block from write buffer
-                        
+                        printf("block num:%d tmp:%f min:%f\n",tmp_block_num,tmp_benefit,min);
                         if(tmp_benefit>min){
                         //kick min block from write buffer
-                            //fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
+                            fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
                             testing[0]++;
                             testing[1]++;
                             //test++;
@@ -171,7 +171,7 @@ int main(){
                             wb->block[block_index]->buffer_or_not=1;
                             wb->block[block_index]->benefit=tmp_benefit;
                             wb->block[block_index]->sector_num[0]=sector_number;
-                            fprintf(buffer_tag,"%d %d",tmp_block_num,1);
+                            fprintf(buffer_tag,"%d %d\n",tmp_block_num,1);
                             free_block--;
                     }                 
                     else{
@@ -179,22 +179,24 @@ int main(){
                         //ignore current request...do nothing						
                         int ignore=0;
                         for(k=0;k<ig;k++){
-                        if(ignore_num[k]==tmp_block_num){
-                            ignore=1;
-                            hit_count++;
-                        //  printf("hit in ssd:%d %d\n",ignore_num[k],hit_count);
-                            break;
-                        }
+                            if(ignore_num[k]==tmp_block_num){
+                                ignore=1;
+                                hit_count++;
+                                ignore_block_count[tmp_block_num]++;
+                            //  printf("hit in ssd:%d %d\n",ignore_num[k],hit_count);
+                                break;
+                            }
                         }       
                                     
                         //count>41 mean:after entrer here once,for loop will execute.
                         if(ignore==0){
-                        ignore_num[ig]=tmp_block_num;
-                        ignore_bool[ig]=0;
-                        test++;
-                        testing[0]++;
-                        // printf("%d %d\n",ignore_num[ig],test);
-                        ig++;
+                            ignore_num[ig]=tmp_block_num;
+                            ignore_block_count[tmp_block_num]++;
+                            fprintf(buffer_tag,"%d %d\n",tmp_block_num,0);
+                            test++;
+                            testing[0]++;
+                            // printf("%d %d\n",ignore_num[ig],test);
+                            ig++;
                     }                                 
                     }
 				}
@@ -206,17 +208,25 @@ int main(){
 					// printf("%d\n",atoi(substr1));
 					wb->block[count-1]->physical_block_number=block[sector_number];
 					wb->block[count-1]->benefit=benefit[sector_number];
-                    fprintf(buffer_tag,"%d %d",block[sector_number],1);
+                    fprintf(buffer_tag,"%d %d\n",block[sector_number],1);
 					free_block--; 
                     
 			}				 	  								
                 }                                                  
             } 
         }    
-        }              
+    }              
+    float max=0;
+    for(i=0;i<1000000;i++){
+        if(max<ignore_block_count[i] && ignore_block_count[i]!=0){
+            max=ignore_block_count[i];
+            tmp_block_num=i;
+        }
+    }
+    printf("block num:%d block_count:%f\n",tmp_block_num,smax);
     fclose(a); 
     fclose(buffer_tag);
-    //fclose(result);
+    fclose(result);
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
@@ -225,5 +235,4 @@ int main(){
     printf("number of block kick from write buffer:%d\n",testing[1]);  
     printf("hit in write buffer block:%d\n",testing[2]);
     return 0;
-
 }
