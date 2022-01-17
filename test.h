@@ -1,0 +1,1 @@
+extern ppp=123;

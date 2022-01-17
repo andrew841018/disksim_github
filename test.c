@@ -1,8 +1,10 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-
+#include "test.h"
 int main(){
+	printf("%d\n",ppp);
+	/*
 	char *tmp[100];
 	//strcpy(tmp,"ssss");
 	FILE *a=fopen("a.txt","w");
@@ -14,7 +16,7 @@ int main(){
 	//a=fopen("a.txt","w");
 	
 	
-	/*
+	
 	float benefit;
 	benefit=(float)5/3040;
 	benefit/=4500;
