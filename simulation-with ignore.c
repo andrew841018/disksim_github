@@ -77,7 +77,8 @@ int main(){
 	fclose(info);
 	
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
-    FILE *result=fopen("duration.txt","w");
+    //FILE *result=fopen("duration.txt","w");
+    FILE *buffer_tag=fopen("buffer_or_not","w");
     while (fgets(buffer,1024,a)!=NULL)
     {		
         substr=strtok(buffer,delim);//time
@@ -132,78 +133,80 @@ int main(){
                 if(b1==1){//進入for loop但沒進入condition----add a new block 
 					
                     if(free_block==0){												   
-                        //kick block                          
+                            //kick block                          
                         int min_block_num,block_index; 
                         float min=10000;   
                         tmp_block_num=block[sector_number];//current block number
                         tmp_benefit=benefit[sector_number];//current block benefit                         
                         //find min benefit block in write buffer
-                    if(count<=40){
-						for(k=0;k<count;k++){
-							if (min>wb->block[k]->benefit && wb->block[k]->benefit!=0){
-								min=wb->block[k]->benefit;
-								block_index=k;
-								min_block_num=wb->block[k]->physical_block_number;
-							}
-						}
-					}                                                                     
-                    //min=min benefit block in write buffer
-                        //kick min bloif(tmp_benefit>min){
-                    //kick min block from write buffer
-                    
-                    if(tmp_benefit>min){
-                    //kick min block from write buffer
-                        fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
-                        testing[0]++;
-						testing[1]++;
+                        if(count<=40){
+                            for(k=0;k<count;k++){
+                                if (min>wb->block[k]->benefit && wb->block[k]->benefit!=0){
+                                    min=wb->block[k]->benefit;
+                                    block_index=k;
+                                    min_block_num=wb->block[k]->physical_block_number;
+                                }
+                            }
+                        }                                                                     
+                        //min=min benefit block in write buffer
+                            //kick min bloif(tmp_benefit>min){
+                        //kick min block from write buffer
+                        
+                        if(tmp_benefit>min){
+                        //kick min block from write buffer
+                            //fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
+                            testing[0]++;
+                            testing[1]++;
+                            //test++;
+                            //printf("%s %d\n",dur[dur_count],test);
+                            for(i=0;i<64;i++){
+                                wb->block[block_index]->sector_num[i]=-1; 
+                            }                     
+                            wb->block[block_index]->physical_block_number=-1;                    
+                            wb->block[block_index]->duration=0;
+                            free_block++;
+                            wb->block[block_index]->benefit=0;
+                            //current request write into block.....create new block
+                            wb->block[block_index]->physical_block_number=tmp_block_num;
+                            wb->block[block_index]->buffer_or_not=1;
+                            wb->block[block_index]->benefit=tmp_benefit;
+                            wb->block[block_index]->sector_num[0]=sector_number;
+                            fprintf(buffer_tag,"%d %d",tmp_block_num,1);
+                            free_block--;
+                    }                 
+                    else{
                         //test++;
-						//printf("%s %d\n",dur[dur_count],test);
-						for(i=0;i<64;i++){
-						    wb->block[block_index]->sector_num[i]=-1; 
-                        }                     
-						wb->block[block_index]->physical_block_number=-1;                    
-						wb->block[block_index]->duration=0;
-						free_block++;
-						wb->block[block_index]->benefit=0;
-						//current request write into block.....create new block
-						wb->block[block_index]->physical_block_number=tmp_block_num;
-						wb->block[block_index]->buffer_or_not=1;
-						wb->block[block_index]->benefit=tmp_benefit;
-						wb->block[block_index]->sector_num[0]=sector_number;
-						free_block--;
-                  }                 
-                  else{
-					  //test++;
-                    //ignore current request...do nothing						
-                    int ignore=0;
-                    for(k=0;k<ig;k++){
-                      if(ignore_num[k]==tmp_block_num){
-                        ignore=1;
-                        hit_count++;
-                      //  printf("hit in ssd:%d %d\n",ignore_num[k],hit_count);
-                        break;
-					  }
-                    }       
-                                
-                    //count>41 mean:after entrer here once,for loop will execute.
-                    if(ignore==0){
-					  ignore_num[ig]=tmp_block_num;
-                      ignore_bool[ig]=0;
-                      test++;
-                      testing[0]++;
-                     // printf("%d %d\n",ignore_num[ig],test);
-                      ig++;
-                  }                                 
-                  }
+                        //ignore current request...do nothing						
+                        int ignore=0;
+                        for(k=0;k<ig;k++){
+                        if(ignore_num[k]==tmp_block_num){
+                            ignore=1;
+                            hit_count++;
+                        //  printf("hit in ssd:%d %d\n",ignore_num[k],hit_count);
+                            break;
+                        }
+                        }       
+                                    
+                        //count>41 mean:after entrer here once,for loop will execute.
+                        if(ignore==0){
+                        ignore_num[ig]=tmp_block_num;
+                        ignore_bool[ig]=0;
+                        test++;
+                        testing[0]++;
+                        // printf("%d %d\n",ignore_num[ig],test);
+                        ig++;
+                    }                                 
+                    }
 				}
 				else if(free_block>0){  // create new block  
 					count++;    
                     testing[0]++;	
 					wb->block[count-1]=malloc(sizeof(buf)); 
-					wb->block[count-1]->sector_num[0]=sector_number;
+					wb->block[count-1]->sector_num[0]=sector_number;                   
 					// printf("%d\n",atoi(substr1));
 					wb->block[count-1]->physical_block_number=block[sector_number];
 					wb->block[count-1]->benefit=benefit[sector_number];
+                    fprintf(buffer_tag,"%d %d",block[sector_number],1);
 					free_block--; 
                     
 			}				 	  								
@@ -212,7 +215,8 @@ int main(){
         }    
         }              
     fclose(a); 
-    fclose(result);
+    fclose(buffer_tag);
+    //fclose(result);
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
