@@ -61,7 +61,7 @@ int main(){
     char dur[50000][100]={0},temp[100]={0};  
     int req_type;  
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
-	FILE *info=fopen("collected data(from disksim)/sector num-logical block num-benefit-sector count.txt","r");
+	FILE *info=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
 		substr0=strtok(buffer0,delim);//sector number	
 		sector_number=atoi(substr0);
@@ -88,7 +88,7 @@ int main(){
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
         req_type=atoi(substr);        
-        if(req_type==0 && exist[sector_number]==1){	
+        if(exist[sector_number]==1){	
             if(block[sector_number]==79759){
                 testing[3]++;
                 //printf("%d\n",testing[3]);
