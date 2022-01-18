@@ -1635,7 +1635,7 @@ static void ssd_media_access_request_element (ioreq_event *curr)
     * the request type is write data...
     * */
    double tmp[2];
-   unsigned int tmp1[14];
+   unsigned long long tmp1[14];
    char tmp2[100];
    tmp1[1]=curr->batchno;
    tmp1[2]=curr->blkno;
