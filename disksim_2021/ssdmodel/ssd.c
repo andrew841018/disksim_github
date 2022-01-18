@@ -1634,9 +1634,32 @@ static void ssd_media_access_request_element (ioreq_event *curr)
    /*
     * the request type is write data...
     * */
-
+   double tmp[2];
+   int tmp1[14];
+   tmp[0]=curr->arrive_time;
+   tmp[1]=curr->batch_complete;
+   tmp1[0]=curr->batch_size;
+   tmp1[1]=curr->batchno;
+   tmp1[2]=curr->blkno;
+   tmp1[3]=curr->busno;
+   tmp1[4]=curr->plane_num;
+   tmp1[5]=curr->r_count;
+   tmp1[6]=curr->rw_intensive;
+   tmp1[7]=curr->slotno;
+   tmp1[8]=curr->ssd_elem_num;
+   tmp1[9]=curr->ssd_gang_num;
+   tmp1[10]=curr->start_time;
+   tmp1[11]=curr->time;
+   tmp1[12]=curr->type;
+   tmp1[13]=curr->w_count;
    if(!(curr->flags&READ))
    {
+      FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
+      for(i=0;i<14;i++){
+        fprintf(t,"%d ",tmp1[i]);
+      }
+      fprintf(t,"%f %f\n",tmp[0],tmp[1]);
+      fclose(t);
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
