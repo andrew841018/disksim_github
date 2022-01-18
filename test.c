@@ -3,7 +3,8 @@
 #include<string.h>
 #include "test.h"
 int main(){
-	printf("%d\n",ppp);
+	unsigned long long p=100000000000;
+	printf("%lld\n",p);
 	/*
 	char *tmp[100];
 	//strcpy(tmp,"ssss");
