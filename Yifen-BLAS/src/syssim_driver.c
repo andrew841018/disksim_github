@@ -1810,6 +1810,8 @@ int main(int argc, char *argv[])
 {
   unsigned long diffall;
   gettimeofday(&start1, NULL); 
+  clock_t start,end;
+  start=clock();
   int i;
   int nsectors = 1000;
   struct stat buf;
@@ -2242,5 +2244,8 @@ int main(int argc, char *argv[])
   fclose(finaloutput);
   fclose(gc_info);
   fclose(gc_info2);
+  end=clock();
+  double diff=end-start;
+  printf("total spend %f sec for excution\n",diff/CLOCKS_PER_SEC);
   exit(0);
 }

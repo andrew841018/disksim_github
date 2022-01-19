@@ -1646,16 +1646,17 @@ static void ssd_media_access_request_element (ioreq_event *curr)
    tmp1[8]=curr->ssd_elem_num;
    if(!(curr->flags&READ))
    {
-      FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
-      fprintf(t,"%lld\t ",tmp1[1]);
-      for(i=2;i<9;i++){
-		  
+	  if(tmp1[1]==-1)
+		tmp[1]=0;
+	  FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
+	  fprintf(t,"%lld\t ",tmp1[1]);
+	  for(i=2;i<9;i++){	  
 		if(i!=3 && i!=8)
 			fprintf(t,"%lld\t ",tmp1[i]);
 		if(i==8)
 			fprintf(t,"%s\n","");
-      }     
-      fclose(t);
+	  }     
+	  fclose(t);
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
