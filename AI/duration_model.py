@@ -21,43 +21,47 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
-addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\'
-duration=np.loadtxt(addr+'duration.txt',delimiter=' ')#cached request index,benefit,size,duration
-req=np.loadtxt(addr+"trace(run1_Postmark_2475).txt",delimiter=' ')
+addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
+
+duration=np.loadtxt(addr+'All buffer\\(logical)duration.txt',delimiter=' ')#cached request index,benefit,size,duration
+addr1=addr+'trace(used to build RNN)\\logical\\'
+req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ')
 duration_label=[]
+duration_table=np.array([])
+for i in range(1000000):
+    duration_table=np.append(duration_table,0)
+for i in range(len(req)):
+    #store the block number req[i][6] corresponding index
+    duration_table[req[i][6]]=i
+    
 count=0
-duration_index=[]
+soon=[]
+mean=[]
+late=[]
 x_train=[]##cached request
 x_test=[]
 zero=0
 one=0
 two=0
 for i in range(len(duration)):
-    #data[i][3]=duration
-    #data[i][2]=cache size
-    if duration[i][1]<10000:#duration<write buffer size  10000(KB)=10MB
+    if duration[i][1]<40:#duration<write buffer size=40 block
         duration_label.append(0)#class 0=soon label
         zero+=1
-        duration_index.append(duration[i][0])
-    if 10000<duration[i][1] and duration[i][1]<5*10000:
+        soon.append(duration[i][0])
+    if 40<duration[i][1] and duration[i][1]<5*40:
         duration_label.append(1)#class 1=mean label
         one+=1
-        duration_index.append(duration[i][0])
-    if 5*10000<duration[i][1]: 
+        mean.append(duration[i][0])
+    if 5*40<duration[i][1]: 
         duration_label.append(2)#class 2=late label
         two+=1
-        duration_index.append(duration[i][0])
-    
+        late.append(duration[i][0])
 duration_label=np.array(duration_label)
+
 c=0
 y_train=[]
 for i in req:
-    if count in cache_index and c<160:
-        x_train.append(i)
-        c+=1
-        y_train.append(duration_label[cache_index.index(count)])
-    count+=1
-
+    x_train.append(i)
 x_train=np.array(x_train).reshape(160,1,5)
 y_train=np.array(y_train)
 y_train=np_utils.to_categorical(y_train,3)
