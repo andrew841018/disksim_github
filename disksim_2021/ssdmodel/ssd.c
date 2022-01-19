@@ -1599,11 +1599,12 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
+ioreq_event *curr1;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
   //fprintf(outputssd, "**************ssd inininininin\n");
-    
+  curr1=curr; 
   req_check++;
   ssd_t *currdisk = getssd(curr->devno);
   int blkno = curr->blkno;
@@ -1633,43 +1634,14 @@ static void ssd_media_access_request_element (ioreq_event *curr)
 
    /*
     * the request type is write data...
-    * */
-   double tmp[2];
-   unsigned long long tmp1[14];
-   char tmp2[100];
-   tmp1[1]=curr->batchno;
-   tmp1[2]=curr->blkno;
-   tmp1[4]=curr->plane_num;
-   tmp1[5]=curr->r_count;
-   tmp1[6]=curr->rw_intensive;
-   tmp1[7]=curr->slotno;
-   tmp1[8]=curr->ssd_elem_num;
+    * */  
    if(!(curr->flags&READ))
-   {
-	  if(tmp1[1]==-1)
-		tmp[1]=0;
-	  FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
-	  fprintf(t,"%lld\t ",tmp1[1]);
-	  for(i=2;i<9;i++){	  
-		if(i!=3 && i!=8)
-			fprintf(t,"%lld\t ",tmp1[i]);
-		if(i==8)
-			fprintf(t,"%s\n","");
-	  }     
-	  fclose(t);
+   {	
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
       return ;
    }
-
-
-
-
-
-
-
-   
    /*
      * the follow code is used for read request...
           */
@@ -3696,10 +3668,61 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+	double tmp[2];
+	int i,j,ig=0;
+	unsigned long long tmp1[13];
+	char tmp2[100];
+	int ignore[100];
+	for(i=0;i<100;i++)
+		ignore[i]=-1;
+	tmp[0]=curr1->arrive_time;
+	tmp[1]=curr1->time;
+	
+	tmp1[0]=curr1->batch_size;
+	tmp1[1]=curr1->batchno;
+	tmp1[2]=curr1->blkno;
+	tmp1[3]=curr1->busno;
+	tmp1[4]=curr1->plane_num;
+	tmp1[5]=curr1->r_count;
+	tmp1[6]=curr1->rw_intensive;
+	tmp1[7]=curr1->slotno;
+	tmp1[8]=curr1->ssd_elem_num;
+	tmp1[9]=curr1->ssd_gang_num;
+	tmp1[10]=curr1->batch_complete;
+	tmp1[11]=curr1->type;
+	tmp1[12]=curr1->w_count;
+	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
+	//arrive time,time,blkno,busno,r_count,write_count,physcial_node_num
+	fprintf(t,"%f ",tmp[0]);
+	fprintf(t,"%f ",tmp[1]);	
+	ignore[0]=0;
+	ignore[1]=1;
+	ignore[2]=4;
+	ignore[3]=6;
+	ignore[4]=7;
+	ignore[5]=8;
+	ignore[6]=9;
+	ignore[7]=10;
+	ignore[8]=11;
+	ignore[9]=13;
+	for(i=0;i<13;i++){
+		ig=0;
+		for(j=0;j<100;j++){
+			if(i==ignore[j]){
+				ig=1;
+			}
+		}
+		if(ig==0){	
+			fprintf(t,"%lld ",tmp1[i]);
+	}  		
+	}    
+	fprintf(t,"%d ",physical_node_num);
+	fprintf(t,"%s\n","");	
+	fclose(t);
   //fprintf(lpb_ppn, "%d\n", lpn);
   //fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
   //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
-  int i,j,b=0;
+  int b=0;
     if(init==1){
 		for(i=0;i<10000;i++){
 			block_num[i]=-1;

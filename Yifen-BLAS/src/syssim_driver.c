@@ -78,7 +78,7 @@ one block=64 pages
 #include <sys/time.h>
 #include <unistd.h>
 #include <assert.h>
-#include <sys/time.h>
+#include <time.h>
        
 #include "syssim_driver.h"
 #include "disksim_interface.h"
