@@ -3695,25 +3695,13 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	for(i=0;i<100;i++)
 		ignore[i]=-1;
 	tmp[0]=curr1->arrive_time;
-	tmp[1]=curr1->time;
-	tmp1[0]=curr1->batch_size;
-	tmp1[1]=curr1->batchno;
 	tmp1[2]=curr1->blkno;
 	tmp1[3]=curr1->busno;
-	tmp1[4]=curr1->plane_num;
-	tmp1[5]=curr1->r_count;
-	tmp1[6]=curr1->rw_intensive;
-	tmp1[7]=curr1->slotno;
-	tmp1[8]=curr1->ssd_elem_num;
-	tmp1[9]=curr1->ssd_gang_num;
-	tmp1[10]=curr1->batch_complete;
-	tmp1[11]=curr1->type;
+	tmp1[5]=curr1->r_count;	
 	tmp1[12]=curr1->w_count;
 	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
 	//arrive time,blkno,busno,r_count,write_count,physcial_node_num,block_write_count
 	fprintf(t,"%f ",tmp[0]);
-	fprintf(t,"%f ",tmp[1]);	
-	ignore[0]=0;
 	ignore[1]=1;
 	ignore[2]=4;
 	ignore[3]=6;
@@ -3722,7 +3710,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	ignore[6]=9;
 	ignore[7]=10;
 	ignore[8]=11;
-	ignore[9]=13;
 	for(i=0;i<13;i++){
 		ig=0;
 		for(j=0;j<100;j++){
