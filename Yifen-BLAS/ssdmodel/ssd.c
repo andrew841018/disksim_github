@@ -3710,7 +3710,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	tmp1[11]=curr1->type;
 	tmp1[12]=curr1->w_count;
 	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
-	//arrive time,time,blkno,busno,r_count,write_count,physcial_node_num
+	//arrive time,blkno,busno,r_count,write_count,physcial_node_num,block_write_count
 	fprintf(t,"%f ",tmp[0]);
 	fprintf(t,"%f ",tmp[1]);	
 	ignore[0]=0;
