@@ -21,33 +21,23 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM#, CuDNNLSTM
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from collections import OrderedDict
-addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\'
-trace=np.loadtxt(addr+'trace(run1_Postmark_2475).txt',delimiter=' ')
-sector_block_number=np.loadtxt(addr+'sector number and physical block number.txt',delimiter=' ')
-duration=np.loadtxt(addr+'duration.txt',delimiter=' ')
+addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\all buffer\\'
+max1=0
+tmp=[]
+ignore=[]
 
-trace=pd.DataFrame(trace,columns=['time','disk number','sector num','total sector','type','phy block num','dur'])
-trace=trace.drop(columns=['disk number'])
-sector_block_number=pd.DataFrame(sector_block_number,columns=['sector num','phy block num'])
-duration=pd.DataFrame(duration,columns=['phy block num','dur'])
-for i in trace['sector num']:
-    for j in sector_block_number['sector num']:
-        if i==j:
-            for k in range(len(trace.loc[trace['sector num']==i]['sector num'])):
-                trace_row=trace.loc[trace['sector num']==i]['sector num'].index[k]#相等的sector number所在位置
-                for l in range(len(sector_block_number.loc[sector_block_number['sector num']==i]['sector num'])):
-                sector_block_num_row=sector_block_number.loc[sector_block_number['sector num']==i]['sector num'].index[l]]
-                trace['phy block num'][row]=sector_block_number['phy block num'][]
-            
-
-"""
-                    s=f_time
-                    s+=" "+f_sector_num
-                    s+=" "+f_total_sector
-                    s+=" "+f_req_type
-                    s+=" "
-                    s+=f1_phy_block_num
-                    s+=" "+k.split()[1]
-                    with open('run1_Postmark_2475(with block number and duration).txt','a') as f1:
-                        f1.write(s+"\n")
-"""            
+for i in open(addr+'(physical)duration.txt','r'):
+    block_i=i.split()[0]    
+    b=0
+    for j in open(addr+'(physical)duration.txt','r'):              
+        block_j=j.split()[0]
+        if block_i in ignore:
+            b=1
+            break
+        if block_i==block_j:#碰到相同block number,including itself
+            tmp.append(j.split()[1])  
+    if b==0:                        
+        with open(addr+'duration.txt','a') as f:
+            f.write(block_i+" "+max(tmp)+"\n")
+        tmp.clear() 
+        ignore.append(block_i)
