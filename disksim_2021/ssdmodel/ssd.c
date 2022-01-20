@@ -3541,6 +3541,13 @@ void write_benefit_to_txt(int g){
   int i,j,c;
   double benefit;
   char tmp[100];
+  for(i=0;i<10000;i++){
+    c=0;
+    for(j=0;j<10000;j++){
+      c+=sector_count[i][j];//calculate total count in block i
+    }
+    block_count[i]=c;
+  }
   FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
 	for(i=0;i<10000;i++){
 		for(j=0;j<10000;j++){
@@ -3676,25 +3683,13 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	for(i=0;i<100;i++)
 		ignore[i]=-1;
 	tmp[0]=curr1->arrive_time;
-	tmp[1]=curr1->time;
-	
-	tmp1[0]=curr1->batch_size;
-	tmp1[1]=curr1->batchno;
 	tmp1[2]=curr1->blkno;
 	tmp1[3]=curr1->busno;
-	tmp1[4]=curr1->plane_num;
 	tmp1[5]=curr1->r_count;
-	tmp1[6]=curr1->rw_intensive;
-	tmp1[7]=curr1->slotno;
-	tmp1[8]=curr1->ssd_elem_num;
-	tmp1[9]=curr1->ssd_gang_num;
-	tmp1[10]=curr1->batch_complete;
-	tmp1[11]=curr1->type;
-	tmp1[12]=curr1->w_count;
+	tmp1[12]=curr1->w_count;	
 	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
-	//arrive time,time,blkno,busno,r_count,write_count,physcial_node_num
+	//arrive time,blkno,busno,r_count,write_count,physcial_node_num,block_write_count
 	fprintf(t,"%f ",tmp[0]);
-	fprintf(t,"%f ",tmp[1]);	
 	ignore[0]=0;
 	ignore[1]=1;
 	ignore[2]=4;
@@ -3716,9 +3711,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			fprintf(t,"%lld ",tmp1[i]);
 	}  		
 	}    
-	fprintf(t,"%d ",physical_node_num);
-	fprintf(t,"%s\n","");	
-	fclose(t);
+	fprintf(t,"%d ",physical_node_num);	
   //fprintf(lpb_ppn, "%d\n", lpn);
   //fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
   //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
@@ -3780,8 +3773,25 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	    block_index++;	    
 	  }
 	//fclose(info);
-  
-  
+	int c;
+	for(i=0;i<10000;i++){
+		c=0;
+		if(block_num[i]==physical_node_num){
+			for(j=0;j<10000;j++){
+				c+=sector_count[i][j];//calculate total count in block i
+			}
+			block_count[i]=c;
+			break;
+	}
+  }
+	for(i=0;i<=block_index;i++){
+		if(block_num[i]==physical_node_num){
+			fprintf(t,"%d ",block_count[i]);
+			break;
+		}
+	}
+	fprintf(t,"%s\n","");	
+	fclose(t);
 
   while(1)
   {

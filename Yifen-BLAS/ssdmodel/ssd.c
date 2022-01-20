@@ -3710,7 +3710,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	tmp1[11]=curr1->type;
 	tmp1[12]=curr1->w_count;
 	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
-	//arrive time,time,blkno,busno,r_count,write_count,physcial_node_num
+	//arrive time,blkno,busno,r_count,write_count,physcial_node_num,block_write_count
 	fprintf(t,"%f ",tmp[0]);
 	fprintf(t,"%f ",tmp[1]);	
 	ignore[0]=0;
@@ -3734,9 +3734,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			fprintf(t,"%lld ",tmp1[i]);
 	}  		
 	}    
-	fprintf(t,"%d ",logical_node_num);
-	fprintf(t,"%s\n","");	
-	fclose(t);
+	fprintf(t,"%d ",logical_node_num);	
 	int b=0;
     if(init==1){
 		for(i=0;i<10000;i++){
@@ -3794,6 +3792,25 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	    sector_index[block_index]++;
 	    block_index++;	    
 	  }
+	int c;
+	for(i=0;i<10000;i++){
+		c=0;
+		if(block_num[i]==logical_node_num){
+			for(j=0;j<10000;j++){
+				c+=sector_count[i][j];//calculate total count in block i
+			}
+			block_count[i]=c;
+			break;
+	}
+  }
+	for(i=0;i<=block_index;i++){
+		if(block_num[i]==logical_node_num){
+			fprintf(t,"%d ",block_count[i]);
+			break;
+		}
+	}
+	fprintf(t,"%s\n","");	
+	fclose(t);
 	//fclose(info);
   
   while(1)
