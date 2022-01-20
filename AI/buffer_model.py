@@ -21,10 +21,17 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
-addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
+#for window
+#addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
+#buffer=np.loadtxt(addr+'with ignore(RNN paper method)\\(logical)buffer_or_not.txt',delimiter=' ')#cached request index,benefit,size,duration
 
-buffer=np.loadtxt(addr+'with ignore(RNN paper method)\\(logical)buffer_or_not.txt',delimiter=' ')#cached request index,benefit,size,duration
-addr1=addr+'trace(used to build RNN)\\logical\\'
+# for mac   
+addr='/Users/andrew/Desktop/andrew/disksim/collected data(from disksim)/'
+buffer=np.loadtxt(addr+'with ignore(RNN paper method)/(logical)buffer_or_not.txt',delimiter=' ')
+# for window
+#addr1=addr+'trace(used to build RNN)\\logical\\'
+# for mac 
+addr1=addr+'trace(used to build RNN)/logical/'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 buffer_label=np.array([])
 for i in range(1000):
