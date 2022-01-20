@@ -40,6 +40,8 @@ int main(){
     char *substr=NULL,*substr0=NULL;
     int tmp_block_num,free_block;
     float tmp_benefit;
+    int block_store[10000];
+    int block_store_index=0;
     int sector_number,sector_number1;
     const char *const delim=" ";
     const char *const delim1=":";
@@ -77,8 +79,8 @@ int main(){
 	fclose(info);
 	
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
-    FILE *result=fopen("duration.txt","w");
-    FILE *buffer_tag=fopen("buffer_or_not","w");
+    //FILE *result=fopen("duration.txt","w");
+    FILE *buffer_tag=fopen("buffer_or_not.txt","w");
     while (fgets(buffer,1024,a)!=NULL)
     {		
         substr=strtok(buffer,delim);//time
@@ -132,7 +134,10 @@ int main(){
                     wb->block[count-1]->physical_block_number=block[sector_number];
                     wb->block[count-1]->benefit=benefit[sector_number];
                     free_block--;                   
-                    wb->block[count-1]->sector_num[0]=sector_number; 													
+                    wb->block[count-1]->sector_num[0]=sector_number; 
+                    block_store[block_store_index]=block[sector_number];
+                    block_store_index++;
+                    fprintf(buffer_tag,"%d %d\n",block[sector_number],1);													
                 }						 		
                 if(b1==1){//進入for loop但沒進入condition----add a new block 
 					
@@ -157,7 +162,7 @@ int main(){
                         //kick min block from write buffer                
                         if(tmp_benefit>min){
                         //kick min block from write buffer
-                            fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
+                           //fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
                             testing[0]++;
                             testing[1]++;
                             //test++;
@@ -175,6 +180,8 @@ int main(){
                             wb->block[block_index]->benefit=tmp_benefit;
                             wb->block[block_index]->sector_num[0]=sector_number;
                             fprintf(buffer_tag,"%d %d\n",tmp_block_num,1);
+                            block_store[block_store_index]=tmp_block_num;
+							block_store_index++;
                             free_block--;
                     }                 
                     else{
@@ -192,17 +199,26 @@ int main(){
                             //  printf("hit in ssd:%d %d\n",ignore_num[k],hit_count);
                                 break;
                             }
-                        }       
-                                    
+                        }    
+                        int store=0;   
+                                  
                         //count>41 mean:after entrer here once,for loop will execute.
                         if(ignore==0){
-                            ignore_num[ig]=tmp_block_num;
-                            ignore_block_count[tmp_block_num]++;
-                            fprintf(buffer_tag,"%d %d\n",tmp_block_num,0);
-                            test++;
-                            testing[0]++;
-                            // printf("%d %d\n",ignore_num[ig],test);
-                            ig++;
+							for(i=0;i<=block_store_index;i++){
+								if(tmp_block_num==block_store[i]){
+									store=1;
+									break;
+								}
+							}
+							if(store==0){ 
+								ignore_num[ig]=tmp_block_num;
+								ignore_block_count[tmp_block_num]++;
+								fprintf(buffer_tag,"%d %d\n",tmp_block_num,0);
+								test++;
+								testing[0]++;
+								// printf("%d %d\n",ignore_num[ig],test);
+								ig++;
+						}
                     }                                 
                     }
 				}
@@ -215,6 +231,8 @@ int main(){
 					wb->block[count-1]->physical_block_number=block[sector_number];
 					wb->block[count-1]->benefit=benefit[sector_number];
                     fprintf(buffer_tag,"%d %d\n",block[sector_number],1);
+                    block_store[block_store_index]=block[sector_number];
+                    block_store_index++;
 					free_block--; 
                     
 			}				 	  								
@@ -231,7 +249,7 @@ int main(){
 
     //但我在抓資料時，只抓寫入write buffer的次數，因此benefit是正確的，整個simulation也是正確，只是如果特別去注意max ignore count
     //會發現有點矛盾，但不影響結果
-
+/*
     float max=0;
     for(i=0;i<1000000;i++){
         if(max<ignore_block_count[i] && ignore_block_count[i]!=0){
@@ -248,9 +266,9 @@ int main(){
         }
     }
     printf("write buffer min block:%d count:%f block num:%d block_count:%f\n",t,min*64*64,tmp_block_num,max);
-    fclose(a); 
+ */ fclose(a); 
     fclose(buffer_tag);
-    fclose(result);
+    //fclose(result);
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
