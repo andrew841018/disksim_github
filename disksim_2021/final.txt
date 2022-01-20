@@ -8,7 +8,7 @@ Sumcount = 367940,Hitcount = 326625 Hit = 88.77
 [CHEN] Trace File=/home/andrew/Desktop/Link to disksim_github/trace/run1_Postmark_2475.txt, max_req=1, MEM Size=262144
 [CHEN] Pd_FA_count=0,Pd_R_count=73
 [CHEN] FA_count=0,R_count=0
-[CHEN] tot_Rtime=134751,prstime=0.366231
+[CHEN] tot_Rtime=125415,prstime=0.340857
 [CHEN] fa_hint_count=0
 [CHEN] ft_hint_count=473381
 [CHEN] rp_hint_count=4860

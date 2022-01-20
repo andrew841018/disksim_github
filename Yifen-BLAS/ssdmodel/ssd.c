@@ -6039,7 +6039,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	  }
   }
   fclose(a);*/
-  write_benefit_to_txt(1);
+ // write_benefit_to_txt(1);
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
