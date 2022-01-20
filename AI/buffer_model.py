@@ -28,9 +28,9 @@ addr1=addr+'trace(used to build RNN)\\logical\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 buffer_label=np.array([])
 for i in range(1000):
-    buffer_label[i]=0
+    buffer_label=np.append(buffer_label,0)
 for i in buffer:
-    buffer_label[i[0]]=i[1]#used block number as index, store buffer_or_not into buffer_label
+    buffer_label[int(i[0])]=i[1]#used block number as index, store buffer_or_not into buffer_label
 count=0
 x=[]##cached request
 c=0
@@ -62,7 +62,7 @@ for i in range(6):
 index=0
 for i in range(len(x_train)):
     if (c+1) % 16!=0:
-        y_train=np.delete(y_train,index,axis=0)
+        y_train=np.delete(y_train,index,axisin=0)
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
@@ -76,8 +76,8 @@ for i in range(len(x_test)):
     c+=1
 x_train=x_train.reshape(9277,16,7)
 x_test=x_test.reshape(2319,16,7)
-y_test=np_utils.to_categorical(y_test,3)
-y_train=np_utils.to_categorical(y_train,3)
+y_test=np_utils.to_categorical(y_test,2)
+y_train=np_utils.to_categorical(y_train,2)
 
 
 
@@ -132,4 +132,4 @@ plt.xlabel('Epoch')
 plt.ylabel('accuracy')
 plt.legend()
 plt.show() 
-model.save('duration_model.h5') 
+model.save('buffer_model.h5') 
