@@ -62,7 +62,7 @@ for i in range(6):
 index=0
 for i in range(len(x_train)):
     if (c+1) % 16!=0:
-        y_train=np.delete(y_train,index,axisin=0)
+        y_train=np.delete(y_train,index,axis=0)
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
@@ -99,7 +99,7 @@ model.add(Dropout(0.2))
 #false.....只輸出最後一個time step output
 model.add(LSTM(128,activation='relu'))
 model.add(Dropout(0.2))
-model.add(Dense(3,activation='softmax'))#classify into 1 class
+model.add(Dense(2,activation='softmax'))#classify into 1 class
 
 #print(model.summary())
 
@@ -110,8 +110,8 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.0116666666666667,1:1000,2:86.71428571428571}
-history=model.fit(x_train,y_train,epochs=3000,validation_data=(x_test,y_test),class_weight=weight)
+#weight={0:1.0116666666666667,1:1000,2:86.71428571428571}
+history=model.fit(x_train,y_train,epochs=3000,validation_data=(x_test,y_test))
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
 plt.figure(dpi=250)#dpi越高，像素越高
