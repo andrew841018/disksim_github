@@ -127,7 +127,7 @@ input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
 weight={0:1.0116666666666667,1:1000,2:86.71428571428571}
-history=model.fit(x_train,y_train,epochs=3000,validation_data=(x_test,y_test),class_weight=weight)
+history=model.fit(x_train,y_train,epochs=2000,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
 plt.figure(dpi=250)#dpi越高，像素越高
