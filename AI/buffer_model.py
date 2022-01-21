@@ -26,7 +26,7 @@ from collections import OrderedDict
 #buffer=np.loadtxt(addr+'with ignore(RNN paper method)\\(logical)buffer_or_not.txt',delimiter=' ')#cached request index,benefit,size,duration
 
 # for mac   
-addr='/Users/andrew/Desktop/andrew/disksim/collected data(from disksim)/'
+addr='//Users/mhtseng/Desktop/git/disksim_github/collected data(from disksim)/'
 buffer=np.loadtxt(addr+'with ignore(RNN paper method)/(logical)buffer_or_not.txt',delimiter=' ')
 # for window
 #addr1=addr+'trace(used to build RNN)\\logical\\'
