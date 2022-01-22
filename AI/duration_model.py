@@ -70,14 +70,15 @@ y_test=np.array(y_test)
 x_train,x_test=train_test_split(x,random_state=777,train_size=0.8)
 #y_train=np_utils.to_categorical(y_train,3)
 y_train,y_test=train_test_split(y,random_state=777,train_size=0.8)
-for i in range(6):
+
+for i in range(22):
     x_train = np.delete(x_train,0, axis = 0)
     y_train = np.delete(y_train,0, axis = 0)
     x_test=np.delete(x_test,0,axis=0)
     y_test=np.delete(y_test,0, axis = 0)
 index=0
 for i in range(len(x_train)):
-    if (c+1) % 16!=0:
+    if (c+1) % 32!=0:
         y_train=np.delete(y_train,index,axis=0)
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
@@ -85,18 +86,15 @@ for i in range(len(x_train)):
 c=0
 index=0
 for i in range(len(x_test)):
-    if (c+1) % 16!=0:
+    if (c+1) % 32!=0:
         y_test=np.delete(y_test,index,axis=0)
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
-x_train=x_train.reshape(9277,16,7)
-x_test=x_test.reshape(2319,16,7)
+x_train=x_train.reshape(4638,32,7)
+x_test=x_test.reshape(1159,32,7)
 y_test=np_utils.to_categorical(y_test,3)
 y_train=np_utils.to_categorical(y_train,3)
-
-
-
 ########################### build model 
 metric=[
         keras.metrics.BinaryAccuracy(name='accuracy'),
@@ -106,28 +104,30 @@ metric=[
         ]
 model=Sequential()
 ##128=LSTM output size
-model.add(LSTM(128,input_shape=(16,7),activation='relu',return_sequences=True))
+model.add(Bidirectional(LSTM(256,input_shape=(32,7),activation='relu',return_sequences=True)))
+model.add(Dense(256))
 model.add(Dropout(0.2))
-model.add(LSTM(128,activation='relu',return_sequences=True))
+
+model.add(Bidirectional(LSTM(256,activation='relu',return_sequences=True)))
 model.add(Dropout(0.2))
 
 #return_sequences=True.....將所有time step output 輸出
 #false.....只輸出最後一個time step output
-model.add(LSTM(128,activation='relu'))
+model.add(Bidirectional(LSTM(256,activation='relu')))
 model.add(Dropout(0.2))
 model.add(Dense(3,activation='softmax'))#classify into 1 class
 
 #print(model.summary())
 
 #opt=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
-model.compile(optimizer='rmsprop',loss='categorical_crossentropy',metrics=metric)
+model.compile(optimizer='RMSProp',loss='categorical_crossentropy',metrics=metric)
 '''
 training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.0116666666666667,1:1000,2:86.71428571428571}
-history=model.fit(x_train,y_train,epochs=500,validation_data=(x_test,y_test),class_weight=weight)
+weight={0:1.0116666666666667,1:0,2:86.71428571428571}
+history=model.fit(x_train,y_train,epochs=1000,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
 plt.figure(dpi=250)#dpi越高，像素越高
