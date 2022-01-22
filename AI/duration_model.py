@@ -23,7 +23,7 @@ from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
 
-duration=np.loadtxt(addr+'all buffer\\logical_new_duration.txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'with ignore(RNN paper method)\\(logical)duration.txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'trace(used to build RNN)\\logical\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 duration_label=np.array([])
@@ -127,7 +127,7 @@ input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
 weight={0:1.0116666666666667,1:1000,2:86.71428571428571}
-history=model.fit(x_train,y_train,epochs=2000,validation_data=(x_test,y_test),class_weight=weight)
+history=model.fit(x_train,y_train,epochs=500,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
 plt.figure(dpi=250)#dpi越高，像素越高
