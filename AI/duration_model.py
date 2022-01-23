@@ -16,18 +16,18 @@ import os,sys
 import random
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, LSTM,Bidirectional
+from tensorflow.keras.layers import Dense, Dropout, LSTM#, CuDNNLSTM
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
 
-duration=np.loadtxt(addr+'all buffer\\(physical)duration.txt',delimiter=' ')#cached request index,benefit,size,duration
-addr1=addr+'trace(used to build RNN)\\physical\\'
+duration=np.loadtxt(addr+'with ignore(RNN paper method)\\(logical)duration.txt',delimiter=' ')#cached request index,benefit,size,duration
+addr1=addr+'trace(used to build RNN)\\logical\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 duration_label=np.array([])
-for i in range(1000000):##for logical:1000 for physical:1 million
+for i in range(1000):##for logical:1000 for physical:1 million
     duration_label=np.append(duration_label,0)   
 count=0
 x=[]##cached request
@@ -38,7 +38,6 @@ special_use=[]
 for i in range(len(duration)):
     if duration[i][1]<40 and duration[i][0] not in special_use:#duration<write buffer size=40 block
         duration_label[int(duration[i][0])]=0#class 0=soon label
-        special_use.append(duration[i][0])
         zero+=1
     if 40<duration[i][1] and duration[i][1]<5*40 and duration[i][0] not in special_use:
         duration_label[int(duration[i][0])]=1#class 1=mean label
@@ -70,15 +69,14 @@ y_test=np.array(y_test)
 x_train,x_test=train_test_split(x,random_state=777,train_size=0.8)
 #y_train=np_utils.to_categorical(y_train,3)
 y_train,y_test=train_test_split(y,random_state=777,train_size=0.8)
-
-for i in range(22):
+for i in range(6):
     x_train = np.delete(x_train,0, axis = 0)
     y_train = np.delete(y_train,0, axis = 0)
     x_test=np.delete(x_test,0,axis=0)
     y_test=np.delete(y_test,0, axis = 0)
 index=0
 for i in range(len(x_train)):
-    if (c+1) % 32!=0:
+    if (c+1) % 16!=0:
         y_train=np.delete(y_train,index,axis=0)
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
@@ -86,15 +84,18 @@ for i in range(len(x_train)):
 c=0
 index=0
 for i in range(len(x_test)):
-    if (c+1) % 32!=0:
+    if (c+1) % 16!=0:
         y_test=np.delete(y_test,index,axis=0)
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
-x_train=x_train.reshape(4638,32,7)
-x_test=x_test.reshape(1159,32,7)
+x_train=x_train.reshape(9277,16,7)
+x_test=x_test.reshape(2319,16,7)
 y_test=np_utils.to_categorical(y_test,3)
 y_train=np_utils.to_categorical(y_train,3)
+
+
+
 ########################### build model 
 metric=[
         keras.metrics.BinaryAccuracy(name='accuracy'),
@@ -104,30 +105,28 @@ metric=[
         ]
 model=Sequential()
 ##128=LSTM output size
-model.add(Bidirectional(LSTM(256,input_shape=(32,7),activation='relu',return_sequences=True)))
-model.add(Dense(256))
+model.add(LSTM(128,input_shape=(16,7),activation='relu',return_sequences=True))
 model.add(Dropout(0.2))
-
-model.add(Bidirectional(LSTM(256,activation='relu',return_sequences=True)))
+model.add(LSTM(128,activation='relu',return_sequences=True))
 model.add(Dropout(0.2))
 
 #return_sequences=True.....將所有time step output 輸出
 #false.....只輸出最後一個time step output
-model.add(Bidirectional(LSTM(256,activation='relu')))
+model.add(LSTM(128,activation='relu'))
 model.add(Dropout(0.2))
 model.add(Dense(3,activation='softmax'))#classify into 1 class
 
 #print(model.summary())
 
 #opt=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
-model.compile(optimizer='RMSProp',loss='categorical_crossentropy',metrics=metric)
+model.compile(optimizer='rmsprop',loss='categorical_crossentropy',metrics=metric)
 '''
 training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:21.678571428571427,1:1.2593360995850622,2:6.257731958762887}
-history=model.fit(x_train,y_train,epochs=1000,validation_data=(x_test,y_test),class_weight=weight)
+weight={0:1.0116666666666667,1:1000,2:86.71428571428571}
+history=model.fit(x_train,y_train,epochs=2000,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
 plt.figure(dpi=250)#dpi越高，像素越高
@@ -137,7 +136,6 @@ plt.plot(history.history['recall'],history.history['precision'])#第一個參數
 plt.xlabel('recall')
 plt.ylabel('precision')
 plt.legend()#表示那些線條代表那些數值
-
 plt.subplot(2,2,2)#兩行兩列的方形中，第二張圖
 '''
 
