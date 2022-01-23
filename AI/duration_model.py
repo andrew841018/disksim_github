@@ -16,18 +16,18 @@ import os,sys
 import random
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, LSTM#, CuDNNLSTM
+from tensorflow.keras.layers import Dense, Dropout, LSTM,Bidirectional
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
 
-duration=np.loadtxt(addr+'with ignore(RNN paper method)\\(logical)duration.txt',delimiter=' ')#cached request index,benefit,size,duration
-addr1=addr+'trace(used to build RNN)\\logical\\'
+duration=np.loadtxt(addr+'all buffer\\(physical)duration.txt',delimiter=' ')#cached request index,benefit,size,duration
+addr1=addr+'trace(used to build RNN)\\physical\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 duration_label=np.array([])
-for i in range(1000):##for logical:1000 for physical:1 million
+for i in range(1000000):##for logical:1000 for physical:1 million
     duration_label=np.append(duration_label,0)   
 count=0
 x=[]##cached request
@@ -126,7 +126,7 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.0116666666666667,1:0,2:86.71428571428571}
+weight={0:21.678571428571427,1:1.2593360995850622,2:6.257731958762887}
 history=model.fit(x_train,y_train,epochs=1000,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''

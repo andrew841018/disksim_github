@@ -119,7 +119,7 @@ model.add(Dense(2,activation='softmax'))#classify into 1 class
 #print(model.summary())
 
 #opt=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
-model.compile(optimizer='RMSProp',loss='categorical_crossentropy',metrics=metric)
+model.compile(optimizer='RMSProp',loss='binary_crossentropy',metrics=metric)
 '''
 training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
