@@ -5,9 +5,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 duration_model = tf.keras.models.load_model('duration_model.h5')
-cache_model = tf.keras.models.load_model('predict_cache(100 epoch).h5')
-addr=""
-data=np.loadtxt(addr+'train.txt',delimiter=' ')
+addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(for testing)\\"
+data=np.loadtxt(addr+'trace(for testing)\\train.txt',delimiter=' ')
 index=[]
 ###先以list形式存入，再轉np array比較快，理由不明
 for i in range(len(data)):

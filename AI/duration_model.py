@@ -23,7 +23,7 @@ from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
 
-duration=np.loadtxt(addr+'all buffer\\physical_new_duration.txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'with ignore(RNN paper method)\\(physical)duration.txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'trace(used to build RNN)\\physical\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 duration_label=np.array([])
@@ -41,7 +41,6 @@ for i in range(len(duration)):
         zero+=1
     if 2560<duration[i][1] and duration[i][1]<5*2560 and duration[i][0] not in special_use:
         duration_label[int(duration[i][0])]=1#class 1=mean label
-        print(duration_label[int(duration[i][0])])
         special_use.append(duration[i][0])
         one+=1
     if 5*2560<duration[i][1] and duration[i][0] not in special_use: 
@@ -124,7 +123,7 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0: 1.0062630480167014,1:281.1666666666667,2: 374.8888888888889}
+weight={0:1.1631205673758864,1:12.615384615384615,2:16.4}
 history=model.fit(x_train,y_train,epochs=1000,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
