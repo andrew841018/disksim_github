@@ -58,10 +58,7 @@ x_test=[]
 y_test=[]
 for i in req:
     x.append(i)
-    for j in range(len(duration_label)):
-        if i[6]==j:
-            y.append(duration_label[j])
-            break
+    y.append(duration_label[int(i[5])])
 x=np.array(x)
 y=np.array(y)
 x_train=np.array(x_train)
@@ -143,9 +140,10 @@ plt.subplot(2,2,2)#兩行兩列的方形中，第二張圖
 
 plt.figure(dpi=250)
 plt.title('model accuracy')
-plt.plot(history.history['accuracy'])
+plt.plot(history.history['accuracy'],label='accuracy')
+plt.plot(history.history['loss'],label='loss')
 plt.xlabel('Epoch')
-plt.ylabel('accuracy')
+plt.ylabel('accuracy and loss')
 plt.legend()
 plt.show() 
 model.save('duration_model.h5') 
