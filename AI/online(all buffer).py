@@ -9,7 +9,7 @@ addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\p
 duration_model = tf.keras.models.load_model('(all buffer)duration_model.h5')
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(for testing)\\"
 data=np.loadtxt(addr+'trace(for testing)\\info(trace_name).txt',delimiter=' ')
-tmp=[]
+tmp=[] 
 for i in range(len(data)):#initialization
     tmp.append(data[i][31])
 while(len(tmp)!=32*len(data)):
