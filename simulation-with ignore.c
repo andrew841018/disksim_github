@@ -63,7 +63,7 @@ int main(){
     char dur[50000][100]={0},temp[100]={0};  
     int req_type;  
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
-	FILE *info=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
+	FILE *info=fopen("collected data(from disksim)/sector num-logical block num-benefit-sector count.txt","r");
 	while(fgets(buffer0,1024,info)!=NULL){
 		substr0=strtok(buffer0,delim);//sector number	
 		sector_number=atoi(substr0);
@@ -79,8 +79,8 @@ int main(){
 	fclose(info);
 	
     FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
-    //FILE *result=fopen("duration.txt","w");
-    FILE *buffer_tag=fopen("buffer_or_not.txt","w");
+    FILE *result=fopen("duration.txt","w");
+   // FILE *buffer_tag=fopen("buffer_or_not.txt","w");
     while (fgets(buffer,1024,a)!=NULL)
     {		
         substr=strtok(buffer,delim);//time
@@ -137,7 +137,7 @@ int main(){
                     wb->block[count-1]->sector_num[0]=sector_number; 
                     block_store[block_store_index]=block[sector_number];
                     block_store_index++;
-                    fprintf(buffer_tag,"%d %d\n",block[sector_number],1);													
+                    //fprintf(buffer_tag,"%d %d\n",block[sector_number],1);													
                 }						 		
                 if(b1==1){//進入for loop但沒進入condition----add a new block 
 					
@@ -162,7 +162,7 @@ int main(){
                         //kick min block from write buffer                
                         if(tmp_benefit>min){
                         //kick min block from write buffer
-                           //fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
+                           fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
                             testing[0]++;
                             testing[1]++;
                             //test++;
@@ -179,7 +179,7 @@ int main(){
                             wb->block[block_index]->buffer_or_not=1;
                             wb->block[block_index]->benefit=tmp_benefit;
                             wb->block[block_index]->sector_num[0]=sector_number;
-                            fprintf(buffer_tag,"%d %d\n",tmp_block_num,1);
+                           // fprintf(buffer_tag,"%d %d\n",tmp_block_num,1);
                             block_store[block_store_index]=tmp_block_num;
 							block_store_index++;
                             free_block--;
@@ -213,7 +213,7 @@ int main(){
 							if(store==0){ 
 								ignore_num[ig]=tmp_block_num;
 								ignore_block_count[tmp_block_num]++;
-								fprintf(buffer_tag,"%d %d\n",tmp_block_num,0);
+								//fprintf(buffer_tag,"%d %d\n",tmp_block_num,0);
 								test++;
 								testing[0]++;
 								// printf("%d %d\n",ignore_num[ig],test);
@@ -230,7 +230,7 @@ int main(){
 					// printf("%d\n",atoi(substr1));
 					wb->block[count-1]->physical_block_number=block[sector_number];
 					wb->block[count-1]->benefit=benefit[sector_number];
-                    fprintf(buffer_tag,"%d %d\n",block[sector_number],1);
+                  //  fprintf(buffer_tag,"%d %d\n",block[sector_number],1);
                     block_store[block_store_index]=block[sector_number];
                     block_store_index++;
 					free_block--; 
@@ -267,8 +267,8 @@ int main(){
     }
     printf("write buffer min block:%d count:%f block num:%d block_count:%f\n",t,min*64*64,tmp_block_num,max);
  */ fclose(a); 
-    fclose(buffer_tag);
-    //fclose(result);
+    //fclose(buffer_tag);
+    fclose(result);
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
