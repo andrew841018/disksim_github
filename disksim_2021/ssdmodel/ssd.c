@@ -3712,9 +3712,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}  		
 	}    
 	fprintf(t,"%d ",physical_node_num);	
-  //fprintf(lpb_ppn, "%d\n", lpn);
-  //fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
-  //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
   int b=0;
     if(init==1){
 		for(i=0;i<10000;i++){
@@ -3727,9 +3724,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}	    
 		init=0;
 	  }
-	else{
-		//sprintf(tmp,"block index:%d",block_index);
-		//fprintf(info,"%s\n",tmp);
+	else{		
 	}	  
 	  int sector;
 	  for(i=0;i<block_index;i++){
@@ -3763,16 +3758,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	  //sector number is sector_index[block_index] 
 	    sector=sector_index[block_index];
 	    sector_num[block_index][sector]=blkno;	
-	    /*fprintf(info,"%s\n","create one:");
-	    sprintf(tmp,"block_num[%d]:%d sector_index[%d]:%d sector num[%d][%d]:%d",block_index,block_num[block_index],block_index,sector_index[block_index],block_index,sector_index[block_index],sector_num[block_index][sector_index[block_index]]);
-		fprintf(info,"%s ",tmp);    
-	    sprintf(tmp,"sector_count[%d][%d]:%d",block_index,sector,sector_count[block_index][sector]);
-		fprintf(info,"%s\n",tmp);*/	
 	    sector_count[block_index][sector]++;//sector count;	    	    
 	    sector_index[block_index]++;
 	    block_index++;	    
 	  }
-	//fclose(info);
 	int c;
 	for(i=0;i<10000;i++){
 		c=0;
@@ -3792,7 +3781,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}
 	fprintf(t,"%s\n","");	
 	fclose(t);
-
   while(1)
   {
     if(ptr_lru_node == NULL)
@@ -6030,7 +6018,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  //write_benefit_to_txt(1);
+  write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);

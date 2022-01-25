@@ -34,7 +34,7 @@ syssim_driver.o: syssim_driver.c /usr/include/stdc-predef.h \
  /usr/include/i386-linux-gnu/bits/inf.h \
  /usr/include/i386-linux-gnu/bits/nan.h \
  /usr/include/i386-linux-gnu/bits/mathdef.h \
- /usr/include/i386-linux-gnu/bits/mathcalls.h /usr/include/xlocale.h \
+ /usr/include/i386-linux-gnu/bits/mathcalls.h \
  /usr/include/i386-linux-gnu/sys/time.h /usr/include/unistd.h \
  /usr/include/i386-linux-gnu/bits/posix_opt.h \
  /usr/include/i386-linux-gnu/bits/environments.h \

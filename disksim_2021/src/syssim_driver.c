@@ -75,11 +75,11 @@ one block=64 pages
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <math.h>
-#include <time.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <assert.h>
-#include <sys/time.h>      
+#include <sys/time.h>
+       
 #include "syssim_driver.h"
 #include "disksim_interface.h"
 #include "disksim_rand48.h"
@@ -1810,8 +1810,6 @@ int main(int argc, char *argv[])
 {
   unsigned long diffall;
   gettimeofday(&start1, NULL); 
-  clock_t start,end;
-  start=clock();
   int i;
   int nsectors = 1000;
   struct stat buf;
@@ -2239,13 +2237,5 @@ int main(int argc, char *argv[])
   fclose(finaloutput);
   fclose(gc_info);
   fclose(gc_info2);
-  myoutput = fopen("src/syssim_2020-flush.txt","w");
-  myoutput2 = fopen("src/syssim_2020-TWO.txt","w");
-  myoutput3 = fopen("src/syssim_2020-Three-hq.txt","w");
-  myoutput4 = fopen("src/syssim_2020-four-wbh.txt","w");
-  myoutput5 = fopen("src/syssim_rtime","w");
-  end=clock();
-  double diff=end-start;
-  printf("total spend %f sec for excution\n",diff/CLOCKS_PER_SEC);
   exit(0);
 }

@@ -78,7 +78,7 @@ int main(){
 	}
 	fclose(info);
 	
-    FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
+    FILE *a=fopen("collected data(from disksim)/trace(for testing)/info(iozone2).txt","r");
     FILE *result=fopen("duration.txt","w");
    // FILE *buffer_tag=fopen("buffer_or_not.txt","w");
     while (fgets(buffer,1024,a)!=NULL)
