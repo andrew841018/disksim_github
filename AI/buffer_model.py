@@ -59,45 +59,25 @@ y_test=np.array(y_test)
 x_train,x_test=train_test_split(x,random_state=777,train_size=0.8)
 #y_train=np_utils.to_categorical(y_train,3)
 y_train,y_test=train_test_split(y,random_state=777,train_size=0.8)
-#########以下不一定正確，要等實際執行才知道要delete幾行
-for i in range(6):
-    x_train = np.delete(x_train,0, axis = 0)
-    y_train = np.delete(y_train,0, axis = 0)
-    x_test=np.delete(x_test,0,axis=0)
-    y_test=np.delete(y_test,0, axis = 0)
-index=0
-for i in range(len(x_train)):
-    if (c+1) % 16!=0:
-        y_train=np.delete(y_train,index,axis=0)
-    else:
-        index+=1#確定第31,63,95...比答案不會被刪除
-    c+=1
-c=0
-index=0
-for i in range(len(x_test)):
-    if (c+1) % 16!=0:
-        y_test=np.delete(y_test,index,axis=0)
-    else:
-        index+=1#確定第31,63,95...比答案不會被刪除
-    c+=1
-x_train=x_train.reshape(9277,16,7)
-x_test=x_test.reshape(2319,16,7)
-y_test=np_utils.to_categorical(y_test,2)
-y_train=np_utils.to_categorical(y_train,2)
 
 
 
+test=np.loadtxt(addr+"trace(for testing)\\info(iozone2).txt",delimiter=' ',usecols=range(7))
 ########################### build model 
 model=XGBClassifier(n_estimators=100, learning_rate= 0.3)
 model.fit(x_train,y_train)
 model.score(x_train,y_train)
+np.savetxt('iozone2_buffer_info.txt', model.predict(test))
+
+'''
 c=0
 count=0
-for i in range(len(y_test)):    
-    if y_test[i]!=0:
+for i in range(len(y)):    
+    if y[i]!=0:
         count+=1
-        if model.predict(x_test)[i]==1:
+        if model.predict(x)[i]==1:
             c+=1
         ans=round(c/count,2)
         ans=str(ans*100)
         print(ans+"%")
+'''

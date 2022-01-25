@@ -11,6 +11,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing  import StandardScaler
 import math
 import keras
+from xgboost import XGBClassifier
 from sklearn.metrics import confusion_matrix,precision_score,accuracy_score,recall_score,f1_score,roc_auc_score,precision_recall_fscore_support,roc_curve,classification_report
 import os,sys
 import random
@@ -67,6 +68,16 @@ y_test=np.array(y_test)
 x_train,x_test=train_test_split(x,random_state=777,train_size=0.8)
 #y_train=np_utils.to_categorical(y_train,3)
 y_train,y_test=train_test_split(y,random_state=777,train_size=0.8)
+
+model=XGBClassifier(n_estimators=100, learning_rate= 0.3)
+model.fit(x_train,y_train)
+model.score(x_train,y_train)
+addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(for testing)\\"
+data=np.loadtxt(addr+'info(iozone2).txt',delimiter=' ',usecols=range(7))
+model.predict(data)
+
+
+
 for i in range(6):
     x_train = np.delete(x_train,0, axis = 0)
     y_train = np.delete(y_train,0, axis = 0)
