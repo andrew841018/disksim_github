@@ -139,10 +139,8 @@ plt.subplot(2,2,2)#兩行兩列的方形中，第二張圖
 
 plt.figure(dpi=250)
 plt.title('model accuracy')
-plt.plot(history.history['accuracy'],label='accuracy')
-plt.plot(history.history['loss'],label='loss')
+plt.plot(history.history['accuracy'])
 plt.xlabel('Epoch')
-plt.ylabel('accuracy and loss')
-plt.legend()
+plt.ylabel('accuracy')
 plt.show() 
 model.save('duration_model.h5') 
