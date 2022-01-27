@@ -15,8 +15,8 @@ typedef struct write_buffer
   int sector_index;
   int sector_num[64];;//total 64 page...each block ppn from 0~63
 }buf;
-int exist[1000000]={0};
-int block[1000000],write_count[1000000];
+unsigned int exist[100000000]={0};
+unsigned int block[100000000],write_count[100000000];
 int ignore_block_count[1000000]={0},ignore_num[1000000];
 int ig=0;
 double benefit[1000000];
@@ -74,10 +74,9 @@ int main(){
         benefit[sector_number]=atof(substr0);
 		substr0=strtok(NULL,delim);//sector count;
         write_count[sector_number]=atoi(substr0);      
-		req_count+=atoi(substr0);      
+		req_count+=atoi(substr0);  
 	}
 	fclose(info);
-	
     FILE *a=fopen("collected data(from disksim)/trace(for testing)/info(iozone2).txt","r");
     FILE *result=fopen("duration.txt","w");
    // FILE *buffer_tag=fopen("buffer_or_not.txt","w");
@@ -90,11 +89,7 @@ int main(){
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
         req_type=atoi(substr);        
-        if(exist[sector_number]==1){	
-            if(block[sector_number]==79759){
-                testing[3]++;
-                //printf("%d\n",testing[3]);
-                }																						
+        if(exist[sector_number]==1){																							
             enter++;
             if(count<=40){
 				for(j=0;j<count;j++){
@@ -158,7 +153,7 @@ int main(){
                             }
                         }                                                                     
                         //min=min benefit block in write buffer
-                            //kick min bloif(tmp_benefit>min){
+                        
                         //kick min block from write buffer                
                         if(tmp_benefit>min){
                         //kick min block from write buffer
@@ -266,8 +261,9 @@ int main(){
         }
     }
     printf("write buffer min block:%d count:%f block num:%d block_count:%f\n",t,min*64*64,tmp_block_num,max);
- */ fclose(a); 
+ */ 
     //fclose(buffer_tag);
+    fclose(a); 
     fclose(result);
     end=clock();
     double diff=end-start;
