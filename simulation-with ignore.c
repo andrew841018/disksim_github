@@ -10,7 +10,7 @@ typedef struct write_buffer
   int full;//0..not full,1...is full         
   float benefit;
   int free_block;//free block
-  int duration;
+  unsigned int duration;
   int buffer_or_not;
   int sector_index;
   int sector_num[64];;//total 64 page...each block ppn from 0~63
@@ -77,7 +77,7 @@ int main(){
 		req_count+=atoi(substr0);  
 	}
 	fclose(info);
-    FILE *a=fopen("collected data(from disksim)/trace(for testing)/info(iozone2).txt","r");
+    FILE *a=fopen("collected data(from disksim)/trace(for simulate)/trace(iozone2).txt","r");
     FILE *result=fopen("duration.txt","w");
    // FILE *buffer_tag=fopen("buffer_or_not.txt","w");
     while (fgets(buffer,1024,a)!=NULL)
@@ -89,12 +89,14 @@ int main(){
         substr=strtok(NULL,delim);//total sector
         substr=strtok(NULL,delim);//req_type
         req_type=atoi(substr);        
-        if(exist[sector_number]==1){																							
+        if(exist[sector_number]==1 && write_count[sector_number]>0){																							
             enter++;
+            write_count[sector_number]--;
             if(count<=40){
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
 						wb->block[j]->duration++;
+                        
 					}
 				}
 				for(j=0;j<count;j++){			
@@ -153,10 +155,11 @@ int main(){
                             }
                         }                                                                     
                         //min=min benefit block in write buffer
-                        
-                        //kick min block from write buffer                
+                        //kick min block from write buffer 
+                        printf("%d %d\n",27,wb->block[0]->duration);               
                         if(tmp_benefit>min){
                         //kick min block from write buffer
+                           printf("%d %d\n",min_block_num,wb->block[block_index]->duration);
                            fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
                             testing[0]++;
                             testing[1]++;
