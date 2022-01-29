@@ -48,7 +48,7 @@ int main(){
     int physical_block_num,dur_count=0;//dur_count is the index of duration array, it mean which lpn 
     wb=malloc(sizeof(buf));
     free_block=40;   	
-    for(i=0;i<20000;i++){
+    for(i=0;i<40;i++){
       wb->block[i]=malloc(sizeof(buf));
       wb->block[i]->duration=0;
       wb->block[i]->full=0;
@@ -58,7 +58,6 @@ int main(){
 			wb->block[i]->sector_num[j]=-1;
 		}
 	}
-
     int b1=0,b=0,b2=0,full_block_num,page_count=0;
     char dur[50000][100]={0},temp[100]={0};  
     int req_type;  
@@ -95,7 +94,7 @@ int main(){
             if(count<=40){
 				for(j=0;j<count;j++){
 					if(wb->block[j]->sector_num[0]!=-1){//write buffer block
-						wb->block[j]->duration++;
+						wb->block[j]->duration++;                      
                         
 					}
 				}
@@ -155,12 +154,10 @@ int main(){
                             }
                         }                                                                     
                         //min=min benefit block in write buffer
-                        //kick min block from write buffer 
-                        printf("%d %d\n",27,wb->block[0]->duration);               
+                        //kick min block from write buffer        
                         if(tmp_benefit>min){
                         //kick min block from write buffer
-                           printf("%d %d\n",min_block_num,wb->block[block_index]->duration);
-                           fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
+                            fprintf(result,"%d %d\n",min_block_num,wb->block[block_index]->duration);
                             testing[0]++;
                             testing[1]++;
                             //test++;
@@ -190,10 +187,7 @@ int main(){
                             if(ignore_num[k]==tmp_block_num){
                                 ignore=1;
                                 hit_count++;
-                                ignore_block_count[tmp_block_num]++;                               
-                                if(tmp_block_num==79759){
-                                  //  printf("sector:%d count:%d\n",sector_number,ignore_block_count[tmp_block_num]);
-                                }
+                                ignore_block_count[tmp_block_num]++;                            
                             //  printf("hit in ssd:%d %d\n",ignore_num[k],hit_count);
                                 break;
                             }
