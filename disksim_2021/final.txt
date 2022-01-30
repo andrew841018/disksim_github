@@ -8,7 +8,7 @@ Sumcount = 468408,Hitcount = 200078 Hit = 42.71
 [CHEN] Trace File=/home/andrew/Desktop/disksim/disksim_github/trace/iozone2.txt, max_req=1, MEM Size=262144
 [CHEN] Pd_FA_count=83,Pd_R_count=73
 [CHEN] FA_count=94,R_count=0
-[CHEN] tot_Rtime=7593741,prstime=16.211809
+[CHEN] tot_Rtime=6546205,prstime=13.975434
 [CHEN] fa_hint_count=32070689
 [CHEN] ft_hint_count=97954
 [CHEN] rp_hint_count=0
