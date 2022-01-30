@@ -74,8 +74,14 @@ model.fit(x_train,y_train)
 model.score(x_train,y_train)
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(for testing)\\"
 data=np.loadtxt(addr+'info(iozone2).txt',delimiter=' ',usecols=range(7))
-model.predict(data)
-
+predict=model.predict(data)
+hit_count=0
+total=0
+count=0
+addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\iozone2\\"
+for i in open(addr+'(physical)buffer_or_not.txt').readlines():
+    if data[count]==int(i):
+        
 
 
 for i in range(6):
