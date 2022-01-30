@@ -9,6 +9,11 @@ addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\p
 duration_model = tf.keras.models.load_model(addr+'(with ignore)duration_model.h5')
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(for testing)\\"
 data=np.loadtxt(addr+'info(iozone2).txt',delimiter=' ',usecols=range(7))
+'''
+tmp=np.array([])
+for i in range(16):
+    tmp=np.append(tmp,0)
+'''
 tmp=np.zeros((16,7))
 start=0
 finish=15
@@ -28,8 +33,26 @@ while(finish!=len(data)):
     if duration_model.predict(tmp)[0][2]==np.max(duration_model.predict(tmp)):
         output=2   
     result=np.append(result,output)
+    print(output)
     #print(output)
     tmp=tmp.reshape(16,7)
     start+=1
     finish+=1
-np.savetxt('iozone2_duration_info.txt', duration_model.predict(result))
+np.savetxt('iozone2_duration_info.txt',result)
+hit_count=0
+total=0
+for i in open('iozone2_duration_info.txt').readlines():
+    for j in open('duration.txt').readlines():
+        if int(j.split()[1])<2560:
+            label=0
+            hit_count+=1
+        elif int(j.split()[1])<2560*5:
+            label=1
+        if int(j.split()[1])>=5*2560:
+            label=2            
+        total+=1
+        break
+    print('{:.2%}'.format(hit_count/total))
+
+
+
