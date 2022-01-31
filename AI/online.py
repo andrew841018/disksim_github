@@ -52,7 +52,24 @@ for i in open('iozone2_duration_info.txt').readlines():
             label=2            
         total+=1
         break
-    print('{:.2%}'.format(hit_count/total))
+hit_count=0
+total=0
+zero=0
+one=0
+two=0
+for i in open('duration.txt').readlines():
+    if int(i.split()[1])<2560:
+        label=0
+        zero+=1
+        hit_count+=1
+    elif int(i.split()[1])<2560*5:
+        label=1
+        one+=1
+    if int(i.split()[1])>=5*2560:
+        label=2
+        two+=1            
+    total+=1
+    print('{:.10%}'.format(hit_count/total))
 
 
 

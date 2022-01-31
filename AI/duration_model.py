@@ -68,20 +68,14 @@ y_test=np.array(y_test)
 x_train,x_test=train_test_split(x,random_state=777,train_size=0.8)
 #y_train=np_utils.to_categorical(y_train,3)
 y_train,y_test=train_test_split(y,random_state=777,train_size=0.8)
-
+''' 使用XGBoost來預測
 model=XGBClassifier(n_estimators=100, learning_rate= 0.3)
 model.fit(x_train,y_train)
 model.score(x_train,y_train)
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(for testing)\\"
 data=np.loadtxt(addr+'info(iozone2).txt',delimiter=' ',usecols=range(7))
 predict=model.predict(data)
-hit_count=0
-total=0
-count=0
-addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\iozone2\\"
-for i in open(addr+'(physical)buffer_or_not.txt').readlines():
-    if data[count]==int(i):
-        
+'''        
 
 
 for i in range(6):

@@ -67,6 +67,22 @@ test=np.loadtxt(addr+"trace(for testing)\\info(iozone2).txt",delimiter=' ',useco
 model=XGBClassifier(n_estimators=100, learning_rate= 0.3)
 model.fit(x_train,y_train)
 model.score(x_train,y_train)
+buffer_or_not=model.predict(test)
+hit_count=0
+total=0
+for i in req:# req=trace     
+    physical_block_num=int(i[5])  
+    ### buffer_or_not.txt is correct answer.
+    if buffer_label[physical_block_num]==buffer_or_not[total]:
+        hit_count+=1
+    total+=1
+    print('{:.2%}'.format(hit_count/total))
+        
+
+            
+        
+    
+    
 np.savetxt('iozone2_buffer_info.txt', model.predict(test))
 
 '''
