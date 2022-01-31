@@ -75,7 +75,7 @@ for i in test:# req=trace
     ### buffer_or_not.txt is correct answer.
     if buffer_label[physical_block_num]==buffer_or_not[total]:
         hit_count+=1
-    total+=1
+    total+=1 
     print('{:.2%}'.format(hit_count/total))
         
 
