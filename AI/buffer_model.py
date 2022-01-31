@@ -70,8 +70,8 @@ model.score(x_train,y_train)
 buffer_or_not=model.predict(test)
 hit_count=0
 total=0
-for i in req:# req=trace     
-    physical_block_num=int(i[5])  
+for i in test:# req=trace     
+    physical_block_num=int(i[5])
     ### buffer_or_not.txt is correct answer.
     if buffer_label[physical_block_num]==buffer_or_not[total]:
         hit_count+=1
