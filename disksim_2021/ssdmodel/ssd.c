@@ -103,9 +103,9 @@ typedef struct  _lru_node
   buffer_page page[LRUSIZE];          //phy page in the node
   struct _lru_node *prev;           //link lru list
   struct _lru_node *next;
+  double benefit;
   struct _lru_node *h_prev;         //link hash list
   struct _lru_node *h_next;
-
   unsigned int hint_repeat;
   unsigned int hint_notrepeat;
   unsigned int hint_located;
@@ -1688,7 +1688,7 @@ static void ssd_media_access_request_element (ioreq_event *curr)
        ASSERT(tmp->bcount == currdisk->params.page_size);
        tmp->tempptr2 = curr;// pointer to the parent
 
-     
+      
        blkno += tmp->bcount;
        count -= tmp->bcount;
      // read hit in cache
@@ -3619,6 +3619,22 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       mark_for_all_current_block(ptr_buffer_cache);
     }
   }
+  //To do:在這新增條件，當curr benefit>min benefit kick min from write buffer
+  FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+  char buf[1024];
+  char *substr=NULL;
+  const char *const delim=" ";
+  while(fgets(buf,1024,rnn)!=NULL){
+		substr=strtok(buffer,delim);//sector number	
+		sector_number=atoi(substr);			
+		substr0=strtok(NULL,delim);//physical block number
+    block[sector_number]=atoi(substr0);
+		substr0=strtok(NULL,delim);//benefit     
+    benefit[sector_number]=atof(substr0);
+		substr0=strtok(NULL,delim);//sector count;
+    write_count[sector_number]=atoi(substr0);      
+		req_count+=atoi(substr0);  
+	}
   kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
 
   // for(t=0;t<global_HQ_size;t++)
@@ -3661,7 +3677,8 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
 }
-
+double benefit[1000000];
+unsigned int physical_node_num, phy_node_offset;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3670,12 +3687,31 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   lru_node *ptr_lru_node = NULL, *Pg_node = NULL;
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
-  unsigned int physical_node_num, phy_node_offset;
   physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-	double tmp[2];
+  FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+  char buf[1024];
+  char *substr=NULL;
+  const char *const delim=" ";
+  int physical_block_num;
+  int p=0;
+  while(fgets(buf,1024,rnn)!=NULL){
+		substr=strtok(buffer,delim);//sector number	
+		substr=strtok(NULL,delim);//physical block number
+    physical_block_num=atoi(substr);
+    if(physical_block_num==physical_node_num){
+      substr=strtok(NULL,delim);//benefit     
+      benefit[physical_block_num]=atof(substr);
+      p=1;
+    }      
+	}
+  if(p==0){
+    exit(0);
+  }
+
+  double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
 	char tmp2[100];
@@ -5377,7 +5413,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
           printf("Page:%d",i);
           system('pause');
         if(ptr_lru_node->page[i].exist == 1)break;
-      }
+      
      //printf("ptr_lru_node = %d\n", ptr_lru_node->page[i].lpn);
       statistic.kick_write_intensive_page_count ++;
 
