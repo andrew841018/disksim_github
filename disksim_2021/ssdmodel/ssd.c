@@ -3594,7 +3594,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     flag=0;
     flag=Y_add_Pg_page_to_cache_buffer(lpn,ptr_buffer_cache);
     scount = ssd_choose_aligned_count(currdisk->params.page_size, blkno, count);
-    
     assert(scount == currdisk->params.page_size);
     count -= scount;
     blkno += scount;
@@ -3619,22 +3618,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       mark_for_all_current_block(ptr_buffer_cache);
     }
   }
-  //To do:在這新增條件，當curr benefit>min benefit kick min from write buffer
-  FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
-  char buf[1024];
-  char *substr=NULL;
-  const char *const delim=" ";
-  while(fgets(buf,1024,rnn)!=NULL){
-		substr=strtok(buffer,delim);//sector number	
-		sector_number=atoi(substr);			
-		substr0=strtok(NULL,delim);//physical block number
-    block[sector_number]=atoi(substr0);
-		substr0=strtok(NULL,delim);//benefit     
-    benefit[sector_number]=atof(substr0);
-		substr0=strtok(NULL,delim);//sector count;
-    write_count[sector_number]=atoi(substr0);      
-		req_count+=atoi(substr0);  
-	}
+    Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+  
   kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
 
   // for(t=0;t<global_HQ_size;t++)
@@ -3701,16 +3686,15 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		substr=strtok(buffer,delim);//sector number	
 		substr=strtok(NULL,delim);//physical block number
     physical_block_num=atoi(substr);
-    if(physical_block_num==physical_node_num){
+    if(physical_block_num==Pg_node->logical_node_num){
       substr=strtok(NULL,delim);//benefit     
-      benefit[physical_block_num]=atof(substr);
+      Pg_node->benefit=atof(substr);
       p=1;
     }      
 	}
   if(p==0){
     exit(0);
   }
-
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
