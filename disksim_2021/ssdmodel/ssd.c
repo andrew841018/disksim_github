@@ -5433,7 +5433,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
-  int no_page_can_evict=0;
+  int no_page_can_evict=0;//0代表false-->have page can evict
   // "before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
@@ -5446,7 +5446,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
     int k=0; 
     kick=1;
-    while(k<8)
+    while(k<8)//8 means total number of channel
     {
       if(no_page_can_evict == 0)
       {
