@@ -3618,17 +3618,23 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       mark_for_all_current_block(ptr_buffer_cache);
     }
   }
-    Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  
-  kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
-
-  // for(t=0;t<global_HQ_size;t++)
-  // {
-  //   fprintf(myoutput, "AN:%d\n,", global_HQ[t]);
-  // }
- 
-
-
+  lru_node *curr_pg_node=NULL;
+  curr_pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+  double min=10000;
+  int index;
+  //To do:在這新增條件，當curr benefit>min benefit kick min from write buffer
+  for(int i=0;i<1000;i++){
+    if(min>ptr_buffer_cache->hash_Pg[i]->benefit){
+      min=ptr_buffer_cache->hash_Pg[i]->benefit;
+      index=i;
+    }
+  }
+  if(curr_pg_node->benefit>min){
+    kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
+  }
+  else{
+    //ignore...
+  } 
 }
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -5380,7 +5386,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     return ;
   }
   /*
-   * the are code is kick the page of the last block in the lru list 
+   * there are code is kick the page of the last block in the lru list 
    sh--just BPLRU
    * */
   //printf("block_level_lru_no_parallel=%d\n", block_level_lru_no_parallel);
@@ -5389,38 +5395,38 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     
     while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
     {
-     //printf("lru_no_parallel == 1 > max_buffer_page_num\n");
+      //because curr data page can't write into write buffer,so choose previous
+      //block to kick--->as follow code
       ptr_lru_node = ptr_buffer_cache->ptr_head->prev;
-      
+      //下面的for loop會紀錄最小且存在的page index，因此若i=63就代表該block is empty
       for(i = 0;i < currdisk->params.pages_per_block ; i ++)
       {
           printf("Page:%d",i);
           system('pause');
         if(ptr_lru_node->page[i].exist == 1)break;
-      
-     //printf("ptr_lru_node = %d\n", ptr_lru_node->page[i].lpn);
-      statistic.kick_write_intensive_page_count ++;
+      }  
+        statistic.kick_write_intensive_page_count ++;
+      //write buffer內當下的page number(不管第幾個block，直接算當下page是第幾個page)->lpn
+        logical_add = (ptr_lru_node->logical_node_num*LRUSIZE + i);
 
-      logical_add = (ptr_lru_node->logical_node_num*LRUSIZE + i);
-      /*
-       * the channel and the plane should be write
-       * */
-      channel_num = (logical_add%(SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.nelements))/SSD_DATA_PAGES_PER_BLOCK(currdisk);
-      plane = ((logical_add%(SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.nelements*currdisk->params.planes_per_pkg))/\
-          (SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.planes_per_pkg));
-
-      add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->logical_node_num*LRUSIZE + i,0);
-    
-      ptr_lru_node->page[i].exist = 0;
-      ptr_lru_node->buffer_page_num --;
-      ptr_buffer_cache->total_buffer_page_num --;
-      
-      /*when the logical block is empty*/
-      if(ptr_lru_node->buffer_page_num == 0)
-      {
-        remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,flag);
-      }
-      current_block[channel_num][plane].flush_w_count_in_current ++;
+        /*
+        * the channel and the plane should be write(in ssd)
+        * */
+       
+        channel_num = (logical_add%(SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.nelements))/SSD_DATA_PAGES_PER_BLOCK(currdisk);
+        plane = ((logical_add%(SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.nelements*currdisk->params.planes_per_pkg))/\
+        (SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.planes_per_pkg));
+        add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->logical_node_num*LRUSIZE + i,0);//0->write,如果忘記可參考trace explaination      
+        ptr_lru_node->page[i].exist = 0;
+        ptr_lru_node->buffer_page_num --;
+        ptr_buffer_cache->total_buffer_page_num --;
+        
+        /*when the logical block is empty*/
+        if(ptr_lru_node->buffer_page_num == 0)
+        {
+          remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,flag);
+        }
+        current_block[channel_num][plane].flush_w_count_in_current ++;
     }
     return ;
   }
