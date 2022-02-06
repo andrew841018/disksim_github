@@ -3617,7 +3617,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     {
       mark_for_all_current_block(ptr_buffer_cache);
     }
-  }
+  } 
   lru_node *curr_pg_node=NULL;
   curr_pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   double min=10000;
