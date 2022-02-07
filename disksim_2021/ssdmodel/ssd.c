@@ -3620,6 +3620,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   } 
   FILE *test=fopen("wb.txt","a+");
   fprintf(test,"%d ",ptr_buffer_cache->ptr_head->logical_node_num);
+  fclose(test);
   kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
   /* 
   lru_node *curr_pg_node=NULL;
@@ -3686,6 +3687,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+  /*
   FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
   char buf[1024];
   char *substr=NULL;
@@ -3693,7 +3695,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   int physical_block_num;
   int p=0;
   while(fgets(buf,1024,rnn)!=NULL){
-		substr=strtok(buffer,delim);//sector number	
+		substr=strtok(buf,delim);//sector number	
 		substr=strtok(NULL,delim);//physical block number
     physical_block_num=atoi(substr);
     if(physical_block_num==Pg_node->logical_node_num){
@@ -3705,6 +3707,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   if(p==0){
     exit(0);
   }
+  */
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
@@ -5489,6 +5492,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
+      FILE *test=fopen("wb.txt","a+");
       fprintf(test,"%d\n",ptr_lru_node->logical_node_num);
       fclose(test);
       //glob_bc=current_block[channel_num][plane].ptr_lru_node;
