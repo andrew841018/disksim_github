@@ -3561,7 +3561,8 @@ void write_benefit_to_txt(int g){
 	}
 	fclose(info);	
 }
-unsigned int count,blkno;
+unsigned int count,blkno,block_number;
+unsigned int physical_node_num, phy_node_offset;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -3618,20 +3619,16 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       mark_for_all_current_block(ptr_buffer_cache);
     }
   } 
-  FILE *test=fopen("wb.txt","a+");
-  fprintf(test,"%d ",ptr_buffer_cache->ptr_head->logical_node_num);
-  fclose(test);
-  kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
-  /* 
+   
   lru_node *curr_pg_node=NULL;
   curr_pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  double min=10000;
-  int index;
+  double min=10000;  
+  int i;
   //To do:在這新增條件，當curr benefit>min benefit kick min from write buffer
-  for(int i=0;i<1000;i++){
-    if(min>ptr_buffer_cache->hash_Pg[i]->benefit){
+  for(i=0;i<1000;i++){
+    if(min>ptr_buffer_cache->hash_Pg[i]->benefit && i!=physical_node_num % HASHSIZE){
       min=ptr_buffer_cache->hash_Pg[i]->benefit;
-      index=i;
+      block_number=ptr_buffer_cache->hash_Pg[i]->logical_node_num;
     }
   }
   if(curr_pg_node->benefit>min){
@@ -3639,7 +3636,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   }
   else{
     //ignore...
-  } */
+  } 
 }
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -3674,7 +3671,6 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 double benefit[1000000];
-unsigned int physical_node_num, phy_node_offset;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3687,7 +3683,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  /*
+  
   FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
   char buf[1024];
   char *substr=NULL;
@@ -3707,7 +3703,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   if(p==0){
     exit(0);
   }
-  */
+  
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
@@ -5492,9 +5488,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
-      FILE *test=fopen("wb.txt","a+");
-      fprintf(test,"%d\n",ptr_lru_node->logical_node_num);
-      fclose(test);
+           
       //glob_bc=current_block[channel_num][plane].ptr_lru_node;
 
       //offset_in_node = 0;
@@ -5571,10 +5565,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
         }
-
-
-        remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
-        current_block[channel_num][plane].flush_w_count_in_current ++;
+        if(ptr_lru_node->logical_node_num==block_number){
+			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+			current_block[channel_num][plane].flush_w_count_in_current ++;
+		}
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         //printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \
