@@ -3618,6 +3618,10 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       mark_for_all_current_block(ptr_buffer_cache);
     }
   } 
+  FILE *test=fopen("wb.txt","a+");
+  fprintf(test,"%d ",ptr_buffer_cache->ptr_head->logical_node_num);
+  kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
+  /* 
   lru_node *curr_pg_node=NULL;
   curr_pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   double min=10000;
@@ -3634,7 +3638,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   }
   else{
     //ignore...
-  } 
+  } */
 }
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -5448,25 +5452,11 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     kick=1;
     while(k<8)//8 means total number of channel
     {
-      if(no_page_can_evict == 0)
+      if(no_page_can_evict == 0)//-->have victim page to evict
       {
-        // if(k>8)
-        // {
-        //   k=0;
-        // }
         channel_num = k%8;
-        //channel_num = min_response_elem(currdisk);
-        // channel_num = kick_channel_num;
-        // kick_channel_num++;
-        // if(kick_channel_num > 4)
-        // {
-        //  kick_channel_num=0;
-        // }
-        //plane = k%8;
+        //return plane number of max free plane
         plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
-        //plane = find_min_write_count_plane(channel_num);
-        //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
-        //printf("inin channel=%d,plane=%d\n", channel_num,plane);
         assert(channel_num >=0 && channel_num < 8);
         assert(plane >=0 && plane < 8);
       }
@@ -5499,7 +5489,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
-      
+      fprintf(test,"%d\n",ptr_lru_node->logical_node_num);
+      fclose(test);
       //glob_bc=current_block[channel_num][plane].ptr_lru_node;
 
       //offset_in_node = 0;
@@ -5532,14 +5523,12 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         //printf("ptr_lru_node = %d .exist == 2\n", ptr_lru_node->page[offset_in_node].lpn);
         current_block[channel_num][plane].trigger=2;
         assert(current_block[channel_num][plane].current_mark_count != 0);  
-        statistic.kick_write_intensive_page_count ++;
+        statistic.kick_write_intensive_page_count++;
         //fprintf(lpb_ppn, "@@@@@ current_block[%d][%d].current_mark_count=%d\n", channel_num,plane, current_block[channel_num][plane].current_mark_count);
         //fprintf(lpb_ppn, "@@@@@ kick %d[%d] channel=%d,plane=%d\n", ptr_lru_node->logical_node_num, offset_in_node, channel_num,plane);
         //printf( "@@@@@ current_block[%d][%d].current_mark_count=%d\n", channel_num,plane, current_block[channel_num][plane].current_mark_count);
         //add_to_ioqueue(curr,channel_num_Lg,plane_Lg,ptr_lru_node->page[i].lpn,0);
         //remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
- 
-
         add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->page[offset_in_node].lpn,0);
         k++;
         if(ptr_lru_node->StripWay == 0)
