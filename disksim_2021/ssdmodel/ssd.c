@@ -3816,27 +3816,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     Y_add_Lg_page_to_cache_buffer(lpn,ptr_buffer_cache);
     flag=1;
     return flag;
-  }
-  FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
-  char buf[1024];
-  char *substr=NULL;
-  const char *const delim=" ";
-  int physical_block_num;
-  int p=0;
-  while(fgets(buf,1024,rnn)!=NULL){
-		substr=strtok(buf,delim);//sector number	
-		substr=strtok(NULL,delim);//physical block number
-		physical_block_num=atoi(substr);
-    if(physical_block_num==Pg_node->logical_node_num){
-      substr=strtok(NULL,delim);//benefit     
-      Pg_node->benefit=atof(substr);
-      p=1;
-    }      
-	}
-  if(p==0){
-    exit(0);
-  }
-  fclose(rnn);
+  } 
   while(1)
   {
     if(Pg_node == NULL)
@@ -3867,6 +3847,26 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     //fprintf(lpb_ppn, "if(Pg_node != NULL)\tphysical_node_num=%d\n", physical_node_num);
     //printf("find node\n");
     //remove the mark page int the hit node
+	FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","a+");
+	char buf[1024];
+	char *substr=NULL;
+	const char *const delim=" ";
+	int physical_block_num;
+	int p=0;
+	while(fgets(buf,1024,rnn)!=NULL){
+		substr=strtok(buf,delim);//sector number	
+		substr=strtok(NULL,delim);//physical block number
+		physical_block_num=atoi(substr);
+	if(Pg_node->logical_node_num==physical_block_num){
+	  substr=strtok(NULL,delim);//benefit     
+	  Pg_node->benefit=atof(substr);
+	  p=1;
+	}      
+	}
+	if(p==0){
+	exit(0);
+	}
+	fclose(rnn);
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     /* if(myssd.node_page_nm[logical_node_num][offset_in_node]==1)
     {
