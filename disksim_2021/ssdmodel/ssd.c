@@ -3619,7 +3619,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       mark_for_all_current_block(ptr_buffer_cache);
     }
   } 
-   
+ /*  
   lru_node *curr_pg_node=NULL;
   curr_pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   double min=10000;  
@@ -3637,6 +3637,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   else{
     //ignore...
   } 
+  */
+  kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
 }
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -3683,6 +3685,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+  /*
+  FILE *wb=fopen("wb.txt","a+");
+  fprintf(wb,"%d\n",Pg_node->logical_node_num);
+  fclose(wb);*/
   
   FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
   char buf[1024];
@@ -3693,7 +3699,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   while(fgets(buf,1024,rnn)!=NULL){
 		substr=strtok(buf,delim);//sector number	
 		substr=strtok(NULL,delim);//physical block number
-    physical_block_num=atoi(substr);
+		physical_block_num=atoi(substr);
     if(physical_block_num==Pg_node->logical_node_num){
       substr=strtok(NULL,delim);//benefit     
       Pg_node->benefit=atof(substr);
@@ -3703,7 +3709,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   if(p==0){
     exit(0);
   }
-  
+  fclose(rnn);
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
@@ -3810,6 +3816,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}
 	fprintf(t,"%s\n","");	
 	fclose(t);
+	t=fopen("info(run1_Postmark_2475).txt","w");
   while(1)
   {
     if(ptr_lru_node == NULL)
