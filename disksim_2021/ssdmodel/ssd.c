@@ -3689,27 +3689,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   FILE *wb=fopen("wb.txt","a+");
   fprintf(wb,"%d\n",Pg_node->logical_node_num);
   fclose(wb);*/
-  
-  FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
-  char buf[1024];
-  char *substr=NULL;
-  const char *const delim=" ";
-  int physical_block_num;
-  int p=0;
-  while(fgets(buf,1024,rnn)!=NULL){
-		substr=strtok(buf,delim);//sector number	
-		substr=strtok(NULL,delim);//physical block number
-		physical_block_num=atoi(substr);
-    if(physical_block_num==Pg_node->logical_node_num){
-      substr=strtok(NULL,delim);//benefit     
-      Pg_node->benefit=atof(substr);
-      p=1;
-    }      
-	}
-  if(p==0){
-    exit(0);
-  }
-  fclose(rnn);
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
@@ -3838,7 +3817,26 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     flag=1;
     return flag;
   }
-
+  FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+  char buf[1024];
+  char *substr=NULL;
+  const char *const delim=" ";
+  int physical_block_num;
+  int p=0;
+  while(fgets(buf,1024,rnn)!=NULL){
+		substr=strtok(buf,delim);//sector number	
+		substr=strtok(NULL,delim);//physical block number
+		physical_block_num=atoi(substr);
+    if(physical_block_num==Pg_node->logical_node_num){
+      substr=strtok(NULL,delim);//benefit     
+      Pg_node->benefit=atof(substr);
+      p=1;
+    }      
+	}
+  if(p==0){
+    exit(0);
+  }
+  fclose(rnn);
   while(1)
   {
     if(Pg_node == NULL)
