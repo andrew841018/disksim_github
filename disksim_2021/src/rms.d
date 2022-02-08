@@ -11,8 +11,6 @@ rms: rms.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/i386-linux-gnu/bits/stdio_lim.h \
  /usr/include/i386-linux-gnu/bits/sys_errlist.h /usr/include/string.h \
  /usr/include/xlocale.h /usr/include/math.h \
- /usr/include/i386-linux-gnu/bits/math-vector.h \
- /usr/include/i386-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/i386-linux-gnu/bits/huge_val.h \
  /usr/include/i386-linux-gnu/bits/huge_valf.h \
  /usr/include/i386-linux-gnu/bits/huge_vall.h \

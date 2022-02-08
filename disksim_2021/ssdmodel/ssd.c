@@ -3821,6 +3821,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     if(Pg_node == NULL)
       break;
     else{
+		/*
       FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","w");
       char buf[1024];
       char *substr=NULL;
@@ -3837,11 +3838,22 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
           p=1;
         }     
       }
-      printf("%d %d\n",Pg_node->logical_node_num,physical_node_num);
-      sleep(1);
-      if(p==0){			
+       if(p==0){			
         //exit(0);
       }
+      int p=0;
+      for(i=0;i<block_index;i++){
+		  if(block_num[i]==Pg_node->logical_node_num){
+			  printf("success\n");
+			  p=1;
+		  }
+	  }
+	  if(p==0){
+		  exit(0);
+	  }*/
+      //printf("%d %d\n",Pg_node->logical_node_num,physical_node_num);
+      //sleep(1);
+      
 	}
     if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find
     {
@@ -5398,7 +5410,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     return ;
   }
   /*
-   * there are code is kick the page of the last block in the lru list 
+   * the are code is kick the page of the last block in the lru list 
    sh--just BPLRU
    * */
   //printf("block_level_lru_no_parallel=%d\n", block_level_lru_no_parallel);
@@ -5407,45 +5419,45 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     
     while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
     {
-      //because curr data page can't write into write buffer,so choose previous
-      //block to kick--->as follow code
+     //printf("lru_no_parallel == 1 > max_buffer_page_num\n");
       ptr_lru_node = ptr_buffer_cache->ptr_head->prev;
-      //下面的for loop會紀錄最小且存在的page index，因此若i=63就代表該block is empty
+      
       for(i = 0;i < currdisk->params.pages_per_block ; i ++)
       {
           printf("Page:%d",i);
           system('pause');
         if(ptr_lru_node->page[i].exist == 1)break;
-      }  
-        statistic.kick_write_intensive_page_count ++;
-      //write buffer內當下的page number(不管第幾個block，直接算當下page是第幾個page)->lpn
-        logical_add = (ptr_lru_node->logical_node_num*LRUSIZE + i);
+      }
+     //printf("ptr_lru_node = %d\n", ptr_lru_node->page[i].lpn);
+      statistic.kick_write_intensive_page_count ++;
 
-        /*
-        * the channel and the plane should be write(in ssd)
-        * */
-       
-        channel_num = (logical_add%(SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.nelements))/SSD_DATA_PAGES_PER_BLOCK(currdisk);
-        plane = ((logical_add%(SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.nelements*currdisk->params.planes_per_pkg))/\
-        (SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.planes_per_pkg));
-        add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->logical_node_num*LRUSIZE + i,0);//0->write,如果忘記可參考trace explaination      
-        ptr_lru_node->page[i].exist = 0;
-        ptr_lru_node->buffer_page_num --;
-        ptr_buffer_cache->total_buffer_page_num --;
-        
-        /*when the logical block is empty*/
-        if(ptr_lru_node->buffer_page_num == 0)
-        {
-          remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,flag);
-        }
-        current_block[channel_num][plane].flush_w_count_in_current ++;
+      logical_add = (ptr_lru_node->logical_node_num*LRUSIZE + i);
+      /*
+       * the channel and the plane should be write
+       * */
+      channel_num = (logical_add%(SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.nelements))/SSD_DATA_PAGES_PER_BLOCK(currdisk);
+      plane = ((logical_add%(SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.nelements*currdisk->params.planes_per_pkg))/\
+          (SSD_DATA_PAGES_PER_BLOCK(currdisk)*currdisk->params.planes_per_pkg));
+
+      add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->logical_node_num*LRUSIZE + i,0);
+    
+      ptr_lru_node->page[i].exist = 0;
+      ptr_lru_node->buffer_page_num --;
+      ptr_buffer_cache->total_buffer_page_num --;
+      
+      /*when the logical block is empty*/
+      if(ptr_lru_node->buffer_page_num == 0)
+      {
+        remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,flag);
+      }
+      current_block[channel_num][plane].flush_w_count_in_current ++;
     }
     return ;
   }
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
-  int no_page_can_evict=0;//0代表false-->have page can evict
+  int no_page_can_evict=0;
   // "before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
@@ -5458,13 +5470,27 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
     int k=0; 
     kick=1;
-    while(k<8)//8 means total number of channel
+    while(k<8)
     {
-      if(no_page_can_evict == 0)//-->have victim page to evict
+      if(no_page_can_evict == 0)
       {
+        // if(k>8)
+        // {
+        //   k=0;
+        // }
         channel_num = k%8;
-        //return plane number of max free plane
+        //channel_num = min_response_elem(currdisk);
+        // channel_num = kick_channel_num;
+        // kick_channel_num++;
+        // if(kick_channel_num > 4)
+        // {
+        //  kick_channel_num=0;
+        // }
+        //plane = k%8;
         plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+        //plane = find_min_write_count_plane(channel_num);
+        //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+        //printf("inin channel=%d,plane=%d\n", channel_num,plane);
         assert(channel_num >=0 && channel_num < 8);
         assert(plane >=0 && plane < 8);
       }
@@ -5497,7 +5523,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
-           
+      
       //glob_bc=current_block[channel_num][plane].ptr_lru_node;
 
       //offset_in_node = 0;
@@ -5530,12 +5556,14 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         //printf("ptr_lru_node = %d .exist == 2\n", ptr_lru_node->page[offset_in_node].lpn);
         current_block[channel_num][plane].trigger=2;
         assert(current_block[channel_num][plane].current_mark_count != 0);  
-        statistic.kick_write_intensive_page_count++;
+        statistic.kick_write_intensive_page_count ++;
         //fprintf(lpb_ppn, "@@@@@ current_block[%d][%d].current_mark_count=%d\n", channel_num,plane, current_block[channel_num][plane].current_mark_count);
         //fprintf(lpb_ppn, "@@@@@ kick %d[%d] channel=%d,plane=%d\n", ptr_lru_node->logical_node_num, offset_in_node, channel_num,plane);
         //printf( "@@@@@ current_block[%d][%d].current_mark_count=%d\n", channel_num,plane, current_block[channel_num][plane].current_mark_count);
         //add_to_ioqueue(curr,channel_num_Lg,plane_Lg,ptr_lru_node->page[i].lpn,0);
         //remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+ 
+
         add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->page[offset_in_node].lpn,0);
         k++;
         if(ptr_lru_node->StripWay == 0)
@@ -5574,10 +5602,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
         }
-        if(ptr_lru_node->logical_node_num==block_number){
-			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
-			current_block[channel_num][plane].flush_w_count_in_current ++;
-		}
+
+
+        remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+        current_block[channel_num][plane].flush_w_count_in_current ++;
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         //printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \
@@ -5637,7 +5665,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
   //printf("end\n"); 
   
 }
-
 
 
 
