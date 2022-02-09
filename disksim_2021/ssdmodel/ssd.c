@@ -5466,7 +5466,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     while(k<8)
     {
       if(no_page_can_evict == 0)
-      {
+      { 
         // if(k>8)
         // {
         //   k=0;
