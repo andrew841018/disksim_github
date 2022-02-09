@@ -3673,6 +3673,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 double benefit[1000000];
+int benefit_bool[1000000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3821,40 +3822,31 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     if(Pg_node == NULL)
       break;
     else{
-		/*
-      FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","w");
-      char buf[1024];
-      char *substr=NULL;
-      const char *const delim=" ";
-      int physical_block_num;
-      int p=0;
-      while(fgets(buf,1024,rnn)!=NULL){
-        substr=strtok(buf,delim);//sector number	
-        substr=strtok(NULL,delim);//physical block number
-        physical_block_num=atoi(substr);
-        if(Pg_node->logical_node_num==physical_block_num){
-          substr=strtok(NULL,delim);//benefit     
-          Pg_node->benefit=atof(substr);
-          p=1;
-        }     
-      }
-       if(p==0){			
-        //exit(0);
-      }
-      int p=0;
-      for(i=0;i<block_index;i++){
-		  if(block_num[i]==Pg_node->logical_node_num){
-			  printf("success\n");
+		FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+		char buf[1024];
+		char *substr=NULL;
+		const char *const delim=" ";
+		int physical_block_num;
+		int p=0;
+		if(fgets(buf,1024,rnn)==NULL){
+			printf("fopen return NULL\n");
+			exit(0);
+		}	
+		while(fgets(buf,1024,rnn)!=NULL && benefit_bool[physical_node_num % HASHSIZE]==0){
+			substr=strtok(buf,delim);//sector number	
+			substr=strtok(NULL,delim);//physical block number
+			physical_block_num=atoi(substr);
+			if(Pg_node->logical_node_num==physical_block_num){
+			  substr=strtok(NULL,delim);//benefit     
+			  ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=atof(substr);
 			  p=1;
-		  }
-	  }
-	  if(p==0){
-		  exit(0);
-	  }*/
-      //printf("%d %d\n",Pg_node->logical_node_num,physical_node_num);
-      //sleep(1);
-      
+			  benefit_bool[physical_node_num % HASHSIZE]=1;
+			  break;
+			}     
+		}
+		fclose(rnn);
 	}
+	
     if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find
     {
       //fprintf(lpb_lpn, "if(Pg_node->logical_node_num == physical_node_num )\nphysical_node_num=%d\n", physical_node_num);
