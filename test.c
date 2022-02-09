@@ -2,9 +2,8 @@
 #include<stdlib.h>
 #include<string.h>
 int main(){
-	unsigned int p=15;
-	int g=15;
-	if(p==g)
+	double p=0.00000000000000000000000000005;
+	if(p!=0)
 		printf("fff");
 	/*
 	char *tmp[100];
