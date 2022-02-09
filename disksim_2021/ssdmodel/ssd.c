@@ -3674,6 +3674,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 }
 double benefit[1000000];
 int benefit_bool[1000000]={0};
+long long unsigned int  physical_block_bool[100000000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3827,22 +3828,28 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		char *substr=NULL;
 		const char *const delim=" ";
 		int physical_block_num;
-		int p=0;
+		int p=-1;
 		if(fgets(buf,1024,rnn)==NULL){
 			printf("fopen return NULL\n");
 			exit(0);
 		}	
 		while(fgets(buf,1024,rnn)!=NULL && benefit_bool[physical_node_num % HASHSIZE]==0){
+			p=0;
 			substr=strtok(buf,delim);//sector number	
 			substr=strtok(NULL,delim);//physical block number
 			physical_block_num=atoi(substr);
-			if(Pg_node->logical_node_num==physical_block_num){
+			physical_block_bool[physical_block_num]=1;
+			if(physical_block_bool[Pg_node->logical_node_num]==1){
 			  substr=strtok(NULL,delim);//benefit     
 			  ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=atof(substr);
 			  p=1;
 			  benefit_bool[physical_node_num % HASHSIZE]=1;
 			  break;
 			}     
+		}
+		if(p==0){
+			printf("block num:%d %d\n",Pg_node->logical_node_num,physical_block_num);
+			exit(0);
 		}
 		fclose(rnn);
 	}

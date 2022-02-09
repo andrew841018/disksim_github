@@ -1,10 +1,11 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include "test.h"
 int main(){
-	unsigned long long p=100000000000;
-	printf("%lld\n",p);
+	unsigned int p=15;
+	int g=15;
+	if(p==g)
+		printf("fff");
 	/*
 	char *tmp[100];
 	//strcpy(tmp,"ssss");
