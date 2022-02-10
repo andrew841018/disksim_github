@@ -3561,23 +3561,10 @@ void write_benefit_to_txt(int g){
 	}
 	fclose(info);	
 }
-unsigned int count,blkno,block_number;
+unsigned int count,blkno,hash_pg_index;
 unsigned int physical_node_num, phy_node_offset;
-buffer_cache *write_buffer;
+double min=10000;
 lru_node *curr_pg_node=NULL;
-void simulate(buffer_cache *wb){
-	curr_pg_node = wb->hash_Pg[physical_node_num % HASHSIZE];
-  
-  double min=10000;  
-  int i;
-  //To do:在這新增條件，當curr benefit>min benefit kick min from write buffer
-  for(i=0;wb->hash_Pg[i]!=NULL;i++){
-    if(min>wb->hash_Pg[i]->benefit && i!=physical_node_num % HASHSIZE){
-      min=wb->hash_Pg[i]->benefit;
-      block_number=wb->hash_Pg[i]->logical_node_num;
-    }
-  }
-}
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -3634,7 +3621,19 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       mark_for_all_current_block(ptr_buffer_cache);
     }
   } 
+   
+  
+  curr_pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];  
+  int i;
+  //To do:在這新增條件，當curr benefit>min benefit kick min from write buffer
+  for(i=0;i<1000;i++){
+    if(min>ptr_buffer_cache->hash_Pg[i]->benefit && i!=physical_node_num % HASHSIZE){
+      min=ptr_buffer_cache->hash_Pg[i]->benefit;
+      hash_pg_index=i;
+    }
+  }
   kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
+ 
 }
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -3840,10 +3839,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     else{
 		if(benefit_value[Pg_node->logical_node_num]>0 && Pg_node->logical_node_num==physical_node_num&& benefit_bool[physical_node_num % HASHSIZE]==0){
 		  ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[Pg_node->logical_node_num];
-		  benefit_bool[physical_node_num % HASHSIZE]=1;	  
-		}			
-		write_buffer=ptr_buffer_cache;
-		simulate(write_buffer);
+		  benefit_bool[physical_node_num % HASHSIZE]=1;		  
+		}		
 	}			
 	
     if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find
@@ -3863,8 +3860,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   {
     //printf("add node\n");
     //fprintf(lpb_ppn, "if(Pg_node == NULL)\tphysical_node_num=%d\n", physical_node_num);
-      flag=0;
-      add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
+      
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
   }
   else
@@ -4397,7 +4393,8 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
   
 // }
 
-
+//雖然理論上是一個block直接踢下來，但實作上卻是一個page一個page踢，因為寫入還是以page為單位
+//所以如果要踢掉一個block，就將那個block的所有page踢掉就行了
 void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,unsigned int verify_channel,unsigned int verify_plane,int flag)
 {
 	unsigned int channel_num = ptr_lru_node->page[offset_in_node].channel_num;
@@ -5374,10 +5371,10 @@ void kick_read_intensive_page_from_buffer_cache(ioreq_event *curr,unsigned int c
 void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache,int flag)
 {
   //glob_bc=ptr_buffer_cache;
-  //check_which_node_to_evict(ptr_buffer_cache);
+ // check_which_node_to_evict(ptr_buffer_cache);
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0;
   unsigned int offset_in_node,logical_add;
-  lru_node *ptr_lru_node;
+  lru_node *ptr_lru_node,*physical_block;
   ssd_t *currdisk = getssd(curr->devno);
   curr->tempint2 = 0;
   /* sh-- served by cache 
@@ -5450,17 +5447,15 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
   int kick=0;
+  //write buffer is full
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
-    //printf(" > max_buffer_page_num|");
-
       /*sh-- our dynamic allocation policy*/
-    //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
     int k=0; 
     kick=1;
     while(k<8)
     {
-      if(no_page_can_evict == 0)
+      if(no_page_can_evict == 0)//0=false,means can evict some page
       { 
         // if(k>8)
         // {
@@ -5504,6 +5499,17 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         //fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
         //printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
         continue;
+      }
+      if(curr_pg_node->benefit>min){
+        physical_block=ptr_buffer_cache->hash_Pg[hash_pg_index];
+        for(i=0;i<64;i++){
+          remove_a_page_in_the_node(i,physical_block,ptr_buffer_cache,channel_num,plane,flag);
+        }
+        int lpn=ssd_logical_pageno(curr->blkno,currdisk);
+        for(i=0;i<64;i++){
+            add_a_page_in_the_node(lpn,curr_pg_node->logical_node_num,i,curr_pg_node,ptr_buffer_cache,0);
+        }
+        
       }
       
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5592,7 +5598,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         }
 
 
-        remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+        
         current_block[channel_num][plane].flush_w_count_in_current ++;
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         //printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
