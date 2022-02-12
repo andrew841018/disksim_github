@@ -243,6 +243,7 @@ int req_check=0, all_repeat=0;
  * when turn on this switch ,the buffer manager is not cooperation with ftl ,only kick the page of the block
  * the fix striping placement doesn't support this method
  * */
+//目前進入write buffer的request, block_level_lru_no_parallel都會是0
 unsigned int block_level_lru_no_parallel = 0;
 /*
  * 1.when a request arrived,we find the number of the sequetial page in the request and add to the scores.
