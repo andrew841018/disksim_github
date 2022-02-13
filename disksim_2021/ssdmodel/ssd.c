@@ -5512,6 +5512,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       if(curr_pg_node->benefit>min){
         physical_block=write_buffer->hash_Pg[hash_pg_index];
         for(i=0;i<64;i++){
+          //following function need to satisfy:physical_block->page[i].channel_num=channel_num
+          //physical_block->page[i].plane=plane,or it will return error.
+          //in the original code,physical_block->page[i].channel_num=current_block[channel_num][plane].ptr_lru_node.channel_num
+          //physical_block->page[i].plane=current_block[channel_num][plane].ptr_lru_node.plane
           remove_a_page_in_the_node(i,physical_block,write_buffer,channel_num,plane,flag);
         }
         int lpn=ssd_logical_pageno(curr->blkno,currdisk);
