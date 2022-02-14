@@ -4382,9 +4382,6 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	assert(channel_num == verify_channel);
 	assert(plane == verify_plane);
 	assert(ptr_lru_node->page[offset_in_node].exist == 2);
-  FILE *wb=fopen("wb.txt","a+");
-  fprintf(wb,"block num:%d page num:%d\n",ptr_lru_node->logical_node_num,offset_in_node);
-  fclose(wb);
   ptr_lru_node->page[offset_in_node].rcover = 0 ;
   ptr_lru_node->page[offset_in_node].wcover = 0 ;
 
@@ -4643,10 +4640,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].channel_num = channel_num;
 			ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].plane = plane;
       ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].strip=2;//block striping
-      FILE *wb=fopen("wb.txt","a+");
-      fprintf(wb,"%s","------------------");
-      fprintf(wb,"block num:%d page num:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->current_mark_offset);
-      fclose(wb);
+      
       //bs++;
       //glob_bc.page[ptr_buffer_cache->current_mark_offset].strip=2;
       //h_data[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][ptr_buffer_cache->current_mark_offset]=2;
@@ -5015,16 +5009,12 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       /*
        * if the plane is not any mark page ,we help mark the new node 
        * */
-      //當下還沒有標記哪個page要踢掉，且存在read-intensive page
-      //通常離開這個條件式都是前者不符合條件...!=0
       if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL)
       {
         current_block[channel_num][plane].trigger=1;
        //printf("* if the plane is not any mark page ,we help mark the new node|");
        //number of pages has been marked for read-intensive.
         statistic.kick_read_intensive_page_count ++;
-        //踢掉read intensive page.....因為write buffer通常對於write page比較有利
-		    simulate(write_buffer);
         kick_read_intensive_page_from_buffer_cache(curr,channel_num,plane,ptr_buffer_cache);
         current_block[channel_num][plane].flush_w_count_in_current ++;
       
@@ -5091,7 +5081,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
         }
 
-
+		write_buffer=ptr_buffer_cache;
+		simulate(write_buffer);
         remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
         current_block[channel_num][plane].flush_w_count_in_current ++;
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
@@ -5101,7 +5092,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         {
           //printf("if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \n");
           current_block[channel_num][plane].current_write_offset = 0;
-          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);        
 
         }
         else if(current_block[channel_num][plane].current_mark_count == 0)
