@@ -4999,7 +4999,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       //printf("ytc94u channel_num = %d plane = %d\n",channel_num,plane);
 
 
-    //表示要寫入的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
+    //表示要寫入SSD的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
     //然後寫入的page index=offset_in_node. 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
@@ -5084,8 +5084,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
         }
 
-		write_buffer=ptr_buffer_cache;
-		simulate(write_buffer);
+		    write_buffer=ptr_buffer_cache;
+		    simulate(write_buffer);
         remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
         current_block[channel_num][plane].flush_w_count_in_current ++;
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
