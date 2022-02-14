@@ -5388,6 +5388,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
    * when the cache is not full,we return it to the parent request directly
    * it represent we don't have to write any page to ssd
    * */
+  
   if(ptr_buffer_cache->total_buffer_page_num <= ptr_buffer_cache->max_buffer_page_num)
   {
    //printf("<= max_buffer_page_num\n");
@@ -5399,6 +5400,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     child->tempptr2 = curr;
     ssd_complete_parent(child,currdisk);
     addtoextraq(child);
+    //沒有滿，不需要踢，所以結束
     return ;
   }
   /*
@@ -5486,7 +5488,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         assert(channel_num >=0 && channel_num < 8);
         assert(plane >=0 && plane < 8);
       }
-      else
+      else//預防機制，實際上不會進入這裡
       {
         printf("no_page_can_evict\n");
         int i;
@@ -5503,6 +5505,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         printf("\n");
         assert(0);
       }
+      //curren_mark_count=write page count
       if(current_block[channel_num][plane].current_mark_count == 0)
       {
         //fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
@@ -5516,13 +5519,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //physical_block->page[i].plane=plane,or it will return error.
           //in the original code,physical_block->page[i].channel_num=current_block[channel_num][plane].ptr_lru_node.channel_num
           //physical_block->page[i].plane=current_block[channel_num][plane].ptr_lru_node.plane
-          remove_a_page_in_the_node(i,physical_block,write_buffer,channel_num,plane,flag);
-        }
-        int lpn=ssd_logical_pageno(curr->blkno,currdisk);
-        for(i=0;i<64;i++){
-            add_a_page_in_the_node(lpn,curr_pg_node->logical_node_num,i,curr_pg_node,write_buffer,0);
-        }
-        
+          //remove_a_page_in_the_node(i,physical_block,write_buffer,channel_num,plane,flag);
+        }       
       }
       
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5530,7 +5528,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
-      
+      remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
       //glob_bc=current_block[channel_num][plane].ptr_lru_node;
 
       //offset_in_node = 0;
