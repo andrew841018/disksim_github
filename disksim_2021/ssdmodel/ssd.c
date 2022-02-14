@@ -3844,9 +3844,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		if(benefit_value[Pg_node->logical_node_num]>0 && Pg_node->logical_node_num==physical_node_num&& benefit_bool[physical_node_num % HASHSIZE]==0){
 		  ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[Pg_node->logical_node_num];
 		  benefit_bool[physical_node_num % HASHSIZE]=1;	  
-		}			
-		write_buffer=ptr_buffer_cache;
-		simulate(write_buffer);
+		}					
 	}			
 	
     if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find
@@ -5002,18 +5000,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         //fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
         //printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
         continue;
-      }
-      if(curr_pg_node->benefit>min){
-        physical_block=write_buffer->hash_Pg[hash_pg_index];
-        for(i=0;i<64;i++){
-          //following function need to satisfy:physical_block->page[i].channel_num=channel_num
-          //physical_block->page[i].plane=plane,or it will return error.
-          //in the original code,physical_block->page[i].channel_num=current_block[channel_num][plane].ptr_lru_node.channel_num
-          //physical_block->page[i].plane=current_block[channel_num][plane].ptr_lru_node.plane
-          //remove_a_page_in_the_node(i,physical_block,write_buffer,channel_num,plane,flag);
-        }       
-      }
-      
+      }    
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
       //printf("ytc94u channel_num = %d plane = %d\n",channel_num,plane);
 
@@ -5037,7 +5024,9 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
        //number of pages has been marked for read-intensive.
         statistic.kick_read_intensive_page_count ++;
         //踢掉read intensive page.....因為write buffer通常對於write page比較有利
-        kick_read_intensive_page_from_buffer_cache(curr,channel_num,plane,ptr_buffer_cache);
+        write_buffer=ptr_buffer_cache;
+		    simulate(write_buffer);
+        kick_read_intensive_page_from_buffer_cache(curr,channel_num,plane,write_buffer);
         current_block[channel_num][plane].flush_w_count_in_current ++;
       
         if(current_block[channel_num][plane].ptr_read_intensive_buffer_page  == NULL)
