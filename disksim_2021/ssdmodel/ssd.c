@@ -4682,6 +4682,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		ptr_buffer_cache->current_mark_offset ++;
     //printf("ptr_buffer_cache->current_mark_offset=%d\n", ptr_buffer_cache->current_mark_offset);
 		//when need  find new buffer page is marked
+
+    //整個block marked，換下一個
 		if(ptr_buffer_cache->current_mark_offset == LRUSIZE && current_block[channel_num][plane].current_mark_count > 0)
 		{	
 			assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
@@ -5027,13 +5029,14 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
        * if the plane is not any mark page ,we help mark the new node 
        * */
       //當下還沒有標記哪個page要踢掉，且存在read-intensive page
+      //通常離開這個條件式都是前者不符合條件...!=0
       if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL)
       {
         current_block[channel_num][plane].trigger=1;
        //printf("* if the plane is not any mark page ,we help mark the new node|");
        //number of pages has been marked for read-intensive.
         statistic.kick_read_intensive_page_count ++;
-        //踢掉read intensive page.....因為write buffer通常對於write比較有利
+        //踢掉read intensive page.....因為write buffer通常對於write page比較有利
         kick_read_intensive_page_from_buffer_cache(curr,channel_num,plane,ptr_buffer_cache);
         current_block[channel_num][plane].flush_w_count_in_current ++;
       
