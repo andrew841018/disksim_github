@@ -2881,6 +2881,7 @@ double benefit[1000000];
 int benefit_bool[1000000]={0};
 long long unsigned int  physical_block_bool[10000000]={0};
 double benefit_value[10000000]={0};
+double min=10000;
 int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 {
   int my_threshod=0;
@@ -3475,28 +3476,31 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   }
   return strip_way;
 }
+double Min=10000;
 int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 {
   int my_threshod=0;
   int strip_way=-1;
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0,channel_num_Lg=0,plane_Lg=0;
   unsigned int offset_in_node,logical_add;
-  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2,*a_node;
-
+  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2;
   int j,k,m,flagcheck=0,tempc=0,tempp=0,state0LRU=0,state0SIZE=0;
   int seq = 0, seq_temp = 0, block_pcount=0;
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
-  while(benefit_value[c_node->logical_node_num]>min){
-    c_node=c_node->prev;
+  //c_node, ptr_head is a circular link list....
+  while(c_node!=NULL){
+	if(Min>c_node->benefit)
+		Min=c_node->benefit;
+    printf("%f\n",Min);
+    c_node=c_node->next;
   }
+  
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
   int c=0, state=-1, locate_r = 100000, size_w=100000, locate_z=100000, zero_node_size=0, rep_size=100000, all_size=100000;
   int max_blocksize=0;
-
-
   Hint_page* p = (Hint_page *)malloc( sizeof( Hint_page ) );
   //printf("before state 0\n");
   int node_num=-1;
@@ -4106,7 +4110,6 @@ void write_benefit_to_txt(int g){
 }
 unsigned int count,blkno;
 unsigned int physical_node_num, phy_node_offset;
-double min=10000;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -4143,6 +4146,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
+  int i;
   for(i=0;i<sizeof(benefit_value)/sizeof(benefit_value[0]);i++){
     if(benefit_value[i]!=0 && min>benefit_value[i]){
       min=benefit_value[i];
@@ -4280,8 +4284,24 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				physical_block_num=atoi(substr);
 				substr=strtok(NULL,delim);//benefit     
 				benefit_value[physical_block_num]=atof(substr);
-				}     
+				} 				    
 		fclose(rnn);
+		lru_node *buffer,*tmp;
+		buffer=ptr_buffer_cache->ptr_head;
+		tmp=ptr_buffer_cache->ptr_head;
+		while(buffer!=NULL){
+			buffer->benefit=benefit_value[buffer->logical_node_num];
+			buffer=buffer->prev;
+		}
+		buffer=tmp;
+		while(buffer!=NULL){
+			if(buffer->benefit==0){
+				buffer->benefit=benefit_value[buffer->logical_node_num];
+		}
+			buffer=buffer->next;
+		}
+		buffer=tmp;
+		ptr_buffer_cache->ptr_head=buffer;
 		init=0;
 	  }
 	else{		

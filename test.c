@@ -5,13 +5,29 @@ typedef struct  _lru_node
 {
   struct _lru_node *prev;           //link lru list
   struct _lru_node *next;
+  int k;
 
 }lru_node;
 int main(){
-	lru_node *a=malloc(sizeof(lru_node));
-	a=a->prev;
-	if(a==NULL)
-		printf("hi\n");
+	lru_node *a=malloc(sizeof(lru_node)),*b=malloc(sizeof(lru_node));
+	b->prev=malloc(sizeof(lru_node));
+	b->next=malloc(sizeof(lru_node));
+	a->prev=malloc(sizeof(lru_node));
+	a->next=malloc(sizeof(lru_node));
+	a->prev->k=5;
+	a->next->k=8;
+	a->k=13;
+	b=a;
+	
+	while(a!=NULL){
+		a->k--;
+		a=a->next;
+	}
+	a=b;
+	
+	printf("1:%d\n",a->k);
+	printf("2:%d\n",a->next->k);
+	printf("3:%d\n",a->prev->k);
 	/*
 	char *tmp[100];
 	//strcpy(tmp,"ssss");
