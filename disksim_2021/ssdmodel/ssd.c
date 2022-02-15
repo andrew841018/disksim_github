@@ -2877,8 +2877,10 @@ void record_read_and_write_count(unsigned int lpn,unsigned int cnt,char w)
 
 
 
- 
-
+double benefit[1000000];
+int benefit_bool[1000000]={0};
+long long unsigned int  physical_block_bool[10000000]={0};
+double benefit_value[10000000]={0};
 int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 {
   int my_threshod=0;
@@ -3473,7 +3475,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   }
   return strip_way;
 }
-int min=10000;
+double min=10000;
 int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 {
   int my_threshod=0;
@@ -3486,15 +3488,7 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   int seq = 0, seq_temp = 0, block_pcount=0;
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
-  a_node = ptr_buffer_cache->ptr_head->prev;//lru's node
-  while(a_node!=NULL){
-    if(min>benefit_value[a_node->logical_node_num]){
-      min=benefit_value[a_node->logical_node_num];
-      c_node=a_node;
-    }
-    a_node=a_node->prev;
-  }
-  //c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
+  c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
 
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
@@ -4201,10 +4195,6 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
 }
-double benefit[1000000];
-int benefit_bool[1000000]={0};
-long long unsigned int  physical_block_bool[10000000]={0};
-double benefit_value[10000000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");

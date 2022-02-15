@@ -1,10 +1,17 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+typedef struct  _lru_node
+{
+  struct _lru_node *prev;           //link lru list
+  struct _lru_node *next;
+
+}lru_node;
 int main(){
-	double p=0.00000000000000000000000000005;
-	if(p!=0)
-		printf("fff");
+	lru_node *a=malloc(sizeof(lru_node));
+	a=a->prev;
+	if(a==NULL)
+		printf("hi\n");
 	/*
 	char *tmp[100];
 	//strcpy(tmp,"ssss");
