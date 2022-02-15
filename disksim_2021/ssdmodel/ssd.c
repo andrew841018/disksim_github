@@ -3475,7 +3475,6 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   }
   return strip_way;
 }
-double min=10000;
 int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 {
   int my_threshod=0;
@@ -3489,7 +3488,9 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
-
+  while(benefit_value[c_node->logical_node_num]>min){
+    c_node=c_node->prev;
+  }
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
   int c=0, state=-1, locate_r = 100000, size_w=100000, locate_z=100000, zero_node_size=0, rep_size=100000, all_size=100000;
@@ -4105,6 +4106,7 @@ void write_benefit_to_txt(int g){
 }
 unsigned int count,blkno;
 unsigned int physical_node_num, phy_node_offset;
+double min=10000;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -4141,7 +4143,11 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
-  
+  for(i=0;i<sizeof(benefit_value)/sizeof(benefit_value[0]);i++){
+    if(benefit_value[i]!=0 && min>benefit_value[i]){
+      min=benefit_value[i];
+    }
+  }
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -6350,7 +6356,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  write_benefit_to_txt(1);
+  //write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
