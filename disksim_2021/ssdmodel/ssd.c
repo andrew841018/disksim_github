@@ -3477,29 +3477,30 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   return strip_way;
 }
 double Min=10000;
+unsigned int check_benefit[10000000]={0};
 int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 {
   int my_threshod=0;
   int strip_way=-1;
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0,channel_num_Lg=0,plane_Lg=0;
   unsigned int offset_in_node,logical_add;
-  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2;
+  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2,*end;
   int j,k,m,flagcheck=0,tempc=0,tempp=0,state0LRU=0,state0SIZE=0;
   int seq = 0, seq_temp = 0, block_pcount=0;
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
- /*end=ptr_buffer_cache->ptr_head;
+  end=ptr_buffer_cache->ptr_head;
   while(c_node!=end && check_benefit[c_node->logical_node_num]==0){
 	if(Min>c_node->benefit){
 		Min=c_node->benefit;
-		printf("%f\n",Min);
-		sleep(1);
+		FILE *wb=fopen("c_node.txt","a+");
+		fprintf(wb,"%d %f\n",c_node->logical_node_num,Min);
+		fclose(wb);
 	}
 	check_benefit[c_node->logical_node_num]=1;
     c_node=c_node->prev;
   }
-  printf("leave loop\n");*/
   
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
@@ -4276,9 +4277,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		ptr_benefit_bool[buffer->logical_node_num]=1;
 		if(min2>buffer->benefit){
 			min2=buffer->benefit;	
-			FILE *wb=fopen("wb.txt","a+");
+			/*FILE *wb=fopen("wb.txt","a+");
 			fprintf(wb,"%d %f\n",buffer->logical_node_num,min2);
-			fclose(wb);		
+			fclose(wb);		*/
 		}
 		buffer=buffer->prev;		
 		//printf("1:%f\n",min2);
