@@ -4426,7 +4426,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   else
   {
     //fprintf(lpb_ppn, "if(Pg_node != NULL)\tphysical_node_num=%d\n", physical_node_num);
-    //printf("find node\n");
+    //printf("find node\n"); 
     //remove the mark page int the hit node
     
 	
