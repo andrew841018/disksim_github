@@ -186,7 +186,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache);
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache);
 void lsn2lpn(unsigned int input_lsa,unsigned  int input_scnt,unsigned int* req_lpn,unsigned int* req_cnt);
 //void add_a_node_to_buffer_cache(unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag);
-void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag);
+void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache *ptr_buffer_cache,int flag);
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache);
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache);
 
@@ -4396,9 +4396,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     if(Pg_node == NULL)
       break;
     else{
-		if(benefit_value[Pg_node->logical_node_num]>0 && Pg_node->logical_node_num==physical_node_num&& benefit_bool[physical_node_num % HASHSIZE]==0){
-		  ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[Pg_node->logical_node_num];
-		  benefit_bool[physical_node_num % HASHSIZE]=1;	  
+      /*if(benefit_value[Pg_node->logical_node_num]>0 && Pg_node->logical_node_num==physical_node_num&& benefit_bool[physical_node_num % HASHSIZE]==0){
+        ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[Pg_node->logical_node_num];
+        benefit_bool[physical_node_num % HASHSIZE]=1;*/  
 		}					
 	}			
 	
@@ -4414,7 +4414,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       break;
     }
     Pg_node = Pg_node->next;
-  }
   if(Pg_node == NULL)
   {
     //printf("add node\n");
