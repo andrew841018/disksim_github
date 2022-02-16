@@ -3489,13 +3489,12 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
-  //c_node, ptr_head is a circular link list....
-  while(c_node!=NULL){
+ /* while(c_node!=NULL){
 	if(Min>c_node->benefit)
 		Min=c_node->benefit;
     printf("%f\n",Min);
     c_node=c_node->next;
-  }
+  }*/
   
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
@@ -4205,6 +4204,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
 }
+double min2=100000;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -4258,7 +4258,23 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}  		
 	}    
 	fprintf(t,"%d ",physical_node_num);	
-  int b=0;
+	int b=0;
+	//ptr_buffer_cache->ptr_head is circular link list!!!!
+	
+	lru_node *buffer=NULL,*temp=NULL;
+	buffer=ptr_buffer_cache->ptr_head;
+	if(buffer!=NULL)
+		temp=ptr_buffer_cache->ptr_head->next;
+	while(ptr_buffer_cache->ptr_head!=NULL && buffer!=temp){
+		buffer->benefit=benefit_value[buffer->logical_node_num];
+		if(min2>buffer->benefit)
+			min2=buffer->benefit;
+		buffer=buffer->prev;
+		printf("min2:%f\n",min2);
+		//printf("1:%f\n",min2);
+	}
+	printf("I am out\n");
+	sleep(1);
     if(init==1){
 		for(i=0;i<10000;i++){
 			block_num[i]=-1;
@@ -4286,23 +4302,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				benefit_value[physical_block_num]=atof(substr);
 				} 				    
 		fclose(rnn);
-		lru_node *buffer,*tmp;
-		buffer=ptr_buffer_cache->ptr_head;
-		tmp=ptr_buffer_cache->ptr_head;
-		while(buffer!=NULL){
-			buffer->benefit=benefit_value[buffer->logical_node_num];
-			buffer=buffer->prev;
-		}
-		buffer=tmp;
-		while(buffer!=NULL){
-			if(buffer->benefit==0){
-				buffer->benefit=benefit_value[buffer->logical_node_num];
-		}
-			buffer=buffer->next;
-		}
-		buffer=tmp;
-		ptr_buffer_cache->ptr_head=buffer;
-		init=0;
+		
+		init=0;		
 	  }
 	else{		
 	}	  

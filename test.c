@@ -24,10 +24,11 @@ int main(){
 		a=a->next;
 	}
 	a=b;
-	
-	printf("1:%d\n",a->k);
-	printf("2:%d\n",a->next->k);
-	printf("3:%d\n",a->prev->k);
+	if(a->prev->prev==NULL){
+		printf("1:%p\n",a);
+		printf("2:%p\n",a->next);
+		printf("3:%p\n",a->prev->prev);
+		}
 	/*
 	char *tmp[100];
 	//strcpy(tmp,"ssss");
