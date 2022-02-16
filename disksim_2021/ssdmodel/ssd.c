@@ -3489,12 +3489,17 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
- /* while(c_node!=NULL){
-	if(Min>c_node->benefit)
+ /*end=ptr_buffer_cache->ptr_head;
+  while(c_node!=end && check_benefit[c_node->logical_node_num]==0){
+	if(Min>c_node->benefit){
 		Min=c_node->benefit;
-    printf("%f\n",Min);
-    c_node=c_node->next;
-  }*/
+		printf("%f\n",Min);
+		sleep(1);
+	}
+	check_benefit[c_node->logical_node_num]=1;
+    c_node=c_node->prev;
+  }
+  printf("leave loop\n");*/
   
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
@@ -4270,14 +4275,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		buffer->benefit=benefit_value[buffer->logical_node_num];
 		ptr_benefit_bool[buffer->logical_node_num]=1;
 		if(min2>buffer->benefit){
-			min2=buffer->benefit;
-			printf("min2:%f\n",min2);
-			sleep(1);
+			min2=buffer->benefit;	
+			FILE *wb=fopen("wb.txt","a+");
+			fprintf(wb,"%d %f\n",buffer->logical_node_num,min2);
+			fclose(wb);		
 		}
 		buffer=buffer->prev;		
 		//printf("1:%f\n",min2);
 	}
-	printf("I am out\n");
     if(init==1){
 		for(i=0;i<10000;i++){
 			block_num[i]=-1;
