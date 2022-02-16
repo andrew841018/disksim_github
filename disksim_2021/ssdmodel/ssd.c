@@ -4205,6 +4205,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 double min2=100000;
+unsigned int ptr_benefit_bool[100000000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -4265,16 +4266,18 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	buffer=ptr_buffer_cache->ptr_head;
 	if(buffer!=NULL)
 		temp=ptr_buffer_cache->ptr_head->next;
-	while(ptr_buffer_cache->ptr_head!=NULL && buffer!=temp){
+	while(ptr_buffer_cache->ptr_head!=NULL && buffer!=temp && ptr_benefit_bool[buffer->logical_node_num]==0){
 		buffer->benefit=benefit_value[buffer->logical_node_num];
-		if(min2>buffer->benefit)
+		ptr_benefit_bool[buffer->logical_node_num]=1;
+		if(min2>buffer->benefit){
 			min2=buffer->benefit;
-		buffer=buffer->prev;
-		printf("min2:%f\n",min2);
+			printf("min2:%f\n",min2);
+			sleep(1);
+		}
+		buffer=buffer->prev;		
 		//printf("1:%f\n",min2);
 	}
 	printf("I am out\n");
-	sleep(1);
     if(init==1){
 		for(i=0;i<10000;i++){
 			block_num[i]=-1;
