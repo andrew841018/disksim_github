@@ -3491,6 +3491,7 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
   end=ptr_buffer_cache->ptr_head;
+  /*
   while(c_node!=end && check_benefit[c_node->logical_node_num]==0){
 	if(Min>c_node->benefit){
 		Min=c_node->benefit;
@@ -3500,7 +3501,7 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 	}
 	check_benefit[c_node->logical_node_num]=1;
     c_node=c_node->prev;
-  }
+  }*/
   
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
@@ -4115,6 +4116,8 @@ void write_benefit_to_txt(int g){
 }
 unsigned int count,blkno;
 unsigned int physical_node_num, phy_node_offset;
+lru_node *buffer=NULL,*temp=NULL;
+int enter_count=0;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -4126,7 +4129,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
-  
+  enter_count++;
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -4151,12 +4154,27 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
+  //it seems like when logical_node_num=1 and benefit=0.000000, buffer will equal to temp
+  while(buffer!=temp && buffer!=NULL){
+	  if(buffer->logical_node_num==1){
+		printf("%d %f enter_count:%d\n",buffer->logical_node_num,buffer->benefit,enter_count);
+		exit(0);
+		FILE *wb=fopen("c_node.txt","a+");
+		fprintf(wb,"%d %f enter_count:%d\n",buffer->logical_node_num,buffer->benefit,enter_count);
+		fclose(wb);
+		  }
+	 /* if(min>buffer->benefit){
+		  min=buffer->benefit;	  		  
+	  }*/
+	buffer=buffer->prev;
+  }
   int i;
-  for(i=0;i<sizeof(benefit_value)/sizeof(benefit_value[0]);i++){
+  
+  /*for(i=0;i<sizeof(benefit_value)/sizeof(benefit_value[0]);i++){
     if(benefit_value[i]!=0 && min>benefit_value[i]){
       min=benefit_value[i];
     }
-  }
+  }*/
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -4224,10 +4242,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  /*
-  FILE *wb=fopen("wb.txt","a+");
-  fprintf(wb,"%d\n",Pg_node->logical_node_num);
-  fclose(wb);*/
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
@@ -4265,26 +4279,30 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}  		
 	}    
 	fprintf(t,"%d ",physical_node_num);	
-	int b=0;
-	//ptr_buffer_cache->ptr_head is circular link list!!!!
-	
-	lru_node *buffer=NULL,*temp=NULL;
+	int b=0,count=0;
+	//ptr_buffer_cache->ptr_head is circular link list!!!!	
 	buffer=ptr_buffer_cache->ptr_head;
 	if(buffer!=NULL)
 		temp=ptr_buffer_cache->ptr_head->next;
 	while(ptr_buffer_cache->ptr_head!=NULL && buffer!=temp && ptr_benefit_bool[buffer->logical_node_num]==0){
 		buffer->benefit=benefit_value[buffer->logical_node_num];
 		ptr_benefit_bool[buffer->logical_node_num]=1;
+		//FILE *wb=fopen("c_node.txt","a+");
+		//fprintf(wb,"%d %f\n",buffer->logical_node_num,buffer->benefit);
+		//fclose(wb);		
 		if(min2>buffer->benefit){
-			min2=buffer->benefit;	
+			min2=buffer->benefit;			
 			/*FILE *wb=fopen("wb.txt","a+");
 			fprintf(wb,"%d %f\n",buffer->logical_node_num,min2);
 			fclose(wb);		*/
+			
+			//printf("%f\n",buffer->benefit);
 		}
 		buffer=buffer->prev;		
 		//printf("1:%f\n",min2);
 	}
-    if(init==1){
+	buffer=ptr_buffer_cache->ptr_head;
+    if(init==1){	
 		for(i=0;i<10000;i++){
 			block_num[i]=-1;
 	    }
