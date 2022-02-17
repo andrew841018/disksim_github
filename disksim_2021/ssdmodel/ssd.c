@@ -3484,24 +3484,29 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   int strip_way=-1;
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0,channel_num_Lg=0,plane_Lg=0;
   unsigned int offset_in_node,logical_add;
-  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2,*end;
+  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2,*end,*curr;
   int j,k,m,flagcheck=0,tempc=0,tempp=0,state0LRU=0,state0SIZE=0;
   int seq = 0, seq_temp = 0, block_pcount=0;
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
   end=ptr_buffer_cache->ptr_head;
-  /*
+  int g;
   while(c_node!=end && check_benefit[c_node->logical_node_num]==0){
-	if(Min>c_node->benefit){
-		Min=c_node->benefit;
-		FILE *wb=fopen("c_node.txt","a+");
-		fprintf(wb,"%d %f\n",c_node->logical_node_num,Min);
+	if(Min>benefit_value[c_node->logical_node_num]){
+		Min=benefit_value[c_node->logical_node_num];
+		curr=c_node;
+		FILE *wb=fopen("wb.txt","a+");
+		fprintf(wb,"%d %f\n",c_node->logical_node_num,benefit_value[c_node->logical_node_num]);
 		fclose(wb);
+		if(c_node->logical_node_num==81929){
+			g=333;
+		}
 	}
 	check_benefit[c_node->logical_node_num]=1;
     c_node=c_node->prev;
-  }*/
+  }
+  c_node=curr;
   
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
@@ -3519,6 +3524,7 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   int EW = (int)(ptr_buffer_cache->total_buffer_block_num * EVICTWINDOW);
   //fprintf(myoutput, "ptr_buffer_cache->total_buffer_block_num:%d\n",ptr_buffer_cache->total_buffer_block_num);
   if(EW<64)EW=64;
+  //stock at there.....!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   for(i=0;i<EW;i++)//from lru find 64 node
   {
     int pagecount=0,exist1=0;
@@ -3679,6 +3685,7 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
         c_node->hint_notrepeat = 0;
         for(j=0;j<LRUSIZE;j++)//from lru node find 64 page
         {
+			printf("%d\n",j);
           if(c_node->page[j].exist == 1)
           {
             pagecount++;
@@ -4155,19 +4162,19 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     blkno += scount;
   }
   //it seems like when logical_node_num=1 and benefit=0.000000, buffer will equal to temp
-  while(buffer!=temp && buffer!=NULL){
-	  if(buffer->logical_node_num==1){
-		printf("%d %f enter_count:%d\n",buffer->logical_node_num,buffer->benefit,enter_count);
-		exit(0);
-		FILE *wb=fopen("c_node.txt","a+");
-		fprintf(wb,"%d %f enter_count:%d\n",buffer->logical_node_num,buffer->benefit,enter_count);
-		fclose(wb);
-		  }
-	 /* if(min>buffer->benefit){
-		  min=buffer->benefit;	  		  
-	  }*/
+  //buffer->benefit in 4157 and in 4162 is different
+  
+ /* while(buffer!=temp && buffer!=NULL){
+	  physical_block_number=buffer->logical_node_num;
+	  correspond_benefit=buffer->benefit;
+	  if(min>correspond_benefit){
+		  min=correspond_benefit;	  
+		  FILE *wb=fopen("c_node.txt","a+");
+		  fprintf(wb,"%d %f enter_count:%d\n",physical_block_number,correspond_benefit,enter_count);
+		  fclose(wb);		  
+	  }
 	buffer=buffer->prev;
-  }
+  }*/
   int i;
   
   /*for(i=0;i<sizeof(benefit_value)/sizeof(benefit_value[0]);i++){
@@ -4256,6 +4263,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	tmp1[12]=curr1->w_count;	
 	FILE *t=fopen("info(run1_Postmark_2475).txt","w");
 	//arrive time,blkno,busno,r_count,write_count,physcial_node_num,block_write_count
+	lru_node *temporary=NULL;
 	fprintf(t,"%f ",tmp[0]);
 	ignore[0]=0;
 	ignore[1]=1;
@@ -4282,6 +4290,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	int b=0,count=0;
 	//ptr_buffer_cache->ptr_head is circular link list!!!!	
 	buffer=ptr_buffer_cache->ptr_head;
+	temporary=ptr_buffer_cache->ptr_head;
 	if(buffer!=NULL)
 		temp=ptr_buffer_cache->ptr_head->next;
 	while(ptr_buffer_cache->ptr_head!=NULL && buffer!=temp && ptr_benefit_bool[buffer->logical_node_num]==0){
@@ -4301,7 +4310,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		buffer=buffer->prev;		
 		//printf("1:%f\n",min2);
 	}
-	buffer=ptr_buffer_cache->ptr_head;
+	if(temporary!=NULL)
+		buffer=temporary;
     if(init==1){	
 		for(i=0;i<10000;i++){
 			block_num[i]=-1;
