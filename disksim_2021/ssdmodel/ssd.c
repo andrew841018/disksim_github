@@ -5161,7 +5161,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     a_node=a_node->next;
   }
 	current_block[channel_num][plane].ptr_lru_node = min_node;
-	current_block[channel_num][plane].offset_in_node = min_node->current_mark_offset;
+	current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->ptr_current_mark_node;
 
 	assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
