@@ -3490,7 +3490,7 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
-  end=ptr_buffer_cache->ptr_head;
+ /* end=ptr_buffer_cache->ptr_head;
   int g;
   while(c_node!=end && check_benefit[c_node->logical_node_num]==0){
 	if(Min>benefit_value[c_node->logical_node_num]){
@@ -3506,7 +3506,7 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 	check_benefit[c_node->logical_node_num]=1;
     c_node=c_node->prev;
   }
-  c_node=curr;
+  c_node=curr;*/
   
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
@@ -3685,7 +3685,6 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
         c_node->hint_notrepeat = 0;
         for(j=0;j<LRUSIZE;j++)//from lru node find 64 page
         {
-			printf("%d\n",j);
           if(c_node->page[j].exist == 1)
           {
             pagecount++;
@@ -4175,13 +4174,9 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	  }
 	buffer=buffer->prev;
   }*/
-  int i;
   
-  /*for(i=0;i<sizeof(benefit_value)/sizeof(benefit_value[0]);i++){
-    if(benefit_value[i]!=0 && min>benefit_value[i]){
-      min=benefit_value[i];
-    }
-  }*/
+  int i;
+
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -5195,7 +5190,13 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     //printf("3159 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
     return;
   }
+  //the following condition is used for detect current_block node is exist or not-->is the current_block exist
+  //the prgram must enter this condition....(add by andrew)
   
+  
+  /*if(ptr_buffer_cache->total_buffer_page_num >ptr_buffer_cache->max_buffer_page_num){
+		int kkk=333;
+  }*/
 
 	//mark write intensive node
 	current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
@@ -5442,7 +5443,7 @@ void kick_read_intensive_page_from_buffer_cache(ioreq_event *curr,unsigned int c
 }
 
 void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache,int flag)
-{
+{	
   //glob_bc=ptr_buffer_cache;
   //check_which_node_to_evict(ptr_buffer_cache);
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0;
@@ -5454,7 +5455,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
    * when the cache is not full,we return it to the parent request directly
    * it represent we don't have to write any page to ssd
    * */
-  
   if(ptr_buffer_cache->total_buffer_page_num <= ptr_buffer_cache->max_buffer_page_num)
   {
    //printf("<= max_buffer_page_num\n");
@@ -5469,6 +5469,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //沒有滿，不需要踢，所以結束
     return ;
   }
+  
   /*
    * the are code is kick the page of the last block in the lru list 
    sh--just BPLRU
