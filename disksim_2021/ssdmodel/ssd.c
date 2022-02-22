@@ -58,7 +58,7 @@ int have_hinted_node=0;
 int kick_channel_times=0;
 unsigned int kick_count=0;
 int kick_channel_num=0;
-
+int fix_striping=0;//add by andrew
 int LPN_RWtimes[1000000][2]={0};//0:read count/1:write count
 int LPN_pageRtimes[100000000]={0};//read count
 unsigned int channel_plane_write_count[8][8]={0};
