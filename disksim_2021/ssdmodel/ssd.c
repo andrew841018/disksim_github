@@ -2881,7 +2881,6 @@ double benefit[1000000];
 int benefit_bool[1000000]={0};
 long long unsigned int  physical_block_bool[10000000]={0};
 double benefit_value[10000000]={0};
-double min=10000;
 int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 {
   int my_threshod=0;
@@ -3490,24 +3489,6 @@ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
- /* end=ptr_buffer_cache->ptr_head;
-  int g;
-  while(c_node!=end && check_benefit[c_node->logical_node_num]==0){
-	if(Min>benefit_value[c_node->logical_node_num]){
-		Min=benefit_value[c_node->logical_node_num];
-		curr=c_node;
-		FILE *wb=fopen("wb.txt","a+");
-		fprintf(wb,"%d %f\n",c_node->logical_node_num,benefit_value[c_node->logical_node_num]);
-		fclose(wb);
-		if(c_node->logical_node_num==81929){
-			g=333;
-		}
-	}
-	check_benefit[c_node->logical_node_num]=1;
-    c_node=c_node->prev;
-  }
-  c_node=curr;*/
-  
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
   int c=0, state=-1, locate_r = 100000, size_w=100000, locate_z=100000, zero_node_size=0, rep_size=100000, all_size=100000;
@@ -4160,20 +4141,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
-  //it seems like when logical_node_num=1 and benefit=0.000000, buffer will equal to temp
-  //buffer->benefit in 4157 and in 4162 is different
-  
- /* while(buffer!=temp && buffer!=NULL){
-	  physical_block_number=buffer->logical_node_num;
-	  correspond_benefit=buffer->benefit;
-	  if(min>correspond_benefit){
-		  min=correspond_benefit;	  
-		  FILE *wb=fopen("c_node.txt","a+");
-		  fprintf(wb,"%d %f enter_count:%d\n",physical_block_number,correspond_benefit,enter_count);
-		  fclose(wb);		  
-	  }
-	buffer=buffer->prev;
-  }*/
   
   int i;
 
@@ -4231,7 +4198,6 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 double min2=100000;
-unsigned int ptr_benefit_bool[100000000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -4284,30 +4250,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	fprintf(t,"%d ",physical_node_num);	
 	int b=0,count=0;
 	//ptr_buffer_cache->ptr_head is circular link list!!!!	
-	buffer=ptr_buffer_cache->ptr_head;
-	temporary=ptr_buffer_cache->ptr_head;
-	if(buffer!=NULL)
-		temp=ptr_buffer_cache->ptr_head->next;
-	while(ptr_buffer_cache->ptr_head!=NULL && buffer!=temp && ptr_benefit_bool[buffer->logical_node_num]==0){
-		buffer->benefit=benefit_value[buffer->logical_node_num];
-		ptr_benefit_bool[buffer->logical_node_num]=1;
-		//FILE *wb=fopen("c_node.txt","a+");
-		//fprintf(wb,"%d %f\n",buffer->logical_node_num,buffer->benefit);
-		//fclose(wb);		
-		if(min2>buffer->benefit){
-			min2=buffer->benefit;			
-			/*FILE *wb=fopen("wb.txt","a+");
-			fprintf(wb,"%d %f\n",buffer->logical_node_num,min2);
-			fclose(wb);		*/
-			
-			//printf("%f\n",buffer->benefit);
-		}
-		buffer=buffer->prev;		
-		//printf("1:%f\n",min2);
-	}
-	if(temporary!=NULL)
-		buffer=temporary;
-    if(init==1){	
+  if(init==1){	
 		for(i=0;i<10000;i++){
 			block_num[i]=-1;
 	    }
@@ -5158,7 +5101,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 
 
 
-
+double min=10000;
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
 {
      //trigger_mark_count++; //sinhome
@@ -5199,8 +5142,27 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
   }*/
 
 	//mark write intensive node
-	current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
-	current_block[channel_num][plane].offset_in_node = ptr_buffer_cache->current_mark_offset;
+  lru_node *tmp,*a_node,*min_node;
+  tmp=ptr_buffer_cache->ptr_current_mark_node->prev;
+  a_node=ptr_buffer_cache->ptr_current_mark_node;
+  while(tmp!=a_node){
+    a_node->benefit=benefit_value[a_node->logical_node_num];
+    if(min>a_node->benefit){
+      min=a_node->benefit;
+      min_node=a_node;
+    }
+    a_node=a_node->next;
+  }
+  a_node=ptr_buffer_cache->ptr_current_mark_node;
+  while(tmp!=a_node){
+    if(a_node==min_node){
+      a_node->benefit=0;
+    }
+    a_node=a_node->next;
+  }
+	current_block[channel_num][plane].ptr_lru_node = min_node;
+	current_block[channel_num][plane].offset_in_node = min_node->current_mark_offset;
+
 	assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(1)
