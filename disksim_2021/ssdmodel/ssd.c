@@ -4105,6 +4105,7 @@ unsigned int count,blkno;
 unsigned int physical_node_num, phy_node_offset;
 lru_node *buffer=NULL,*temp=NULL;
 int enter_count=0;
+double min=10000;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -4117,6 +4118,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   lru_node *lru;
   int flag;
   enter_count++;
+  int i;
+ 
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -4142,36 +4145,25 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     blkno += scount;
   }
   
-  int i;
- /* lru_node *tmp,*a_node,*min_node;
-  tmp=ptr_buffer_cache->ptr_current_mark_node->prev;
-  a_node=ptr_buffer_cache->ptr_current_mark_node;
-  while(tmp!=a_node){
-    a_node->benefit=benefit_value[a_node->logical_node_num];
-    if(min>a_node->benefit){
-      min=a_node->benefit;
-      min_node=a_node;
-    }
-    a_node=a_node->next;
-  }
-  a_node=ptr_buffer_cache->ptr_current_mark_node;
-  while(tmp!=a_node){
-    if(a_node==min_node){
-      a_node->benefit=0;
-    }
-    a_node=a_node->next;
-  }
-	current_block[channel_num][plane].ptr_lru_node = min_node;
-  for(i=0;i<LRUSIZE;i++){
-    if(min_node->page[i].exist==1){//exist but not marked
-      min_node->page[i].exist=2;
-      ptr_buffer_cache->current_mark_offset=i;
-      min_node->page[i].channel_num=channel_num;
-      min_node->page[i].plane=plane;
-      min_node->page[i].strip=fix_striping;
-      min_node->page[i].ptr_self_lru_node=min_node;
-    }
-  }*/
+  /*
+   ******************
+  lru_node *tmp,*a_node,*min_node;
+	tmp=ptr_buffer_cache->ptr_head;
+	a_node=ptr_buffer_cache->ptr_head->prev;
+	while(tmp!=a_node){
+		if(benefit_value[a_node->logical_node_num]!=0)
+			a_node->benefit=benefit_value[a_node->logical_node_num];
+		if(min>a_node->benefit){
+			min=a_node->benefit;
+			min_node=a_node;
+			a_node->benefit=10;
+		}
+		a_node=a_node->prev;
+	}
+	ptr_buffer_cache->ptr_head->prev=min_node;
+  */
+  
+  
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -4181,7 +4173,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 
       //int strip_way=-1;
       //strip_way=check_which_node_to_evict(ptr_buffer_cache);
-      ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev->prev;
+      ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev;
       ptr_buffer_cache->current_mark_offset = 0;
       mark_for_all_current_block (ptr_buffer_cache);
       full_cache = 1;
@@ -4718,6 +4710,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 {
   //printf("innn add node | flag=%d \n", flag);
   //fprintf(lpb_ppn, "add_a_node_to_buffer_cache\t");
+  
 	lru_node *ptr_node;
 	ptr_node = malloc(sizeof(lru_node));
 	assert(ptr_node);
@@ -4847,6 +4840,8 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 	//printf("innn|flag=%d\n",flag);
   //fprintf(lpb_ppn, "%d\n", ptr_lru_node->logical_node_num*LRUSIZE + offset_in_node);
   //fprintf(lpb_ppn, "node=%d\toff=%d\n", ptr_lru_node->logical_node_num, offset_in_node);
+  
+  
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
 	{
     //fprintf(lpb_ppn, "w_hit_count ++\tw_hit_count=%d\t", ptr_buffer_cache->w_hit_count);
@@ -5129,7 +5124,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 
 
 
-double min=10000;
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
 {
      //trigger_mark_count++; //sinhome
