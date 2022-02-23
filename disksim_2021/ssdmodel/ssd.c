@@ -5161,6 +5161,12 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     a_node=a_node->next;
   }
 	current_block[channel_num][plane].ptr_lru_node = min_node;
+  for(i=0;i<LRUSIZE;i++){
+    if(min_node->page[i].exist==1){//exist but not marked
+      min_node->page[i].exist=2;
+      ptr_buffer_cache->current_mark_offset=i;
+    }
+  }
 	current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
 
 	assert(current_block[channel_num][plane].current_mark_count == 0);
