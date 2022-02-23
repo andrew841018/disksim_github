@@ -4143,7 +4143,35 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   }
   
   int i;
-
+ /* lru_node *tmp,*a_node,*min_node;
+  tmp=ptr_buffer_cache->ptr_current_mark_node->prev;
+  a_node=ptr_buffer_cache->ptr_current_mark_node;
+  while(tmp!=a_node){
+    a_node->benefit=benefit_value[a_node->logical_node_num];
+    if(min>a_node->benefit){
+      min=a_node->benefit;
+      min_node=a_node;
+    }
+    a_node=a_node->next;
+  }
+  a_node=ptr_buffer_cache->ptr_current_mark_node;
+  while(tmp!=a_node){
+    if(a_node==min_node){
+      a_node->benefit=0;
+    }
+    a_node=a_node->next;
+  }
+	current_block[channel_num][plane].ptr_lru_node = min_node;
+  for(i=0;i<LRUSIZE;i++){
+    if(min_node->page[i].exist==1){//exist but not marked
+      min_node->page[i].exist=2;
+      ptr_buffer_cache->current_mark_offset=i;
+      min_node->page[i].channel_num=channel_num;
+      min_node->page[i].plane=plane;
+      min_node->page[i].strip=fix_striping;
+      min_node->page[i].ptr_self_lru_node=min_node;
+    }
+  }*/
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -4153,7 +4181,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 
       //int strip_way=-1;
       //strip_way=check_which_node_to_evict(ptr_buffer_cache);
-      ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev;
+      ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev->prev;
       ptr_buffer_cache->current_mark_offset = 0;
       mark_for_all_current_block (ptr_buffer_cache);
       full_cache = 1;
@@ -5142,35 +5170,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
   }*/
 
 	//mark write intensive node
-  lru_node *tmp,*a_node,*min_node;
-  tmp=ptr_buffer_cache->ptr_current_mark_node->prev;
-  a_node=ptr_buffer_cache->ptr_current_mark_node;
-  while(tmp!=a_node){
-    a_node->benefit=benefit_value[a_node->logical_node_num];
-    if(min>a_node->benefit){
-      min=a_node->benefit;
-      min_node=a_node;
-    }
-    a_node=a_node->next;
-  }
-  a_node=ptr_buffer_cache->ptr_current_mark_node;
-  while(tmp!=a_node){
-    if(a_node==min_node){
-      a_node->benefit=0;
-    }
-    a_node=a_node->next;
-  }
-	current_block[channel_num][plane].ptr_lru_node = min_node;
-  for(i=0;i<LRUSIZE;i++){
-    if(min_node->page[i].exist==1){//exist but not marked
-      min_node->page[i].exist=2;
-      ptr_buffer_cache->current_mark_offset=i;
-      min_node->page[i].channel_num=channel_num;
-      min_node->page[i].plane=plane;
-      min_node->page[i].strip=fix_striping;
-      min_node->page[i].ptr_self_lru_node=min_node;
-    }
-  }
+	current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
 	current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
 
 	assert(current_block[channel_num][plane].current_mark_count == 0);
