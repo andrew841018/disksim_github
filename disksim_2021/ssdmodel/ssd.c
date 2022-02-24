@@ -4205,7 +4205,6 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   lru_node *ptr_lru_node = NULL;
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
-  
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
 
   while(1)
