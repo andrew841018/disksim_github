@@ -5068,7 +5068,7 @@ void add_page_striping_page_to_channel(unsigned int page_offset,lru_node *ptr_lr
   {
     current_block[channel_num][plane].current_mark_count ++;
   }
-  else  
+  else 
   {
     printf("current_block[%d][%d].current_mark_count < SSD_DATA_PAGES_PER_BLOCK(currdisk) = %d\n", channel_num, plane, current_block[channel_num][plane].current_mark_count);
     assert(0);
