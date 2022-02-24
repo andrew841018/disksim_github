@@ -5142,7 +5142,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
 {
      //trigger_mark_count++; //sinhome
-  //printf("mark_for_specific_current_block\n");
+  //printf("mark_for_specific_current_block\n"); 
   int outout=0,i;
     /*sh-- check again: no pages feed for this cur blk */
 	if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL || current_block[channel_num][plane].current_mark_count != 0)
