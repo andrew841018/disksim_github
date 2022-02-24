@@ -5143,6 +5143,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     return;
   }
 	  double min=10000;
+	  //printf(" %d %f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->benefit);
 	  lru_node *tmp,*a_node,*min_node=NULL;
 		tmp=ptr_buffer_cache->ptr_current_mark_node->next;
 		a_node=ptr_buffer_cache->ptr_current_mark_node;
@@ -5153,16 +5154,16 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 				if(min>a_node->benefit){
 					min=a_node->benefit;
 					min_node=a_node;
-					
+					printf("%f\n",a_node->benefit);					
 				}
 		}
 			a_node=a_node->prev;
 		}
-		printf("enter there:  benefit:%f %d\n",min_node->benefit,min_node->logical_node_num);
+		printf("enter there:  benefit:%f %d \n",min_node->benefit,min_node->logical_node_num);
 		sleep(1);
 		if(min_node!=NULL){
 			min_node->benefit=10;
-			ptr_buffer_cache->ptr_current_mark_node=min_node;		
+			ptr_buffer_cache->ptr_current_mark_node=min_node;
 		}
 	  
 
