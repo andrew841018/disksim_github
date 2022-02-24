@@ -4116,6 +4116,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
+  int exist1;
   enter_count++;
   int i;
  
@@ -4156,28 +4157,28 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 
       //int strip_way=-1;
       //strip_way=check_which_node_to_evict(ptr_buffer_cache);
-		lru_node *tmp,*a_node,*min_node;
-		tmp=ptr_buffer_cache->ptr_head;
-		a_node=ptr_buffer_cache->ptr_head->prev;
-		while(tmp!=a_node){
-			int exist1=0;
-			for(i=0;i<LRUSIZE;i++){
-				if(a_node->page[i].exist!=0){
-				  exist1=1;
-				  break;
-				}
-			}
-			if(benefit_value[a_node->logical_node_num]!=0 && exist1==1){
-				a_node->benefit=benefit_value[a_node->logical_node_num];  
-				if(min>a_node->benefit){
-					min=a_node->benefit;
-					min_node=a_node;
-					a_node->benefit=10;
-				  }
-			}
-			a_node=a_node->prev;
-		}
-	  ptr_buffer_cache->ptr_head->prev=min_node;
+      lru_node *tmp,*a_node,*min_node;
+      tmp=ptr_buffer_cache->ptr_head;
+      a_node=ptr_buffer_cache->ptr_head->prev;
+      while(tmp!=a_node){
+        exist1=0;
+        for(i=0;i<LRUSIZE;i++){
+          if(a_node->page[i].exist!=0){
+            exist1=1;
+            break;
+          }
+        }
+        if(benefit_value[a_node->logical_node_num]!=0 && exist1==1){
+          a_node->benefit=benefit_value[a_node->logical_node_num];  
+          if(min>a_node->benefit){
+            min=a_node->benefit;
+            min_node=a_node;
+            a_node->benefit=10;
+            }
+        }
+        a_node=a_node->prev;
+      }
+      ptr_buffer_cache->ptr_head->prev=min_node;
       ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev;
       ptr_buffer_cache->current_mark_offset = 0;
       mark_for_all_current_block (ptr_buffer_cache);
@@ -4185,26 +4186,26 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     }
     else if( full_cache == 1)
     {		
-		lru_node *tmp,*a_node,*min_node;
-		tmp=ptr_buffer_cache->ptr_head;
-		a_node=ptr_buffer_cache->ptr_head->prev;
-		while(tmp!=a_node){
-			int exist1=0;
-			for(i=0;i<LRUSIZE;i++){
-				if(a_node->page[i].exist!=0){
-				  exist1=1;
-				  break;
-				}
-			}
-			if(benefit_value[a_node->logical_node_num]!=0 && exist1==1){
-				a_node->benefit=benefit_value[a_node->logical_node_num];  
-				if(min>a_node->benefit){
-					min=a_node->benefit;
-					min_node=a_node;
-					a_node->benefit=10;
-				  }
-			}
-			a_node=a_node->prev;
+      lru_node *tmp,*a_node,*min_node;
+      tmp=ptr_buffer_cache->ptr_head;
+      a_node=ptr_buffer_cache->ptr_head->prev;
+      while(tmp!=a_node){
+        exist1=0;
+        for(i=0;i<LRUSIZE;i++){
+          if(a_node->page[i].exist!=0){
+            exist1=1;
+            break;
+          }
+        }
+        if(benefit_value[a_node->logical_node_num]!=0 && exist1==1){
+          a_node->benefit=benefit_value[a_node->logical_node_num];  
+          if(min>a_node->benefit){
+            min=a_node->benefit;
+            min_node=a_node;
+            a_node->benefit=10;
+            }
+        }
+        a_node=a_node->prev;
 		}
 	  ptr_buffer_cache->ptr_head->prev=min_node;  
       mark_for_all_current_block(ptr_buffer_cache);
@@ -5249,6 +5250,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       break;
     }
 		ptr_buffer_cache->current_mark_offset ++;
+    printf("%d\n",ptr_buffer_cache->current_mark_offset);
+    sleep(1);
     //printf("ptr_buffer_cache->current_mark_offset=%d\n", ptr_buffer_cache->current_mark_offset);
 		//when need  find new buffer page is marked
 
