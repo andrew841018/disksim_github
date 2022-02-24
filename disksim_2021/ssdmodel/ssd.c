@@ -4104,10 +4104,11 @@ unsigned int count,blkno;
 unsigned int physical_node_num, phy_node_offset;
 lru_node *buffer=NULL,*temp=NULL;
 int enter_count=0;
-double min=10000;
+
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
+  double min=10000;
   static int full_cache = 0;
   unsigned int lpn,scount; //sector count
   ssd_t *currdisk;
@@ -4116,9 +4117,9 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
+  int exist1;
   enter_count++;
   int i;
- 
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -4161,13 +4162,21 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		tmp=ptr_buffer_cache->ptr_head;
 		a_node=ptr_buffer_cache->ptr_head->prev;
 		while(tmp!=a_node){
-			if(benefit_value[a_node->logical_node_num]!=0)
-				a_node->benefit=benefit_value[a_node->logical_node_num];
-			if(min>a_node->benefit){
-				min=a_node->benefit;
-				min_node=a_node;
-				a_node->benefit=10;
+			exist1=0;
+			for(i=0;i<LRUSIZE;i++){
+				if(a_node->page[i].exist==1){
+					exist1=1;
+					break;
+				}
 			}
+			if(benefit_value[a_node->logical_node_num]!=0 && exist1==1){
+				a_node->benefit=benefit_value[a_node->logical_node_num];
+				if(min>a_node->benefit){
+					min=a_node->benefit;
+					min_node=a_node;
+					a_node->benefit=10;
+				}
+		}
 			a_node=a_node->prev;
 		}
 		ptr_buffer_cache->ptr_head->prev=min_node;
@@ -4184,17 +4193,25 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		tmp=ptr_buffer_cache->ptr_head;
 		a_node=ptr_buffer_cache->ptr_head->prev;
 		while(tmp!=a_node){
-			if(benefit_value[a_node->logical_node_num]!=0)
-				a_node->benefit=benefit_value[a_node->logical_node_num];
-			if(min>a_node->benefit){
-				min=a_node->benefit;
-				min_node=a_node;
-				a_node->benefit=10;
+			exist1=0;
+			for(i=0;i<LRUSIZE;i++){
+				if(a_node->page[i].exist==1){
+					exist1=1;
+					break;
+				}
 			}
+			if(benefit_value[a_node->logical_node_num]!=0 && exist1==1){
+				a_node->benefit=benefit_value[a_node->logical_node_num];
+				if(min>a_node->benefit){
+					min=a_node->benefit;
+					min_node=a_node;
+					a_node->benefit=10;
+				}
+		}
 			a_node=a_node->prev;
 		}
 		ptr_buffer_cache->ptr_head->prev=min_node;
-  
+		 
       mark_for_all_current_block(ptr_buffer_cache);
     }
   } 
@@ -5131,6 +5148,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
+        printf("mark-->current_block[%d][%d].current_mark_count=%d\n",i,j,current_block[i][j].current_mark_count);
         //fprintf(outputssd,"after mark_for_specific_current_block\n");
       }
     }
@@ -5148,6 +5166,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 	if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL || current_block[channel_num][plane].current_mark_count != 0)
 	{
     //printf("3139 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
+    printf("a\n");
     return ;
   }
   //channel current_mark_count == 0 && channel ptr_read_intensive_buffer_page == NULL, 
@@ -5168,6 +5187,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 	if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL || current_block[channel_num][plane].current_mark_count != 0)
 	{
     //printf("3159 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
+    printf("b\n");
     return;
   }
   //the following condition is used for detect current_block node is exist or not-->is the current_block exist
@@ -5190,6 +5210,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		if(ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
 		{
       //printf("3174 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
+      printf("c\n");
       return;
     }
 
@@ -5198,20 +5219,21 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 				//printf("3489 %d:[%d]exist=%d\n", ptr_buffer_cache->ptr_current_mark_node->logical_node_num, ptr_buffer_cache->current_mark_offset, ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist);
 
 		}
-		//mark a write intensive request
+		//mark a write intensive request 
+		printf("lpn:%d exist:%d strip_way:%d offset:%d\n",ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].lpn,ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist,ptr_buffer_cache->ptr_current_mark_node->StripWay,ptr_buffer_cache->current_mark_offset);
 		if(ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist == 1 && ptr_buffer_cache->ptr_current_mark_node->StripWay==0)
 		{
 			ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist = 2;
 			ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].channel_num = channel_num;
 			ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].plane = plane;
-      ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].strip=2;//block striping
+			ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].strip=2;//block striping
       
       //bs++;
       //glob_bc.page[ptr_buffer_cache->current_mark_offset].strip=2;
       //h_data[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][ptr_buffer_cache->current_mark_offset]=2;
       //fprintf(lpb_ppn, "---%d[%d].channel=%d,plane=%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->current_mark_offset,channel_num,plane);
       //fprintf(cc, "---%d[%d].channel=%d,plane=%d block striping\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->current_mark_offset,channel_num,plane);
-      current_block[channel_num][plane].trigger=2;
+			current_block[channel_num][plane].trigger=2;
 			current_block[channel_num][plane].current_mark_count ++;
       
 		}
@@ -5226,6 +5248,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       }
       if(strip_way==-2||outout==1)
       {
+		printf("d\n");
         outout=1;
         break;
       }
@@ -5233,30 +5256,35 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     }
     if(outout==1)
     {
+	  printf("e\n");
       outout=0;
       break;
     }
 		ptr_buffer_cache->current_mark_offset ++;
     //printf("ptr_buffer_cache->current_mark_offset=%d\n", ptr_buffer_cache->current_mark_offset);
 		//when need  find new buffer page is marked
-
+		if(ptr_buffer_cache->current_mark_offset==LRUSIZE){
+				int g=1;
+		}
     //整個block marked，換下一個
 		if(ptr_buffer_cache->current_mark_offset == LRUSIZE && current_block[channel_num][plane].current_mark_count > 0)
 		{	
 			assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
-      //int strip_way = check_which_node_to_evict(ptr_buffer_cache); problem
+			//int strip_way = check_which_node_to_evict(ptr_buffer_cache); problem
 			ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
 			ptr_buffer_cache->current_mark_offset = 0;
-      kick_node++;
-      kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      //int strip_way=0;
-      int strip_way = check_which_node_to_evict(ptr_buffer_cache);    
-      while(strip_way==1)
-      {
-       // fprintf(lpb_ppn,"3390 while(ptr_buffer_cache->ptr_current_mark_node->group_type == 1)\n");
-        strip_way=mark_for_page_striping_node(ptr_buffer_cache);
-      }
-      //printf("3186 current_block[%d][%d].ptr_lru_node = %d|.current_mark_count=%d;\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
+			kick_node++;
+			kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
+			//int strip_way=0;
+			int strip_way = check_which_node_to_evict(ptr_buffer_cache);    
+			while(strip_way==1)
+			{
+			// fprintf(lpb_ppn,"3390 while(ptr_buffer_cache->ptr_current_mark_node->group_type == 1)\n");
+				printf("strip_way==1\n");
+				strip_way=mark_for_page_striping_node(ptr_buffer_cache);
+			}
+			//printf("3186 current_block[%d][%d].ptr_lru_node = %d|.current_mark_count=%d;\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
+			printf("f\n");
 			break;
 		}
 		else if(ptr_buffer_cache->current_mark_offset == LRUSIZE)
@@ -5278,10 +5306,12 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       if(strip_way==-2)
       {
         outout=1;
+        printf("g\n");
         break;
       }
       if(outout==1)
       {
+		printf("h\n");
         break;
       }
 			
@@ -5292,6 +5322,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 						ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
         {
           //printf("3201 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
+          printf("i\n");
           return ;
         }
 
@@ -5300,6 +5331,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL)
       {
         //printf("3209 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
+        printf("j\n");
         return ;
       }
 			current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
@@ -5309,6 +5341,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     if(outout==1)
     {
       outout=0;
+      printf("k\n");
       break;
     }
 
@@ -5317,6 +5350,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		if(current_block[channel_num][plane].current_mark_count + current_block[channel_num][plane].current_write_offset == SSD_DATA_PAGES_PER_BLOCK(currdisk))
     {
       //printf("3221 current_block[%d][%d].ptr_lru_node = %d|.current_mark_count=%d;\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
+      printf("l\n");
       break;
     }
 	}
@@ -5554,6 +5588,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         assert(0);
       }
       //curren_mark_count=write page count   
+      printf("current_block[%d][%d].current_mark_count=%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count);
+      sleep(1);
       //stock at there...
       if(current_block[channel_num][plane].current_mark_count == 0)
       {
