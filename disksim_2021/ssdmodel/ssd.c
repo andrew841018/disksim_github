@@ -4156,18 +4156,25 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 
       //int strip_way=-1;
       //strip_way=check_which_node_to_evict(ptr_buffer_cache);
-
+    int exist1=0;
 	  lru_node *tmp,*a_node,*min_node;
 		tmp=ptr_buffer_cache->ptr_head;
 		a_node=ptr_buffer_cache->ptr_head->prev;
 		while(tmp!=a_node){
-			if(benefit_value[a_node->logical_node_num]!=0)
-				a_node->benefit=benefit_value[a_node->logical_node_num];
-			if(min>a_node->benefit){
-				min=a_node->benefit;
-				min_node=a_node;
-				a_node->benefit=10;
-			}
+      for(i=0;i<LRUSIZE;i++){
+        if(a_node->page[i].exist!=0){
+          exist1=1;
+          break;
+        }
+      }
+			if(benefit_value[a_node->logical_node_num]!=0 && exist1==1){
+        a_node->benefit=benefit_value[a_node->logical_node_num];  
+        if(min>a_node->benefit){
+          min=a_node->benefit;
+          min_node=a_node;
+          a_node->benefit=10;
+			  }
+      }
 			a_node=a_node->prev;
 		}
 		ptr_buffer_cache->ptr_head->prev=min_node;
