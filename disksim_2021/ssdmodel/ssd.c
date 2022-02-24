@@ -5091,7 +5091,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  int i = 0,j = 0,count=0;
+  int i = 0,j = 0;
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
@@ -5100,7 +5100,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       {
 		//this function won't change ptr_current_mark_node until leave the function
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
-        printf("mark-->current_block[%d][%d].current_mark_count=%d count=%d\n",i,j,current_block[i][j].current_mark_count);
+        printf("mark-->current_block[%d][%d].current_mark_count=%d\n",i,j,current_block[i][j].current_mark_count);
         //fprintf(outputssd,"after mark_for_specific_current_block\n");
       }
     }
@@ -5144,7 +5144,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
   }
 	  double min=10000;
 	  lru_node *tmp,*a_node,*min_node=NULL;
-		tmp=ptr_buffer_cache->ptr_current_mark_node->head;
+		tmp=ptr_buffer_cache->ptr_current_mark_node->next;
 		a_node=ptr_buffer_cache->ptr_current_mark_node;
 		int count=0;
 		while(tmp!=a_node){		
@@ -5153,14 +5153,18 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 				if(min>a_node->benefit){
 					min=a_node->benefit;
 					min_node=a_node;
-					min_node->benefit=10;
+					
 				}
 		}
 			a_node=a_node->prev;
 		}
-		if(min_node!=NULL)
-			ptr_buffer_cache->ptr_current_mark_node=min_node;
-	  printf("enter there:\n",);
+		printf("enter there:  benefit:%f %d\n",min_node->benefit,min_node->logical_node_num);
+		sleep(1);
+		if(min_node!=NULL){
+			min_node->benefit=10;
+			ptr_buffer_cache->ptr_current_mark_node=min_node;		
+		}
+	  
 
 	//mark write intensive node
 	current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
@@ -5184,7 +5188,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 
 		}
 		//mark a write intensive request 
-		printf("block num:%d exist:%d strip_way:%d offset:%d count:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist,ptr_buffer_cache->ptr_current_mark_node->StripWay,ptr_buffer_cache->current_mark_offset);
+		printf("block num:%d exist:%d strip_way:%d offset:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist,ptr_buffer_cache->ptr_current_mark_node->StripWay,ptr_buffer_cache->current_mark_offset);
 		if(ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist == 1 && ptr_buffer_cache->ptr_current_mark_node->StripWay==0)
 		{
 			ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist = 2;
@@ -5550,7 +5554,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       }
       //curren_mark_count=write page count   
       printf("current_block[%d][%d].current_mark_count=%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count);
-      sleep(1);
       //stock at there...
       if(current_block[channel_num][plane].current_mark_count == 0)
       {
