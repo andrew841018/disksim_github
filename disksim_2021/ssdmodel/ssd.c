@@ -67,6 +67,7 @@ typedef struct _buffer_cache
 {
   struct _lru_node *ptr_head;         //lru list ,point to the group node head
   double benefit;
+  struct _profit *p;
   unsigned int total_buffer_page_num;     //current buffer page number in the cache
   unsigned int total_buffer_block_num;
   unsigned int max_buffer_page_num;     //max buffer page count
@@ -4110,7 +4111,6 @@ unsigned int count,blkno;
 unsigned int physical_node_num, phy_node_offset;
 lru_node *buffer=NULL,*temp=NULL;
 int enter_count=0;
-
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -5094,7 +5094,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   //strip_way = 1;
   return strip_way;
 }
-profit *order;
+
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0;
@@ -5115,7 +5115,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   } 
   double min;
   int channel,plane,b=0,count=0;
-  profit *order1;
+  profit *order1,*order;
   order=malloc(sizeof(profit));//from min benefit to max benefit
   order1=order;//store order address to order1
   while(1){
@@ -5143,8 +5143,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 }
 	//printf("out\n");
 	order=order1;
-	//why while(order!=NULL) error? 
-	
+	ptr_buffer_cache->p=order;
 }
 
 
@@ -5467,11 +5466,14 @@ void kick_read_intensive_page_from_buffer_cache(ioreq_event *curr,unsigned int c
 
 void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache,int flag)
 {	//why while(order!=NULL) error? 
-	while(order->next!=NULL && order->plane>=0 && order->plane<8 ){
-		printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
-		order=order->next;
-	}
-	sleep(1);
+	if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
+		profit *order=ptr_buffer_cache->p;
+		while(order->next!=NULL && order->plane>=0 && order->plane<8 ){
+			printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
+			order=order->next;
+		}
+		sleep(1);
+}
   //glob_bc=ptr_buffer_cache;
   //check_which_node_to_evict(ptr_buffer_cache);
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0;
@@ -5615,6 +5617,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
     //表示要寫入SSD的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
     //然後寫入的page index=offset_in_node. 
+    //disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
       /*
