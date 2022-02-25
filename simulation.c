@@ -13,7 +13,7 @@ typedef struct write_buffer
   int duration;
   int buffer_or_not;
   int sector_index;
-  int sector_num[64];;//total 64 page...each block ppn from 0~63
+  int sector_num[64];//total 64 page...each block ppn from 0~63
 }buf;
 int exist[1000000]={0};
 char tmp[1000000][1024];
