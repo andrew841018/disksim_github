@@ -101,7 +101,7 @@ typedef struct _profit{
 	int channel_num;
 	int plane;
 	double benefit;
-	struct _profit *next,*prev;
+	struct _profit *next;
 }profit;
 typedef struct  _lru_node
 {
@@ -5094,6 +5094,32 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   //strip_way = 1;
   return strip_way;
 }
+void insert_value(double benefit,buffer_cache *ptr_buffer_cache,int channel,int plane){
+  if(ptr_buffer_cache->p=NULL){
+    printf("error\n");
+    sleep(1);
+    return NULL;
+  }
+  profit *prev,*curr,*data,*head;
+  data->benefit=benefit;
+  date->channel_num=channel;
+  data->plane=plane;
+  curr=ptr_buffer_cache->p;
+  head=curr;
+  while(curr!= NULL && benefit>curr->benefit){
+    prev=curr;
+    curr=curr->next;
+  }
+  //means benefit is min in link list--->not enter while
+  data->next=curr;
+  if(curr==head){
+    ptr_buffer_cache->p=data;
+  }
+  else{
+    prev->next=data; 
+    ptr_buffer_cache->p=prev; 
+  }
+}
 int initial=1;
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
@@ -5115,12 +5141,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   } 
   double min;
   int channel,plane,b=0,count=0;
-  profit *order1,*order,*temp;
+  profit *order1,*order;
   if(initial==1){  
 	  order=malloc(sizeof(profit));//from min benefit to max benefit
   }
   else{
-	order=ptr_buffer_cache->p;
+	  order=ptr_buffer_cache->p;
   }
   order1=order;//store order address to order1
   while(1){
@@ -5128,35 +5154,31 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	  b=0;
 	  for(i=0;i<CHANNEL_NUM;i++){
 		  for(j=0;j<PLANE_NUM;j++){
-			if(min>tmp[i][j] && tmp[i][j]<10 && tmp[i][j]!=0){
-				min=tmp[i][j];
-				channel=i;
-				plane=j;
-				b=1;
-			}
+        if(min>tmp[i][j] && tmp[i][j]<10 && tmp[i][j]!=0){
+          min=tmp[i][j];
+          channel=i;
+          plane=j;
+          b=1;
+        }
 		  }
 	  }
 	  if(b==0){
 		break;			  
 	}
-	while(initial==0){
-		if(min<order->benefit){
-			break;
-		}
-		else if(min>order->benefit){
-			order=order->next;
-		}
-		if(min>order->benefit && min<order->next->benefit){
-				//remove 
-		}
-	}
-	
-	  order->channel_num=channel;
-	  order->plane=plane;
-	  order->benefit=tmp[channel][plane];
-	  tmp[channel][plane]=10;
-	  order->next=malloc(sizeof(profit));
-	  order=order->next;
+    
+
+    if(initial==1){
+      order->channel_num=channel;
+      order->plane=plane;
+      order->benefit=tmp[channel][plane];
+      tmp[channel][plane]=10;
+      order->next=malloc(sizeof(profit));
+      order=order->next;
+    }
+    else{
+      insert_value(min,ptr_buffer_cache,channel,plane);
+      tmp[channel][plane]=10;
+    }
 }
 	//printf("out\n");
 	order=order1;
@@ -5166,8 +5188,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 
 
 
-void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
 {
+void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");
   int outout=0,i;
