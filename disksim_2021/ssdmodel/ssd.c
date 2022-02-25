@@ -5465,15 +5465,15 @@ void kick_read_intensive_page_from_buffer_cache(ioreq_event *curr,unsigned int c
 }
 
 void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache,int flag)
-{	//why while(order!=NULL) error? 
-	if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
+{	//why while(order!=NULL) error? 	
+	/*if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
 		profit *order=ptr_buffer_cache->p;
 		while(order->next!=NULL && order->plane>=0 && order->plane<8 ){
 			printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
 			order=order->next;
 		}
 		sleep(1);
-}
+}*/
   //glob_bc=ptr_buffer_cache;
   //check_which_node_to_evict(ptr_buffer_cache);
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0;
@@ -5553,6 +5553,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
   int kick=0;
+  profit *order=ptr_buffer_cache->p;
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
     //printf(" > max_buffer_page_num|");
@@ -5561,24 +5562,24 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
     int k=0; 
     kick=1;
-    while(k<8)
+    while(order->next!=NULL)
     {
+		printf("%f\n",order->benefit);
       if(no_page_can_evict == 0)
       { 
         // if(k>8)
         // {
         //   k=0;
         // }
-        channel_num = k%8;
-        //channel_num = min_response_elem(currdisk);
-        // channel_num = kick_channel_num;
-        // kick_channel_num++;
-        // if(kick_channel_num > 4)
-        // {
-        //  kick_channel_num=0;
-        // }
         
-        plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+        //channel_num = k%8;
+        channel_num=order->channel_num;
+        
+        //plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+        plane=order->plane;
+        order=order->next;
+        
+        
         //plane = find_min_write_count_plane(channel_num);
         //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
         //printf("inin channel=%d,plane=%d\n", channel_num,plane);
