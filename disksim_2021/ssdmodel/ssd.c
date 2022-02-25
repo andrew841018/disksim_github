@@ -101,7 +101,7 @@ typedef struct _profit{
 	int channel_num;
 	int plane;
 	double benefit;
-	struct _profit *next;
+	struct _profit *next,*prev;
 }profit;
 typedef struct  _lru_node
 {
@@ -5094,7 +5094,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   //strip_way = 1;
   return strip_way;
 }
-
+int initial=1;
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0;
@@ -5115,8 +5115,13 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   } 
   double min;
   int channel,plane,b=0,count=0;
-  profit *order1,*order;
-  order=malloc(sizeof(profit));//from min benefit to max benefit
+  profit *order1,*order,*temp;
+  if(initial==1){  
+	  order=malloc(sizeof(profit));//from min benefit to max benefit
+  }
+  else{
+	order=ptr_buffer_cache->p;
+  }
   order1=order;//store order address to order1
   while(1){
 	  min=10000;
@@ -5134,6 +5139,18 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	  if(b==0){
 		break;			  
 	}
+	while(initial==0){
+		if(min<order->benefit){
+			break;
+		}
+		else if(min>order->benefit){
+			order=order->next;
+		}
+		if(min>order->benefit && min<order->next->benefit){
+				//remove 
+		}
+	}
+	
 	  order->channel_num=channel;
 	  order->plane=plane;
 	  order->benefit=tmp[channel][plane];
@@ -5144,6 +5161,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	//printf("out\n");
 	order=order1;
 	ptr_buffer_cache->p=order;
+	initial=0;
 }
 
 
@@ -5562,9 +5580,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
     int k=0; 
     kick=1;
+    printf("hi\n");
     while(order->next!=NULL)
     {
-		printf("%f\n",order->benefit);
+	  printf("%f\n",order->benefit);
       if(no_page_can_evict == 0)
       { 
         // if(k>8)
@@ -5621,6 +5640,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
+      printf("block num:%d\n",ptr_lru_node->logical_node_num);
       /*
        * if the plane is not any mark page ,we help mark the new node 
        * */
@@ -5694,8 +5714,11 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //ptr_lru_node->page[offset_in_node].strip = 0;
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
-        }		    
-        remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+        }		  
+        for(i=0;i<LRUSIZE;i++){  
+			if(ptr_lru_node->page[i].exist==2)
+				remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+	}
         current_block[channel_num][plane].flush_w_count_in_current ++;
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         //printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
@@ -5746,8 +5769,11 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         //assert(ptr_lru_node->page[offset_in_node].exist == 0);//
         current_block[channel_num][plane].offset_in_node++;
       }
-    }
-
+      break;
+    }   
+    printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
+	printf("out\n");
+	sleep(1);
     kick_channel_times++;
   }
   kick_count+=kick;
