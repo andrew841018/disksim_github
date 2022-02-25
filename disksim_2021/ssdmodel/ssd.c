@@ -103,7 +103,7 @@ typedef struct _profit{
 	double benefit;
 	struct _profit *next;
 }profit;
-typedef struct  _lru_node
+typedef struct  _lru_node 
 {
   unsigned int logical_node_num;        //logical_node_num == lpn / LRUSIZE
   unsigned int buffer_page_num;       //how many update page in this node
@@ -5095,14 +5095,15 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   return strip_way;
 }
 void insert_value(double benefit,buffer_cache *ptr_buffer_cache,int channel,int plane){
-  if(ptr_buffer_cache->p=NULL){
+  if(ptr_buffer_cache->p==NULL){
     printf("error\n");
     sleep(1);
-    return NULL;
+    return;
   }
   profit *prev,*curr,*data,*head;
+  data=malloc(sizeof(profit));
   data->benefit=benefit;
-  date->channel_num=channel;
+  data->channel_num=channel;
   data->plane=plane;
   curr=ptr_buffer_cache->p;
   head=curr;
@@ -5188,8 +5189,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 
 
 
-{
-void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
+void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");
   int outout=0,i;
@@ -5506,14 +5506,14 @@ void kick_read_intensive_page_from_buffer_cache(ioreq_event *curr,unsigned int c
 
 void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache,int flag)
 {	//why while(order!=NULL) error? 	
-	/*if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
+	if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
 		profit *order=ptr_buffer_cache->p;
 		while(order->next!=NULL && order->plane>=0 && order->plane<8 ){
 			printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
 			order=order->next;
 		}
 		sleep(1);
-}*/
+}
   //glob_bc=ptr_buffer_cache;
   //check_which_node_to_evict(ptr_buffer_cache);
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0;
