@@ -5505,15 +5505,7 @@ void kick_read_intensive_page_from_buffer_cache(ioreq_event *curr,unsigned int c
 }
 
 void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache,int flag)
-{	//why while(order!=NULL) error? 	
-	if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
-		profit *order=ptr_buffer_cache->p;
-		while(order->next!=NULL && order->plane>=0 && order->plane<8 ){
-			printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
-			order=order->next;
-		}
-		sleep(1);
-}
+{	
   //glob_bc=ptr_buffer_cache;
   //check_which_node_to_evict(ptr_buffer_cache);
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0;
@@ -5593,13 +5585,26 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
   int kick=0;
-  profit *order=ptr_buffer_cache->p;
+  profit *order,*prev,*first=NULL;
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
     //printf(" > max_buffer_page_num|");
 
       /*sh-- our dynamic allocation policy*/
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
+    
+	//why while(order!=NULL) error? 	
+	if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
+		profit *order=ptr_buffer_cache->p;
+		while(order->next!=NULL && order->plane>=0 && order->plane<8 ){
+			printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
+			order=order->next;
+		}
+		sleep(1);
+	}
+    order=ptr_buffer_cache->p;
+    if(first!=NULL)
+		ptr_buffer_cache->p=first;
     int k=0; 
     kick=1;
     printf("hi\n");
@@ -5618,7 +5623,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         
         //plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
         plane=order->plane;
+        prev=order;
         order=order->next;
+        first=order;
+        prev->next=NULL;
         
         
         //plane = find_min_write_count_plane(channel_num);
@@ -5663,7 +5671,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
       printf("block num:%d\n",ptr_lru_node->logical_node_num);
-      /*
+      /*0.013672
+block num
        * if the plane is not any mark page ,we help mark the new node 
        * */
       if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL)
