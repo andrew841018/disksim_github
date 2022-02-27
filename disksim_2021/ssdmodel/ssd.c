@@ -4109,6 +4109,7 @@ void write_benefit_to_txt(int g){
 }
 unsigned int count,blkno;
 unsigned int physical_node_num, phy_node_offset;
+int initial=1;
 lru_node *buffer=NULL,*temp=NULL;
 int enter_count=0;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
@@ -4148,10 +4149,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
-  
-  
-  
-  
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -4172,7 +4169,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       mark_for_all_current_block(ptr_buffer_cache);
     }
   } 
-  A_kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
+  A_kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);  
 }
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -5121,40 +5118,40 @@ void insert_value(double benefit,buffer_cache *ptr_buffer_cache,int channel,int 
     ptr_buffer_cache->p=prev; 
   }
 }
-int initial=1;
+double tmp[CHANNEL_NUM][PLANE_NUM]={0};
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  int i = 0,j = 0;
-  double tmp[CHANNEL_NUM][PLANE_NUM]={0};
+  int i = 0,j = 0,b1=0;
+
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
+		tmp[i][j]=0;
 		//this function won't change ptr_current_mark_node until leave the function
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
         tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
-        //printf("mark-->current_block[%d][%d].current_mark_count=%d\n",i,j,current_block[i][j].current_mark_count);
-        //fprintf(outputssd,"after mark_for_specific_current_block\n");
+        b1=1;
       }
     }
-  } 
+  }
+  if(b1==0){
+	printf("b1=0\n");
+	return;
+}
   double min;
   int channel,plane,b=0,count=0;
   profit *order1,*order;
-  if(initial==1){  
-	  order=malloc(sizeof(profit));//from min benefit to max benefit
-  }
-  else{
-	  order=ptr_buffer_cache->p;
-  }
+  order=malloc(sizeof(profit));//from min benefit to max benefit
   order1=order;//store order address to order1
   while(1){
 	  min=10000;
 	  b=0;
 	  for(i=0;i<CHANNEL_NUM;i++){
 		  for(j=0;j<PLANE_NUM;j++){
+			  printf("tmp:%f\n",tmp[i][j]);
         if(min>tmp[i][j] && tmp[i][j]<10 && tmp[i][j]!=0){
           min=tmp[i][j];
           channel=i;
@@ -5165,25 +5162,54 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	  }
 	  if(b==0){
 		break;			  
-	}
-    
-
+	}  
     if(initial==1){
       order->channel_num=channel;
       order->plane=plane;
       order->benefit=tmp[channel][plane];
       tmp[channel][plane]=10;
       order->next=malloc(sizeof(profit));
-      order=order->next;
+      order=order->next;        
     }
     else{
       insert_value(min,ptr_buffer_cache,channel,plane);
-      tmp[channel][plane]=10;
+      tmp[channel][plane]=10;     
     }
 }
+		
 	//printf("out\n");
-	order=order1;
-	ptr_buffer_cache->p=order;
+	
+	if(initial==1){
+		order=order1;
+		ptr_buffer_cache->p=order;
+	/*	FILE *wb=fopen("wb.txt","a+");
+		fprintf(wb,"enter\n");
+		fclose(wb);*/
+	}
+	else{
+		order=ptr_buffer_cache->p;
+	/*	FILE *wb=fopen("c_node.txt","a+");
+		fprintf(wb,"enter\n");
+		fclose(wb);*/
+	}
+	
+	while(order->next!=NULL){	
+		printf("block:%d benefit:%f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);
+	/*	if(initial==1){
+			FILE *wb=fopen("wb.txt","a+");
+			fprintf(wb,"%d %f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);
+			fclose(wb);
+		}
+		else{
+			FILE *wb=fopen("c_node.txt","a+");
+			fprintf(wb,"%d %f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);
+			fclose(wb);
+		}*/
+		order=order->next;
+	}
+	/*if(initial==0){
+		exit(0);
+	}*/
 	initial=0;
 }
 
@@ -5597,14 +5623,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	//why while(order!=NULL) error? 	
 	if(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num){
 		profit *order=ptr_buffer_cache->p;//it remove order->next and all further node
-		if(order->next==NULL){
-			int ggg=3;
-		}
-		while(order->next!=NULL){
+		/*while(order->next!=NULL){
 			printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
 			order=order->next;
-		}
-		sleep(1);
+		}*/
 	}
     order=ptr_buffer_cache->p;    
     int k=0; 
@@ -5671,7 +5693,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
-      printf("first priority victim block num:%d benefit:%f \n",ptr_lru_node->logical_node_num,prev->benefit);      
+      //printf("first priority victim block num:%d benefit:%f \n",ptr_lru_node->logical_node_num,prev->benefit);      
       /*
        * if the plane is not any mark page ,we help mark the new node 
        * */
@@ -5746,10 +5768,14 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
         }		  
+        printf("remove block:%d\n",ptr_lru_node->logical_node_num);
+        sleep(5);
         for(i=0;i<LRUSIZE;i++){  
+			printf("mark:%d\n",ptr_lru_node->page[i].exist);
 			if(ptr_lru_node->page[i].exist==2)
 				remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
 	}
+	sleep(1);
         current_block[channel_num][plane].flush_w_count_in_current ++;
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         //printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
@@ -5802,12 +5828,13 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       }
       break;
     }   
+    if(ptr_buffer_cache->total_buffer_page_num==4003)
+		sleep(1);
     printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
 	printf("out\n");
-	sleep(1);
     kick_channel_times++;
   }
-  exit(0);
+ // exit(0);
   kick_count+=kick;
   my_kick_node+=kick;
   my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
