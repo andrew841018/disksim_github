@@ -4392,6 +4392,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     //printf("add node\n");
     //fprintf(lpb_ppn, "if(Pg_node == NULL)\tphysical_node_num=%d\n", physical_node_num);
       flag=0;
+      //write buffer does have this node-->add one
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
   }
@@ -5770,11 +5771,12 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         printf("remove block:%d\n",ptr_lru_node->logical_node_num);
         //sleep(1);
         for(i=0;i<LRUSIZE;i++){  
-			printf("mark:%d\n",ptr_lru_node->page[i].exist);
-			if(ptr_lru_node->page[i].exist==2)
-				remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+          printf("mark:%d\n",ptr_lru_node->page[i].exist);
+          if(ptr_lru_node->page[i].exist==2)
+            remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+            current_block[channel_num][plane].flush_w_count_in_current ++;
 	}
-        current_block[channel_num][plane].flush_w_count_in_current ++;
+        
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         //printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \
