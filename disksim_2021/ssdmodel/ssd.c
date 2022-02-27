@@ -5118,18 +5118,17 @@ void insert_value(double benefit,buffer_cache *ptr_buffer_cache,int channel,int 
     ptr_buffer_cache->p=prev; 
   }
 }
-double tmp[CHANNEL_NUM][PLANE_NUM]={0};
+
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0,b1=0;
-
+  double tmp[CHANNEL_NUM][PLANE_NUM]={0};
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
-		tmp[i][j]=0;
 		//this function won't change ptr_current_mark_node until leave the function
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
         tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
@@ -5182,20 +5181,20 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	if(initial==1){
 		order=order1;
 		ptr_buffer_cache->p=order;
-	/*	FILE *wb=fopen("wb.txt","a+");
+		FILE *wb=fopen("wb.txt","a+");
 		fprintf(wb,"enter\n");
-		fclose(wb);*/
+		fclose(wb);
 	}
 	else{
 		order=ptr_buffer_cache->p;
-	/*	FILE *wb=fopen("c_node.txt","a+");
+		FILE *wb=fopen("c_node.txt","a+");
 		fprintf(wb,"enter\n");
-		fclose(wb);*/
+		fclose(wb);
 	}
 	
 	while(order->next!=NULL){	
 		printf("block:%d benefit:%f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);
-	/*	if(initial==1){
+		if(initial==1){
 			FILE *wb=fopen("wb.txt","a+");
 			fprintf(wb,"%d %f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);
 			fclose(wb);
@@ -5204,7 +5203,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			FILE *wb=fopen("c_node.txt","a+");
 			fprintf(wb,"%d %f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);
 			fclose(wb);
-		}*/
+		}
 		order=order->next;
 	}
 	/*if(initial==0){
@@ -5649,7 +5648,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         prev=order;
         order=order->next;
         first=order;
-        prev->next=NULL;
+        prev=NULL;
         
         
         //plane = find_min_write_count_plane(channel_num);
@@ -5769,13 +5768,12 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
         }		  
         printf("remove block:%d\n",ptr_lru_node->logical_node_num);
-        sleep(5);
+        //sleep(1);
         for(i=0;i<LRUSIZE;i++){  
 			printf("mark:%d\n",ptr_lru_node->page[i].exist);
 			if(ptr_lru_node->page[i].exist==2)
 				remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
 	}
-	sleep(1);
         current_block[channel_num][plane].flush_w_count_in_current ++;
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         //printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
@@ -5834,6 +5832,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	printf("out\n");
     kick_channel_times++;
   }
+  ptr_buffer_cache->p=first;
  // exit(0);
   kick_count+=kick;
   my_kick_node+=kick;
