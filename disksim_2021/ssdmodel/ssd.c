@@ -5592,25 +5592,26 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
       /*sh-- our dynamic allocation policy*/
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
-    
+    if(first!=NULL)
+		ptr_buffer_cache->p=first;
 	//why while(order!=NULL) error? 	
-	if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
-		profit *order=ptr_buffer_cache->p;
-		while(order->next!=NULL && order->plane>=0 && order->plane<8 ){
+	if(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num){
+		profit *order=ptr_buffer_cache->p;//it remove order->next and all further node
+		if(order->next==NULL){
+			int ggg=3;
+		}
+		while(order->next!=NULL){
 			printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
 			order=order->next;
 		}
 		sleep(1);
 	}
-    order=ptr_buffer_cache->p;
-    if(first!=NULL)
-		ptr_buffer_cache->p=first;
+    order=ptr_buffer_cache->p;    
     int k=0; 
     kick=1;
     printf("hi\n");
     while(order->next!=NULL)
-    {
-	  printf("%f\n",order->benefit);
+    {	  
       if(no_page_can_evict == 0)
       { 
         // if(k>8)
@@ -5670,9 +5671,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 
       ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
-      printf("block num:%d\n",ptr_lru_node->logical_node_num);
-      /*0.013672
-block num
+      printf("first priority victim block num:%d benefit:%f \n",ptr_lru_node->logical_node_num,prev->benefit);      
+      /*
        * if the plane is not any mark page ,we help mark the new node 
        * */
       if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL)
@@ -5807,6 +5807,7 @@ block num
 	sleep(1);
     kick_channel_times++;
   }
+  exit(0);
   kick_count+=kick;
   my_kick_node+=kick;
   my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
