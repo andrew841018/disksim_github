@@ -5135,11 +5135,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
         b1=1;
       }
-     /* else if(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num && ){
+      else if(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num && current_block[i][j].current_mark_count == 0){
 		  A_mark_for_specific_current_block(ptr_buffer_cache,i,j);
 		  tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
 		  b1=1;
-	  }*/
+	  }
     }
   }
   if(b1==0){
@@ -5184,9 +5184,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	}	
 }
 
-void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
-    int outout=0,i;
-	while(ptr_buffer_cache->ptr_current_mark_node->rw_intensive == 1 &&\
+void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){  //trigger_mark_count++; //sinhome
+  //printf("mark_for_specific_current_block\n");
+  int outout=0,i;
+  	while(ptr_buffer_cache->ptr_current_mark_node->rw_intensive == 1 &&\
 									 current_block[channel_num][plane].ptr_read_intensive_buffer_page == NULL)
 	{
 		// all of cache have be marked 
@@ -5196,12 +5197,16 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
       return;
     }
 		//if the current mark node is read intensive
-	}	
+		mark_for_read_intensive_buffer(ptr_buffer_cache);
+	}
+	//the special channel and plane have had mark request
+	
 		if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]!=0)
 			ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num];
 	//mark write intensive node
 	current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
 	current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
+	assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(1)
 	{
@@ -5213,7 +5218,6 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
       return;
     }
 
-				//printf("block num:%d exist:%d strip_way:%d offset:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist,ptr_buffer_cache->ptr_current_mark_node->StripWay,ptr_buffer_cache->current_mark_offset);
 		if(ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist == 1 && ptr_buffer_cache->ptr_current_mark_node->StripWay==0)
 		{
 			ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist = 2;
@@ -5318,15 +5322,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 
 				mark_for_read_intensive_buffer(ptr_buffer_cache);
 			}
-			if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL)
-      {
-        //printf("3209 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
-        printf("j\n");
-        return ;
-      }
-			/*current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
-			assert(current_block[channel_num][plane].ptr_lru_node != NULL);
-			current_block[channel_num][plane].offset_in_node = ptr_buffer_cache->current_mark_offset;*/
+			
 		}
     if(outout==1)
     {
@@ -5344,8 +5340,6 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
       break;
     }
 	}
-  //printf("3237 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
-	//assert(current_block[channel_num][plane].current_mark_count != 0);
 }
 
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
