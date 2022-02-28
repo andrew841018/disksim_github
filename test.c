@@ -1,50 +1,61 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-typedef struct  _lru_node
+typedef struct  _profit
 {
-  struct _lru_node *prev;           //link lru list
-  struct _lru_node *next;
-  int k;
+  struct _profit *next;           //link lru list
+  int channel_num,plane;
+  double benefit;
 
-}lru_node;
+}profit;
+typedef struct _buffer_cache
+{
+	struct profit *p;
+}buffer_cache;
+void insert_value(double benefit,buffer_cache *ptr_buffer_cache,int channel,int plane){
+  if(ptr_buffer_cache->p==NULL){
+    printf("error\n");
+    sleep(1);
+    return;
+  }
+  profit *prev,*curr,*data,*head;
+  data=malloc(sizeof(profit));
+  data->benefit=benefit;
+  data->channel_num=channel;
+  data->plane=plane;
+  curr=ptr_buffer_cache->p;
+  head=curr;
+  while(curr!= NULL && benefit>curr->benefit){
+    prev=curr;
+    curr=curr->next;
+  }
+  //means benefit is min in link list--->not enter while
+  data->next=curr;
+  if(curr==head){
+    ptr_buffer_cache->p=data;
+  }
+  else{
+    prev->next=data; 
+    ptr_buffer_cache->p=prev; 
+  }
+}
 int main(){
-	lru_node *a=malloc(sizeof(lru_node)),*b=malloc(sizeof(lru_node));
-	b->prev=malloc(sizeof(lru_node));
-	b->next=malloc(sizeof(lru_node));
-	a->prev=malloc(sizeof(lru_node));
-	a->next=malloc(sizeof(lru_node));
-	a->prev->k=5;
-	a->next->k=8;
-	a->k=13;
-	b=a;
-	
-	while(a!=NULL){
-		a->k--;
-		a=a->next;
+	profit *order=malloc(sizeof(profit)),order1;
+	buffer_cache *buffer=malloc(sizeof(buffer_cache));
+	int i;
+	double k=4.3;
+	order1=order;
+	for(i=0;i<10;i++){
+		order->benefit=i;
+		printf("benefit:%f\n",order->benefit);
+		order->next=malloc(sizeof(profit));
+		order=order->next;
 	}
-	a=b;
-	if(a->prev->prev==NULL){
-		printf("1:%p\n",a);
-		printf("2:%p\n",a->next);
-		printf("3:%p\n",a->prev->prev);
-		}
-	/*
-	char *tmp[100];
-	//strcpy(tmp,"ssss");
-	FILE *a=fopen("a.txt","w");
-	//for(i=0;i<120;i++){
-		//fprintf(a,"%d\n",i);			
-	//}
-	fprintf(a,"%d %s %d\n",15,"sss",32);
-	fclose(a);
-	//a=fopen("a.txt","w");
-	
-	
-	
-	float benefit;
-	benefit=(float)5/3040;
-	benefit/=4500;
-	printf("%.19f\n",benefit);*/
+	buffer->p=order1;
+	insert_value(k,buffer,k+1,k-1);
+	while(buffer->p->next!=NULL){
+		printf("benefit:%f\n",buffer->p->benefit);
+		buffer->p=buffer->p->next;
+	}
 	return 0;
 }
