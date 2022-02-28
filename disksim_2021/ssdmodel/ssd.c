@@ -5748,12 +5748,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         printf("remove block:%d\n",ptr_lru_node->logical_node_num);
         //sleep(1);
         for(i=0;i<LRUSIZE;i++){  
-          printf("mark:%d\n",ptr_lru_node->page[i].exist);
           if(ptr_lru_node->page[i].exist==2)
             remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
-            current_block[channel_num][plane].flush_w_count_in_current ++;
-	}
-        
+            current_block[channel_num][plane].flush_w_count_in_current ++;	
+
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         //printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
         if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \
@@ -5775,11 +5773,11 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //"!!!!!!KICK current_mark_count == 0 mark_for_specific_current_block TIME = %ld\n",diff);
           
         }
-        else
+        else{
           current_block[channel_num][plane].offset_in_node ++;  
-      }
-      else if(ptr_lru_node->page[offset_in_node].exist == 1)
-      {
+        }
+        else if(ptr_lru_node->page[offset_in_node].exist == 1)
+        {
         //printf("* if(ptr_lru_node->page[offset_in_node].exist == 1) \n");
         //assert(0);
         int i, find_page=0;
@@ -5796,14 +5794,14 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         {
           no_page_can_evict = 1;
         }
-      }
-      else
-      {
+        }
+        else
+        {
         //printf("* else \n");
         //assert(ptr_lru_node->page[offset_in_node].exist == 0);//
         current_block[channel_num][plane].offset_in_node++;
+        }
       }
-      break;
     }   
     if(ptr_buffer_cache->total_buffer_page_num==4003)
 		sleep(1);
