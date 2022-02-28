@@ -5132,15 +5132,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       {
 		//this function won't change ptr_current_mark_node until leave the function
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
-        printf("%d\n",current_block[i][j].ptr_lru_node->logical_node_num);
-        printf("outside-- channel:%d plane:%d\n",i,j);
-        sleep(1);
         tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
         b1=1;
       }
     }
   }
-  exit(0);
   if(b1==0){
 	printf("b1=0\n");
 	return;
@@ -5237,7 +5233,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 	//mark write intensive node
 	current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
 	current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
-	printf("%d ",current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(1)
@@ -5650,7 +5645,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
     //表示要寫入SSD的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
     //然後寫入的page index=offset_in_node. 
-    //disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 
+    //disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 	 
       if(k>LRUSIZE || k==0)
 		ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
       offset_in_node = current_block[channel_num][plane].offset_in_node;
@@ -5670,7 +5665,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         statistic.kick_read_intensive_page_count ++;
         kick_read_intensive_page_from_buffer_cache(curr,channel_num,plane,ptr_buffer_cache);
         current_block[channel_num][plane].flush_w_count_in_current ++;
-      
+		
         if(current_block[channel_num][plane].ptr_read_intensive_buffer_page  == NULL)
         {
           //mark read or write page
@@ -5681,7 +5676,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       /*
        * if the page already been marked 
        * */
-      else if(ptr_lru_node->page[offset_in_node].exist == 2 && ptr_lru_node->page[offset_in_node].channel_num == channel_num && ptr_lru_node->page[offset_in_node].plane==plane)
+      else if(ptr_lru_node->page[k].exist == 2 && ptr_lru_node->page[k].channel_num == channel_num && ptr_lru_node->page[k].plane==plane)
       {
 
        //printf("* if the page already been marked|\n");
@@ -5695,11 +5690,11 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         //remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
 
 
-        add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->page[offset_in_node].lpn,0);
+        add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->page[k].lpn,0);
         if(ptr_lru_node->StripWay == 0)
         {
           kick_block_striping_page_count++;
-          ptr_lru_node->page[offset_in_node].strip = 0;
+          ptr_lru_node->page[k].strip = 0;
           /* node_count++;
           if(node_count<128)    //512 better
           {
@@ -5716,7 +5711,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         else if(ptr_lru_node->StripWay == 1)
         {
           kick_page_striping_page_count++;
-          ptr_lru_node->page[offset_in_node].strip = 0;
+          ptr_lru_node->page[k].strip = 0;
          /*  node_count++;
           if(node_count<128)
           {
@@ -5733,6 +5728,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
         }		  
         //sleep(1);
+        // is channel or plane doesn't match means that node n
 			if(ptr_lru_node->page[k].channel_num!=channel_num)
 				sleep(1);
             if(ptr_lru_node->page[k].exist == 2)
@@ -5766,7 +5762,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         else
           current_block[channel_num][plane].offset_in_node ++;  
       }
-      else if(ptr_lru_node->page[offset_in_node].exist == 1)
+      else if(ptr_lru_node->page[k].exist == 1)
       {
         //printf("* if(ptr_lru_node->page[offset_in_node].exist == 1) \n");
         //assert(0);
