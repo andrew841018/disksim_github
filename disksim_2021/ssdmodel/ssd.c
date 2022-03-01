@@ -5123,7 +5123,7 @@ void insert_value(double benefit,buffer_cache *ptr_buffer_cache,int channel,int 
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0,b1=0;
-  double tmp[CHANNEL_NUM][PLANE_NUM]={0};
+  double tmp[CHANNEL_NUM][PLANE_NUM]={0}; 	
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
@@ -5140,8 +5140,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 		  tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
 		  b1=1;
 	  }
+	  if(ptr_buffer_cache->total_buffer_page_num==4002)
+		printf("mark count:%d\n",current_block[i][j].current_mark_count);
     }
   }
+if(ptr_buffer_cache->total_buffer_page_num==4002) 
+	sleep(1);
   if(b1==0){
 	printf("b1=0\n");
 	return;
@@ -5875,14 +5879,18 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
         }		  
+        
+        if(current_block[channel_num][plane].current_mark_count == 0){
+			mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+		}
         // is channel or plane doesn't match means that node n
-            if(ptr_lru_node->page[k].exist == 2){
-				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
-				printf("buffer num:%d\n",ptr_buffer_cache->total_buffer_page_num);
-			}		
-            //this line will affect which channel we are writing into. (from the write buffer to SSD)
-            k++;
-            current_block[channel_num][plane].flush_w_count_in_current ++;
+		if(ptr_lru_node->page[k].exist == 2){
+			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+			printf("buffer num:%d\n",ptr_buffer_cache->total_buffer_page_num);
+		}		
+		//this line will affect which channel we are writing into. (from the write buffer to SSD)
+		k++;
+		current_block[channel_num][plane].flush_w_count_in_current ++;
 	
         
         //fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
@@ -5898,10 +5906,9 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         {
           //printf("else if(current_block[channel_num][plane].current_mark_count == 0)\n");
           unsigned long diff;
-          gettimeofday(&start, NULL);
-          if(order!=NULL)
-			mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+          gettimeofday(&start, NULL);         
           gettimeofday(&end, NULL);
+          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
           diff=1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
           //"!!!!!!KICK current_mark_count == 0 mark_for_specific_current_block TIME = %ld\n",diff);
           
