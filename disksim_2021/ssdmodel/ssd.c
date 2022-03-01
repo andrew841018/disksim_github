@@ -5313,6 +5313,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
     }
 	}
 }
+unsigned int mark_bool[100000000]={0};
 //this function will let all page in ptr_buffer_cache->ptr_current_mark_node exist become 2....if it exist(exist=1)
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
      //trigger_mark_count++; //sinhome
@@ -5346,8 +5347,10 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     printf("b\n");
     return;
   }
-		if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]!=0)
+		if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]!=0 && mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num];
+			mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]=1;
+		}
 	//mark write intensive node
 	current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
 	current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
@@ -5694,13 +5697,13 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     if(first!=NULL)
 		ptr_buffer_cache->p=first;
 	//why while(order!=NULL) error? 	
-	if(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num){
-		profit *order=ptr_buffer_cache->p;//it remove order->next and all further node
-		while(order->next!=NULL){
-			printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
-			order=order->next;
-		}
+	profit *order=ptr_buffer_cache->p;//it remove order->next and all further node
+	while(order->next!=NULL){
+		printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
+		order=order->next;
 	}
+	exit(0);
+
     order=ptr_buffer_cache->p;    
     int k=0; 
     kick=1;
@@ -5779,7 +5782,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         if(current_block[channel_num][plane].ptr_read_intensive_buffer_page  == NULL)
         {
           //mark read or write page
-          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+          //mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
         }
         
       }
