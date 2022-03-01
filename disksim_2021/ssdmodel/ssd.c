@@ -5705,33 +5705,36 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     int k=0; 
     kick=1;
     printf("hi\n");
-    while(k<=LRUSIZE && current_block[channel_num][plane].current_mark_count>0)
-    {	  
-      if(no_page_can_evict == 0)
-      { 
+    if(no_page_can_evict == 0){ 
         // if(k>8)
         // {
         //   k=0;
         // }
-        if(k>LRUSIZE || k==0){
         //channel_num = k%8;
-			channel_num=order->channel_num;
-			
-			//plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
-			plane=order->plane;
-			prev=order;
-			order=order->next;
-			first=order;
-			prev=NULL;
-			printf("channel:%d plane:%d\n",channel_num,plane);
-	}       
+		channel_num=order->channel_num;
+
+		//plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+		plane=order->plane;
+		prev=order;
+		order=order->next;
+		first=order;
+		prev=NULL;
+		printf("channel:%d plane:%d\n",channel_num,plane);		       
         //plane = find_min_write_count_plane(channel_num);
         //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
         //printf("inin channel=%d,plane=%d\n", channel_num,plane);
         assert(channel_num >=0 && channel_num < 8);
         assert(plane >=0 && plane < 8);
-      }
-      else//預防機制，實際上不會進入這裡
+         //表示要寫入SSD的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
+		//然後寫入的page index=offset_in_node. 
+		//disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 	 
+		ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
+
+    }
+    while(k<=LRUSIZE && current_block[channel_num][plane].current_mark_count>0)
+    {	  
+
+      if(no_page_can_evict != 0)//預防機制，實際上不會進入這裡
       {
         printf("no_page_can_evict\n");
         int i;
@@ -5752,21 +5755,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       
        
       //printf("current_block[%d][%d].current_mark_count=%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count);
-      if(current_block[channel_num][plane].current_mark_count == 0)
-      {
-        //fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
-        //printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
-        break;
-      }    
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
 
 
-    //表示要寫入SSD的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
-    //然後寫入的page index=offset_in_node. 
-    //disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 	 
-      if(k>LRUSIZE || k==0)
-		ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
-      offset_in_node = current_block[channel_num][plane].offset_in_node;
+         offset_in_node = current_block[channel_num][plane].offset_in_node;
       if(ptr_lru_node->page[k].exist !=2){
 		k++;  
 		continue;
