@@ -5717,12 +5717,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		ptr_buffer_cache->p=first;
 	//why while(order!=NULL) error? 	
 	profit *order=ptr_buffer_cache->p;//it remove order->next and all further node
-	if(channel_num==0 && plane==3){
-		while(order->next!=NULL){
-			printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
-			order=order->next;
-		}
-}
+	while(order->next!=NULL){
+		printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
+		order=order->next;
+	}
 
     order=ptr_buffer_cache->p;    
     int k=0; 
@@ -5782,7 +5780,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
 
 
-         offset_in_node = current_block[channel_num][plane].offset_in_node;
       if(ptr_lru_node->page[k].exist !=2){
 		k++;  
 		continue;
@@ -5892,8 +5889,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //"!!!!!!KICK current_mark_count == 0 mark_for_specific_current_block TIME = %ld\n",diff);
           
         }
-        else
-          current_block[channel_num][plane].offset_in_node ++;  
       }
       else if(ptr_lru_node->page[k].exist == 1)
       {
@@ -5904,7 +5899,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         {
           if(ptr_lru_node->page[i].exist == 2 && ptr_lru_node->page[i].channel_num == channel_num && ptr_lru_node->page[i].plane==plane)
           {
-            current_block[channel_num][plane].offset_in_node = i;
             find_page = 1;
             break;
           }
@@ -5913,12 +5907,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         {
           no_page_can_evict = 1;
         }
-      }
-      else
-      {
-        //printf("* else \n");
-        //assert(ptr_lru_node->page[offset_in_node].exist == 0);//
-        current_block[channel_num][plane].offset_in_node++;
       }
     }  
     printf("mark count:%d\n",current_block[channel_num][plane].current_mark_count);
