@@ -4922,8 +4922,6 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 
 	current_block[channel_num][plane].current_mark_count --;
 	current_block[channel_num][plane].current_write_offset ++;
-	if(ptr_lru_node->logical_node_num>1000000)
-		printf("up...k:%d\n",offset_in_node);
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
     if(ptr_lru_node->group_type==0)
@@ -4931,8 +4929,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
     else if (ptr_lru_node->group_type==1)
       remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
 	}
-	if(ptr_lru_node->logical_node_num>1000000)
-		printf("down...k:%d\n",offset_in_node);
+	
 	
 }
 
@@ -4980,7 +4977,6 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
       ptr_lru_node->h_next->h_prev = ptr_lru_node->h_prev;
     }
   }
-	
 	//remove node from lru
 	if(ptr_buffer_cache->ptr_head == ptr_lru_node && ptr_lru_node->next == ptr_lru_node)
 	{
@@ -4998,7 +4994,6 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
 		ptr_lru_node->next->prev = ptr_lru_node->prev;
 	}
 	//add in 3/2
-	
 	if(ptr_buffer_cache->ptr_current_mark_node == ptr_lru_node)
 	{
 		ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -5009,7 +5004,8 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
       // kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
     }
 	}
-
+	//here will disable ptr_lru_node,so if I printf ptr_lru_node->logical_node_num,it will return vary large integer.
+	//because logical node num doesn't exist anymore.
 	free(ptr_lru_node);
   ptr_buffer_cache->total_buffer_block_num--;
 
@@ -5875,7 +5871,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
         }		  
-        
+		if(k==62)
+			sleep(1);
 		if(ptr_lru_node->page[k].exist == 2 ){
 			printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);		
@@ -5884,8 +5881,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		}
 
 			//printf("block num:%d\n",ptr_lru_node->logical_node_num);
-		if(current_block[channel_num][plane].current_mark_count==0)
-			printf("exist:%d\n",ptr_lru_node->page[k+1].exist);
 		//this line will affect which channel we are writing into. (from the write buffer to SSD)
 		k++;
 		current_block[channel_num][plane].flush_w_count_in_current ++;
@@ -5933,7 +5928,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     }
     //the same time remove all pages,is the same time mark count=0....I tested.
     printf("k:%d\n",k);
-    printf("block num:%d mark count:%d\n",ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
+    printf("mark count:%d\n",current_block[channel_num][plane].current_mark_count);
     // sleep(1);
 	printf("leave second while channel:%d plane:%d\n",channel_num,plane);
     printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
