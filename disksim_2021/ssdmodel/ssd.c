@@ -5101,8 +5101,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   
+	  if(initial==0)
+		printf("mark count:%d\n",current_block[i][j].current_mark_count);
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
+		  if(initial==0)
+			printf("enter\n");
 		//this function won't change ptr_current_mark_node until leave the function
 		/*if(i==0 && j==2){
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
@@ -5116,9 +5120,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			b1=1;
 		}		     
       }
-      /*else if(current_block[i][j].current_mark_count == 0){
+      /*else if(ptr_buffer_cache->p==NULL || ptr_buffer_cache->p->next=NULL){
 		  mark_for_specific_current_block(ptr_buffer_cache,i,j);
 		  tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
+		  mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
 		  b1=1;
 	  }*/
 	}
@@ -5752,8 +5757,12 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
 
     }
-    if(channel_num==0 && plane==3)
-		sleep(1);
+    //because we assign benefit info to profit pointer is the same time mark current block
+    //so when current mark count=0,In theory,the profit pointer =NULL.
+    
+    
+    //as ta result,if the program can't enter in this while loop
+    //the main reason will because current_mark_count=0. 
     while(k<=LRUSIZE && current_block[channel_num][plane].current_mark_count>0)
     {	   
       if(no_page_can_evict != 0)//預防機制，實際上不會進入這裡
@@ -5859,11 +5868,9 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
         }		  
         
-		if(ptr_lru_node->page[k].exist == 2 ){
+		if(ptr_lru_node->page[k].exist == 2 ){			
 			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);				
 		}
-		if(channel_num==0 && plane==3)
-			printf("%d\n",ptr_lru_node->page[k].exist);
 		//this line will affect which channel we are writing into. (from the write buffer to SSD)
 		k++;
 		current_block[channel_num][plane].flush_w_count_in_current ++;
@@ -5908,7 +5915,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           no_page_can_evict = 1;
         }
       }
-    }  
+    }
+    mark_bool[ptr_lru_node->logical_node_num]=0;  
     printf("mark count:%d\n",current_block[channel_num][plane].current_mark_count);
     sleep(1);
 	printf("leave second while channel:%d plane:%d\n",channel_num,plane);
