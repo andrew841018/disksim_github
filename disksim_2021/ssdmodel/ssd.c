@@ -5130,6 +5130,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           profit *insert=ptr_buffer_cache->p,*prev,*current,*start;
           start=ptr_buffer_cache->p;
           current=malloc(sizeof(profit));
+          prev=malloc(sizeof(profit));
           //insert current block to profit pointer--->according to the benefit value.
           while(insert->next!=NULL){				
             if(tmp[i][j]>insert->benefit){
