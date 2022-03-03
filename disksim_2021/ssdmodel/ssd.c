@@ -5875,6 +5875,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			sleep(1);
 		if(ptr_lru_node->page[k].exist == 2 ){
 			printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
+			
 			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);		
 			if(mark_bool[ptr_lru_node->logical_node_num]==1) 
 				mark_bool[ptr_lru_node->logical_node_num]=0; 		
@@ -5929,7 +5930,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //the same time remove all pages,is the same time mark count=0....I tested.
     printf("k:%d\n",k);
     printf("mark count:%d\n",current_block[channel_num][plane].current_mark_count);
-    // sleep(1);
+    //sleep(1);
 	printf("leave second while channel:%d plane:%d\n",channel_num,plane);
     printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
 	printf("out\n");
