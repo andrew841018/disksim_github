@@ -5789,14 +5789,14 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       //printf("current_block[%d][%d].current_mark_count=%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count);
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
 	  if(ptr_lru_node->page[k].exist==1){
-		printf("page:%d block num:%d channel:%d plane:%d\n",k,ptr_lru_node->logical_node_num,channel_num,plane);
-		exit(0);
+      printf("page:%d block num:%d channel:%d plane:%d\n",k,ptr_lru_node->logical_node_num,channel_num,plane);
+      exit(0);
 	  }
 
       if(ptr_lru_node->page[k].exist !=2){
-		k++;  
-		continue;
-	}
+        k++;  
+        continue;
+	    }
       //printf("first priority victim block num:%d benefit:%f \n",ptr_lru_node->logical_node_num,prev->benefit);      
       /*
        * if the plane is not any mark page ,we help mark the new node 
@@ -5875,8 +5875,13 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			sleep(1);
 		if(ptr_lru_node->page[k].exist == 2 ){
 			printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
-			
-			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);		
+			//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
+      //一旦執行free，代表整個block都會消失
+      //之前做的事情是將ptr_lru_node或者是current_block[channel_num][plane].ptr_lru_node指向ptr_lru_node struct pointer的起始點
+      //因此，一旦執行free，所有指的位置變成指向空，因此不論是current_block,ptr_lru_node或是其他原本可以存取到ptr_lru_node struct
+      //的變數，通通都無法存取。
+      //因為指標的目的地已經不存在了，當然連帶後續的指標也不可能存取到(link list的缺點)
+      remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);		
 			if(mark_bool[ptr_lru_node->logical_node_num]==1) 
 				mark_bool[ptr_lru_node->logical_node_num]=0; 		
 		}
