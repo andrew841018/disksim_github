@@ -5114,7 +5114,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
 			exit(0);
 		}*/	
-		  mark_for_specific_current_block(ptr_buffer_cache,i,j);		
+		if(i==0 && j==2)
+			sleep(1);
+		  mark_for_specific_current_block(ptr_buffer_cache,i,j);		  
       if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						
         tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
         mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
@@ -5399,12 +5401,13 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]!=0)
 			ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num];
 		else{
-      printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-      exit(0);
+		  printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+		  exit(0);
     }
 
     //mark write intensive node
 		current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
+		int cur=current_block[channel_num][plane].ptr_lru_node->logical_node_num;
 		current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
 		assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
@@ -5414,8 +5417,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		if(ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
 		{
       //printf("3174 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
-      printf("c\n");
-      return;
+		  printf("c\n");
+		  return;
     }
 
 		if(ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist >= 2)
@@ -5440,13 +5443,9 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       //fprintf(lpb_ppn, "---%d[%d].channel=%d,plane=%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->current_mark_offset,channel_num,plane);
       //fprintf(cc, "---%d[%d].channel=%d,plane=%d block striping\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->current_mark_offset,channel_num,plane);
 			current_block[channel_num][plane].trigger=2;
-			current_block[channel_num][plane].current_mark_count ++;
-      
-		}
-		
-		
-		
-		
+			current_block[channel_num][plane].current_mark_count ++;   
+			current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;	  
+		}	
     if(ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist == 1 && ptr_buffer_cache->ptr_current_mark_node->StripWay==1)
     {
       int strip_way=1;
@@ -5473,7 +5472,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		ptr_buffer_cache->current_mark_offset ++;
     //printf("ptr_buffer_cache->current_mark_offset=%d\n", ptr_buffer_cache->current_mark_offset);
 		//when need  find new buffer page is marked
-	current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;	
+
+	//current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;	
     //整個block marked，換下一個
 		if(ptr_buffer_cache->current_mark_offset == LRUSIZE && current_block[channel_num][plane].current_mark_count > 0)
 		{	
@@ -5561,6 +5561,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
      //printf("l\n");
       break;
     }
+		if(cur!=current_block[channel_num][plane].ptr_lru_node->logical_node_num)
+			printf("curr:%d  offset:%d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num,ptr_buffer_cache->current_mark_offset);
 	}	
   //printf("3237 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	//assert(current_block[channel_num][plane].current_mark_count != 0);
