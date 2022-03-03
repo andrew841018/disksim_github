@@ -5119,7 +5119,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){
 			if(initial==0)
 				printf("hiiii\n");
-			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;			
+			//the new block enter,after A_kick kick a block
+			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
+			printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);		
 			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
 			b1=1;
 			if(initial==0){
@@ -5144,7 +5146,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				ptr_buffer_cache->p=start;
 				insert=start;
 				while(insert->next!=NULL){	
-					printf("block:%d benefit:%f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);		
+					printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
 					insert=insert->next;
 	}
 			}	
