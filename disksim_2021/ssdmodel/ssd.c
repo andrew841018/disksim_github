@@ -5096,8 +5096,9 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 unsigned int mark_bool[100000000]={0};
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  int i = 0,j = 0,b1=0,k=0;
-  double tmp[CHANNEL_NUM][PLANE_NUM]={0}; 	
+  int i = 0,j = 0,b1=0,k=0,w;
+  double tmp[CHANNEL_NUM][PLANE_NUM]={0};
+  int insert_channel,insert_plane; 	
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
@@ -5118,9 +5119,35 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){
 			if(initial==0)
 				printf("hiiii\n");
-			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
+			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;			
 			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
 			b1=1;
+			if(initial==0){
+				profit *insert=ptr_buffer_cache->p,*prev,*current,*start;
+				start=ptr_buffer_cache->p;
+				current=malloc(sizeof(profit));
+				//insert current block to profit pointer--->according to the benefit value.
+				while(insert->next!=NULL){				
+					if(tmp[i][j]>insert->benefit){
+						prev=insert;
+						insert=insert->next;
+					}
+					else{
+						current->benefit=tmp[i][j];
+						current->channel_num=i;
+						current->plane=j;
+						prev->next=current;
+						current->next=insert;
+						break;
+					}					
+				}
+				ptr_buffer_cache->p=start;
+				insert=start;
+				while(insert->next!=NULL){	
+					printf("block:%d benefit:%f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);		
+					insert=insert->next;
+	}
+			}	
 		}		     
       }
       /*else if(ptr_buffer_cache->p==NULL || ptr_buffer_cache->p->next=NULL){
@@ -5134,7 +5161,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   if(b1==0){
 	printf("b1=0\n");
 	return;
-	}
+	}	  	 
   if(initial==1){
 	double min;
 	int channel,plane,b=0,count=0;
