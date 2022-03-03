@@ -5116,51 +5116,51 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
 			exit(0);
 		}*/	
-	  mark_for_specific_current_block(ptr_buffer_cache,i,j);	
-	  printf("outside the function:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);
-      if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						
-        tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
-        mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
-        if(initial==0){
-          printf("hiiii\n");		
-          //the new block enter,after A_kick kick a block
-          if(current_block[i][j].ptr_lru_node->logical_node_num==15)
-			sleep(1);
-          printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);	
-        }      
-        b1=1;
-        
-        if(initial==0){
-          insert=ptr_buffer_cache->p;
-          start=ptr_buffer_cache->p;
-          current=malloc(sizeof(profit));
-          prev=malloc(sizeof(profit));
-          //insert current block to profit pointer--->according to the benefit value.
-          while(insert->next!=NULL){
-			if(tmp[i][j]<=insert->benefit){
-			  current->benefit=tmp[i][j];
-              current->channel_num=i;
-              current->plane=j;
-              current->next=insert;
-              break;
-			}				
-            if(tmp[i][j]>insert->benefit){
-              prev=insert;
-              insert=insert->next;
-            }
-            else{
-              current->benefit=tmp[i][j];
-              current->channel_num=i;
-              current->plane=j;
-              prev->next=current;
-              current->next=insert;
-              break;
-            }					
+        mark_for_specific_current_block(ptr_buffer_cache,i,j);	
+        printf("outside the function:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);
+        if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						
+          tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
+          mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
+          if(initial==0){
+            printf("hiiii\n");		
+            //the new block enter,after A_kick kick a block
+            if(current_block[i][j].ptr_lru_node->logical_node_num==15)
+              sleep(1);
+            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);	
+          }      
+          b1=1;
+          //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
+          //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
+          //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
+          if(initial==0){
+            insert=ptr_buffer_cache->p;
+            start=ptr_buffer_cache->p;
+            current=malloc(sizeof(profit));
+            prev=malloc(sizeof(profit));
+            //insert current block to profit pointer--->according to the benefit value.
+            while(insert->next!=NULL){
+              if(tmp[i][j]<=insert->benefit){
+                current->benefit=tmp[i][j];
+                      current->channel_num=i;
+                      current->plane=j;
+                      current->next=insert;
+                      break;
+              }				
+              if(tmp[i][j]>insert->benefit){
+                prev=insert;
+                insert=insert->next;
+              }
+              else{
+                current->benefit=tmp[i][j];
+                current->channel_num=i;
+                current->plane=j;
+                prev->next=current;
+                current->next=insert;
+                break;
+              }					
           }
-          ptr_buffer_cache->p=start;
-          
-        }
-        	
+          ptr_buffer_cache->p=start;         
+        }        	
 		}		     
       }
       /*else if(ptr_buffer_cache->p==NULL || ptr_buffer_cache->p->next=NULL){
