@@ -4158,6 +4158,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 
       //int strip_way=-1;
       //strip_way=check_which_node_to_evict(ptr_buffer_cache);
+      
+      //only first time will enter,after that full_cache will stuck the program.(2022/3/3 add by andrew)
       ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev;
       ptr_buffer_cache->current_mark_offset = 0;
 	  
@@ -5100,8 +5102,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   
-	  if(initial==0)
-		printf("mark count:%d\n",current_block[i][j].current_mark_count);
+	  /*if(initial==0)
+		printf("mark count:%d\n",current_block[i][j].current_mark_count);*/
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
 		  if(initial==0)
@@ -5388,8 +5390,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 
 		}
 		
-		if(channel_num==0 && plane==3 && ptr_buffer_cache->current_mark_offset==0)
-			sleep(1);
 		//mark a write intensive request 
 		//printf("block num:%d exist:%d strip_way:%d offset:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist,ptr_buffer_cache->ptr_current_mark_node->StripWay,ptr_buffer_cache->current_mark_offset);
 		//if exist=1 program must enter this condition--->I tested before.(2022/3/2)
@@ -5871,17 +5871,15 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
         }		  
-		if(k==62)
-			sleep(1);
 		if(ptr_lru_node->page[k].exist == 2 ){
 			printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 			//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
-      //一旦執行free，代表整個block都會消失
-      //之前做的事情是將ptr_lru_node或者是current_block[channel_num][plane].ptr_lru_node指向ptr_lru_node struct pointer的起始點
-      //因此，一旦執行free，所有指的位置變成指向空，因此不論是current_block,ptr_lru_node或是其他原本可以存取到ptr_lru_node struct
-      //的變數，通通都無法存取。
-      //因為指標的目的地已經不存在了，當然連帶後續的指標也不可能存取到(link list的缺點)
-      remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);		
+			//一旦執行free，代表整個block都會消失
+			//之前做的事情是將ptr_lru_node或者是current_block[channel_num][plane].ptr_lru_node指向ptr_lru_node struct pointer的起始點
+			//因此，一旦執行free，所有指的位置變成指向空，因此不論是current_block,ptr_lru_node或是其他原本可以存取到ptr_lru_node struct
+			//的變數，通通都無法存取。
+			//因為指標的目的地已經不存在了，當然連帶後續的指標也不可能存取到(link list的缺點)
+			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);		
 			if(mark_bool[ptr_lru_node->logical_node_num]==1) 
 				mark_bool[ptr_lru_node->logical_node_num]=0; 		
 		}
@@ -5932,6 +5930,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         }
       }
     }
+    
     //the same time remove all pages,is the same time mark count=0....I tested.
     printf("k:%d\n",k);
     printf("mark count:%d\n",current_block[channel_num][plane].current_mark_count);
