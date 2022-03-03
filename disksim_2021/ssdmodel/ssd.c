@@ -5114,15 +5114,15 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
 			exit(0);
 		}*/	
-		mark_for_specific_current_block(ptr_buffer_cache,i,j);
-		
-        if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){
-			if(initial==0)
-				printf("hiiii\n");
-			//the new block enter,after A_kick kick a block
-			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
-			printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);		
+		mark_for_specific_current_block(ptr_buffer_cache,i,j);		
+        if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						
+			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
 			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
+			if(initial==0){
+				printf("hiiii\n");
+				//the new block enter,after A_kick kick a block
+				printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);	
+			}
 			b1=1;
 			if(initial==0){
 				profit *insert=ptr_buffer_cache->p,*prev,*current,*start;
