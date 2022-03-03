@@ -5140,11 +5140,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             //insert current block to profit pointer--->according to the benefit value.
             while(insert->next!=NULL){
               if(tmp[i][j]<=insert->benefit){
-                current->benefit=tmp[i][j];
-                      current->channel_num=i;
-                      current->plane=j;
-                      current->next=insert;
-                      break;
+				current->benefit=tmp[i][j];
+				current->channel_num=i;
+				current->plane=j;
+				current->next=insert;
+				start=current;
+				break;
               }				
               if(tmp[i][j]>insert->benefit){
                 prev=insert;
