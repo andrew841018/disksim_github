@@ -1701,6 +1701,8 @@ static void ssd_media_access_request_element (ioreq_event *curr)
        blkno += tmp->bcount;
        count -= tmp->bcount;
      // read hit in cache
+     //雖然看似只有寫入會進入write buffer，但那其時單純只是為了程式實作方便，實際上若是讀取到write buffer
+     //內的block，當然也會進入write buffer來讀取
        if(find_page_in_cache_buffer(lpn,&my_buffer_cache))
        {
         //printf("find_page_in_cache_buffer\n" );
