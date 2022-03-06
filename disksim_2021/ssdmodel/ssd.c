@@ -5120,20 +5120,21 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 		}*/	
         mark_for_specific_current_block(ptr_buffer_cache,i,j);	
         printf("outside the function:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);
-        if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						
-          tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
-          mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
-          if(current_block[i][j].ptr_lru_node->logical_node_num==65547){
-            sleep(1);
-          }
+        if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						                
           if(initial==0){
             printf("hiiii\n");		
             //the new block enter,after A_kick kick a block
             printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);	
-            if(current_block[i][j].ptr_lru_node->logical_node_num==65547){
-              sleep(1);
-            }
-          }      
+            
+          }
+          else{
+            printf("initial=1");
+          } 
+          if(current_block[i][j].ptr_lru_node->logical_node_num==65547){
+            sleep(1);
+          }
+          tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
+          mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;      
           b1=1;
           //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
           //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
