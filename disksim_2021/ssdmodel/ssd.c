@@ -5126,8 +5126,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           if(initial==0){
             printf("hiiii\n");		
             //the new block enter,after A_kick kick a block
-            if(current_block[i][j].ptr_lru_node->logical_node_num==15)
-              sleep(1);
             printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);	
           }      
           b1=1;
@@ -5142,12 +5140,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             //insert current block to profit pointer--->according to the benefit value.
             while(insert->next!=NULL){
               if(tmp[i][j]<=insert->benefit){
-				current->benefit=tmp[i][j];
-				current->channel_num=i;
-				current->plane=j;
-				current->next=insert;
-				start=current;
-				break;
+                current->benefit=tmp[i][j];
+                current->channel_num=i;
+                current->plane=j;
+                current->next=insert;
+                start=current;
+                break;
               }				
               if(tmp[i][j]>insert->benefit){
                 prev=insert;
@@ -5220,6 +5218,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       order=order->next;        
     }
     //printf("out\n");
+    if(mark_bool[81920]==1)
+      sleep(1);
     order=order1;
     ptr_buffer_cache->p=order;		
     while(order->next!=NULL){	
