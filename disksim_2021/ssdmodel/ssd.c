@@ -5932,7 +5932,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //ptr_lru_node->page[offset_in_node].strip = 0;
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
-        }		     
+        }	
+    if(ptr_lru_node->logical_node_num==49157 && k==62){
+      sleep(1);
+    }	     
 		if(ptr_lru_node->page[k].exist == 2 ){
 			printf("buffer num:%d\n",ptr_lru_node->buffer_page_num);
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
@@ -5942,9 +5945,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			else if(mark_bool[ptr_lru_node->logical_node_num]==0){
 			printf("kick page but not been marked...%d k:%d",ptr_lru_node->logical_node_num,k);
 			exit(0);
-			}
-			if(ptr_lru_node->buffer_page_num==1){
-			printf("mark_bool[%d]=%d\n",ptr_lru_node->logical_node_num,mark_bool[ptr_lru_node->logical_node_num]);
 			}
 			printf("remove page:%d\n",k);
 
@@ -5960,7 +5960,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       printf("exist:%d\n",ptr_lru_node->page[k].exist);
     }
 		
-
+    
 			//printf("block num:%d\n",ptr_lru_node->logical_node_num);
 		//this line will affect which channel we are writing into. (from the write buffer to SSD)
 		k++;
