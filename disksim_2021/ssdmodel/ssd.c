@@ -5932,6 +5932,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         }		  
 		if(ptr_lru_node->page[k].exist == 2 ){
 			printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
+      printf("buffer num:%d\n",ptr_lru_node->buffer_page_num);
       if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
             mark_bool[ptr_lru_node->logical_node_num]=0;
           }
@@ -5939,6 +5940,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         printf("kick page but not been marked...%d k:%d",ptr_lru_node->logical_node_num,k);
         exit(0);
       }
+      printf("mark_bool[%d]=%d\n",ptr_lru_node->logical_node_num,mark_bool[ptr_lru_node->logical_node_num]);
+
     	//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
 			//一旦執行free，代表整個block都會消失
 			//之前做的事情是將ptr_lru_node或者是current_block[channel_num][plane].ptr_lru_node指向ptr_lru_node struct pointer的起始點
