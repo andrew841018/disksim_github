@@ -5934,21 +5934,20 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         }		  
 		if(ptr_lru_node->page[k].exist == 2 ){
 			printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
-			//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
+      if(mark_bool[ptr_lru_node->logical_node_num]==1){
+            mark_bool[ptr_lru_node->logical_node_num]=0;
+          }
+          else{
+            printf("kick page but not been marked...%d",ptr_lru_node->logical_node_num);
+            exit(0);
+          }
+    	//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
 			//一旦執行free，代表整個block都會消失
 			//之前做的事情是將ptr_lru_node或者是current_block[channel_num][plane].ptr_lru_node指向ptr_lru_node struct pointer的起始點
 			//因此，一旦執行free，所有指的位置變成指向空，因此不論是current_block,ptr_lru_node或是其他原本可以存取到ptr_lru_node struct
 			//的變數，通通都無法存取。
 			//因為指標的目的地已經不存在了，當然連帶後續的指標也不可能存取到(link list的缺點)
-			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);		
-			if(mark_bool[ptr_lru_node->logical_node_num]==1){
-        mark_bool[ptr_lru_node->logical_node_num]=0;
-      }
-      /*else{
-        printf("kick page but not been marked...%d",ptr_lru_node->logical_node_num);
-        exit(0);
-      }*/
-				 		
+			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);							 		
 		}
 		
 
