@@ -5826,7 +5826,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //as ta result,if the program can't enter in this while loop
     //the main reason will because current_mark_count=0. 
     while(k<LRUSIZE && current_block[channel_num][plane].current_mark_count>0)
-    {	   
+    {	  
       if(no_page_can_evict != 0)//預防機制，實際上不會進入這裡
       {
         printf("no_page_can_evict\n");
@@ -5944,6 +5944,11 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			if(mark_bool[ptr_lru_node->logical_node_num]==1) 
 				mark_bool[ptr_lru_node->logical_node_num]=0; 		
 		}
+		else{
+			if(ptr_lru_node->logical_node_num==49168)
+				sleep(1);
+		}
+		
 
 			//printf("block num:%d\n",ptr_lru_node->logical_node_num);
 		//this line will affect which channel we are writing into. (from the write buffer to SSD)
