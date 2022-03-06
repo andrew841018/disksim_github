@@ -5119,7 +5119,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			exit(0);
 		}*/	
         mark_for_specific_current_block(ptr_buffer_cache,i,j);	
-        printf("outside the function:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);
+        printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);
         if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						                
           if(initial==0){
             printf("hiiii\n");		
@@ -5428,7 +5428,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
   }
 		if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]!=0){
 			ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num];
-			printf("inside the function:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+			printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]);
 		}
 		else{
 		  printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
