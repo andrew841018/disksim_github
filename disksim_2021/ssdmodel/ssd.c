@@ -5114,9 +5114,14 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         if(initial==0)
           printf("enter\n");
 		//this function won't change ptr_current_mark_node until leave the function
+        lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
         mark_for_specific_current_block(ptr_buffer_cache,i,j);	
+        second=ptr_buffer_cache->ptr_current_mark_node;
+        if(first==second){
+			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+		}
         for(k=0;k<LRUSIZE;k++){
-          if(current_block[i][j].ptr_lru_node->page[i].exist==1){
+          if(current_block[i][j].ptr_lru_node->page[k].exist==1){
             printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
 			exit(0);
           }
@@ -5134,7 +5139,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           else{
             printf("initial=1\n");
           } 
-          if(current_block[i][j].ptr_lru_node->logical_node_num==65547){
+          if(current_block[i][j].ptr_lru_node->logical_node_num==81928){
             sleep(1);
           }     
           b1=1;
