@@ -5136,10 +5136,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);	
             
           }
-          else{
+          else{ 
             printf("initial=1\n");
           } 
-          if(current_block[i][j].ptr_lru_node->logical_node_num==81928){
+          if(current_block[i][j].ptr_lru_node->logical_node_num==16384){
             sleep(1);
           }     
           b1=1;
@@ -5932,21 +5932,21 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //ptr_lru_node->page[offset_in_node].strip = 0;
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
-        }	
-    if(ptr_lru_node->logical_node_num==49157 && k==62){
-      sleep(1);
-    }	     
+        }		     
 		if(ptr_lru_node->page[k].exist == 2 ){
 			printf("buffer num:%d\n",ptr_lru_node->buffer_page_num);
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
-			  printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
-			  mark_bool[ptr_lru_node->logical_node_num]=0;
-        k++;
-        break;
+				printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
+				mark_bool[ptr_lru_node->logical_node_num]=0;
+				k++;
+				if(ptr_lru_node->logical_node_num==16384){
+					sleep(1);
+				}
+				break;
 			  }
 			else if(mark_bool[ptr_lru_node->logical_node_num]==0){
-        printf("kick page but not been marked...%d k:%d",ptr_lru_node->logical_node_num,k);
-        exit(0);
+				printf("kick page but not been marked...%d k:%d",ptr_lru_node->logical_node_num,k);
+				exit(0);
 			}
 			printf("remove page:%d\n",k);
 
