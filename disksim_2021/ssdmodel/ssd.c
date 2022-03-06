@@ -5218,8 +5218,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       order=order->next;        
     }
     //printf("out\n");
-    if(mark_bool[81920]==1)
-      sleep(1);
     order=order1;
     ptr_buffer_cache->p=order;		
     while(order->next!=NULL){	
@@ -5937,8 +5935,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
             mark_bool[ptr_lru_node->logical_node_num]=0;
           }
-      else if(ptr_lru_node->buffer_page_num==1){
-        printf("kick page but not been marked...%d",ptr_lru_node->logical_node_num);
+      else if(mark_bool[ptr_lru_node->logical_node_num]==0){
+        printf("kick page but not been marked...%d k:%d",ptr_lru_node->logical_node_num,k);
         exit(0);
       }
     	//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
