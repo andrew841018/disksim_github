@@ -5941,7 +5941,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			//的變數，通通都無法存取。
 			//因為指標的目的地已經不存在了，當然連帶後續的指標也不可能存取到(link list的缺點)
 			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);		
-			if(mark_bool[ptr_lru_node->logical_node_num]==1){
+			if(mark_bool[ptr_lru_node->logical_node_num]==1 && k==63){
         mark_bool[ptr_lru_node->logical_node_num]=0;
       }
       else{
