@@ -5120,8 +5120,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 		}*/	
         mark_for_specific_current_block(ptr_buffer_cache,i,j);	
         for(k=0;k<LRUSIZE;k++){
-          if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
-            printf("not mark! %d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num);
+          if(current_block[i][j].ptr_lru_node->page[i].exist==1){
+            printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
+			exit(0);
           }
         }
         printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);
@@ -5135,7 +5136,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             
           }
           else{
-            printf("initial=1");
+            printf("initial=1\n");
           } 
           if(current_block[i][j].ptr_lru_node->logical_node_num==65547){
             sleep(1);
