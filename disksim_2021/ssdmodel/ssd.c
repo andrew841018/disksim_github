@@ -5781,11 +5781,11 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       /*sh-- our dynamic allocation policy*/
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
     if(first!=NULL)
-		ptr_buffer_cache->p=first;
+		  ptr_buffer_cache->p=first;
 	//why while(order!=NULL) error? 	
 	profit *order=ptr_buffer_cache->p;//it remove order->next and all further node
 	while(order->next!=NULL){
-		printf("benefit:%f logical_block:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
+		printf("benefit:%f logical_block:%d mark:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);
 		order=order->next;
 	}
 
@@ -5949,10 +5949,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         exit(0);
       }
 				 		
-		}
-		else{
-			if(ptr_lru_node->logical_node_num==49168)
-				sleep(1);
 		}
 		
 
