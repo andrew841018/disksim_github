@@ -5936,7 +5936,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
           //ptr_lru_node->page[offset_in_node].strip = 0;
           //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
-        }		  
+        }		     
 		if(ptr_lru_node->page[k].exist == 2 ){
 			//printf("buffer num:%d\n",ptr_lru_node->buffer_page_num);
       if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
@@ -5960,6 +5960,9 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			//因為指標的目的地已經不存在了，當然連帶後續的指標也不可能存取到(link list的缺點)
 			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);							 		
 		}
+    else{
+      printf("exist:%d\n",ptr_lru_node->page[k].exist);
+    }
 		
 
 			//printf("block num:%d\n",ptr_lru_node->logical_node_num);
