@@ -5826,7 +5826,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     if(current_block[channel_num][plane].ptr_lru_node->logical_node_num==65547){
       sleep(1);
     }
-    while(k<LRUSIZE && ptr_lru_node->buffer_page_num>0)
+    while(k<LRUSIZE)
     {	  
       if(no_page_can_evict != 0)//預防機制，實際上不會進入這裡
       {
@@ -5941,10 +5941,12 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
 			  printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 			  mark_bool[ptr_lru_node->logical_node_num]=0;
+        k++;
+        break;
 			  }
 			else if(mark_bool[ptr_lru_node->logical_node_num]==0){
-			printf("kick page but not been marked...%d k:%d",ptr_lru_node->logical_node_num,k);
-			exit(0);
+        printf("kick page but not been marked...%d k:%d",ptr_lru_node->logical_node_num,k);
+        exit(0);
 			}
 			printf("remove page:%d\n",k);
 
@@ -5961,7 +5963,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     }
 		
     
-			//printf("block num:%d\n",ptr_lru_node->logical_node_num);
+		//printf("block num:%d\n",ptr_lru_node->logical_node_num);
 		//this line will affect which channel we are writing into. (from the write buffer to SSD)
 		k++;
 		current_block[channel_num][plane].flush_w_count_in_current ++;
