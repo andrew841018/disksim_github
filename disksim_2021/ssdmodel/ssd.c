@@ -5107,6 +5107,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   
+		if(current_block[i][j].ptr_lru_node!=NULL){
+			if(current_block[i][j].ptr_lru_node->logical_node_num==16384){
+				int ggg=1;
+			  }
+	  }
 	  /*if(initial==0)
 		printf("mark count:%d\n",current_block[i][j].current_mark_count);*/
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
@@ -5140,7 +5145,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             printf("initial=1\n");
           } 
           if(current_block[i][j].ptr_lru_node->logical_node_num==16384){
-            sleep(1);
+            int ggg=1;
           }     
           b1=1;
           //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
@@ -5938,10 +5943,11 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
 				printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 				mark_bool[ptr_lru_node->logical_node_num]=0;
-				k++;
+				k++;			
 				if(ptr_lru_node->logical_node_num==16384){
 					sleep(1);
 				}
+				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);							 		
 				break;
 			  }
 			else if(mark_bool[ptr_lru_node->logical_node_num]==0){
