@@ -5954,7 +5954,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       if(ptr_lru_node->buffer_page_num==1){
         printf("mark_bool[%d]=%d\n",ptr_lru_node->logical_node_num,mark_bool[ptr_lru_node->logical_node_num]);
       }
-      
+      printf("remove page:%d\n",k);
 
     	//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
 			//一旦執行free，代表整個block都會消失
