@@ -5119,6 +5119,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			exit(0);
 		}*/	
         mark_for_specific_current_block(ptr_buffer_cache,i,j);	
+        for(k=0;k<LRUSIZE;k++){
+          if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
+            printf("not mark! %d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num);
+          }
+        }
         printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);
         if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						                
           tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
@@ -5441,7 +5446,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
 		assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
-	while(1)
+	while(ptr_buffer_cache->current_mark_offset<LRUSIZE)
 	{
 		//LB_to_complete_mark;
 		if(ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
@@ -5522,7 +5527,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			}
 			//printf("3186 current_block[%d][%d].ptr_lru_node = %d|.current_mark_count=%d;\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
 			//printf("f\n");
-			break;
 		}
 		else if(ptr_buffer_cache->current_mark_offset == LRUSIZE)
 		{
@@ -5574,7 +5578,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			/*current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
 			assert(current_block[channel_num][plane].ptr_lru_node != NULL);
 			current_block[channel_num][plane].offset_in_node = ptr_buffer_cache->current_mark_offset;*/
-			break;
 		}
     if(outout==1)
     {
