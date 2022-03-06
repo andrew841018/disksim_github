@@ -5931,8 +5931,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
         }		  
 		if(ptr_lru_node->page[k].exist == 2 ){
-			printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
-      printf("buffer num:%d\n",ptr_lru_node->buffer_page_num);
+			//printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
+      //printf("buffer num:%d\n",ptr_lru_node->buffer_page_num);
       if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
             mark_bool[ptr_lru_node->logical_node_num]=0;
           }
@@ -5940,7 +5940,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         printf("kick page but not been marked...%d k:%d",ptr_lru_node->logical_node_num,k);
         exit(0);
       }
-      printf("mark_bool[%d]=%d\n",ptr_lru_node->logical_node_num,mark_bool[ptr_lru_node->logical_node_num]);
+      //printf("mark_bool[%d]=%d\n",ptr_lru_node->logical_node_num,mark_bool[ptr_lru_node->logical_node_num]);
+
 
     	//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
 			//一旦執行free，代表整個block都會消失
@@ -6003,9 +6004,9 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     printf("k:%d\n",k);
     printf("mark count:%d\n",current_block[channel_num][plane].current_mark_count);
     //sleep(1);
-	printf("leave second while channel:%d plane:%d\n",channel_num,plane);
+	  printf("leave second while channel:%d plane:%d\n",channel_num,plane);
     printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
-	printf("out\n");
+	  printf("out\n");
     kick_channel_times++;
   }
   /*
