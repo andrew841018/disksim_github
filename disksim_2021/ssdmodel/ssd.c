@@ -5142,7 +5142,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             //the new block enter,after A_kick kick a block
             printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);
             if(current_block[i][j].ptr_lru_node->logical_node_num==16420){
-				int ggg=3;
+				int ggg=3;//there will 
 			}	
           }
           else{ 
@@ -5205,8 +5205,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			int ggg=3;
 		}
         ptr_buffer_cache->p=start;     
-        }   
-        sleep(1);     	
+        } 
+        if(initial==0)  
+			sleep(1);     	
 	   }
 		else{
 			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",current_block[i][j].ptr_lru_node->logical_node_num);
@@ -5218,6 +5219,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     printf("b1=0\n");
     return;
   }	
+  
 	if(initial==0){
 		insert=ptr_buffer_cache->p;
 		if(insert!=NULL){
@@ -5229,10 +5231,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				//do nothing,and left the if condition
 			}
 		}
-		while(insert->next!=NULL){	
-			/*FILE *wb=fopen("wb.txt","a+");
-			fprintf(wb,"block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);
-			fclose(wb);*/
+		while(insert->next!=NULL){				
 			printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
 			insert=insert->next;
 		}		
@@ -5850,7 +5849,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		prev=order;
 		order=order->next;
 		first=order;
-		prev=NULL;
 		printf("channel:%d plane:%d\n",channel_num,plane);		       
         //plane = find_min_write_count_plane(channel_num);
         //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5982,6 +5980,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
 				printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 				mark_bool[ptr_lru_node->logical_node_num]=0;	
+				free(prev);
 				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);				
 				k++;						 		
 				break;
