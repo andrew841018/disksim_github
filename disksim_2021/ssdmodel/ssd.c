@@ -5143,7 +5143,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             printf("hiiii\n");		
             //the new block enter,after A_kick kick a block
             printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);	
-            
           }
           else{ 
             printf("initial=1\n");
@@ -5154,6 +5153,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
           if(initial==0){
             insert=ptr_buffer_cache->p;
+            if(insert==NULL){
+				int ggg=3;
+			}
             start=ptr_buffer_cache->p;
             current=malloc(sizeof(profit));
             prev=malloc(sizeof(profit));
@@ -5186,11 +5188,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 						current->plane=j;
 						prev->next=current;
 						current->next=insert;
+						first=1;
 						break;
-					}					
+					}										
 			  }
 			  //insert only have one node
-			  if(insert->next==NULL && insert!=NULL && first==0){
+			  if(insert!=NULL && first==0){
 				current->benefit=tmp[i][j];
 				current->channel_num=i;
 				current->plane=j;  			
@@ -5198,13 +5201,13 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 					insert->next=current;
 					start=insert;
 				}
-			  }
-			  ptr_buffer_cache->p=start; 
-        }        
+			  }			  
+        }    
+        ptr_buffer_cache->p=start;     
         }        	
 	   }
 		else{
-			printf("channel:%d plane:%d\n",i,j);
+			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",current_block[i][j].ptr_lru_node->logical_node_num);
 		}		     
       }
 	  }
@@ -5215,16 +5218,22 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   }	
 	if(initial==0){
 		insert=ptr_buffer_cache->p;
+		if(insert!=NULL){
+			if(insert->next==NULL){
+				printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
+				return;
+			}
+			else{
+				//do nothing,and left the if condition
+			}
+		}
 		while(insert->next!=NULL){	
 			/*FILE *wb=fopen("wb.txt","a+");
 			fprintf(wb,"block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);
 			fclose(wb);*/
 			printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
 			insert=insert->next;
-		}
-		if(insert->next==NULL && insert!=NULL){
-			printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
-		}
+		}		
 		int ggg=3;
 }  	 
   if(initial==1){	
