@@ -5114,8 +5114,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     for(j = 0;j < PLANE_NUM;j++)
     {   	
 	  first=0;	
-	  /*if(initial==0)
-		printf("mark count:%d\n",current_block[i][j].current_mark_count);*/
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
         if(initial==0)
@@ -5142,7 +5140,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           if(initial==0){
             printf("hiiii\n");		
             //the new block enter,after A_kick kick a block
-            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);	
+            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);
+            if(current_block[i][j].ptr_lru_node->logical_node_num==16420){
+				int ggg=3;
+			}	
           }
           else{ 
             printf("initial=1\n");
@@ -5153,9 +5154,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
           if(initial==0){
             insert=ptr_buffer_cache->p;
-            if(insert==NULL){
-				int ggg=3;
-			}
             start=ptr_buffer_cache->p;
             current=malloc(sizeof(profit));
             prev=malloc(sizeof(profit));
@@ -5203,8 +5201,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				}
 			  }			  
         }    
+        if(start==NULL){
+			int ggg=3;
+		}
         ptr_buffer_cache->p=start;     
-        }        	
+        }   
+        sleep(1);     	
 	   }
 		else{
 			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",current_block[i][j].ptr_lru_node->logical_node_num);
@@ -5234,7 +5236,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
 			insert=insert->next;
 		}		
-		int ggg=3;
 }  	 
   if(initial==1){	
     double min;
@@ -5257,6 +5258,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         }
       }
       if(b==0){
+		free(order);
         break;			  
     }  
       order->channel_num=channel;
@@ -5976,7 +5978,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
         }		     
 		if(ptr_lru_node->page[k].exist == 2 ){
-			printf("buffer num:%d mark count:%d\n",ptr_lru_node->buffer_page_num,current_block[channel_num][plane].current_mark_count);
+			//printf("buffer num:%d mark count:%d\n",ptr_lru_node->buffer_page_num,current_block[channel_num][plane].current_mark_count);
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
 				printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 				mark_bool[ptr_lru_node->logical_node_num]=0;	
@@ -5988,7 +5990,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 				printf("kick page but not been marked...%d k:%d",ptr_lru_node->logical_node_num,k);
 				exit(0);
 			}
-			printf("remove page:%d\n",k);
+			//printf("remove page:%d\n",k);
 				
     	//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
 			//一旦執行free，代表整個block都會消失
