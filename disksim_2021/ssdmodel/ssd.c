@@ -5099,7 +5099,7 @@ int mark_block[1000000];
 int mark_count;
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  int i = 0,j = 0,b1=0,k=0,w,first;
+  int i = 0,j = 0,b1=0,k=0,w,first1;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
   profit *insert,*prev,*current,*start;
   insert=malloc(sizeof(profit));
@@ -5113,7 +5113,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   	
-	  first=0;	
+	  first1=0;	
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
         if(initial==0)
@@ -5172,10 +5172,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 					current->plane=j;
 					current->next=insert;
 					start=current;
-					first=1;//tmp[i][j] is the first node in profit pointer
+					first1=1;//tmp[i][j] is the first node in profit pointer
 					}
 				//insert node is not the first one.
-				while(insert->next!=NULL && first==0){ 					             				
+				while(insert->next!=NULL && first1==0){ 					             				
 					if(tmp[i][j]>insert->benefit){
 						prev=insert;
 						insert=insert->next;
@@ -5186,12 +5186,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 						current->plane=j;
 						prev->next=current;
 						current->next=insert;
-						first=1;
+						first1=1;
 						break;
 					}										
 			  }
 			  //insert only have one node
-			  if(insert!=NULL && first==0){
+			  if(insert!=NULL && first1==0){
 				current->benefit=tmp[i][j];
 				current->channel_num=i;
 				current->plane=j;  			
