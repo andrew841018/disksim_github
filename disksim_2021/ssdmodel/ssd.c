@@ -5155,6 +5155,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           if(initial==0){
             insert=ptr_buffer_cache->p;
             start=ptr_buffer_cache->p;
+            assert(ptr_buffer_cache->p->channel_num<8);
+            assert(ptr_buffer_cache->p->plane<8);          
             current=malloc(sizeof(profit));
             prev=malloc(sizeof(profit));
             //insert current block to profit pointer--->according to the benefit value.
@@ -5163,6 +5165,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				current->channel_num=i;
 				current->plane=j;
 				start=current;
+				assert(start->channel_num<8);
+				assert(start->plane<8);				
 			}
 			else{
             //the new block is first(benefit is min)
@@ -5174,6 +5178,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 					start=current;
 					first1=1;//tmp[i][j] is the first node in profit pointer
 					}
+				assert(start->channel_num<8);
+				assert(start->plane<8);
 				//insert node is not the first one.
 				while(insert->next!=NULL && first1==0){ 					             				
 					if(tmp[i][j]>insert->benefit){
@@ -5186,7 +5192,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 						current->plane=j;
 						prev->next=current;
 						current->next=insert;
-						first1=1;
+						first1=1;					
 						break;
 					}										
 			  }
@@ -5204,6 +5210,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         if(start==NULL){
 			int ggg=3;
 		}
+		assert(start->channel_num<8);
+		assert(start->plane<8);
         ptr_buffer_cache->p=start;     
         } 
         if(initial==0)  
@@ -5222,6 +5230,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   
 	if(initial==0){
 		insert=ptr_buffer_cache->p;
+		assert(insert->channel_num<8);
+		assert(insert->plane<8);
 		if(insert!=NULL){
 			if(insert->next==NULL){
 				printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
@@ -5233,6 +5243,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 		}
 		while(insert->next!=NULL){				
 			printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
+			assert(insert->next->channel_num<8);
+			assert(insert->next->plane<8);
 			insert=insert->next;
 		}		
 }  	 
