@@ -4220,6 +4220,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+  printf("add new node:%d\n",physical_node_num);
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
@@ -4910,8 +4911,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,unsigned int verify_channel,unsigned int verify_plane,int flag)
 {
 	unsigned int channel_num = ptr_lru_node->page[offset_in_node].channel_num;
-	unsigned int plane = ptr_lru_node->page[offset_in_node].plane;
-
+	unsigned int plane = ptr_lru_node->page[offset_in_node].plane;	
   //printf("channel_num=%d |verify_channel=%d\n", channel_num,verify_channel);
 	
 	assert(channel_num == verify_channel);
@@ -5132,6 +5132,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           }
         }
         printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);
+        if(current_block[i][j].ptr_lru_node->logical_node_num==16384){
+			int ggg=3;
+		}
         if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						                
           tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
           mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1; 
@@ -5181,6 +5184,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           }
           ptr_buffer_cache->p=start;         
         }        	
+		}
+		else{
+			printf("channel:%d plane:%d\n",i,j);
 		}		     
       }
       /*else if(ptr_buffer_cache->p==NULL || ptr_buffer_cache->p->next=NULL){
@@ -5424,12 +5430,12 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 	{
 		// all of cache have be marked 
 	  if(ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
-		{
-      printf("ptr_buffer_cache->ptr_current_mark_node=%d == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-      return;
+	{
+		printf("ptr_buffer_cache->ptr_current_mark_node=%d == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+		return;
     }
 		//if the current mark node is read intensive
-		mark_for_read_intensive_buffer(ptr_buffer_cache);
+	mark_for_read_intensive_buffer(ptr_buffer_cache);
 	}
 	//the special channel and plane have had mark request
 	if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL || current_block[channel_num][plane].current_mark_count != 0)
@@ -5827,10 +5833,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     
     //as a result,if the program can't enter in this while loop
     //the main reason will because current_mark_count=0. 
-    printf("block num:%d mark count:%d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
-    if(current_block[channel_num][plane].ptr_lru_node->logical_node_num==65547){
-      sleep(1);
-    }
+    printf("block num:%d mark count:%d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);   
     while(k<LRUSIZE)
     {	  
       if(no_page_can_evict != 0)//預防機制，實際上不會進入這裡
@@ -5939,15 +5942,12 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
         }		     
 		if(ptr_lru_node->page[k].exist == 2 ){
-			printf("buffer num:%d\n",ptr_lru_node->buffer_page_num);
+			printf("buffer num:%d mark count:%d\n",ptr_lru_node->buffer_page_num,current_block[channel_num][plane].current_mark_count);
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
 				printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
-				mark_bool[ptr_lru_node->logical_node_num]=0;
-				k++;			
-				if(ptr_lru_node->logical_node_num==16384){
-					sleep(1);
-				}
-				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);							 		
+				mark_bool[ptr_lru_node->logical_node_num]=0;													
+				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);	
+				k++;						 		
 				break;
 			  }
 			else if(mark_bool[ptr_lru_node->logical_node_num]==0){
@@ -5955,7 +5955,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 				exit(0);
 			}
 			printf("remove page:%d\n",k);
-
+				
     	//when we remove all page in ptr_lru_node-->buffer page=0,it will free(ptr_lru_node).
 			//一旦執行free，代表整個block都會消失
 			//之前做的事情是將ptr_lru_node或者是current_block[channel_num][plane].ptr_lru_node指向ptr_lru_node struct pointer的起始點
@@ -6018,7 +6018,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     
     //the same time remove all pages,is the same time mark count=0....I tested.
     printf("k:%d\n",k);
-    printf("mark count:%d\n",current_block[channel_num][plane].current_mark_count);
+    printf("current_block[%d][%d]:%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count);
     //sleep(1);
 	  printf("leave second while channel:%d plane:%d\n",channel_num,plane);
     printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
