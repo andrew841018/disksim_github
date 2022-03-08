@@ -5884,7 +5884,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //so when current mark count=0,In theory,the profit pointer =NULL.
     
     
-    //as a result,if the program can't enter in this while loop
+    //as a result,if the program can't enter in this while loop 
     //the main reason will because current_mark_count=0. 
     printf("block num:%d mark count:%d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);   
     while(k<LRUSIZE)
