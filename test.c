@@ -9,9 +9,10 @@ typedef struct _profit{
 }profit;
 int main(){
 	profit *wb=malloc(sizeof(profit)),*order;
-	order=wb;
+	//order=wb;
 	int i;
-	for(i=0;i<10;i++){
+	wb=NULL;
+	/*for(i=0;i<10;i++){
 		wb->plane=i;
 		wb->next=malloc(sizeof(profit));
 		wb=wb->next;
@@ -20,6 +21,6 @@ int main(){
 	while(order->next!=NULL){
 		printf("%d\n",order->plane);
 		order=order->next;
-	}
+	}*/
 	return 0;
 }

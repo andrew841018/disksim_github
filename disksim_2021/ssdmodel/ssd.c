@@ -5120,7 +5120,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           printf("enter\n");		
         lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
         //this function won't change ptr_current_mark_node until leave the function
-        mark_for_specific_current_block(ptr_buffer_cache,i,j);	
+        mark_for_specific_current_block(ptr_buffer_cache,i,j);
+        printf("mark count:%d\n",current_block[i][j].current_mark_count);
         second=ptr_buffer_cache->ptr_current_mark_node;
         if(first==second){
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -5155,21 +5156,31 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           if(initial==0){
             insert=ptr_buffer_cache->p;            
             start=ptr_buffer_cache->p;
-            assert(ptr_buffer_cache->p->channel_num<8);
-            assert(ptr_buffer_cache->p->plane<8);          
+            if(ptr_buffer_cache->p!=NULL){
+				assert(ptr_buffer_cache->p->channel_num<8);
+				assert(ptr_buffer_cache->p->plane<8);
+			}          
             current=malloc(sizeof(profit));
             prev=malloc(sizeof(profit));
             
             //insert current block to profit pointer--->according to the benefit value.
+            
+            //if insert is NULL,you can't assign anything to it,only if insert!=NULL can do it.
             if(insert==NULL){
+				insert=malloc(sizeof(profit));
+				printf("insert=NULL\n");
+						
+			}
+			if(insert->next==NULL){
 				current->benefit=tmp[i][j];
 				current->channel_num=i;
 				current->plane=j;
-				start=current;			
+				start=current;	
 			}
 			else{
             //the new block is first(benefit is min)
 				if(tmp[i][j]<=insert->benefit){
+					printf("insert to the first node\n");
 					current->benefit=tmp[i][j];
 					current->channel_num=i;
 					current->plane=j;
@@ -5184,6 +5195,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 						insert=insert->next;
 					}
 					else{
+						printf("insert in the middle of profit pointer\n");
 						current->benefit=tmp[i][j];
 						current->channel_num=i;
 						current->plane=j;
@@ -5223,7 +5235,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 		assert(insert->plane<8);
 		if(insert!=NULL){
 			if(insert->next==NULL){
-				printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
+				printf("(insert->next=NULL)block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
 				return;
 			}
 			else{
@@ -5232,8 +5244,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 		}
 		while(insert->next!=NULL){				
 			printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
-			assert(insert->next->channel_num<8);
-			assert(insert->next->plane<8);
+			assert(insert->channel_num<8);
+			assert(insert->plane<8);
 			insert=insert->next;
 		}		
 }  	 
@@ -5560,7 +5572,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			}
 			//printf("3186 current_block[%d][%d].ptr_lru_node = %d|.current_mark_count=%d;\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
 			//printf("f\n");
-      break;
+			break;
 		}
 		else if(ptr_buffer_cache->current_mark_offset == LRUSIZE)
 		{
@@ -5612,7 +5624,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			/*current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
 			assert(current_block[channel_num][plane].ptr_lru_node != NULL);
 			current_block[channel_num][plane].offset_in_node = ptr_buffer_cache->current_mark_offset;*/
-      break;
+			break;
 		}
     if(outout==1)
     {
@@ -5807,24 +5819,26 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
   int kick=0;
-  profit *order,*prev,*first=NULL; 
+  profit *order,*prev; 
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
     //printf(" > max_buffer_page_num|");
 
       /*sh-- our dynamic allocation policy*/
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
-    if(first!=NULL)
-		ptr_buffer_cache->p=first;
 	//why while(order!=NULL) error? 	
-	profit *order=ptr_buffer_cache->p;//it remove order->next and all further node
+	order=ptr_buffer_cache->p;//it remove order->next and all further node
 	while(order->next!=NULL){
+		if(order->channel_num>=8 || order->plane>=8){
+			order=NULL;
+			break;	
+		}
 		printf("benefit:%f logical_block:%d mark:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);
 		for(w=0;w<mark_count;w++){
 			if(mark_block[w]==current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num){
 				mark_block[w]=-1;
 			}
-		}		
+		}			
 		order=order->next;
 	}
 	for(w=0;w<mark_count;w++){
@@ -6064,6 +6078,24 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   if(current_block[channel_num][plane].current_mark_count!=0)
 	current_block[channel_num][plane].current_mark_count=0;*/
   ptr_buffer_cache->p=order;
+  if(channel_num==7 && plane==2){
+	int ggg=3;
+  }
+  while(order->next!=NULL){
+	if(order->channel_num>=8 || order->channel_num<0 || order->plane>=8 || order->plane<0){
+		printf("inside if condition\n");
+		order=NULL;
+		break;
+	}
+	printf("channel:%d plane:%d benefit:%f\n",order->channel_num,order->plane,order->benefit);
+	assert(order->channel_num<8);
+	assert(order->plane<8);
+	order=order->next;
+  }
+  printf("leave while loop\n");
+  if(order!=NULL)
+	order=NULL;
+
  // exit(0);
   kick_count+=kick;
   my_kick_node+=kick;
