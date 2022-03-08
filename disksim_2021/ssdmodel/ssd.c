@@ -5153,20 +5153,19 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
           if(initial==0){
-            insert=ptr_buffer_cache->p;
+            insert=ptr_buffer_cache->p;            
             start=ptr_buffer_cache->p;
             assert(ptr_buffer_cache->p->channel_num<8);
             assert(ptr_buffer_cache->p->plane<8);          
             current=malloc(sizeof(profit));
             prev=malloc(sizeof(profit));
+            
             //insert current block to profit pointer--->according to the benefit value.
             if(insert==NULL){
 				current->benefit=tmp[i][j];
 				current->channel_num=i;
 				current->plane=j;
-				start=current;
-				assert(start->channel_num<8);
-				assert(start->plane<8);				
+				start=current;			
 			}
 			else{
             //the new block is first(benefit is min)
@@ -5177,9 +5176,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 					current->next=insert;
 					start=current;
 					first1=1;//tmp[i][j] is the first node in profit pointer
-					}
-				assert(start->channel_num<8);
-				assert(start->plane<8);
+					}					
 				//insert node is not the first one.
 				while(insert->next!=NULL && first1==0){ 					             				
 					if(tmp[i][j]>insert->benefit){
@@ -5206,16 +5203,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 					start=insert;
 				}
 			  }			  
-        }    
-        if(start==NULL){
-			int ggg=3;
-		}
-		assert(start->channel_num<8);
-		assert(start->plane<8);
+        }    		
         ptr_buffer_cache->p=start;     
-        } 
-        if(initial==0)  
-			sleep(1);     	
+        }     	
 	   }
 		else{
 			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",current_block[i][j].ptr_lru_node->logical_node_num);
@@ -5227,7 +5217,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     printf("b1=0\n");
     return;
   }	
-  
 	if(initial==0){
 		insert=ptr_buffer_cache->p;
 		assert(insert->channel_num<8);
@@ -5860,7 +5849,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		plane=order->plane;
 		prev=order;
 		order=order->next;
-		first=order;
 		printf("channel:%d plane:%d\n",channel_num,plane);		       
         //plane = find_min_write_count_plane(channel_num);
         //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5992,7 +5980,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
 				printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 				mark_bool[ptr_lru_node->logical_node_num]=0;	
-				free(prev);
 				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);				
 				k++;						 		
 				break;
@@ -6076,7 +6063,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   /*
   if(current_block[channel_num][plane].current_mark_count!=0)
 	current_block[channel_num][plane].current_mark_count=0;*/
-  ptr_buffer_cache->p=first;
+  ptr_buffer_cache->p=order;
  // exit(0);
   kick_count+=kick;
   my_kick_node+=kick;
