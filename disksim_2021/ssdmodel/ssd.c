@@ -5119,7 +5119,6 @@ void insert_value(double benefit,buffer_cache *ptr_buffer_cache,int channel,int 
     ptr_buffer_cache->p=prev; 
   }
 }
-
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0,b1=0;
@@ -5134,54 +5133,52 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
         tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
         b1=1;
-      }
-      else if(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num && current_block[i][j].current_mark_count == 0){
-		  A_mark_for_specific_current_block(ptr_buffer_cache,i,j);
-		  tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
-		  b1=1;
-	  }
+      }      
     }
   }
   if(b1==0){
 	printf("b1=0\n");
 	return;
 }
-  double min;
-  int channel,plane,b=0,count=0;
-  profit *order1,*order;
-  order=malloc(sizeof(profit));//from min benefit to max benefit
-  order1=order;//store order address to order1
-  while(1){
-	  min=10000;
-	  b=0;
-	  for(i=0;i<CHANNEL_NUM;i++){
-		  for(j=0;j<PLANE_NUM;j++){
-			  //printf("tmp:%f\n",tmp[i][j]);
-        if(min>tmp[i][j] && tmp[i][j]<10 && tmp[i][j]!=0){
-          min=tmp[i][j];
-          channel=i;
-          plane=j;
-          b=1;
-        }
+  if(initial==1){
+	  double min;
+	  int channel,plane,b=0,count=0;
+	  profit *order1,*order;
+	  order=malloc(sizeof(profit));//from min benefit to max benefit
+	  order1=order;//store order address to order1
+	  while(1){
+		  min=10000;
+		  b=0;
+		  for(i=0;i<CHANNEL_NUM;i++){
+			  for(j=0;j<PLANE_NUM;j++){
+				  //printf("tmp:%f\n",tmp[i][j]);
+			if(min>tmp[i][j] && tmp[i][j]<10 && tmp[i][j]!=0){
+			  min=tmp[i][j];
+			  channel=i;
+			  plane=j;
+			  b=1;
+			}
+			  }
 		  }
-	  }
-	  if(b==0){
-		break;			  
-	}  
-      order->channel_num=channel;
-      order->plane=plane;
-      order->benefit=tmp[channel][plane];
-      tmp[channel][plane]=10;
-      order->next=malloc(sizeof(profit));
-      order=order->next;        
+		  if(b==0){
+			break;			  
+		}  
+		  order->channel_num=channel;
+		  order->plane=plane;
+		  order->benefit=tmp[channel][plane];
+		  tmp[channel][plane]=10;
+		  order->next=malloc(sizeof(profit));
+		  order=order->next;        
+	}
+		//printf("out\n");
+		order=order1;
+		ptr_buffer_cache->p=order;		
+		while(order->next!=NULL){	
+			printf("block:%d benefit:%f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);		
+			order=order->next;
+		}	
+		initial=0;
 }
-	//printf("out\n");
-	order=order1;
-	ptr_buffer_cache->p=order;		
-	while(order->next!=NULL){	
-		printf("block:%d benefit:%f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);		
-		order=order->next;
-	}	
 }
 
 void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){  //trigger_mark_count++; //sinhome
