@@ -5118,22 +5118,22 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       {
         if(initial==0)
           printf("enter\n");		
-        lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
-        //this function won't change ptr_current_mark_node until leave the function
-        mark_for_specific_current_block(ptr_buffer_cache,i,j);
-        printf("mark count:%d\n",current_block[i][j].current_mark_count);
-        second=ptr_buffer_cache->ptr_current_mark_node;
-        if(first==second){
-			    ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-		}
-        for(k=0;k<LRUSIZE;k++){
-          if(current_block[i][j].ptr_lru_node->page[k].exist==1){
-            printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
-			      exit(0);
-          }
-        }
-        printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       
-        if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){						                
+        if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){
+			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
+			//this function won't change ptr_current_mark_node until leave the function
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);
+			printf("mark count:%d\n",current_block[i][j].current_mark_count);
+			second=ptr_buffer_cache->ptr_current_mark_node;
+			if(first==second){
+				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+			}
+			for(k=0;k<LRUSIZE;k++){
+			  if(current_block[i][j].ptr_lru_node->page[k].exist==1){
+				printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
+				exit(0);
+			  }
+			}
+		printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
           tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
           mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1; 
           mark_block[mark_count]=current_block[i][j].ptr_lru_node->logical_node_num;
@@ -5141,10 +5141,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           if(initial==0){
             printf("hiiii\n");		
             //the new block enter,after A_kick kick a block
-            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);
-            if(current_block[i][j].ptr_lru_node->logical_node_num==16420){
-				int ggg=3;//there will 
-			}	
+            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);           
           }
           else{ 
             printf("initial=1\n");
@@ -5220,6 +5217,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         }     	
 	   }
 		else{
+			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",current_block[i][j].ptr_lru_node->logical_node_num);
 		}		     
       }
@@ -5493,11 +5491,14 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     ptr_buffer_cache->current_mark_offset=0;
     //mark write intensive node
 		current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
-		current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
+		current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;		
 		assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(ptr_buffer_cache->current_mark_offset<LRUSIZE)
 	{
+		if(current_block[channel_num][plane].ptr_lru_node->logical_node_num==16384 && current_block[channel_num][plane].current_mark_count==0){
+			int ggg=3;
+		}
 		//LB_to_complete_mark;
 		if(ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
 		{
@@ -5863,7 +5864,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		plane=order->plane;
 		prev=order;
 		order=order->next;
-		printf("channel:%d plane:%d\n",channel_num,plane);		       
+		printf("channel:%d plane:%d\n",channel_num,plane);		
         //plane = find_min_write_count_plane(channel_num);
         //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
         //printf("inin channel=%d,plane=%d\n", channel_num,plane);
@@ -6064,7 +6065,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         }
       }
     }
-    
     //the same time remove all pages,is the same time mark count=0....I tested.
     printf("k:%d\n",k);
     printf("current_block[%d][%d]:%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count);
@@ -6078,9 +6078,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   if(current_block[channel_num][plane].current_mark_count!=0)
 	current_block[channel_num][plane].current_mark_count=0;*/
   ptr_buffer_cache->p=order;
-  if(channel_num==7 && plane==2){
-	int ggg=3;
-  }
   while(order->next!=NULL){
 	if(order->channel_num>=8 || order->channel_num<0 || order->plane>=8 || order->plane<0){
 		printf("inside if condition\n");
