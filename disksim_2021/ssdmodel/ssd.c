@@ -5118,7 +5118,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       {
         if(initial==0)
           printf("enter\n");		
-        if(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0){
+        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
 			//this function won't change ptr_current_mark_node until leave the function
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
@@ -5216,9 +5216,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         ptr_buffer_cache->p=start;     
         }     	
 	   }
-		else{
+		else{			
+			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",current_block[i][j].ptr_lru_node->logical_node_num);
 		}		     
       }
 	  }
@@ -5240,7 +5240,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				//do nothing,and left the if condition
 			}
 		}
-		while(insert->next!=NULL){				
+		while(insert->next!=NULL){	
+			if(insert->channel_num>=8 || insert->channel_num<0 || insert->plane>=8 || insert->plane<0){
+				insert=NULL;
+				break;
+			}			
 			printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
 			assert(insert->channel_num<8);
 			assert(insert->plane<8);
