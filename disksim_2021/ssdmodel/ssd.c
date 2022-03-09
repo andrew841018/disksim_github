@@ -5118,12 +5118,19 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       {
         if(initial==0)
           printf("enter\n");		
-        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
+        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0 && initial==1){
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
 			//this function won't change ptr_current_mark_node until leave the function
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
+			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
+			assert(current_block[i][j].current_mark_count>0);			
 			printf("mark count:%d\n",current_block[i][j].current_mark_count);
 			second=ptr_buffer_cache->ptr_current_mark_node;
+			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
+			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1; 
+			mark_block[mark_count]=current_block[i][j].ptr_lru_node->logical_node_num;
+			mark_count++;
+			assert(tmp[i][j]>0);
 			if(first==second){
 				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			}
@@ -5132,19 +5139,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
 				exit(0);
 			  }
-			}
-		printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
-          tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
-          mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1; 
-          mark_block[mark_count]=current_block[i][j].ptr_lru_node->logical_node_num;
-          mark_count++;
+			}        
           if(initial==0){
             printf("hiiii\n");		
             //the new block enter,after A_kick kick a block
             printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);           
-          }
-          else{ 
-            printf("initial=1\n");
           }   
           b1=1;
           //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
@@ -5216,9 +5215,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         ptr_buffer_cache->p=start;     
         }     	
 	   }
-		else{			
+		else if(initial==0){			
 			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 		}		     
       }
 	  }
@@ -5240,11 +5238,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				//do nothing,and left the if condition
 			}
 		}
-		while(insert->next!=NULL){	
-			if(insert->channel_num>=8 || insert->channel_num<0 || insert->plane>=8 || insert->plane<0){
-				insert=NULL;
-				break;
-			}			
+		while(insert->next!=NULL){							
 			printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
 			assert(insert->channel_num<8);
 			assert(insert->plane<8);
@@ -5257,6 +5251,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     profit *order1,*order;
     order=malloc(sizeof(profit));//from min benefit to max benefit
     order1=order;//store order address to order1
+    assert(order!=NULL);
     while(1){
       min=10000;
       b=0;
@@ -5271,10 +5266,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           }
         }
       }
-      if(b==0){
-		free(order);
-        break;			  
-    }  
+      if(b==0)
+		break;
+      assert(order!=NULL);       
       order->channel_num=channel;
       order->plane=plane;
       order->benefit=tmp[channel][plane];
@@ -5284,13 +5278,13 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     }
     //printf("out\n");
     order=order1;
-    ptr_buffer_cache->p=order;	   
+    ptr_buffer_cache->p=order;
     while(order->next!=NULL){	
       printf("block:%d benefit:%f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);		     
       order=order->next;
     }
 }
-	initial=0;	
+	initial=2;	
 }
 
 void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){  //trigger_mark_count++; //sinhome
@@ -5499,10 +5493,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(ptr_buffer_cache->current_mark_offset<LRUSIZE)
-	{
-		if(current_block[channel_num][plane].ptr_lru_node->logical_node_num==16384 && current_block[channel_num][plane].current_mark_count==0){
-			int ggg=3;
-		}
+	{		
 		//LB_to_complete_mark;
 		if(ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
 		{
@@ -5833,11 +5824,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
 	//why while(order!=NULL) error? 	
 	order=ptr_buffer_cache->p;//it remove order->next and all further node
-	while(order->next!=NULL){
-		if(order->channel_num>=8 || order->plane>=8){
-			order=NULL;
-			break;	
-		}
+	while(order->next!=NULL){		
 		printf("benefit:%f logical_block:%d mark:%d\n",order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);
 		for(w=0;w<mark_count;w++){
 			if(mark_block[w]==current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num){
@@ -5866,6 +5853,16 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 
 		//plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
 		plane=order->plane;
+		for(i=0;i<LRUSIZE;i++){
+			if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
+				if(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==1)
+					mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+				else{
+					printf("have unmark block!! mark_count:%d\n",current_block[channel_num][plane].current_mark_count);			
+					exit(0);
+				}
+			}
+		}
 		prev=order;
 		order=order->next;
 		printf("channel:%d plane:%d\n",channel_num,plane);		
@@ -6082,20 +6079,12 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   if(current_block[channel_num][plane].current_mark_count!=0)
 	current_block[channel_num][plane].current_mark_count=0;*/
   ptr_buffer_cache->p=order;
-  while(order->next!=NULL){
-	if(order->channel_num>=8 || order->channel_num<0 || order->plane>=8 || order->plane<0){
-		printf("inside if condition\n");
-		order=NULL;
-		break;
-	}
+  /*while(order->next!=NULL){	
 	printf("channel:%d plane:%d benefit:%f\n",order->channel_num,order->plane,order->benefit);
 	assert(order->channel_num<8);
 	assert(order->plane<8);
 	order=order->next;
-  }
-  printf("leave while loop\n");
-  if(order!=NULL)
-	order=NULL;
+  }*/
 
  // exit(0);
   kick_count+=kick;
