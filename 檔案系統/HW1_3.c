@@ -30,6 +30,41 @@ int main(){
         perror("error\n");
         return 0;
     }
+
+ //random write  1
+    /*gettimeofday(&start,NULL);
+    memset(disk,0,sizeof(disk));
+    for(i=0;i<1024;i++){
+        strcat(disk,"ar");
+    }
+    map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    for(i=0;i<50000;i++){
+        map+=rand()%25600;
+        memcpy(map,disk,2048);
+        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    }
+    gettimeofday(&end,NULL);
+	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+	printf("random write1: %f sec\n", diff/1000000);*/
+
+       //random write  2
+
+    gettimeofday(&start,NULL);
+    memset(disk,0,sizeof(disk));
+    for(i=0;i<1024;i++){
+        strcat(disk,"ar");
+    }
+    for(i=0;i<50000;i++){
+        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+        map+=rand()%25600;
+        memcpy(map,disk,2048);
+        fsync(f1);
+    } 
+    gettimeofday(&end,NULL);
+	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+	printf("random write 2: %f sec\n", diff/1000000);
+    exit(0);
+
     //sequential read
     gettimeofday(&start,NULL);
     for(i=0;i<count;i++){
@@ -67,7 +102,6 @@ int main(){
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
 	printf("random read: %f sec\n", diff/1000000);
     //random write  1
-
     gettimeofday(&start,NULL);
     memset(disk,0,sizeof(disk));
     for(i=0;i<1024;i++){
@@ -81,9 +115,11 @@ int main(){
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	printf("random write: %f sec\n", diff/1000000);
-    //random write  2
+	printf("random write1: %f sec\n", diff/1000000);
 
+
+    //random write  2
+/*
     gettimeofday(&start,NULL);
     memset(disk,0,sizeof(disk));
     for(i=0;i<1024;i++){
@@ -98,6 +134,6 @@ int main(){
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	printf("random write: %f sec\n", diff/1000000);
+	printf("random write 2: %f sec\n", diff/1000000);*/
     return 0;
 }
