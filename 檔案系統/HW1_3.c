@@ -12,7 +12,7 @@
 int main(){
     struct timeval start;
 	struct timeval end;
-	unsigned long diff;
+	double diff;
     char buffer[4096],disk[4096];
     int i,count=1024*1024*100/4096;
     char *map;//mapping variable
@@ -38,7 +38,7 @@ int main(){
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	printf("sequential read: %ld us\n", diff);
+	printf("sequential read: %f sec\n", diff/1000000);
     //sequential write
     map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
     gettimeofday(&start,NULL);
@@ -53,7 +53,7 @@ int main(){
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	printf("sequential write: %ld us\n", diff);
+	printf("sequential write: %f sec\n", diff/1000000);
     //random read
     gettimeofday(&start,NULL);
 
@@ -65,6 +65,39 @@ int main(){
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	printf("random read: %ld us\n", diff);
+	printf("random read: %f sec\n", diff/1000000);
+    //random write  1
+
+    gettimeofday(&start,NULL);
+    memset(disk,0,sizeof(disk));
+    for(i=0;i<1024;i++){
+        strcat(disk,"ar");
+    }
+    map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    for(i=0;i<50000;i++){
+        map+=rand()%25600;
+        memcpy(map,disk,2048);
+        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    }
+    gettimeofday(&end,NULL);
+	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+	printf("random write: %f sec\n", diff/1000000);
+    //random write  2
+
+    gettimeofday(&start,NULL);
+    memset(disk,0,sizeof(disk));
+    for(i=0;i<1024;i++){
+        strcat(disk,"ar");
+    }
+    map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    for(i=0;i<50000;i++){
+        map+=rand()%25600;
+        memcpy(map,disk,2048);
+        fsync(f1);
+        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    }
+    gettimeofday(&end,NULL);
+	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+	printf("random write: %f sec\n", diff/1000000);
     return 0;
 }
