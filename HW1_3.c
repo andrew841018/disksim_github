@@ -8,7 +8,7 @@
 #include <string.h>//memcpy()
 #include <errno.h>
 int main(){
-    char buffer[];
+    char buffer[4];
     int i,count=1024*1024*100/4096;
     char *map;//mapping variable
     f1=open("file.txt","O_RDWR");
@@ -27,7 +27,9 @@ int main(){
     }
     //sequential read
     for(i=0;i<count;i++){
-memcpy(buffer,map,);
+        memcpy(buffer,map,4);
+        printf("%s\n",buffer);
+        exit(0);
     }
     
     
