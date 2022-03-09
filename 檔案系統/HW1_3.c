@@ -15,7 +15,7 @@ int main(){
 	double diff;
     char buffer[4096],disk[4096];
     int i,count=1024*1024*100/4096;
-    char *map;//mapping variable
+    char *map,*tmp;//mapping variable
     int  f1=open("file.txt",O_RDWR);
     if(f1==-1){
         perror("error:\n");
@@ -30,41 +30,6 @@ int main(){
         perror("error\n");
         return 0;
     }
-
- //random write  1
-    /*gettimeofday(&start,NULL);
-    memset(disk,0,sizeof(disk));
-    for(i=0;i<1024;i++){
-        strcat(disk,"ar");
-    }
-    map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
-    for(i=0;i<50000;i++){
-        map+=rand()%25600;
-        memcpy(map,disk,2048);
-        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
-    }
-    gettimeofday(&end,NULL);
-	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	printf("random write1: %f sec\n", diff/1000000);*/
-
-       //random write  2
-
-    gettimeofday(&start,NULL);
-    memset(disk,0,sizeof(disk));
-    for(i=0;i<1024;i++){
-        strcat(disk,"ar");
-    }
-    for(i=0;i<50000;i++){
-        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
-        map+=rand()%25600;
-        memcpy(map,disk,2048);
-        fsync(f1);
-    } 
-    gettimeofday(&end,NULL);
-	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	printf("random write 2: %f sec\n", diff/1000000);
-    exit(0);
-
     //sequential read
     gettimeofday(&start,NULL);
     for(i=0;i<count;i++){
@@ -91,12 +56,11 @@ int main(){
 	printf("sequential write: %f sec\n", diff/1000000);
     //random read
     gettimeofday(&start,NULL);
-
-    map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    map=tmp;
     for(i=0;i<50000;i++){
         map+=rand()%25600;
         memcpy(buffer,map,4096);
-        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+        map=tmp;
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
@@ -107,11 +71,11 @@ int main(){
     for(i=0;i<1024;i++){
         strcat(disk,"ar");
     }
-    map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    map=tmp;
     for(i=0;i<50000;i++){
         map+=rand()%25600;
         memcpy(map,disk,2048);
-        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+        map=tmp;
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
@@ -119,18 +83,18 @@ int main(){
 
 
     //random write  2
-/*
+
     gettimeofday(&start,NULL);
     memset(disk,0,sizeof(disk));
     for(i=0;i<1024;i++){
         strcat(disk,"ar");
     }
-    map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    map=tmp;
     for(i=0;i<50000;i++){
         map+=rand()%25600;
         memcpy(map,disk,2048);
         fsync(f1);
-        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+        map=tmp;
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
