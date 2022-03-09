@@ -38,7 +38,7 @@ int main(){
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	printf("sequential Time: %ld us\n", diff);
+	printf("sequential read: %ld us\n", diff);
     //sequential write
     map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
     gettimeofday(&start,NULL);
@@ -53,11 +53,18 @@ int main(){
     }
     gettimeofday(&end,NULL);
 	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	printf("sequential Time: %ld us\n", diff);
+	printf("sequential write: %ld us\n", diff);
     //random read
-    for(i=0;i<50000;i++){
-        
-    }
+    gettimeofday(&start,NULL);
 
+    map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    for(i=0;i<50000;i++){
+        map+=rand()%25600;
+        memcpy(buffer,map,4096);
+        map=mmap(NULL,file_size,PROT_WRITE | PROT_READ,MAP_SHARED,f1,0);
+    }
+    gettimeofday(&end,NULL);
+	diff = 1000000*(end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+	printf("random read: %ld us\n", diff);
     return 0;
 }
