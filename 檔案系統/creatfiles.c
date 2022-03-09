@@ -7,21 +7,16 @@
 int main ()
 {
 	FILE *fp;
-	char wbuffer[4096];
-	unsigned int count =100*1024*1024/4096;
 	int k,i;
-	for(k=0;k<64;k++)
+	for(k=0;k<10000000;k++)
 	{
-		strcat(wbuffer,"abcdefghijklmnopqrstuvwxyzbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+		strcat(wbuffer,"aaaaaaaaaa");//1 character = 1 byte.
 	}
-
-	fp = fopen("file.txt","w+");
-	for(i=0; i<count; i++)
-	{
-		fwrite(wbuffer, sizeof(char), 4096, fp);
+	fp = fopen("file.txt","a");
+	for(i=0;i<10000000;i++){
+		fprintf(fp,"aaaaaaaaaa");
 	}
 	fclose(fp);
-
 	return(0);
 }
 
