@@ -11,7 +11,8 @@ int main(){
 	profit *wb=malloc(sizeof(profit)),*order;
 	//order=wb;
 	int i;
-	wb=NULL;
+	order=NULL;
+	order=wb;
 	/*for(i=0;i<10;i++){
 		wb->plane=i;
 		wb->next=malloc(sizeof(profit));

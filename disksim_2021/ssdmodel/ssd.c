@@ -5095,11 +5095,19 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   //strip_way = 1;
   return strip_way;
 }
-void insert_node(int channel,int plane,double benefit){
+void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache){
   profit *insert,*prev,*current,*start;
   int first=0;
-  assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
-  assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
+  insert=ptr_buffer_cache->p;            
+  current=malloc(sizeof(profit));
+  prev=malloc(sizeof(profit));  
+  if(ptr_buffer_cache->p==NULL){
+	current->benefit=benefit;
+	current->channel_num=channel;
+	current->plane=plane;
+	ptr_buffer_cache->p=current;
+	return; 
+  }
   insert=ptr_buffer_cache->p;            
   current=malloc(sizeof(profit));
   prev=malloc(sizeof(profit));
@@ -5164,7 +5172,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0,b1=0,k=0,w,first1;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
-  insert=malloc(sizeof(profit));
   mark_count=0;
   if(initial==1){
     for(i=0;i<1000000;i++){
@@ -5199,8 +5206,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			//make sure mark all page in block
 			for(k=0;k<LRUSIZE;k++){
 			  if(current_block[i][j].ptr_lru_node->page[k].exist==1){
-          printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
-          exit(0);
+				printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
+				exit(0);
 			  }
 			}  			      
       if(initial==0){
@@ -5213,7 +5220,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
       //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
       if(initial==0){
-          insert_node(i,j,tmp[i][j]);
+          insert_node(i,j,tmp[i][j],ptr_buffer_cache);
       }     	
 	   }
 		else if(initial==0){			
@@ -5276,8 +5283,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     printf("block num:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
     test=test->next;
   }
-  system("pasue");
-	initial=1;	
+  printf("pasue\n");
+  fgetc(stdin);
+  initial=0;	
 }
 
 void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){  //trigger_mark_count++; //sinhome
