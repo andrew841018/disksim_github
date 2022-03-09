@@ -5095,6 +5095,68 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   //strip_way = 1;
   return strip_way;
 }
+void insert_node(int channel,int plane,double benefit){
+  profit *insert,*prev,*current,*start;
+  int first=0;
+  assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
+  assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
+  insert=ptr_buffer_cache->p;            
+  current=malloc(sizeof(profit));
+  prev=malloc(sizeof(profit));
+//insert current block to profit pointer--->according to the benefit value.
+
+//insert only have one node
+  if(insert!=NULL && insert->next==NULL){
+    current->benefit=benefit;
+    current->channel_num=channel;
+    current->plane=plane;  			
+    if(benefit>insert->benefit){
+      insert->next=current;
+      start=insert;
+    }
+    else{
+      current->next=insert;
+      start=current;
+    }
+    first=1;
+  }	
+  //exist more than one node
+  if(insert->next!=NULL){
+    assert(insert->next->channel_num<8 && insert->next->channel_num>=0);
+    assert(insert->next->plane<8 && insert->next->plane>=0);
+
+    //the new block is first(benefit is min)
+    if(benefit<=insert->benefit){
+      printf("insert to the first node\n");
+      current->benefit=benefit;
+      current->channel_num=channel;
+      current->plane=plane;
+      current->next=insert;
+      start=current;
+      first=1;//tmp[i][j] is the first node in profit pointer
+      }					
+
+    //insert node is not the first one.
+    while(insert->next!=NULL && first==0){ 					             				
+      if(benefit>insert->benefit){
+        prev=insert;
+        insert=insert->next;
+      }
+      else{
+        printf("insert in the middle of profit pointer\n");
+        current->benefit=benefit;
+        current->channel_num=channel;
+        current->plane=plane;
+        prev->next=current;
+        current->next=insert;
+        first=1;
+        start=insert;					
+        break;
+      }										
+    }		  
+  }    		
+  ptr_buffer_cache->p=start;   
+}
 unsigned int mark_bool[100000000]={0};
 int mark_block[1000000];
 int mark_count;
@@ -5102,120 +5164,57 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0,b1=0,k=0,w,first1;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
-  profit *insert,*prev,*current,*start;
   insert=malloc(sizeof(profit));
   mark_count=0;
   if(initial==1){
-	for(i=0;i<1000000;i++){
-		mark_block[i]=-1;
-	}
+    for(i=0;i<1000000;i++){
+      mark_block[i]=-1;
+    }
   }
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   	
-	  first1=0;	
+	    first1=0;	
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
         if(initial==0)
           printf("enter\n");		
-        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0 && initial==1){
-			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
-			//this function won't change ptr_current_mark_node until leave the function
-			mark_for_specific_current_block(ptr_buffer_cache,i,j);
-			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
-			assert(current_block[i][j].current_mark_count>0);			
-			printf("mark count:%d\n",current_block[i][j].current_mark_count);
-			second=ptr_buffer_cache->ptr_current_mark_node;
-			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
-			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1; 
-			mark_block[mark_count]=current_block[i][j].ptr_lru_node->logical_node_num;
-			mark_count++;
-			assert(tmp[i][j]>0);
+        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
+          lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
+          //this function won't change ptr_current_mark_node until leave the function
+          mark_for_specific_current_block(ptr_buffer_cache,i,j);
+          printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
+          assert(current_block[i][j].current_mark_count>0);			
+          printf("mark count:%d\n",current_block[i][j].current_mark_count);
+          second=ptr_buffer_cache->ptr_current_mark_node;
+          tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
+          mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1; 
+          mark_block[mark_count]=current_block[i][j].ptr_lru_node->logical_node_num;
+          mark_count++;
+          assert(tmp[i][j]>0);
 			if(first==second){
 				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			}
 			//make sure mark all page in block
 			for(k=0;k<LRUSIZE;k++){
 			  if(current_block[i][j].ptr_lru_node->page[k].exist==1){
-				printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
-				exit(0);
+          printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
+          exit(0);
 			  }
 			}  			      
-          if(initial==0){
-            printf("hiiii\n");		
-            //the new block enter,after A_kick kick a block
-            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);           
-          }   
-          b1=1;
-          //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
-          //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
-          //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
-          if(initial==0){
-            insert=ptr_buffer_cache->p;            
-            start=ptr_buffer_cache->p;
-            if(ptr_buffer_cache->p!=NULL){
-				assert(ptr_buffer_cache->p->channel_num<8);
-				assert(ptr_buffer_cache->p->plane<8);
-			}          
-            current=malloc(sizeof(profit));
-            prev=malloc(sizeof(profit));
-            
-            //insert current block to profit pointer--->according to the benefit value.
-            
-            //if insert is NULL,you can't assign anything to it,only if insert!=NULL can do it.
-            if(insert==NULL){
-				insert=malloc(sizeof(profit));
-				printf("insert=NULL\n");
-						
-			}
-			if(insert->next==NULL){
-				current->benefit=tmp[i][j];
-				current->channel_num=i;
-				current->plane=j;
-				start=current;	
-			}
-			else{
-            //the new block is first(benefit is min)
-				if(tmp[i][j]<=insert->benefit){
-					printf("insert to the first node\n");
-					current->benefit=tmp[i][j];
-					current->channel_num=i;
-					current->plane=j;
-					current->next=insert;
-					start=current;
-					first1=1;//tmp[i][j] is the first node in profit pointer
-					}					
-				//insert node is not the first one.
-				while(insert->next!=NULL && first1==0){ 					             				
-					if(tmp[i][j]>insert->benefit){
-						prev=insert;
-						insert=insert->next;
-					}
-					else{
-						printf("insert in the middle of profit pointer\n");
-						current->benefit=tmp[i][j];
-						current->channel_num=i;
-						current->plane=j;
-						prev->next=current;
-						current->next=insert;
-						first1=1;					
-						break;
-					}										
-			  }
-			  //insert only have one node
-			  if(insert!=NULL && first1==0){
-				current->benefit=tmp[i][j];
-				current->channel_num=i;
-				current->plane=j;  			
-				if(tmp[i][j]>insert->benefit){
-					insert->next=current;
-					start=insert;
-				}
-			  }			  
-        }    		
-        ptr_buffer_cache->p=start;     
-        }     	
+      if(initial==0){
+        printf("hiiii\n");		
+        //the new block enter,after A_kick kick a block
+        printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);           
+      }   
+      b1=1;
+      //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
+      //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
+      //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
+      if(initial==0){
+          insert_node(i,j,tmp[i][j]);
+      }     	
 	   }
 		else if(initial==0){			
 			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
@@ -5226,35 +5225,14 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   if(b1==0){
     printf("b1=0\n");
     return;
-  }	
-	if(initial==0){
-		insert=ptr_buffer_cache->p;
-		assert(insert->channel_num<8);
-		assert(insert->plane<8);
-		if(insert!=NULL){
-			if(insert->next==NULL){
-				printf("(insert->next=NULL)block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
-				return;
-			}
-			else{
-				//do nothing,and left the if condition
-			}
-		}
-		while(insert->next!=NULL){							
-			printf("block:%d benefit:%f\n",current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
-			assert(insert->channel_num<8);
-			assert(insert->plane<8);
-			insert=insert->next;
-		}		
-}  	 
+  }	 	 
+  profit *order1,*order;
+  order=malloc(sizeof(profit));//from min benefit to max benefit
+  order1=order;//store order address to order1
   if(initial==1){	
     double min;
     int channel,plane,b=0,count=0;
-    profit *order1,*order;
-    order=malloc(sizeof(profit));//from min benefit to max benefit
     ptr_buffer_cache->count=0;
-    order1=order;//store order address to order1
-    assert(order!=NULL);
     while(1){
       min=10000;
       b=0;
@@ -5270,34 +5248,36 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         }
       }
       if(b==0){
-		order=NULL;
-		break;
-	}
-      assert(order!=NULL);       
+        order=NULL;
+        break;
+	    }       
       order->channel_num=channel;
       order->plane=plane;
-      ptr_buffer_cache->count++;
+      ptr_buffer_cache->count++;//how many block in profit pointer.
       order->benefit=tmp[channel][plane];
       tmp[channel][plane]=10;
       order->next=malloc(sizeof(profit));
       order=order->next;        
     }
-    //printf("out\n");
     order=order1;
     ptr_buffer_cache->p=order;
-    while(order->next!=NULL){
-		for(i=0;i<LRUSIZE;i++){
-			if(current_block[order->channel_num][order->plane].ptr_lru_node->page[i].exist==1){
-				printf("unmark!!\n");
-				exit(0);
-			}
-		}
-	  assert(current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num!=81936);
-      printf("block:%d benefit:%f\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);		     
-      order=order->next;
+  }
+  profit *test=malloc(sizeof(profit));
+  assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
+  test=ptr_buffer_cache->p;
+  while(test->next!=NULL){
+    assert(test->next->channel_num<8 && test->next->channel_num>=0);
+    for(i=0;i<LRUSIZE;i++){
+      if(current_block[test->channel_num][test->plane].ptr_lru_node->page[i].exist==1){
+        printf("unmark!!\n");
+        exit(0);
+      }
     }
-}
-	initial=2;	
+    printf("block num:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+    test=test->next;
+  }
+  system("pasue");
+	initial=1;	
 }
 
 void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){  //trigger_mark_count++; //sinhome
