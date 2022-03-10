@@ -5090,7 +5090,17 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   return strip_way;
 }
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache){
-  profit *insert,*prev,*current,*start;
+  profit *insert,*prev,*current,*start,*tmp1;
+  tmp1=ptr_buffer_cache->p;
+  int lookup=0;
+  while(lookup<ptr_buffer_cache->count){
+	assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
+	assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
+	lookup++;
+	ptr_buffer_cache->p=ptr_buffer_cache->p->next;
+  }
+  ptr_buffer_cache->p=NULL;
+  ptr_buffer_cache->p=tmp1;
   ptr_buffer_cache->count++;
   int first=0;
   insert=ptr_buffer_cache->p;            
@@ -6101,8 +6111,13 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	lookup++;
 	ptr_buffer_cache->p=ptr_buffer_cache->p->next;
   } 
-  ptr_buffer_cache->p=NULL;
-  ptr_buffer_cache->p=prev1;
+  if(ptr_buffer_cache->count==0){
+	  ptr_buffer_cache->p=NULL;
+  }
+  else{
+	  ptr_buffer_cache->p=NULL;
+	  ptr_buffer_cache->p=prev1;
+}
 
  // exit(0);
   kick_count+=kick;
