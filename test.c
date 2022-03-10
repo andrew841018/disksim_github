@@ -12,10 +12,11 @@ int main(){
 	wb->plane=5;
 	wb->next=malloc(sizeof(profit));
 	wb->next->plane=6;
-	order=wb;
-	prev=wb;	
-	wb->next=NULL;
-	wb=prev;
+	while(wb!=NULL){
+		wb=wb->next;
+	}
+	int ggg;
+	
 	/*for(i=0;i<10;i++){
 		wb->plane=i;
 		wb->next=malloc(sizeof(profit));

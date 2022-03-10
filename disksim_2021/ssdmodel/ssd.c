@@ -5090,17 +5090,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   return strip_way;
 }
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache){
-  profit *insert,*prev,*current,*start,*tmp1;
-  tmp1=ptr_buffer_cache->p;
-  int lookup=0;
-  while(lookup<ptr_buffer_cache->count){
-	assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
-	assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
-	lookup++;
-	ptr_buffer_cache->p=ptr_buffer_cache->p->next;
-  }
-  ptr_buffer_cache->p=NULL;
-  ptr_buffer_cache->p=tmp1;
+  profit *insert,*prev,*current,*start;
   ptr_buffer_cache->count++;
   int first=0;
   insert=ptr_buffer_cache->p;            
@@ -5152,7 +5142,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
       }					
 
     //insert node is not the first one.
-    while(insert->next!=NULL && first==0){ 					             				
+    while(insert!=NULL && first==0){ 					             				
       if(benefit>insert->benefit){
         prev=insert;
         insert=insert->next;
@@ -5177,7 +5167,7 @@ int mark_block[1000000];
 int mark_count;
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  int i = 0,j = 0,b1=0,k=0,w,first1;
+  int i = 0,j = 0,b1=0,k=0,first1,w;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
   mark_count=0;
   if(initial==1){
@@ -5226,7 +5216,25 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
       //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
       if(initial==0){
-        insert_node(i,j,tmp[i][j],ptr_buffer_cache);     			
+        insert_node(i,j,tmp[i][j],ptr_buffer_cache);
+		profit *test=malloc(sizeof(profit));		
+		test=ptr_buffer_cache->p;
+		int look=0;
+		//if loop_count=ptr_buffer_cache->count,then break,because there is no more profit node.
+		while(test!=NULL){
+			printf("buffer_count:%d\n",ptr_buffer_cache->count);
+			assert(test->channel_num<8 && test->channel_num>=0);
+			assert(test->plane<8 && test->plane>=0);
+			for(w=0;w<LRUSIZE;w++){
+				if(current_block[test->channel_num][test->plane].ptr_lru_node->page[w].exist==1){
+					printf("unmark!!\n");
+					exit(0);
+				}
+			}
+			printf("block num:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+			look++;
+			test=test->next;
+		}  
       }     	
 	   }
 		else if(initial==0){			
@@ -5277,7 +5285,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     order=order1;
     ptr_buffer_cache->p=order;
   }
-  profit *test=malloc(sizeof(profit));
+  /*profit *test=malloc(sizeof(profit));
   assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
   assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
   test=ptr_buffer_cache->p;
@@ -5296,7 +5304,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     printf("block num:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
     loop_count++;
     test=test->next;
-  }
+  }*/
   //printf("pasue\n");
   //fgetc(stdin);
   initial=0;	
@@ -6874,7 +6882,3 @@ void show_result(buffer_cache *ptr_buffer_cache)
   }
     
 }
-
-
-
-
