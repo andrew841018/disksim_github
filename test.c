@@ -9,14 +9,15 @@ typedef struct _profit{
 }profit;
 int main(){
 	profit *wb=malloc(sizeof(profit)),*order,*prev;
+	order=wb;
+	prev=wb;
 	wb->plane=5;
 	wb->next=malloc(sizeof(profit));
 	wb->next->plane=6;
-	while(wb!=NULL){
-		wb=wb->next;
-	}
-	int ggg;
-	
+	order=order->next;
+	memset(order,0,sizeof(profit));
+	free(wb);
+	wb=prev;
 	/*for(i=0;i<10;i++){
 		wb->plane=i;
 		wb->next=malloc(sizeof(profit));
