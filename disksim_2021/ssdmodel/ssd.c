@@ -5217,7 +5217,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
       if(initial==0){
         insert_node(i,j,tmp[i][j],ptr_buffer_cache);
-		profit *test=malloc(sizeof(profit));		
+		/*profit *test=malloc(sizeof(profit));		
 		test=ptr_buffer_cache->p;
 		int look=0;
 		//if loop_count=ptr_buffer_cache->count,then break,because there is no more profit node.
@@ -5234,7 +5234,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			printf("block num:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
 			look++;
 			test=test->next;
-		}  
+		} */ 
       }     	
 	   }
 		else if(initial==0){			
@@ -5285,16 +5285,16 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     order=order1;
     ptr_buffer_cache->p=order;
   }
-  /*profit *test=malloc(sizeof(profit));
+  profit *test=malloc(sizeof(profit));
   assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
   assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
   test=ptr_buffer_cache->p;
   int loop_count=0;
   //if loop_count=ptr_buffer_cache->count,then break,because there is no more profit node.
-  while(test->next!=NULL && loop_count<ptr_buffer_cache->count){
+  while(test!=NULL){
 	printf("buffer_count:%d\n",ptr_buffer_cache->count);
-    assert(test->next->channel_num<8 && test->next->channel_num>=0);
-    assert(test->next->plane<8 && test->next->plane>=0);
+    assert(test->channel_num<8 && test->channel_num>=0);
+    assert(test->plane<8 && test->plane>=0);
     for(i=0;i<LRUSIZE;i++){
       if(current_block[test->channel_num][test->plane].ptr_lru_node->page[i].exist==1){
         printf("unmark!!\n");
@@ -5302,11 +5302,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       }
     }
     printf("block num:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
-    loop_count++;
     test=test->next;
-  }*/
-  //printf("pasue\n");
-  //fgetc(stdin);
+  }
+  printf("pasue\n");
+  fgetc(stdin);
   initial=0;	
 }
 
@@ -6101,7 +6100,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	  printf("out\n");
     kick_channel_times++;
   }
-  printf("benefit:%f profit count:%d\n",order->benefit,ptr_buffer_cache->count);
+  if(order!=NULL)
+	printf("benefit:%f profit count:%d\n",order->benefit,ptr_buffer_cache->count);
   
   /*
   if(current_block[channel_num][plane].current_mark_count!=0)
