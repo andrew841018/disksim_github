@@ -5091,6 +5091,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 }
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache){
   profit *insert,*prev,*current,*start;
+  ptr_buffer_cache->count++;
   int first=0;
   insert=ptr_buffer_cache->p;            
   current=malloc(sizeof(profit));
@@ -5178,18 +5179,17 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   	
-	    first1=0;	
+	  first1=0;	
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
         if(initial==0)
           printf("enter\n");         		
-        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){  
+        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0 ){  
           lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
           //this function won't change ptr_current_mark_node until leave the function
           mark_for_specific_current_block(ptr_buffer_cache,i,j);
           printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
           assert(current_block[i][j].current_mark_count>0);			
-          printf("mark count:%d\n",current_block[i][j].current_mark_count);
           second=ptr_buffer_cache->ptr_current_mark_node;
           tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
           mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1; 
@@ -5216,7 +5216,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
       //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
       if(initial==0){
-          insert_node(i,j,tmp[i][j],ptr_buffer_cache);
+        insert_node(i,j,tmp[i][j],ptr_buffer_cache);     			
       }     	
 	   }
 		else if(initial==0){			
@@ -5271,7 +5271,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
   assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
   test=ptr_buffer_cache->p;
-  while(test->next!=NULL){
+  int loop_count=0;
+  //if loop_count=ptr_buffer_cache->count,then break,because there is no more profit node.
+  while(test->next!=NULL && loop_count<ptr_buffer_cache->count){
 	printf("buffer_count:%d\n",ptr_buffer_cache->count);
     assert(test->next->channel_num<8 && test->next->channel_num>=0);
     assert(test->next->plane<8 && test->next->plane>=0);
@@ -5282,11 +5284,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       }
     }
     printf("block num:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+    loop_count++;
     test=test->next;
   }
   //printf("pasue\n");
   //fgetc(stdin);
-  //initial=0;	
+  initial=0;	
 }
 
 void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){  //trigger_mark_count++; //sinhome
@@ -6085,10 +6088,21 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   /*
   if(current_block[channel_num][plane].current_mark_count!=0)
 	current_block[channel_num][plane].current_mark_count=0;*/
-  if(ptr_buffer_cache->count==0 && order->benefit==0){
-	order=NULL;
-  }
+  profit *prev1;
+  prev1=order;
+  //order=NULL won't affect ptr_buffer_cache->p,but order->plane=333 will.
+  //so if you want to assign NULL to ptr_buffer_cache->p
+  //you better do that:order=NULL,ptr_buffer_cache->p=order;
   ptr_buffer_cache->p=order;
+  int lookup=0;
+  while(ptr_buffer_cache->p!=NULL && lookup<ptr_buffer_cache->count){
+	assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
+	assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
+	lookup++;
+	ptr_buffer_cache->p=ptr_buffer_cache->p->next;
+  } 
+  ptr_buffer_cache->p=NULL;
+  ptr_buffer_cache->p=prev1;
 
  // exit(0);
   kick_count+=kick;

@@ -8,11 +8,14 @@ typedef struct _profit{
 	struct _profit *next;
 }profit;
 int main(){
-	profit *wb=malloc(sizeof(profit)),*order;
-	//order=wb;
-	int i;
-	order=NULL;
+	profit *wb=malloc(sizeof(profit)),*order,*prev;
+	wb->plane=5;
+	wb->next=malloc(sizeof(profit));
+	wb->next->plane=6;
 	order=wb;
+	prev=wb;	
+	wb->next=NULL;
+	wb=prev;
 	/*for(i=0;i<10;i++){
 		wb->plane=i;
 		wb->next=malloc(sizeof(profit));
