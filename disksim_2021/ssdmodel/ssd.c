@@ -5316,6 +5316,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 }
 
 void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane,int offset){  //trigger_mark_count++; //sinhome
+  int outout=0;
   while(ptr_buffer_cache->ptr_current_mark_node->rw_intensive == 1 &&\
 									 current_block[channel_num][plane].ptr_read_intensive_buffer_page == NULL)
 	{
@@ -5824,7 +5825,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		for(i=0;i<LRUSIZE;i++){
 			if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
 				if(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==1){					
-					A_mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+					A_mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane,i);
 				}
 				else{
 					printf("have unmark block!! mark_count:%d block num:%d\n",current_block[channel_num][plane].current_mark_count,current_block[channel_num][plane].ptr_lru_node->logical_node_num);			
