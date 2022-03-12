@@ -4209,6 +4209,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 double min2=100000;
+int special_used=0;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -4221,6 +4222,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+  if(special_used==1){
+	printf("add block num:%d\n",physical_node_num);
+	//sleep(1);
+}
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
@@ -4698,6 +4703,8 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 //   add_a_page_in_the_node(logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache);
 // }
 
+unsigned int mark_bool[100000000]={0};
+int entrance=0;
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
 {
   //printf("innn add node | flag=%d \n", flag);
@@ -4782,7 +4789,18 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 		ptr_buffer_cache->ptr_head = ptr_node->prev = ptr_node->next = ptr_node;
 	}
   //printf("add_a_page_in_the_node\n");
-	add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
+  
+  //insert newly added node to current_mark_node
+    if(mark_bool[ptr_node->logical_node_num]==0 && entrance==1){
+		lru_node *next;
+		next=ptr_buffer_cache->ptr_current_mark_node->next;
+		add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
+		ptr_buffer_cache->ptr_current_mark_node->next=ptr_buffer_cache->ptr_head;
+		ptr_buffer_cache->ptr_head->next=next;
+	}
+	else{
+		add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
+	}
 }
 
 // void add_a_page_in_the_node(unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache )
@@ -5169,7 +5187,6 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   ptr_buffer_cache->p=start;   
 }
 
-unsigned int mark_bool[100000000]={0};
 int mark_block[1000000];
 int mark_count;
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
@@ -5177,6 +5194,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   int i = 0,j = 0,b1=0,k=0,w,first1;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
   profit *insert,*prev,*current,*start;
+  if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==1){
+	ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->next;
+  }
+  if(special_used==1 && ptr_buffer_cache->total_buffer_page_num>=4000){
+	int ggg=3;
+  }
   insert=malloc(sizeof(profit));
   mark_count=0;
   if(initial==1){
@@ -5193,7 +5216,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       {
         if(initial==0)
           printf("enter\n");		
-        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0 && initial==1){
+        if(special_used==1 && ptr_buffer_cache->total_buffer_page_num>=4000){
+				int ggg=3;
+			}
+        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0 && initial==1){			
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
 			//this function won't change ptr_current_mark_node until leave the function
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
@@ -5313,6 +5339,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	//printf("pause\n");
 	//fgetc(stdin);
 	initial=1;	
+	entrance=1;
 }
 
 void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane,int offset){  //trigger_mark_count++; //sinhome
@@ -5462,12 +5489,12 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 	while(ptr_buffer_cache->current_mark_offset<LRUSIZE)
 	{		
 		//LB_to_complete_mark;
-		if(ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
-		{
+		//if(ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
+		//{
       //printf("3174 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
-		  printf("c\n");
-		  return;
-    }
+		 // printf("c\n");
+		 // return;
+   // }
 
 		
 		//mark a write intensive request 
@@ -5519,7 +5546,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     //整個block marked，換下一個
 		if(ptr_buffer_cache->current_mark_offset == LRUSIZE && current_block[channel_num][plane].current_mark_count > 0)
 		{	
-			assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
+			//assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
 			//int strip_way = check_which_node_to_evict(ptr_buffer_cache); problem
 			ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
 			ptr_buffer_cache->current_mark_offset = 0;
@@ -6064,7 +6091,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   my_kick_node+=kick;
   my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
   //printf("end\n"); 
-  
+  special_used=1;
 }
 
 /*sh-- (1.if cache hit. 2.which to kick?  3.where to kick?)*/
