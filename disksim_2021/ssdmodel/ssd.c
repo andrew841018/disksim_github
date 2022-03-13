@@ -5201,8 +5201,8 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			exit(0);
 		}
 	}
-	while(tmp->next!=NULL){
-		int cur_block,mark_block;
+	int cur_block,mark_block;
+	while(tmp->next!=NULL){	
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
 		if(mark_bool[cur_block]==1){
 			count++;
@@ -5214,12 +5214,23 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		}
 		tmp=tmp->next;
 	}
+	if(tmp!=NULL){
+		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
+		if(mark_bool[cur_block]==1){
+			count++;
+			//good
+		}
+		else{
+			printf("something wrong...block num:%d\n",cur_block);
+			exit(0);
+		}
+	}
 	if(count!=ptr_buffer_cache->count){
-		printf("num of profit pointer:%d number of mark_bool:%d\n",count,ptr_buffer_cache->count);
+		printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,count);
 		exit(0);
 	}
 	printf("all good\n");
-	printf("num of profit pointer:%d number of mark_bool:%d\n",count,ptr_buffer_cache->count);
+	printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,count);
 }
 int mark_block[1000000];
 int mark_count;
