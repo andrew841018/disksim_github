@@ -5168,10 +5168,48 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   }    		
   ptr_buffer_cache->p=start;   
 }
-
 unsigned int mark_bool[100000000]={0};
 int mark_block[1000000];
 int mark_count;
+void check_profit(buffer_cache *ptr_buffer_cache){
+	profit *tmp;
+	int count=0;
+	tmp=ptr_buffer_cache->p;
+	if(tmp==NULL){
+		printf("tmp==null\n");
+		return;
+	}
+	if(tmp!=NULL && tmp->next==NULL){
+		int cur_block,mark_block;
+		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
+		if(mark_bool[cur_block]==1){
+			count++;
+			//good
+		}
+		else{
+			printf("something wrong...block num:%d\n",cur_block);
+			exit(0);
+		}
+	}
+	while(tmp->next!=NULL){
+		int cur_block,mark_block;
+		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
+		if(mark_bool[cur_block]==1){
+			count++;
+			//good
+		}
+		else{
+			printf("something wrong...block num:%d\n",cur_block);
+			exit(0);
+		}
+		tmp=tmp->next;
+	}
+	if(count!=ptr_buffer_cache->count){
+		printf("num of profit pointer:%d number of mark_bool:%d\n",count,ptr_buffer_cache->count);
+		exit(0);
+	}
+	printf("all good\n");
+}
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0,b1=0,k=0,w,first1;
@@ -6097,6 +6135,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   kick_count+=kick;
   my_kick_node+=kick;
   my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
+  check_profit(ptr_buffer_cache);
   //printf("end\n"); 
   
 }
