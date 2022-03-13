@@ -5098,6 +5098,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache){
   profit *insert,*prev,*current,*start=malloc(sizeof(profit)); 
   int first=0;
+  ptr_buffer_cache->count++;
   insert=ptr_buffer_cache->p;            
   current=malloc(sizeof(profit));
   prev=malloc(sizeof(profit));  
@@ -5128,6 +5129,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
       current->next=insert;
       start=current;
     }
+    printf("HAC\n");
     first=1;
   }	
   //exist more than one node
@@ -5144,6 +5146,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
       current->next=insert;
       start=current;
       first=1;//tmp[i][j] is the first node in profit pointer
+      printf(".........\n");
       }					
 
     //insert node is not the first one.
@@ -5179,7 +5182,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
 	printf("yoyo~\n");
 	check_profit(ptr_buffer_cache);
   }
-  else{
+  else {
 	check_profit(ptr_buffer_cache);
 }   
 }
