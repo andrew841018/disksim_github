@@ -5251,6 +5251,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
 			//this function won't change ptr_current_mark_node until leave the function
+			if(ptr_buffer_cache->ptr_current_mark_node->logical_node_num==16384){
+				int ggg=3;
+			}
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
 			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
 			assert(current_block[i][j].current_mark_count>0);			
@@ -5304,6 +5307,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			while(scan->next!=NULL){
 				if(current_block[scan->channel_num][scan->plane].ptr_lru_node->logical_node_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num){
 					b2=1;
+					if(ptr_buffer_cache->ptr_current_mark_node->logical_node_num==16384){
+						int ggg=3;
+					}
 					lru_node *first,*second;
 					first=ptr_buffer_cache->ptr_current_mark_node;
 					mark_for_specific_current_block(ptr_buffer_cache,i,j);
@@ -5320,7 +5326,13 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				exit(0);
 				}					
 		}
-		printf("after mark,mark count:%d\n",current_block[i][j].current_mark_count);		     
+		printf("after mark,mark count:%d\n",current_block[i][j].current_mark_count);
+		for(k=0;k<LRUSIZE;k++){
+			  if(current_block[i][j].ptr_lru_node->page[k].exist==1){
+				printf("not mark! page:%d\n",k);
+				exit(0);
+			  }
+			}		     
       }
 	  }
   }	
@@ -5509,6 +5521,16 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");
   int outout=0,i;
+  for(i=0;i<LRUSIZE;i++){
+	if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==1){
+		outout=1;
+		break;
+	}
+  }
+  if(outout==0){
+	return;
+  }
+  outout=0;
     /*sh-- check again: no pages feed for this cur blk */
 	if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL || current_block[channel_num][plane].current_mark_count != 0)
 	{
