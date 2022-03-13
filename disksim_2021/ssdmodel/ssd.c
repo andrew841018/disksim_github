@@ -5376,6 +5376,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       ptr_buffer_cache->count++;
       order->benefit=tmp[channel][plane];
       tmp[channel][plane]=10;
+      
       order->next=malloc(sizeof(profit));
       order=order->next;        
     }
@@ -5502,15 +5503,19 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");
   int outout=0,i;
-  /*for(i=0;i<LRUSIZE;i++){
+  for(i=0;i<LRUSIZE;i++){
 	if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==1){
 		outout=1;
 		break;
 	}
+	else if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==2){
+		current_block[channel_num][plane].current_mark_count++;
+	}
   }
   if(outout==0){
-	return;
-  }*/
+	  current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
+	  return;
+  }
   outout=0;
     /*sh-- check again: no pages feed for this cur blk */
 	if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL || current_block[channel_num][plane].current_mark_count != 0)
