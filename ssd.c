@@ -5268,7 +5268,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				printf("error\n");
 				exit(0);
 			}			
-			printf("Q:block %d doesn't been remove but disappear in profit pointer...\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 		}		     
       }
 	  }

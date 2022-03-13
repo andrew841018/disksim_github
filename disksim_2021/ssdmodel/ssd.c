@@ -5192,8 +5192,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
         if(initial==0)
-          printf("enter\n");		
-        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0 && initial==1){
+          printf("enter\n");
+        int mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
+        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
 			//this function won't change ptr_current_mark_node until leave the function
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
@@ -5229,8 +5230,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			insert_node(i,j,tmp[i][j],ptr_buffer_cache);
         }     	
 	   }
-		else if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==1){
-			printf("mark block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+	   else if(mark_bool[mark_block_num]==1){
+			printf("mark block:%d mark_bool:%d\n",mark_block_num,mark_bool[mark_block_num]);
 			int b2=0;
 			profit *scan=ptr_buffer_cache->p;
 			if(scan!=NULL && scan->next==NULL){
