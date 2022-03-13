@@ -5237,7 +5237,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	for(i=0;i<1000000;i++){
 		mark_block[i]=-1;
 	}
-  }
+  }	  
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
@@ -5245,13 +5245,19 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	  first1=0;	
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
-        if(initial==0)
-          printf("enter\n");
+        if(initial==0){
+          printf("enter\n");         
+		}			
+		if(current_block[1][6].ptr_lru_node!=NULL){
+				if(current_block[1][6].ptr_lru_node->logical_node_num==16384){
+					int ggg=3;
+			  }
+			}
         int mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
-        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
+        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){		
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
 			//this function won't change ptr_current_mark_node until leave the function			
-			mark_for_specific_current_block(ptr_buffer_cache,i,j);
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);			
 			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
 			assert(current_block[i][j].current_mark_count>0);			
 			printf("mark count:%d\n",current_block[i][j].current_mark_count);
@@ -5284,12 +5290,18 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			insert_node(i,j,tmp[i][j],ptr_buffer_cache);
         }     	
 	   }
-	   else if(mark_bool[mark_block_num]==1){		   
+	   else if(mark_bool[mark_block_num]==1){ 
 			printf("mark block:%d mark_bool:%d\n",mark_block_num,mark_bool[mark_block_num]);
 			lru_node *mark_node=ptr_buffer_cache->ptr_current_mark_node;
 			lru_node *first,*second;
+			if(i==1 && j==6){
+				if(ptr_buffer_cache->ptr_current_mark_node->logical_node_num==16384){
+					int ggg=3;
+			  }
+			}
 			first=ptr_buffer_cache->ptr_current_mark_node;
-			mark_for_specific_current_block(ptr_buffer_cache,i,j);
+			//some node won't increase mark count,because those node have no exist=1 page.
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);		
 			second=ptr_buffer_cache->ptr_current_mark_node;
 			if(first==second){
 				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -5912,7 +5924,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			}
 		}
 		order=order->next;
-		printf("channel:%d plane:%d\n",channel_num,plane);		
+		printf("channel:%d plane:%d\n",channel_num,plane);	
         //plane = find_min_write_count_plane(channel_num);
         //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
         //printf("inin channel=%d,plane=%d\n", channel_num,plane);
