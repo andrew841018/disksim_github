@@ -5311,6 +5311,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 					if(first==second){
 					ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 					}
+					break;
 				}
 				scan=scan->next;						
 			}	
@@ -5318,7 +5319,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				printf("error\n");
 				exit(0);
 				}					
-		}		     
+		}
+		printf("after mark,mark count:%d\n",current_block[i][j].current_mark_count);		     
       }
 	  }
   }	
@@ -5343,7 +5345,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	
 		while(insert->next!=NULL){							
 			count++;
-			printf("index:%d block:%d benefit:%f\n",count,current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
+			printf("index:%d block:%d benefit:%f channel:%d plane:%d\n",count,current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit,insert->channel_num,insert->plane);		
 			assert(insert->channel_num<8);
 			assert(insert->plane<8);
 			insert=insert->next;
@@ -5546,8 +5548,10 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     }
     ptr_buffer_cache->current_mark_offset=0;
     //mark write intensive node
+    if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 		current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
-		current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;		
+		current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
+	}		
 		assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(ptr_buffer_cache->current_mark_offset<LRUSIZE)
@@ -5605,8 +5609,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		ptr_buffer_cache->current_mark_offset ++;
     //printf("ptr_buffer_cache->current_mark_offset=%d\n", ptr_buffer_cache->current_mark_offset);
 		//when need  find new buffer page is marked
-
-	  current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;	
+	  if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0)
+		current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;	
     //整個block marked，換下一個
 		if(ptr_buffer_cache->current_mark_offset == LRUSIZE && current_block[channel_num][plane].current_mark_count > 0)
 		{	
