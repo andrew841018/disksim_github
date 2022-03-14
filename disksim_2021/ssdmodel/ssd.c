@@ -5268,9 +5268,15 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			count++;
 			//good
 		}
-		else{			
-			printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
-			exit(0);
+		else{
+			printf("(actual)profit count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
+			if(count==ptr_buffer_cache->count){
+				tmp=NULL;
+			}
+			else{	
+				printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
+				exit(0);
+			}					
 		}
 	}
 next:
