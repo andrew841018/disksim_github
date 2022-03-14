@@ -5094,6 +5094,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 }
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
   printf("begin of insert_node.........\n");
+  check_profit(ptr_buffer_cache);
   profit *insert,*prev,*current,*start=malloc(sizeof(profit)),*tmp=malloc(sizeof(profit)); 
   int first=0;
   ptr_buffer_cache->count++;
@@ -5375,6 +5376,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             printf("hiiii\n");		
             //the new block enter,after A_kick kick a block
             printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);           
+			if(current_block[i][j].ptr_lru_node->logical_node_num==114763){
+				int ggg=3;
+			}
           }   
           b1=1;
           //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
@@ -5382,9 +5386,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
           if(initial==0){			
 			insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
-			if(current_block[ttt->channel_num][ttt->plane].ptr_lru_node->logical_node_num!=49157){
-				int ggg=3;
-			}
 			check_profit(ptr_buffer_cache);
         }     	
 	   }
@@ -6223,9 +6224,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	  printf("out\n");
     kick_channel_times++;
   }
-  if(ptr_buffer_cache->count==0){
-	order=NULL;
-  }
   /*
   if(current_block[channel_num][plane].current_mark_count!=0)
 	current_block[channel_num][plane].current_mark_count=0;*/
@@ -6235,12 +6233,12 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	count++;
 	order=order->next;
   }
-  if(order!=NULL && order->benefit!=0){
+  if(order!=NULL && order->benefit!=0 && current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num>=0){
 	count++;
   }
   printf("(actual)profit pointer count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
+  
   assert(count==ptr_buffer_cache->count);
-
  // exit(0);
   kick_count+=kick;
   my_kick_node+=kick;
