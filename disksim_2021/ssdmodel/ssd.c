@@ -5269,7 +5269,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			//good
 		}
 		else{
-			if(tmp->channel_num>=0 && tmp->channel_num<8 && tmp->plane>=0 && tmp->plane<8){
+			if(cur_block>=0){
 				printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
 				exit(0);
 			}
