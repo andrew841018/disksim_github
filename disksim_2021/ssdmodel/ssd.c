@@ -5233,8 +5233,11 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		}
 		if(mark_bool[next_block]==0 && tmp->next->benefit==0){
 			tmp->next=tmp->next->next;
-		}
+		}		
 		tmp=tmp->next;
+		if(tmp==NULL){
+			break;
+		}
 	}
 	printf("(actual run profit pointer)count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
 	assert(count==ptr_buffer_cache->count);
