@@ -5217,18 +5217,22 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			exit(0);
 		}
 	}
-	int cur_block,mark_block,count2=0;
-	while(tmp->next!=NULL){	
+	int cur_block,mark_block,count2=0,next_block;
+	while(tmp->next!=NULL){			
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
+		next_block=current_block[tmp->next->channel_num][tmp->next->plane].ptr_lru_node->logical_node_num;
 		if(mark_bool[cur_block]==1){
 			count2++;
 			printf("index:%d block:%d benefit:%f\n",count2,cur_block,tmp->benefit);
 			count++;
 			//good
 		}
-		else{
-			printf("something wrong...channel:%d plane:%d block num:%d\n",tmp->channel_num,tmp->plane,cur_block);
+		else{			
+			printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
 			exit(0);
+		}
+		if(mark_bool[next_block]==0 && tmp->next->benefit==0){
+			tmp->next=tmp->next->next;
 		}
 		tmp=tmp->next;
 	}
@@ -5269,7 +5273,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     {   	
 	  first1=0;	
 	  if(ptr_buffer_cache->ptr_current_mark_node->logical_node_num==114754){
-			int ggg=3;
+			int ggg=3;//never enter there
 		}
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
