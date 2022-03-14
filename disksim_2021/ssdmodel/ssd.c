@@ -5114,7 +5114,6 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   }
   assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
   assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
-  insert=ptr_buffer_cache->p;            
   current=malloc(sizeof(profit));
   prev=malloc(sizeof(profit));
 //insert current block to profit pointer--->according to the benefit value.
@@ -5149,13 +5148,15 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
       current->next=insert;
       start=current;
       first=1;//tmp[i][j] is the first node in profit pointer
+      goto end;
       }					
 
     //insert node is not the first one.
     int enter=0,reach_finish_line=1;
     while(insert!=NULL && first==0){ 					             				
       if(benefit>insert->benefit){
-        prev=insert;
+		printf("insert node not the first one\n");
+        prev=insert;//store previous insert position
         insert=insert->next;
         enter=1;
       }
@@ -5175,20 +5176,22 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
 		current->benefit=benefit;
 		current->channel_num=channel;
 		current->plane=plane;
-		insert=current;
 		current->next=NULL;
+		prev->next=current;
 		ptr_buffer_cache->p=tmp;
+		goto end;
 	}	  
-  }    		
-  if(first==1){
-	int ggg=3;
-	ptr_buffer_cache->p=start;
-	printf("yoyo~\n");
-	check_profit(ptr_buffer_cache);
-  }
-  else {
-	check_profit(ptr_buffer_cache);
-}   
+  }  
+end:  		
+	if(first==1){
+		int ggg=3;
+		ptr_buffer_cache->p=start;
+		printf("yoyo~\n");
+		check_profit(ptr_buffer_cache);
+	}
+	else {
+		check_profit(ptr_buffer_cache);
+	}   
 }
 int mark_block[1000000];
 int mark_count;
