@@ -5094,9 +5094,6 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 }
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
   printf("begin of insert_node.........\n");
-  if(block_number==114723){
-	int ggg=3;
-  }
   profit *insert,*prev,*current,*start=malloc(sizeof(profit)),*tmp=malloc(sizeof(profit)); 
   int first=0;
   ptr_buffer_cache->count++;
@@ -5182,7 +5179,6 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
 		current->next=NULL;
 		insert->next=current;
 		ptr_buffer_cache->p=tmp;
-		run_profit(ptr_buffer_cache,current_block[channel][plane].ptr_lru_node->logical_node_num);
 		goto end;
 	}	  
   }  
@@ -5253,6 +5249,10 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			break;
 		}
 	}
+	if(tmp!=NULL){
+		count2++;
+		printf("index:%d block:%d benefit:%f\n",count2,current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num,tmp->benefit);
+	}
 	ptr_buffer_cache->p=tmp1;
 	printf("(actual run profit pointer)count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
 	assert(count==ptr_buffer_cache->count);
@@ -5287,6 +5287,10 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			b=1;
 		}
 		test=test->next;
+	}
+	if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
+		b=1;
+		printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
 	}
 	assert(b==1);	
 }
