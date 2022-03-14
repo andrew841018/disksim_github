@@ -5150,7 +5150,10 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
 
     //insert node is not the first one.
     int enter=0,reach_finish_line=1;
-    while(insert->next!=NULL && first==0 && insert->next->benefit>0){ 					             				
+    while(insert->next!=NULL && first==0 && insert->next->benefit>0){ 
+	  if(insert->next->benefit==0){
+		insert->next=NULL;
+	  } 					             				
       if(benefit>insert->benefit){
 		printf("insert node not the first one\n");
         prev=insert;//store previous insert position
@@ -5167,9 +5170,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
         reach_finish_line=0;
         break;
       } 
-      if(insert->next->benefit==0){
-		insert->next=NULL;
-	  }   									
+        									
     }
     //leave the while not by break	
     if(reach_finish_line==1){
@@ -5232,9 +5233,15 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			count++;
 			//good
 		}
-		else{			
-			printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
-			exit(0);
+		else{
+			printf("(actual)profit count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
+			if(count==ptr_buffer_cache->count){
+				tmp=NULL;
+			}
+			else{	
+				printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
+				exit(0);
+			}
 		}
 		if(mark_bool[next_block]==0 && tmp->next->benefit==0){
 			if(tmp->next->next!=NULL){
@@ -5250,9 +5257,23 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		}
 	}
 	if(tmp!=NULL){
-		count2++;
-		printf("index:%d block:%d benefit:%f\n",count2,current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num,tmp->benefit);
+		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
+		if(mark_bool[cur_block]==1){
+			if(tmp->benefit==0){
+				tmp=NULL;
+				goto next;
+			}
+			count2++;
+			printf("index:%d block:%d benefit:%f\n",count2,cur_block,tmp->benefit);
+			count++;
+			//good
+		}
+		else{			
+			printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
+			exit(0);
+		}
 	}
+next:
 	ptr_buffer_cache->p=tmp1;
 	printf("(actual run profit pointer)count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
 	assert(count==ptr_buffer_cache->count);
@@ -6209,6 +6230,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	count++;
 	order=order->next;
   }
+  if(order!=NULL && order->benefit!=0){
+	count++;
+  }
+  printf("(actual)profit pointer count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
   assert(count==ptr_buffer_cache->count);
 
  // exit(0);
