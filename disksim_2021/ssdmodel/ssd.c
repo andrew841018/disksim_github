@@ -5227,7 +5227,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			//good
 		}
 		else{
-			printf("something wrong...block num:%d\n",cur_block);
+			printf("something wrong...channel:%d plane:%d block num:%d\n",tmp->channel_num,tmp->plane,cur_block);
 			exit(0);
 		}
 		tmp=tmp->next;
@@ -5268,15 +5268,19 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     for(j = 0;j < PLANE_NUM;j++)
     {   	
 	  first1=0;	
+	  if(ptr_buffer_cache->ptr_current_mark_node->logical_node_num==114754){
+			int ggg=3;
+		}
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
         if(initial==0){
           printf("enter\n");         
-		}			
+		}					
         int mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			printf("before insert\n");
-			check_profit(ptr_buffer_cache);		
+			check_profit(ptr_buffer_cache);	
+			int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
 			//this function won't change ptr_current_mark_node until leave the function			
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);			
@@ -5286,7 +5290,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			second=ptr_buffer_cache->ptr_current_mark_node;
 			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
 			//increase mark_bool count
-			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1; 
+			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
+			assert(current_block[i][j].ptr_lru_node->logical_node_num==tmp_mark_block); 
 			assert(tmp[i][j]>0);
 			if(first==second){
 				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
