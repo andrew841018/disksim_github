@@ -197,10 +197,10 @@ void lsn2lpn(unsigned int input_lsa,unsigned  int input_scnt,unsigned int* req_l
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache *ptr_buffer_cache,int flag);
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache);
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache);
-
+void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache);
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag);
-
- 
+void run_profit(buffer_cache *ptr_buffer_cache);
+void check_profit(buffer_cache *ptr_buffer_cache); 
 int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache);
 void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,unsigned int verify_channel,unsigned int verify_plane,int flag);
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache);
@@ -5146,8 +5146,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
       current->channel_num=channel;
       current->plane=plane;
       current->next=insert;
-      start=current;
-      first=1;//tmp[i][j] is the first node in profit pointer
+      ptr_buffer_cache->p=current;
       goto end;
       }					
 
@@ -5255,6 +5254,19 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 	printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);
 	printf("all good\n");
 }
+void run_profit(buffer_cache *ptr_buffer_cache){
+	profit *test=ptr_buffer_cache->p;
+	int count=0;
+	printf("(run_profit)testing.....................................\n");
+	if(test==NULL){
+		return;
+	}
+	while(test->next!=NULL){
+		count++;
+		printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+		test=test->next;
+	}
+}
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0,b1=0,k=0,w,first1;
@@ -5286,11 +5298,13 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         int mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			printf("before insert\n");
-			check_profit(ptr_buffer_cache);	
+			check_profit(ptr_buffer_cache);
+			run_profit(ptr_buffer_cache);	
 			int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
 			//this function won't change ptr_current_mark_node until leave the function			
-			mark_for_specific_current_block(ptr_buffer_cache,i,j);			
+			/////		
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);	
 			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
 			assert(current_block[i][j].current_mark_count>0);			
 			printf("mark count:%d\n",current_block[i][j].current_mark_count);
@@ -5302,7 +5316,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			assert(tmp[i][j]>0);
 			if(first==second){
 				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-			}
+			}			
 			//make sure mark all page in block
 			for(k=0;k<LRUSIZE;k++){
 			  if(current_block[i][j].ptr_lru_node->page[k].exist==1){
@@ -5319,7 +5333,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
           //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
-          if(initial==0){
+          if(initial==0){			
 			insert_node(i,j,tmp[i][j],ptr_buffer_cache);
         }     	
 	   }
