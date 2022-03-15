@@ -6196,10 +6196,17 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
 				printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 				ptr_buffer_cache->count--;
-				printf("k:%d\n",k);	
-				run_profit(ptr_buffer_cache,0);
+				printf("k:%d\n",k);
+        //在這裡會出現重複的block.....if exist，然後會被ptr_buffer_cache->count和actual profit count計算進去	
+        //然後出於未知原因，重複的block都是當下要被remove的block，所以一旦被remove，原先被存在curren_block
+        //的block就會消失，而在下面的run_profit中，就會偵測到有某個block number異常的大或者是負數（因為該block 不存在）
+        //然後就會直接略過那個block，指向下一個profit pointer，這也就是為什麼一開始都沒問題，到後期就出問題以及
+        //為什麼明明使用了goto，使用前ok，使用後卻出錯，而中間明明就沒有什麼會影響到count的程式碼，這最大的原因
+        //就出在remove_a_page_in_the_node這個function
+        run_profit(ptr_buffer_cache,0);
 				printf("(after remove)ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
 				mark_bool[ptr_lru_node->logical_node_num]=0;	
+
 				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);				
 				k++;						 		
 				goto outside;
