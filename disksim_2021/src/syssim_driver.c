@@ -1908,6 +1908,8 @@ int main(int argc, char *argv[])
       ReqCount++;
       test_RQ++;
       printf("----接收新的request----|ReqCount=%d\n", ReqCount);
+      FILE *wb=fopen("wb.txt","w");
+      fprintf(wb,"request:%d\n",ReqCount);
       if(blnum > 56000000 && R_W == 0)
         continue;
       //fprintf(outputfd, "----接收新的request----|ReqCount=%d\n", ReqCount);
@@ -2224,6 +2226,7 @@ int main(int argc, char *argv[])
   print_statistics(&st, &wst, &rst, &wstp, &rstp, "response time");
   //fclose(evict_fread);
   fclose(fread);
+  fclose(wb);
   fclose(fwrite);
   fclose(Nflush_hintflow);
   fclose(Nflush_flow);
