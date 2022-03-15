@@ -5099,6 +5099,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   profit *insert,*prev,*current,*start=malloc(sizeof(profit)),*tmp=malloc(sizeof(profit)); 
   int first=0;
   ptr_buffer_cache->count++;
+  printf("ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
   insert=ptr_buffer_cache->p; 
   tmp=ptr_buffer_cache->p;
   current=malloc(sizeof(profit));
@@ -5300,8 +5301,7 @@ next:
 }
 void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	ttt=malloc(sizeof(profit));
-	profit *test=ptr_buffer_cache->p,*order;
-	order=test;
+	profit *test=ptr_buffer_cache->p;
 	int count=0,b=0;
 	printf("(run_profit)testing.....................................\n");
 	if(test==NULL){
@@ -5344,7 +5344,8 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			test=NULL;
 		}	
 	}
-	ptr_buffer_cache->p=order;
+	printf("count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
+	assert(ptr_buffer_cache->count==count);
 	//assert(b==1);	
 }
 int enter_num=0;
@@ -5495,6 +5496,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       order->channel_num=channel;
       order->plane=plane;
       ptr_buffer_cache->count++;
+      printf("(when initial==1)ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
       assert(tmp[channel][plane]!=0);
       order->benefit=tmp[channel][plane];
       tmp[channel][plane]=10;
@@ -6017,23 +6019,32 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
 	//why while(order!=NULL) error? 	
 	order=ptr_buffer_cache->p;//it remove order->next and all further node
-	int look=0;
 	while(order->next!=NULL){
-		look++;		
-		printf("index:%d benefit:%f logical_block:%d mark:%d\n",look,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);				
-		order=order->next;
-	}
-	if(order!=NULL){
-		if(order->benefit>0 && current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num>=0){
-			look++;
-			printf("index:%d benefit:%f logical_block:%d mark:%d\n",look,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);				
+		count++;
+		printf("index:%d benefit:%f logical_block:%d mark:%d\n",count,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);	
+		int next_block;
+		if(order->next!=NULL){
+			next_block=current_block[order->next->channel_num][order->next->plane].ptr_lru_node->logical_node_num;
+			if(order->next->next!=NULL){
+				if(next_block<0 || next_block>=1000000000){
+					order->next=order->next->next;
+				}
+			}
+			else{
+				if(next_block<0 || next_block>=1000000000){
+					order->next=NULL;
+					break;
+				}
+			}
 		}
-		else{
-			order=NULL;
-		}	
-	}
+		order=order->next;
+  }
+  if(order!=NULL && order->benefit!=0 && current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num>=0){
+	count++;
+	printf("(out)index:%d benefit:%f logical_block:%d mark:%d\n",count,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);	
+  }
 	printf("hi and ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
-    assert(look==ptr_buffer_cache->count);
+    assert(count==ptr_buffer_cache->count);
     order=ptr_buffer_cache->p;    
     int k=0,remove=0; 
     kick=1; 
@@ -6054,6 +6065,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			}
 		}
 		order=order->next;
+		ptr_buffer_cache->p=order;
 		printf("channel:%d plane:%d\n",channel_num,plane);	
         //plane = find_min_write_count_plane(channel_num);
         //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -6072,9 +6084,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     
     //as a result,if the program can't enter in this while loop 
     //the main reason will because current_mark_count=0. 
-    printf("block num:%d mark count:%d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);   
     while(k<LRUSIZE)
-    {	  
+    {	  	
       if(no_page_can_evict != 0)//預防機制，實際上不會進入這裡
       {
         printf("no_page_can_evict\n");
@@ -6105,7 +6116,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       if(ptr_lru_node->page[k].exist !=2){
         k++;  
         continue;
-	    }
+	  }
       //printf("first priority victim block num:%d benefit:%f \n",ptr_lru_node->logical_node_num,prev->benefit);      
       /*
        * if the plane is not any mark page ,we help mark the new node 
@@ -6185,6 +6196,9 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
 				printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 				ptr_buffer_cache->count--;
+				printf("k:%d\n",k);	
+				run_profit(ptr_buffer_cache,0);
+				printf("(after remove)ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
 				mark_bool[ptr_lru_node->logical_node_num]=0;	
 				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);				
 				k++;						 		
@@ -6264,6 +6278,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
 	  printf("out\n");
     kick_channel_times++;
+    ptr_buffer_cache->p=order;
+    run_profit(ptr_buffer_cache,0);
   }
   /*
   if(current_block[channel_num][plane].current_mark_count!=0)
