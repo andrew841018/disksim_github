@@ -5309,7 +5309,6 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	}
 	int next_block;
 	while(test->next!=NULL){
-		count++;
 		if(test->next!=NULL){
 			next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
 			if(test->next->next!=NULL){
@@ -5324,6 +5323,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 				}
 			}
 		}
+		count++;
 		printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
 		ttt=test;
 		if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
@@ -5332,13 +5332,13 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		test=test->next;
 	}
 	if(test!=NULL){
-		if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
+		/*if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
 			b=1;
 			printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
-		}
+		}*/
 		if(test->benefit>0 && current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num>=0){
 			count++;
-			printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+			printf("(out)index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
 		}
 		else{
 			test=NULL;
