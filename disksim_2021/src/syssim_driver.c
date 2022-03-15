@@ -1867,7 +1867,6 @@ int main(int argc, char *argv[])
     fprintf(stderr, "usage: %s <param file> <output file> <#sectors> <input trace file> <max_req> <memory_size(#pages)>\n",argv[0]);
     exit(1);
   }
-  FILE *wb=fopen("wb.txt","w");
   FILE *fread = fopen(argv[4],"r");
   MAXREQ = atoi(argv[5]);
   Mem = atoi(argv[6]);
@@ -1907,8 +1906,10 @@ int main(int argc, char *argv[])
       //fprintf(myoutput,"time:%lf,devno:%ld,blnum:%ld,size:%ld,R_W:%ld\n",time,devno,blnum,size,R_W);
       ReqCount++;
       test_RQ++;
-      printf("----接收新的request----|ReqCount=%d\n", ReqCount);      
+      printf("----接收新的request----|ReqCount=%d\n", ReqCount);
+      FILE *wb=fopen("wb.txt","w");      
       fprintf(wb,"request:%d\n",ReqCount);
+      fclose(wb);
       if(blnum > 56000000 && R_W == 0)
         continue;
       //fprintf(outputfd, "----接收新的request----|ReqCount=%d\n", ReqCount);
@@ -2225,7 +2226,6 @@ int main(int argc, char *argv[])
   print_statistics(&st, &wst, &rst, &wstp, &rstp, "response time");
   //fclose(evict_fread);
   fclose(fread);
-  fclose(wb);
   fclose(fwrite);
   fclose(Nflush_hintflow);
   fclose(Nflush_flow);
