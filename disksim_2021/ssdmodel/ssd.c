@@ -5238,16 +5238,10 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			//good
 		}
 		else{
-			printf("(actual)profit count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
-			if(count==ptr_buffer_cache->count){
-				tmp=NULL;
-			}
-			else{	
-				printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
-				exit(0);
-			}
-		}
-		if(mark_bool[next_block]==0 && tmp->next->benefit==0){
+			printf("something wrong...\n");
+			exit(0);
+		}		
+		if(mark_bool[next_block]==0 && tmp->next->benefit==0 || next_block<0){
 			if(tmp->next->next!=NULL){
 				tmp->next=tmp->next->next;
 			}
@@ -5255,10 +5249,10 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 				tmp->next=NULL;
 			}
 		}		
-		tmp=tmp->next;
 		if(tmp==NULL){
 			break;
 		}
+		tmp=tmp->next;
 	}
 	if(tmp!=NULL){
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
