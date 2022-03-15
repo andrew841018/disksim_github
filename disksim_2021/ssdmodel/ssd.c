@@ -5228,31 +5228,33 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 	int cur_block,mark_block,count2=0,next_block;
 	printf("inside the check_profit and enter run_profit\n");
 	run_profit(ptr_buffer_cache,0);
-	while(tmp->next!=NULL){			
-		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
-		next_block=current_block[tmp->next->channel_num][tmp->next->plane].ptr_lru_node->logical_node_num;
-		if(mark_bool[cur_block]==1){
-			count2++;
-			printf("index:%d block:%d benefit:%f\n",count2,cur_block,tmp->benefit);
-			count++;
-			//good
-		}
-		else{
-			printf("something wrong...\n");
-			exit(0);
-		}		
-		if(mark_bool[next_block]==0 && tmp->next->benefit==0 || next_block<0){
-			if(tmp->next->next!=NULL){
-				tmp->next=tmp->next->next;
+	if(tmp->next!=NULL){
+		while(tmp->next!=NULL){			
+			cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
+			next_block=current_block[tmp->next->channel_num][tmp->next->plane].ptr_lru_node->logical_node_num;
+			if(mark_bool[cur_block]==1){
+				count2++;
+				printf("index:%d block:%d benefit:%f\n",count2,cur_block,tmp->benefit);
+				count++;
+				//good
 			}
 			else{
-				tmp->next=NULL;
+				printf("something wrong...\n");
+				exit(0);
+			}		
+			if(mark_bool[next_block]==0 tmp->next->benefit==0 || next_block<0){
+				if(tmp->next->next!=NULL){
+					tmp->next=tmp->next->next;
+				}
+				else{
+					tmp->next=NULL;
+				}
+			}					
+			tmp=tmp->next;
+			if(tmp==NULL){
+				break;
 			}
-		}		
-		if(tmp==NULL){
-			break;
 		}
-		tmp=tmp->next;
 	}
 	if(tmp!=NULL){
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
@@ -5330,6 +5332,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	ptr_buffer_cache->p=order;
 	//assert(b==1);	
 }
+int enter_num=0;
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
   int i = 0,j = 0,b1=0,k=0,w,first1;
@@ -5341,6 +5344,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	printf("begin of mark_for_all\n");
 	check_profit(ptr_buffer_cache);
   }
+  enter_num++;
   if(initial==1){
 	for(i=0;i<1000000;i++){
 		mark_block[i]=-1;
