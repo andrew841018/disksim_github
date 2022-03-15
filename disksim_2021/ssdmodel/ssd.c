@@ -5242,7 +5242,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 				printf("something wrong...\n");
 				exit(0);
 			}		
-			if(mark_bool[next_block]==0 tmp->next->benefit==0 || next_block<0){
+			if(mark_bool[next_block]==0 && tmp->next->benefit==0 || next_block<0){
 				if(tmp->next->next!=NULL){
 					tmp->next=tmp->next->next;
 				}
@@ -5307,8 +5307,23 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	if(test==NULL){
 		return;
 	}
+	int next_block;
 	while(test->next!=NULL){
 		count++;
+		if(test->next!=NULL){
+			next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
+			if(test->next->next!=NULL){
+				if(next_block<0){
+					test->next=test->next->next;
+				}
+			}
+			else{
+				if(next_block<0){
+					test->next=NULL;
+					break;
+				}
+			}
+		}
 		printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
 		ttt=test;
 		if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
@@ -6258,11 +6273,22 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
  while(order->next!=NULL){
 	printf("in A_kick block:%d\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);	
 	count++;
+	int next_block;
+	if(order->next!=NULL){
+			next_block=current_block[order->next->channel_num][order->next->plane].ptr_lru_node->logical_node_num;
+			if(order->next->next!=NULL){
+				if(next_block<0 || next_block>=1000000000){
+					order->next=order->next->next;
+				}
+			}
+			else{
+				if(next_block<0 || next_block>=1000000000){
+					order->next=NULL;
+					break;
+				}
+			}
+		}
 	order=order->next;
-	if(current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num<0){
-		order=NULL;
-		break;
-	}
   }
   if(order!=NULL && order->benefit!=0 && current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num>=0){
 	printf("outside the while-in A_kick block:%d\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);	
