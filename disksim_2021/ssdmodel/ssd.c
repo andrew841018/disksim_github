@@ -5226,6 +5226,8 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		}
 	}
 	int cur_block,mark_block,count2=0,next_block;
+	printf("inside the check_profit and enter run_profit\n");
+	run_profit(ptr_buffer_cache,0);
 	while(tmp->next!=NULL){			
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
 		next_block=current_block[tmp->next->channel_num][tmp->next->plane].ptr_lru_node->logical_node_num;
@@ -5280,8 +5282,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			}
 		}
 	}
-	printf("inside the check_profit and enter run_profit\n");
-	run_profit(ptr_buffer_cache,0);
+	//if call run_profit here,actual profit count will decrease.
 next:
 	ptr_buffer_cache->p=tmp1;
 	printf("(actual run profit pointer)count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
@@ -5319,9 +5320,18 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		}
 		test=test->next;
 	}
-	if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
-		b=1;
-		printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+	if(test!=NULL){
+		if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
+			b=1;
+			printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+		}
+		if(test->benefit>0 && current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num>=0){
+			count++;
+			printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+		}
+		else{
+			test=NULL;
+		}	
 	}
 	ptr_buffer_cache->p=order;
 	//assert(b==1);	
@@ -5903,10 +5913,6 @@ void kick_read_intensive_page_from_buffer_cache(ioreq_event *curr,unsigned int c
 
 void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache,int flag)
 {	
-	if(initial==0){
-	  printf("begin of A_kick\n");
-	  run_profit(ptr_buffer_cache,0);
-	}
   //glob_bc=ptr_buffer_cache;
   //check_which_node_to_evict(ptr_buffer_cache);
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0;
@@ -5983,6 +5989,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
    * */
   int no_page_can_evict=0,w;
   printf("middle of A_kick\n");
+  printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
   run_profit(ptr_buffer_cache,0);
   // "before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
@@ -6002,6 +6009,15 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		look++;		
 		printf("index:%d benefit:%f logical_block:%d mark:%d\n",look,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);				
 		order=order->next;
+	}
+	if(order!=NULL){
+		if(order->benefit>0 && current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num>=0){
+			look++;
+			printf("index:%d benefit:%f logical_block:%d mark:%d\n",look,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);				
+		}
+		else{
+			order=NULL;
+		}	
 	}
 	printf("hi and ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
     assert(look==ptr_buffer_cache->count);
