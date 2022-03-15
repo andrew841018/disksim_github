@@ -5280,6 +5280,8 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			}
 		}
 	}
+	printf("inside the check_profit and enter run_profit\n");
+	run_profit(ptr_buffer_cache,0);
 next:
 	ptr_buffer_cache->p=tmp1;
 	printf("(actual run profit pointer)count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
@@ -5296,8 +5298,7 @@ next:
 		printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);
 		exit(0);
 	}
-	printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);
-	run_profit(ptr_buffer_cache->count,0);
+	printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);	
 	printf("all good\n");
 }
 void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
