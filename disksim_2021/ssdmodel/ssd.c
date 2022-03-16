@@ -5206,6 +5206,7 @@ int mark_count;
 int testing[1000000];
 //check  profit block is match to mark_bool block or not
 void check_profit(buffer_cache *ptr_buffer_cache){
+	run_profit(ptr_buffer_cache,0);//assign 7 means to more print in this function
 	profit *tmp,*tmp1;
 	int count=0;
 	tmp=ptr_buffer_cache->p;
@@ -5215,8 +5216,9 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		printf("tmp==null\n");
 		return;
 	}
+	int cur_block,mark_block,count2=0,next_block;
+	//only have one node
 	if(tmp!=NULL && tmp->next==NULL){
-		int cur_block,mark_block;
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
 		if(mark_bool[cur_block]==1){
 			count++;
@@ -5228,11 +5230,11 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			exit(0);
 		}
 	}
-	int cur_block,mark_block,count2=0,next_block;
+	//in there tmp!=NULL && tmp->next!=NULL or there must be something wrong...
 	while(tmp->next!=NULL){			
+		//current_block will move one node from here when it really print....I don't know why
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
 		next_block=current_block[tmp->next->channel_num][tmp->next->plane].ptr_lru_node->logical_node_num;	
-		printf("curr:%d next:%d\n",cur_block,next_block);
 		if(mark_bool[cur_block]==1){
 			count2++;
 			printf("index:%d block:%d benefit:%f\n",count2,cur_block,tmp->benefit);
@@ -5243,7 +5245,6 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			printf("something wrong...\n");
 			exit(0);
 		}
-		printf("curr:%d next:%d\n",cur_block,next_block);	
 		//next node is Invalid node	
 		if(mark_bool[next_block]==0 && (tmp->next->benefit==0 || next_block<0)){
 			//next->next node exist or not
@@ -5275,7 +5276,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 	if(tmp!=NULL){		
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
 		if(mark_bool[cur_block]==1){
-			if(tmp->benefit==0 || cur_block<0){
+			if(tmp->benefit==0 || cur_block<0 || cur_block>1000000){
 				mark_bool[cur_block]=0;
 				tmp=NULL;
 				goto next;
@@ -5290,7 +5291,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 				printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
 				exit(0);
 			}
-			else if(tmp->benefit==0 || cur_block<0){
+			else if(tmp->benefit==0 || cur_block<0 || cur_block>1000000){
 				tmp=NULL;						
 			}
 		}
@@ -5318,9 +5319,12 @@ next:
 			mark_bool[i]=0;
 		}
 	}
-	if(mark_bool_num!=ptr_buffer_cache->count){
+	if(mark_bool_num>ptr_buffer_cache->count){
 		printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);
 		exit(0);
+	}
+	if(mark_bool_num<ptr_buffer_cache->count){
+		ptr_buffer_cache->count=mark_bool_num;
 	}
 	printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);	
 	printf("all good\n");
@@ -5344,48 +5348,56 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	int next_block,cur_block;
 	while(test->next!=NULL){
 		//for some unknown reason,the next_block will move one node
+		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
 		next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
 		//judge next block exist or not
 		if(test->next->next!=NULL){
-			if(next_block<0){
-				printf("(in the middle)this block doesn't\n");
+			if(next_block<0 || test->next->benefit==0 || next_block>=1000000){
+				if(block_num!=7)
+					printf("(in the middle)this block doesn't\n");
 				test->next=test->next->next;
 			}
 		}
 		else{
-			if(next_block<0){
-				printf("(in the end)this block doesn't\n");
+			if(next_block<0 || test->next->benefit==0 || next_block>=1000000 ){
+				if(block_num!=7)
+					printf("(in the end)this block doesn't\n");
 				test->next=NULL;
 				break;
 			}
 		}
-		count++;
-		ptr_buffer_cache->count++;
-		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
-		mark_bool[cur_block]=1;
-		testing[cur_block]=1;
-		printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,mark_bool[cur_block]);
-		ttt=test;
+		if(testing[cur_block]==0){
+			count++;
+			ptr_buffer_cache->count++;		
+			mark_bool[cur_block]=1;
+			testing[cur_block]=1;
+			if(block_num!=7)
+				printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,testing[cur_block]);
+			ttt=test;
+		}
 		test=test->next;
 	}
 	if(test!=NULL){
-		printf("%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);
 		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
-		if(test->benefit>0 && current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num>=0){
+		if(testing[cur_block]==0 || test->benefit>0 && current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num>=0){
 			count++;
 			ptr_buffer_cache->count++;
 			mark_bool[cur_block]=1;
 			testing[cur_block]=1;
-			printf("(out)index:%d block:%d benefit:%f\n",count,cur_block,test->benefit);
+			if(block_num!=7)
+				printf("(out)index:%d block:%d benefit:%f\n",count,cur_block,test->benefit);
 		}
 		else{
 			test=NULL;
 		}	
 	}
-	printf("count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
+	if(block_num!=7)
+		printf("count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
 	if(ptr_buffer_cache->count!=count){
 		ptr_buffer_cache->count=count;
 	}
+	if(block_num!=7)
+		printf("(run_profit)end..........\n");
 	assert(ptr_buffer_cache->count==count);
 	//assert(b==1);	
 }
@@ -6044,50 +6056,44 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
   int no_page_can_evict=0,w;
-  printf("middle of A_kick\n");
-  printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
-  run_profit(ptr_buffer_cache,0);
   // "before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
-  int kick=0;
+  int kick=0,count2,next_block;
   profit *order,*prev; 
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
-    //printf(" > max_buffer_page_num|");
-
-      /*sh-- our dynamic allocation policy*/
-    //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);
-	//why while(order!=NULL) error? 	
-	order=ptr_buffer_cache->p;//it remove order->next and all further node
+	printf("middle of A_kick\n");
+	printf("total:%d max:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
+	run_profit(ptr_buffer_cache,0);	
+	order=ptr_buffer_cache->p;
+	count2=0;
 	while(order->next!=NULL){
-		count++;
-		printf("index:%d benefit:%f logical_block:%d mark:%d\n",count,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);	
-		int next_block;
-		if(order->next!=NULL){
-			next_block=current_block[order->next->channel_num][order->next->plane].ptr_lru_node->logical_node_num;
-			if(order->next->next!=NULL){
-				if(next_block<0 || next_block>=1000000000){
-					order->next=order->next->next;
-				}
+		count2++;
+		printf("index:%d benefit:%f logical_block:%d mark:%d\n",count2,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);	
+		next_block=current_block[order->next->channel_num][order->next->plane].ptr_lru_node->logical_node_num;
+		printf("%d\n",next_block);
+		if(order->next->next!=NULL){
+			if(next_block<0 || next_block>=1000000){
+				order->next=order->next->next;
 			}
-			else{
-				if(next_block<0 || next_block>=1000000000){
-					order->next=NULL;
-					break;
-				}
+		}
+		else{
+			if(next_block<0 || next_block>=1000000){
+				order->next=NULL;
+				break;
 			}
 		}
 		order=order->next;
   }
   if(order!=NULL && order->benefit!=0 && current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num>=0){
-	count++;
+	count2++;
 	printf("(out)index:%d benefit:%f logical_block:%d mark:%d\n",count,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);	
   }
 	printf("hi and ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
-    assert(count<=ptr_buffer_cache->count);
+    assert(count2<=ptr_buffer_cache->count);
     if(ptr_buffer_cache->count>count){
-		ptr_buffer_cache->count=count;
+		ptr_buffer_cache->count=count2;
 	}
     order=ptr_buffer_cache->p;    
     int k=0,remove=0; 
