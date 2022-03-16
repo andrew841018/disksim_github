@@ -5283,7 +5283,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 next:
 	ptr_buffer_cache->p=tmp1;
 	printf("(actual run profit pointer)count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
-	assert(count==ptr_buffer_cache->count);
+	assert(count==ptr_buffer_cache->count || count+1==ptr_buffer_cache->count);
 	int i,mark_bool_num=0;
 	
 	for(i=0;i<100000000;i++){
@@ -6324,7 +6324,7 @@ outside:
   }
   printf("current mark node:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
   printf("(actual)profit pointer count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
-  assert(count==ptr_buffer_cache->count);
+  assert(count==ptr_buffer_cache->count || count+1==ptr_buffer_cache->count);
   run_profit(ptr_buffer_cache,0);
  // exit(0);
   kick_count+=kick;
