@@ -11,7 +11,6 @@
 #include "modules/ssdmodel_ssd_param.h"
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/time.h>
@@ -1600,11 +1599,12 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
+ioreq_event *curr1;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
   //fprintf(outputssd, "**************ssd inininininin\n");
-    
+  curr1=curr; 
   req_check++;
   ssd_t *currdisk = getssd(curr->devno);
   int blkno = curr->blkno;
@@ -1634,29 +1634,19 @@ static void ssd_media_access_request_element (ioreq_event *curr)
 
    /*
     * the request type is write data...
-    * */
-
+    * */  
    if(!(curr->flags&READ))
-   {
+   {	
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
       return ;
    }
-
-
-
-
-
-
-
-   
    /*
      * the follow code is used for read request...
           */
 
    assert(curr->flags&READ);
-   
    curr->tempint2 = count;//sh- record "parent's total fs-block count"
 
    while (count != 0) {
@@ -3540,27 +3530,49 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   // }
   return strip_way;
 } 
-
-
-
+int init=1;
+int block_num[1000000];
+int sector_num[10000][10000];//sector_num[block_index][sector_index]
+int sector_count[10000][10000]={{0}};//count[block_index][sector_index]....block index!=block number(sector too)
+int block_index=0;
+int sector_index[1000000]={0};//sector_index[block_index]
+int block_count[1000000]={0};//calculate this in the show...
+void write_benefit_to_txt(int g){
+  int i,j,c;
+  double benefit;
+  char tmp[100];
+  for(i=0;i<10000;i++){
+    c=0;
+    for(j=0;j<10000;j++){
+      c+=sector_count[i][j];//calculate total count in block i
+    }
+    block_count[i]=c;
+  }
+  FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
+	for(i=0;i<10000;i++){
+		for(j=0;j<10000;j++){
+		  if(block_count[i]!=0 && sector_num[i][j]!=-1){
+			benefit=(float)block_count[i]/64;
+			benefit/=64;
+			sprintf(tmp,"%d %d %.20f %d",sector_num[i][j],block_num[i],benefit,sector_count[i][j]);
+			fprintf(info,"%s\n",tmp);
+		}
+		}
+	}
+	fclose(info);	
+}
+unsigned int count,blkno;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
   static int full_cache = 0;
-  unsigned int lpn,blkno,count,scount; //sector count
+  unsigned int lpn,scount; //sector count
   ssd_t *currdisk;
   currdisk = getssd (curr->devno);
   blkno = curr->blkno;
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
   lru_node *lru;
   int flag;
-  /*add page to buffer cache*/
-  // fprintf(myoutput3, "////////////////////Hint queue Start/////////////////\n");
-  // for(h=0;h<global_HQ_size;h++)
-  // {
-  //   fprintf(myoutput3, "global_HQ:%d\n", global_HQ[h]);
-  // }
-  // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
   
   while(count > 0)
   {
@@ -3661,25 +3673,114 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   unsigned int physical_node_num, phy_node_offset;
   physical_node_num = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576))/LRUSIZE;
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
-  //fprintf(lpb_ppn, "%d\n", lpn);
-  //fprintf(lpb_ppn, "%d\t%d\t%d\n", lba_table[lpn].ppn,lba_table[lpn].elem_number,lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
-  //fprintf(lpb_lpn, "%d\n", lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576));
-  
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  int i;
-  /*printf("hash_Pg:");
-  for(i=0;i<1000;i++)
-  {
-    if(ptr_buffer_cache->hash_Pg[i] == NULL)
-    {
-    }
-    else
-      printf("%d|",ptr_buffer_cache->hash_Pg[i]->logical_node_num);
+	double tmp[2];
+	int i,j,ig=0;
+	unsigned long long tmp1[13];
+	char tmp2[100];
+	int ignore[100];
+	for(i=0;i<100;i++)
+		ignore[i]=-1;
+	tmp[0]=curr1->arrive_time;
+	tmp1[2]=curr1->blkno;
+	tmp1[3]=curr1->busno;
+	tmp1[5]=curr1->r_count;
+	tmp1[12]=curr1->w_count;	
+	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
+	//arrive time,blkno,busno,r_count,write_count,physcial_node_num,block_write_count
+	fprintf(t,"%f ",tmp[0]);
+	ignore[0]=0;
+	ignore[1]=1;
+	ignore[2]=4;
+	ignore[3]=6;
+	ignore[4]=7;
+	ignore[5]=8;
+	ignore[6]=9;
+	ignore[7]=10;
+	ignore[8]=11;
+	ignore[9]=13;
+	for(i=0;i<13;i++){
+		ig=0;
+		for(j=0;j<100;j++){
+			if(i==ignore[j]){
+				ig=1;
+			}
+		}
+		if(ig==0){	
+			fprintf(t,"%lld ",tmp1[i]);
+	}  		
+	}    
+	fprintf(t,"%d ",physical_node_num);	
+  int b=0;
+    if(init==1){
+		for(i=0;i<10000;i++){
+			block_num[i]=-1;
+	    }
+		for(i=0;i<10000;i++){
+			for(j=0;j<10000;j++){
+				sector_num[i][j]=-1;
+			}
+		}	    
+		init=0;
+	  }
+	else{		
+	}	  
+	  int sector;
+	  for(i=0;i<block_index;i++){
+	    for(j=0;j<sector_index[i];j++){		
+	      if(sector_num[i][j]==blkno && block_num[i]==physical_node_num){//sector overwrite(same block same sector)	
+			//program won't enter there
+			sector_count[i][j]++;		
+			b=1;
+			break;
+		  }	      
+	    }
+	    if(b==1)
+			break;
+	  }
+	  if(b==0){
+		  for(i=0;i<block_index;i++){			  
+		  	if(block_num[i]==physical_node_num){//block overwrite but sector not
+			    //we need two dimension array
+				sector=sector_index[i];//num of sector in block i
+				sector_num[i][sector]=blkno;
+				sector_index[i]++;		    
+				sector_count[i][sector]++;								
+				b=1;
+				break;
+			}														
+		}		
+	}  
+	if(b==0){//new block and sector
+	    block_num[block_index]=physical_node_num;
+	  //sector_index[block_index] mean the block number=block_index, and this block current writing
+	  //sector number is sector_index[block_index] 
+	    sector=sector_index[block_index];
+	    sector_num[block_index][sector]=blkno;	
+	    sector_count[block_index][sector]++;//sector count;	    	    
+	    sector_index[block_index]++;
+	    block_index++;	    
+	  }
+	int c;
+	for(i=0;i<10000;i++){
+		c=0;
+		if(block_num[i]==physical_node_num){
+			for(j=0;j<10000;j++){
+				c+=sector_count[i][j];//calculate total count in block i
+			}
+			block_count[i]=c;
+			break;
+	}
   }
-  printf("\n");*/
- 
-  // search Lg_hash, if have this node, flag=1, else flag = 0
+	for(i=0;i<=block_index;i++){
+		if(block_num[i]==physical_node_num){
+			fprintf(t,"%d ",block_count[i]);
+			break;
+		}
+	}
+	fprintf(t,"%s\n","");	
+	fclose(t);
   while(1)
   {
     if(ptr_lru_node == NULL)
@@ -5916,6 +6017,8 @@ void show_result(buffer_cache *ptr_buffer_cache)
 {
 
   //report the last result 
+  
+  write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
