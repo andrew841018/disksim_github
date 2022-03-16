@@ -5123,6 +5123,9 @@ void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
         }
       }
       test=test->next;
+      if(test==NULL){
+		break;
+	  }
     }
   }
   ptr_buffer_cache->p=order;
@@ -5242,7 +5245,7 @@ int mark_count;
 int testing[1000000];
 //check  profit block is match to mark_bool block or not
 void check_profit(buffer_cache *ptr_buffer_cache){
-	run_profit(ptr_buffer_cache,0);//assign 7 means to more print in this function
+	run_profit(ptr_buffer_cache,7);//assign 7 means to more print in this function
 	profit *tmp,*tmp1;
 	int count=0;
 	tmp=ptr_buffer_cache->p;
@@ -5502,6 +5505,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
           if(initial==0){			
 			insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
+			remove_duplicate_profit(ptr_buffer_cache);
 			check_profit(ptr_buffer_cache);
         }     	
 	   }
