@@ -5203,7 +5203,7 @@ end1:
 }
 int mark_block[1000000];
 int mark_count;
-int block[1000000];
+int testing[1000000];
 //check  profit block is match to mark_bool block or not
 void check_profit(buffer_cache *ptr_buffer_cache){
 	profit *tmp,*tmp1;
@@ -5211,11 +5211,6 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 	tmp=ptr_buffer_cache->p;
 	tmp1=tmp;
 	int i;
-	for(i=0;i<1000000;i++){
-		if(block[i]!=0){
-			block[i]=0;
-		}
-	}
 	if(tmp==NULL){
 		printf("tmp==null\n");
 		return;
@@ -5234,24 +5229,23 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		}
 	}
 	int cur_block,mark_block,count2=0,next_block;
-	printf("inside the check_profit and enter run_profit\n");
-	run_profit(ptr_buffer_cache,0);
 	while(tmp->next!=NULL){			
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
 		next_block=current_block[tmp->next->channel_num][tmp->next->plane].ptr_lru_node->logical_node_num;	
+		printf("curr:%d next:%d\n",cur_block,next_block);
 		if(mark_bool[cur_block]==1){
 			count2++;
-			block[cur_block]=1;
-			printf("index:%d block:%d benefit:%f mark:%d\n",count2,cur_block,tmp->benefit,block[cur_block]);
+			printf("index:%d block:%d benefit:%f\n",count2,cur_block,tmp->benefit);
 			count++;
 			//good
 		}
 		else{
 			printf("something wrong...\n");
 			exit(0);
-		}	
+		}
+		printf("curr:%d next:%d\n",cur_block,next_block);	
 		//next node is Invalid node	
-		if(mark_bool[next_block]==0 && tmp->next->benefit==0 || next_block<0){
+		if(mark_bool[next_block]==0 && (tmp->next->benefit==0 || next_block<0)){
 			//next->next node exist or not
 			if(tmp->next->next!=NULL){
 				tmp->next=tmp->next->next;
@@ -5260,9 +5254,8 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 				tmp->next=NULL;
 			}
 		}
-		else if(mark_bool[next_block]==1 && tmp->next->benefit==0 || next_block<0){
+		else if(mark_bool[next_block]==1 && (tmp->next->benefit==0 || next_block<0)){
 			mark_bool[next_block]=0;
-			block[next_block]=0;
 			if(tmp->next->next!=NULL){
 				tmp->next=tmp->next->next;
 			}
@@ -5275,7 +5268,6 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		//curr node is null
 		if(tmp==NULL){
 			mark_bool[next_block]=0;
-			block[next_block]=0;
 			break;
 		}
 	}
@@ -5285,13 +5277,11 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		if(mark_bool[cur_block]==1){
 			if(tmp->benefit==0 || cur_block<0){
 				mark_bool[cur_block]=0;
-				block[cur_block]=0;
 				tmp=NULL;
 				goto next;
 			}
 			count2++;
-			block[cur_block]=1;
-			printf("(out)index:%d block:%d benefit:%f mark:%d\n",count2,cur_block,tmp->benefit,block[cur_block]);
+			printf("(out)index:%d block:%d benefit:%f\n",count2,cur_block,tmp->benefit);
 			count++;
 			//good
 		}
@@ -5315,14 +5305,15 @@ next:
 	}
 	int mark_bool_num=0,c=0;
 	//scan all mark_bool and print mark block.
+	printf("inside the check_profit and enter run_profit\n");
 	run_profit(ptr_buffer_cache,0);
 	for(i=0;i<1000000;i++){	
-		if(mark_bool[i]==1 && block[i]==1){
+		if(mark_bool[i]==1 && testing[i]==1){
 			mark_bool_num++;
 			printf("index:%d mark block:%d\n",mark_bool_num,i);
 		}
 		//mark_bool=1 but you can't find in profit pointer--->assign mark_bool to 0
-		if(mark_bool[i]==1 && block[i]==0){
+		if(mark_bool[i]==1 && testing[i]==0){
 			printf("enter...block:%d\n",i);
 			mark_bool[i]=0;
 		}
@@ -5337,6 +5328,12 @@ next:
 int duplicat_block=0;
 void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	ttt=malloc(sizeof(profit));
+	int i;
+	for(i=0;i<1000000;i++){
+		if(testing[i]!=0){
+			testing[i]=0;
+		}
+	}
 	profit *test=ptr_buffer_cache->p;
 	ptr_buffer_cache->count=0;
 	int count=0;
@@ -5344,40 +5341,42 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	if(test==NULL){
 		return;
 	}
-	int next_block;
+	int next_block,cur_block;
 	while(test->next!=NULL){
-		if(test->next!=NULL){
-			printf("curr block:%d\n",current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num);
-			next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
-			printf("curr block:%d\n",next_block);
-			if(test->next->next!=NULL){
-				if(next_block<0){
-					test->next=test->next->next;
-				}
+		//for some unknown reason,the next_block will move one node
+		next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
+		//judge next block exist or not
+		if(test->next->next!=NULL){
+			if(next_block<0){
+				printf("(in the middle)this block doesn't\n");
+				test->next=test->next->next;
 			}
-			else{
-				if(next_block<0){
-					test->next=NULL;
-					break;
-				}
+		}
+		else{
+			if(next_block<0){
+				printf("(in the end)this block doesn't\n");
+				test->next=NULL;
+				break;
 			}
 		}
 		count++;
 		ptr_buffer_cache->count++;
-		mark_bool[current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num]=1;
-		printf("index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
+		mark_bool[cur_block]=1;
+		testing[cur_block]=1;
+		printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,mark_bool[cur_block]);
 		ttt=test;
 		test=test->next;
 	}
 	if(test!=NULL){
-		if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
-			duplicat_block++;
-		}
+		printf("%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);
+		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
 		if(test->benefit>0 && current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num>=0){
 			count++;
 			ptr_buffer_cache->count++;
-			mark_bool[current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num]=1;
-			printf("(out)index:%d block:%d benefit:%f\n",count,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+			mark_bool[cur_block]=1;
+			testing[cur_block]=1;
+			printf("(out)index:%d block:%d benefit:%f\n",count,cur_block,test->benefit);
 		}
 		else{
 			test=NULL;
