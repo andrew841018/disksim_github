@@ -5108,7 +5108,6 @@ void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
       next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
       if(run_block[cur_block]==0){
         run_block[cur_block]=1;
-        test=test->next;
       }
       if(test->next!=NULL){
         if(test->next->next!=NULL){
@@ -5118,8 +5117,10 @@ void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
           }
         }
         else{
-          test->next=NULL;
-          break;
+			if(run_block[next_block]==1){
+				test->next=NULL;
+				break;
+			}            
         }
       }
       test=test->next;
@@ -5186,8 +5187,9 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
       current->channel_num=channel;
       current->plane=plane;
       current->next=insert;
+      //run_profit(ptr_buffer_cache,0);
       ptr_buffer_cache->p=current;
-     // run_profit(ptr_buffer_cache,0);
+     
       goto end1;
     }					
     //insert node is not the first one.
@@ -5231,11 +5233,13 @@ end:
 	if(first==1){
 		int ggg=3;
 		ptr_buffer_cache->p=start;
+		remove_duplicate_profit(ptr_buffer_cache);
 		printf("yoyo~\n");
 		check_profit(ptr_buffer_cache);
 	}
 end1:
 	printf("inside end1\n");
+	remove_duplicate_profit(ptr_buffer_cache);
 	run_profit(ptr_buffer_cache,0);
 	check_profit(ptr_buffer_cache);
 	//run_profit(ptr_buffer_cache,current_block[channel][plane].ptr_lru_node->logical_node_num);   
@@ -5384,7 +5388,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	if(test==NULL){
 		return;
 	}
-	int next_block,cur_block;
+	int next_block,cur_block,duplicate=0;
 	while(test->next!=NULL){
 		//for some unknown reason,the next_block will move one node
 		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
@@ -5414,6 +5418,10 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 				printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,testing[cur_block]);
 			ttt=test;
 		}
+		else{
+			printf("still have duplicate block:%d\n",cur_block);
+			duplicate++;			
+		}
 		test=test->next;
 	}
 	if(test!=NULL){
@@ -5426,9 +5434,16 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			if(block_num!=7)
 				printf("(out)index:%d block:%d benefit:%f\n",count,cur_block,test->benefit);
 		}
+		else if(testing[cur_block]==1){
+			printf("still have duplicate block:%d\n",cur_block);
+		}
 		else{
-			test=NULL;
+			test==NULL;
 		}	
+	}
+	if(duplicate==1){
+		printf("still have duplicate block\n");
+		exit(0);
 	}
 	if(block_num!=7)
 		printf("count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
@@ -5450,6 +5465,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   mark_count=0;
   if(initial==0){
 	printf("begin of mark_for_all\n");
+	remove_duplicate_profit(ptr_buffer_cache);
 	check_profit(ptr_buffer_cache);
   }
   enter_num++;
@@ -5470,7 +5486,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 		}					
         int mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
-			printf("before insert\n");				
 			int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
 			//this function won't change ptr_current_mark_node until leave the function
@@ -5505,7 +5520,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
           if(initial==0){			
 			insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
-			remove_duplicate_profit(ptr_buffer_cache);
 			check_profit(ptr_buffer_cache);
         }     	
 	   }

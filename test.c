@@ -9,9 +9,12 @@ typedef struct _profit{
 }profit;
 
 int main(){
-	profit *wb=malloc(sizeof(profit)),*order,*prev;
+	profit *wb=malloc(sizeof(profit)),*order=malloc(sizeof(profit)),*prev;
+	wb->plane=55;
 	wb->next=malloc(sizeof(profit));
-	order=wb;
-	order->next=NULL;
+	wb->next->plane=36;
+	order->plane=123;
+	order->next=wb;
+	wb=order;
 	return 0;
 }
