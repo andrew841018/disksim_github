@@ -5347,7 +5347,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	}
 	printf("count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
 	duplicat_block--;//exclude the original remove block
-	assert(ptr_buffer_cache->count==count);
+	assert(ptr_buffer_cache->count==count || ptr_buffer_cache->count==count+1);
 	//assert(b==1);	
 }
 int enter_num=0;
@@ -6289,7 +6289,7 @@ outside:
 	kick_channel_times++;
 	ptr_buffer_cache->p=order;
 	if(duplicat_block>0){
-		ptr_buffer_cache->count-=duplicat_block;
+		ptr_buffer_cache->count--;
 	}
 	run_profit(ptr_buffer_cache,0);
   }
