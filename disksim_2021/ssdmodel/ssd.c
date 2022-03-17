@@ -5498,7 +5498,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
-			//this function won't change ptr_current_mark_node until leave the function
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);	
 			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
 			printf("current_block[%d][%d].current_mark_count:%d\n",i,j,current_block[i][j].current_mark_count);
@@ -5508,10 +5507,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			//increase mark_bool count
 			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
 			//assert(current_block[i][j].ptr_lru_node->logical_node_num==tmp_mark_block); 
-			assert(tmp[i][j]>0);
-			if(first==second){
-				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-			}			
+			assert(tmp[i][j]>0);	
+			assert(second!=first);
+							
 			//make sure mark all page in block
 			for(k=0;k<LRUSIZE;k++){
 			  if(current_block[i][j].ptr_lru_node->page[k].exist==1){
@@ -6152,7 +6150,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		  exit(0);
 	  }
 
-      if(ptr_lru_node->page[k].exist !=2){
+      if(ptr_lru_node->page[k].exist ==0){
         k++;  
         continue;
 	  }
@@ -6160,8 +6158,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       /*
        * if the plane is not any mark page ,we help mark the new node 
        * */
+      printf("exist:%d channel:%d plane:%d\n",ptr_lru_node->page[k].exist,ptr_lru_node->page[k].channel_num,ptr_lru_node->page[k].plane);
       if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL)
       {
+		printf("enter if condition\n");
         current_block[channel_num][plane].trigger=1;
        //printf("* if the plane is not any mark page ,we help mark the new node|");
        //number of pages has been marked for read-intensive.
@@ -6178,10 +6178,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       }
       /*
        * if the page already been marked 
-       * */
+       * */    
       else if(ptr_lru_node->page[k].exist == 2 && ptr_lru_node->page[k].channel_num == channel_num && ptr_lru_node->page[k].plane==plane)
       {
-
+		printf("enter vary import conditiond\n");
        //printf("* if the page already been marked|\n");
        //
         current_block[channel_num][plane].trigger=2;
@@ -6297,6 +6297,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       }
       else if(ptr_lru_node->page[k].exist == 1)
       {
+		  printf("oh shit why I am here?\n");
         //printf("* if(ptr_lru_node->page[offset_in_node].exist == 1) \n");
         //assert(0);
         int i, find_page=0;
