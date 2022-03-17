@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
 
@@ -104,6 +107,7 @@ static struct lp_mod disksim_ssd_mod = { "disksim_ssd", disksim_ssd_params, DISK
 }
 #endif
 #endif // _DISKSIM_SSD_PARAM_H
+<<<<<<< HEAD
 =======
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
@@ -210,4 +214,6 @@ static struct lp_mod disksim_ssd_mod = { "disksim_ssd", disksim_ssd_params, DISK
 }
 #endif
 #endif // _DISKSIM_SSD_PARAM_H
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

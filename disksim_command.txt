@@ -1,12 +1,11 @@
+
 for window(vmware): 
-<<<<<<< HEAD
+
 ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/ rewrite disksim/trace/run1_Postmark_2475.txt' 1 262144
-=======
-./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/Link to disksim_github/trace/run1_Postmark_2475.txt' 1 262144
->>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 
 
 for mac:
+
  ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/disksim_github/trace/run1_Postmark_2475.txt' 1 262144
 
 
@@ -14,5 +13,5 @@ for mac:
 
 
 
-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
+
 

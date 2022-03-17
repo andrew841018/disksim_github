@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
 
@@ -305,6 +308,7 @@ listnode *ll_get_nth_node(listnode *start, int n)
     fprintf(stderr, "Error: cannot find the %d node in list\n", n);
     return NULL;
 }
+<<<<<<< HEAD
 =======
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
@@ -612,4 +616,6 @@ listnode *ll_get_nth_node(listnode *start, int n)
     fprintf(stderr, "Error: cannot find the %d node in list\n", n);
     return NULL;
 }
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

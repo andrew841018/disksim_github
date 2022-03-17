@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 --------------------Configuration: disksim - Win32 Debug--------------------
 
 
@@ -176,6 +179,7 @@ hplcomb.obj
 
 
 disksim.exe - 0 error(s), 0 warning(s)
+<<<<<<< HEAD
 =======
 --------------------Configuration: disksim - Win32 Debug--------------------
 
@@ -354,4 +358,6 @@ hplcomb.obj
 
 
 disksim.exe - 0 error(s), 0 warning(s)
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

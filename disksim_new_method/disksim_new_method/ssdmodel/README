@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 This directory contains an SSD add-on to the DiskSim simulation
 environment.  This add-on is authored by Ted Wobber and Vijayan
 Prabhakaran at MSR Silicon Valley.  Dushyanth Narayanan did the
@@ -37,6 +40,7 @@ The ssdmodel subdirectory contains a valid subdirectory that contains
 SSD-specific simulator tests.  To run these, execute the runvalid
 command in ssdmodel/valid.
 
+<<<<<<< HEAD
 =======
 This directory contains an SSD add-on to the DiskSim simulation
 environment.  This add-on is authored by Ted Wobber and Vijayan
@@ -76,4 +80,6 @@ The ssdmodel subdirectory contains a valid subdirectory that contains
 SSD-specific simulator tests.  To run these, execute the runvalid
 command in ssdmodel/valid.
 
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

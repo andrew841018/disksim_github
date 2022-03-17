@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
 
@@ -456,6 +459,7 @@ int     ssd_already_present(ssd_req **reqs, int total, ioreq_event *req);
 
 #endif   /* DISKSIM_ssd_H */
 
+<<<<<<< HEAD
 =======
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
@@ -914,4 +918,6 @@ int     ssd_already_present(ssd_req **reqs, int total, ioreq_event *req);
 
 #endif   /* DISKSIM_ssd_H */
 
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

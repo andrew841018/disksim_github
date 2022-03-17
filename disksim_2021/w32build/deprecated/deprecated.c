@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -76,6 +79,7 @@ int snprintf(char *str, int n, const char *format, ...)
 	va_start(args, format);
 	return vsnprintf_s(str, n, _TRUNCATE, format, args);
 }
+<<<<<<< HEAD
 =======
 #include <string.h>
 #include <stdio.h>
@@ -154,4 +158,6 @@ int snprintf(char *str, int n, const char *format, ...)
 	va_start(args, format);
 	return vsnprintf_s(str, n, _TRUNCATE, format, args);
 }
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

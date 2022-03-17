@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 # Microsoft Developer Studio Project File - Name="disksim" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 5.00
 # ** DO NOT EDIT **
@@ -79,6 +82,7 @@ CFG=disksim - Win32 Debug
 
 # End Target
 # End Project
+<<<<<<< HEAD
 =======
 # Microsoft Developer Studio Project File - Name="disksim" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 5.00
@@ -160,4 +164,6 @@ CFG=disksim - Win32 Debug
 
 # End Target
 # End Project
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 Microsoft Developer Studio Workspace File, Format Version 5.00
 # WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
 
@@ -28,6 +31,7 @@ Package=<3>
 
 ###############################################################################
 
+<<<<<<< HEAD
 =======
 Microsoft Developer Studio Workspace File, Format Version 5.00
 # WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
@@ -58,4 +62,6 @@ Package=<3>
 
 ###############################################################################
 
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

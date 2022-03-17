@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
 
@@ -16,6 +19,7 @@ void ssd_initialize (void);
 void ssd_resetstats (void);
 
 #endif
+<<<<<<< HEAD
 =======
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
@@ -34,4 +38,6 @@ void ssd_initialize (void);
 void ssd_resetstats (void);
 
 #endif
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
@@ -228,6 +231,7 @@
 	<Globals>
 	</Globals>
 </VisualStudioProject>
+<<<<<<< HEAD
 =======
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
@@ -458,4 +462,6 @@
 	<Globals>
 	</Globals>
 </VisualStudioProject>
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

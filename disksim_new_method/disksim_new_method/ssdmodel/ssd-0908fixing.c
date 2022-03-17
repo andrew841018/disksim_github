@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
 // 先搜尋 ininin 找到入口
@@ -5672,6 +5675,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
 
 
+<<<<<<< HEAD
 =======
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
@@ -11346,4 +11350,6 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
 
 
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

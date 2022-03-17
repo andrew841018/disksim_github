@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
 
@@ -973,6 +976,7 @@ ssd_timing_t  *ssd_new_timing_t(ssd_timing_params *params)
         tt->next_write_page[i] = -1;
     return &tt->t;
 }
+<<<<<<< HEAD
 =======
 // DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
@@ -1948,4 +1952,6 @@ ssd_timing_t  *ssd_new_timing_t(ssd_timing_params *params)
         tt->next_write_page[i] = -1;
     return &tt->t;
 }
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

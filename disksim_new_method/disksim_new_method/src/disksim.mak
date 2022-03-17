@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 #LDFLAGS = -lm
 #HP_FAST_OFLAGS = +O4
 #NCR_FAST_OFLAGS = -O4 -Hoff=BEHAVED
@@ -111,6 +114,7 @@ disksim_interface.obj: disksim_interface.c disksim_global.h disksim_ioface.h sys
 syssim_driver.obj: syssim_driver.c syssim_driver.h
 	$(CC) /c $(CFLAGS) syssim_driver.c
 
+<<<<<<< HEAD
 =======
 #LDFLAGS = -lm
 #HP_FAST_OFLAGS = +O4
@@ -224,4 +228,6 @@ disksim_interface.obj: disksim_interface.c disksim_global.h disksim_ioface.h sys
 syssim_driver.obj: syssim_driver.c syssim_driver.h
 	$(CC) /c $(CFLAGS) syssim_driver.c
 
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff

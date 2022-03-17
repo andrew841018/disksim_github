@@ -35,6 +35,10 @@ SUBDIRS=libddbg libparam diskmodel memsmodel ssdmodel src
 
 all: 	
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+	rm -f src/syssim_driver.o ssdmodel/ssd.o
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 =======
 	rm -f src/syssim_driver.o ssdmodel/ssd.o
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
@@ -48,7 +52,12 @@ all:
         # If dixtrac is included, build it with the distribution
 	if [ -d dixtrac ]; then $(MAKE) -C dixtrac ; fi
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+andrew_clean:
+	rm -f src/syssim_driver.o ssdmodel/ssd.o
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 =======
 andrew_clean:
 	rm -f src/syssim_driver.o ssdmodel/ssd.o

@@ -30,6 +30,9 @@ OR DOCUMENTATION.
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
 
 /*
  * DiskSim Storage Subsystem Simulation Environment (Version 2.0)
@@ -98,6 +101,7 @@ OR DOCUMENTATION.
  * holders.
  */
 
+<<<<<<< HEAD
 =======
 
 /*
@@ -167,4 +171,6 @@ OR DOCUMENTATION.
  * holders.
  */
 
+>>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
+=======
 >>>>>>> d0beeb997e5b47bb468c47d1ed3571fdbfe40eff
