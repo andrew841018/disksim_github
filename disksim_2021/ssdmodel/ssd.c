@@ -5504,31 +5504,29 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			assert(current_block[i][j].current_mark_count>0);			
 			second=ptr_buffer_cache->ptr_current_mark_node;
 			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
-			//increase mark_bool count
 			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
 			//assert(current_block[i][j].ptr_lru_node->logical_node_num==tmp_mark_block); 
 			assert(tmp[i][j]>0);	
-			assert(second!=first);
-							
+			if(second==first){
+				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+			}						
 			//make sure mark all page in block
 			for(k=0;k<LRUSIZE;k++){
 			  if(current_block[i][j].ptr_lru_node->page[k].exist==1){
 				printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
 				exit(0);
 			  }
-			}  			      
+			}  		
+		  //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
+          //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
+          //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!   		   
           if(initial==0){
             printf("hiiii\n");		
             //the new block enter,after A_kick kick a block
-            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]);           
+            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]); 
+            insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
           }   
           b1=1;
-          //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
-          //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
-          //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!
-          if(initial==0){			
-			insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
-		  }     	
 	   }
 	   else if(mark_bool[mark_block_num]==1){ 
 			printf("mark block:%d mark_bool:%d\n",mark_block_num,mark_bool[mark_block_num]);
@@ -5538,7 +5536,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			//some node won't increase mark count,because those node have no exist=1 page.
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);		
 			second=ptr_buffer_cache->ptr_current_mark_node;
-			assert(second!=first);									
+			if(second==first){
+				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+			}
 		}		
 		printf("after mark,mark count:%d\n",current_block[i][j].current_mark_count);			     
       }
@@ -5631,10 +5631,18 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	//fgetc(stdin);
 	initial=0;		
 }
+void A_match_channel_and_plane(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
+	int i;
+	for(i=0;i<LRUSIZE;i++){
+		ptr_buffer_cache->ptr_current_mark_node->page[i].channel_num=channel_num;
+		ptr_buffer_cache->ptr_current_mark_node->page[i].plane=plane;
+	}
+}
 //this function will let all page in ptr_buffer_cache->ptr_current_mark_node exist become 2....if it exist(exist=1)
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");
+  A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
   int outout=0,i;
   for(i=0;i<LRUSIZE;i++){
 	 //purpose:make sure have exist==1 page.
@@ -5649,6 +5657,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
   //curr block all marked
   if(outout==0){
 	  current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
+	  A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
 	  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 	  return;
   }
@@ -5717,6 +5726,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
 		//all block is marked
 		if(g==0){
+			A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			return;
 		}		
@@ -6078,17 +6088,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     int k=0,remove=0; 
     kick=1; 
     if(no_page_can_evict == 0){ 
-        // if(k>8)
-        // {
-        //   k=0;
-        // }
-        //channel_num = k%8;
 		channel_num=order->channel_num;
-
-		plane=order->plane;
-		if(channel_num==3 && plane==6){
-			int gg=3;
-		}
+		plane=order->plane;		
 		for(i=0;i<LRUSIZE;i++){
 			if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
 				if(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==1){
@@ -6104,16 +6105,14 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		order=order->next;
 		ptr_buffer_cache->p=order;
 		printf("channel:%d plane:%d\n",channel_num,plane);	
-        //plane = find_min_write_count_plane(channel_num);
-        //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
-        //printf("inin channel=%d,plane=%d\n", channel_num,plane);
         assert(channel_num >=0 && channel_num < 8);
         assert(plane >=0 && plane < 8);
          //表示要寫入SSD的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
 		//然後寫入的page index=offset_in_node. 
 		//disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 	 
 		ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
-
+		assert(ptr_lru_node->page[0].channel_num==channel_num);
+		assert(ptr_lru_node->page[0].plane==plane);		
     }
     //because we assign benefit info to profit pointer is the same time mark current block
     //so when current mark count=0,In theory,the profit pointer =NULL.
@@ -6158,10 +6157,9 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       /*
        * if the plane is not any mark page ,we help mark the new node 
        * */
-      printf("exist:%d channel:%d plane:%d\n",ptr_lru_node->page[k].exist,ptr_lru_node->page[k].channel_num,ptr_lru_node->page[k].plane);
+      printf("channel:%d plane:%d (lru_node)channel:%d plane:%d\n",channel_num,plane,ptr_lru_node->page[k].channel_num,ptr_lru_node->page[k].plane);
       if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL)
       {
-		printf("enter if condition\n");
         current_block[channel_num][plane].trigger=1;
        //printf("* if the plane is not any mark page ,we help mark the new node|");
        //number of pages has been marked for read-intensive.
@@ -6297,9 +6295,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       }
       else if(ptr_lru_node->page[k].exist == 1)
       {
-		  printf("oh shit why I am here?\n");
-        //printf("* if(ptr_lru_node->page[offset_in_node].exist == 1) \n");
-        //assert(0);
         int i, find_page=0;
         for(i=0;i<64;i++)
         {
