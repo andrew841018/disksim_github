@@ -5408,14 +5408,14 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		if(test->next->next!=NULL){
 			if(next_block<0 || test->next->benefit==0 || next_block>=1000000){
 				if(block_num!=7)
-					printf("(in the middle)this block doesn't\n");
+					printf("(in the middle)this block Invalid\n");
 				test->next=test->next->next;
 			}
 		}
 		else{
 			if(next_block<0 || test->next->benefit==0 || next_block>=1000000 ){
 				if(block_num!=7)
-					printf("(in the end)this block doesn't\n");
+					printf("(in the end)this block Invalid\n");
 				test->next=NULL;
 				break;
 			}
@@ -5425,6 +5425,8 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			ptr_buffer_cache->count++;		
 			mark_bool[cur_block]=1;
 			testing[cur_block]=1;
+			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
+			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
 			if(block_num!=7)
 				printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,testing[cur_block]);
 			ttt=test;
@@ -5442,6 +5444,8 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			ptr_buffer_cache->count++;
 			mark_bool[cur_block]=1;
 			testing[cur_block]=1;
+			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
+			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
 			if(block_num!=7)
 				printf("(out)index:%d block:%d benefit:%f\n",count,cur_block,test->benefit);
 		}
@@ -5498,8 +5502,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
-			mark_for_specific_current_block(ptr_buffer_cache,i,j);	
+			A_match_channel_and_plane(ptr_buffer_cache,i,j);
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);			
 			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
+			assert(current_block[i][j].ptr_lru_node->page[0].channel_num==i);
+			assert(current_block[i][j].ptr_lru_node->page[0].plane==j);
 			printf("current_block[%d][%d].current_mark_count:%d\n",i,j,current_block[i][j].current_mark_count);
 			assert(current_block[i][j].current_mark_count>0);			
 			second=ptr_buffer_cache->ptr_current_mark_node;
@@ -5534,7 +5541,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			b1=1;
 			first=ptr_buffer_cache->ptr_current_mark_node;
 			//some node won't increase mark count,because those node have no exist=1 page.
-			mark_for_specific_current_block(ptr_buffer_cache,i,j);		
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);	
+			assert(current_block[i][j].ptr_lru_node->page[0].channel_num==i);
+			assert(current_block[i][j].ptr_lru_node->page[0].plane==j);	
 			second=ptr_buffer_cache->ptr_current_mark_node;
 			if(second==first){
 				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -5621,6 +5630,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			}
 		}
 	  look++;
+	  assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].channel_num==order->channel_num);
+	  assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].plane==order->plane);
       printf("index:%d block:%d benefit:%f\n",look,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,order->benefit);		     
       order=order->next;
     }
@@ -5642,7 +5653,6 @@ void A_match_channel_and_plane(buffer_cache *ptr_buffer_cache,unsigned int chann
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");
-  A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
   int outout=0,i;
   for(i=0;i<LRUSIZE;i++){
 	 //purpose:make sure have exist==1 page.
@@ -6073,6 +6083,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 				break;
 			}
 		}
+		assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].channel_num==order->channel_num);
+		assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].plane==plane);		
 		order=order->next;
   }
   if(order!=NULL && order->benefit!=0 && current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num>=0){
@@ -6087,9 +6099,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     order=ptr_buffer_cache->p;    
     int k=0,remove=0; 
     kick=1; 
-    if(no_page_can_evict == 0){ 
+    if(no_page_can_evict == 0){ 	
 		channel_num=order->channel_num;
 		plane=order->plane;		
+		printf("channel:%d plane:%d\n",channel_num,plane);
 		for(i=0;i<LRUSIZE;i++){
 			if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
 				if(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==1){
