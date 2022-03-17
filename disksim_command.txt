@@ -1,0 +1,14 @@
+for window(vmware): 
+./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/Link to disksim_github/trace/run1_Postmark_2475.txt' 1 262144
+
+
+for mac:
+ ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/disksim_github/trace/run1_Postmark_2475.txt' 1 262144
+
+
+
+
+
+
+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
+
