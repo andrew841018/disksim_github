@@ -4497,23 +4497,18 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  int i = 0,j = 0,b=0;
+  int i = 0,j = 0;
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
-		  b=1;
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
         //fprintf(outputssd,"after mark_for_specific_current_block\n");
       }
     }
   }
-  if(b==1){
-	printf("hi\n");
-	sleep(1);
-}
 }
 
 
