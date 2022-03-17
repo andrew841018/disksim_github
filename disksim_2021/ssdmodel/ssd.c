@@ -3711,7 +3711,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			fprintf(t,"%lld ",tmp1[i]);
 	}  		
 	}    
-	fprintf(t,"%d ",physical_node_num);	
+	fprintf(t,"%d ",ptr_buffer_cache->ptr_head);	
   int b=0;
     if(init==1){
 		for(i=0;i<10000;i++){
@@ -3729,7 +3729,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	  int sector;
 	  for(i=0;i<block_index;i++){
 	    for(j=0;j<sector_index[i];j++){		
-	      if(sector_num[i][j]==blkno && block_num[i]==physical_node_num){//sector overwrite(same block same sector)	
+	      if(sector_num[i][j]==blkno && block_num[i]==ptr_buffer_cache->ptr_head){//sector overwrite(same block same sector)	
 			//program won't enter there
 			sector_count[i][j]++;		
 			b=1;
@@ -3741,7 +3741,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	  }
 	  if(b==0){
 		  for(i=0;i<block_index;i++){			  
-		  	if(block_num[i]==physical_node_num){//block overwrite but sector not
+		  	if(block_num[i]==ptr_buffer_cache->ptr_head){//block overwrite but sector not
 			    //we need two dimension array
 				sector=sector_index[i];//num of sector in block i
 				sector_num[i][sector]=blkno;
@@ -3753,7 +3753,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}		
 	}  
 	if(b==0){//new block and sector
-	    block_num[block_index]=physical_node_num;
+	    block_num[block_index]=ptr_buffer_cache->ptr_head;
 	  //sector_index[block_index] mean the block number=block_index, and this block current writing
 	  //sector number is sector_index[block_index] 
 	    sector=sector_index[block_index];
@@ -3765,7 +3765,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	int c;
 	for(i=0;i<10000;i++){
 		c=0;
-		if(block_num[i]==physical_node_num){
+		if(block_num[i]==ptr_buffer_cache->ptr_head){
 			for(j=0;j<10000;j++){
 				c+=sector_count[i][j];//calculate total count in block i
 			}
@@ -3774,7 +3774,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}
   }
 	for(i=0;i<=block_index;i++){
-		if(block_num[i]==physical_node_num){
+		if(block_num[i]==ptr_buffer_cache->ptr_head){
 			fprintf(t,"%d ",block_count[i]);
 			break;
 		}
