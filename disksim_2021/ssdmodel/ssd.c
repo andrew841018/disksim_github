@@ -3548,7 +3548,7 @@ void write_benefit_to_txt(int g){
     }
     block_count[i]=c;
   }
-  FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
+  FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","w");//sector number,block,number,benefit,sector_count
 	for(i=0;i<10000;i++){
 		for(j=0;j<10000;j++){
 		  if(block_count[i]!=0 && sector_num[i][j]!=-1){
@@ -3666,7 +3666,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
   //fprintf(lpb_ppn, "Y_add_Pg_page\t");
-  int flag=0;
+  double tmp[2];
+  int i,j,ig=0,ignore[100],flag=0;
+  unsigned long long tmp1[13];
+  char tmp2[100];
   lru_node *ptr_lru_node = NULL, *Pg_node = NULL;
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
@@ -3675,11 +3678,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-	double tmp[2];
-	int i,j,ig=0;
-	unsigned long long tmp1[13];
-	char tmp2[100];
-	int ignore[100];
+  if(ptr_buffer_cache->ptr_head==NULL){
+	goto origin;
+  }
+data_collect:  
 	for(i=0;i<100;i++)
 		ignore[i]=-1;
 	tmp[0]=curr1->arrive_time;
@@ -3711,7 +3713,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			fprintf(t,"%lld ",tmp1[i]);
 	}  		
 	}    
-	fprintf(t,"%d ",ptr_buffer_cache->ptr_head);	
+	fprintf(t,"%d ",ptr_buffer_cache->ptr_head-logical_node_num);	
   int b=0;
     if(init==1){
 		for(i=0;i<10000;i++){
@@ -3729,7 +3731,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	  int sector;
 	  for(i=0;i<block_index;i++){
 	    for(j=0;j<sector_index[i];j++){		
-	      if(sector_num[i][j]==blkno && block_num[i]==ptr_buffer_cache->ptr_head){//sector overwrite(same block same sector)	
+	      if(sector_num[i][j]==blkno && block_num[i]==ptr_buffer_cache->ptr_head-logical_node_num){//sector overwrite(same block same sector)	
 			//program won't enter there
 			sector_count[i][j]++;		
 			b=1;
@@ -3753,7 +3755,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}		
 	}  
 	if(b==0){//new block and sector
-	    block_num[block_index]=ptr_buffer_cache->ptr_head;
+	    block_num[block_index]=ptr_buffer_cache->ptr_head-logical_node_num;
 	  //sector_index[block_index] mean the block number=block_index, and this block current writing
 	  //sector number is sector_index[block_index] 
 	    sector=sector_index[block_index];
@@ -3765,7 +3767,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	int c;
 	for(i=0;i<10000;i++){
 		c=0;
-		if(block_num[i]==ptr_buffer_cache->ptr_head){
+		if(block_num[i]==ptr_buffer_cache->ptr_head-logical_node_num){
 			for(j=0;j<10000;j++){
 				c+=sector_count[i][j];//calculate total count in block i
 			}
@@ -3774,13 +3776,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}
   }
 	for(i=0;i<=block_index;i++){
-		if(block_num[i]==ptr_buffer_cache->ptr_head){
+		if(block_num[i]==ptr_buffer_cache->ptr_head-logical_node_num){
 			fprintf(t,"%d ",block_count[i]);
 			break;
 		}
 	}
 	fprintf(t,"%s\n","");	
 	fclose(t);
+origin:
   while(1)
   {
     if(ptr_lru_node == NULL)
