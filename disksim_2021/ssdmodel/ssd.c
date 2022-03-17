@@ -5478,11 +5478,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   profit *insert,*prev,*current,*start;
   insert=malloc(sizeof(profit));
   mark_count=0;
-  if(initial==0){
-	printf("begin of mark_for_all\n");
-	remove_duplicate_profit(ptr_buffer_cache);
-	run_profit(ptr_buffer_cache,0);
-  }
   if(initial==1){
 	for(i=0;i<1000000;i++){
 		mark_block[i]=-1;
@@ -5637,7 +5632,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     }
     assert(look==ptr_buffer_cache->count);
 }
-	
+	run_profit(ptr_buffer_cache,0);
 	//printf("pause\n");
 	//fgetc(stdin);
 	initial=0;		
@@ -6084,7 +6079,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			}
 		}
 		assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].channel_num==order->channel_num);
-		assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].plane==plane);		
+		assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].plane==order->plane);		
 		order=order->next;
   }
   if(order!=NULL && order->benefit!=0 && current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num>=0){
