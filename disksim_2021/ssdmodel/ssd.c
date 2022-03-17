@@ -4266,7 +4266,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			for(j=0;j<10000;j++){
 				sector_num[i][j]=-1;
 			}
-		}	    
+		}	 
 		FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
 			char buf[1024];
 			char *substr=NULL;
@@ -4285,7 +4285,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				benefit_value[physical_block_num]=atof(substr);
 				} 				    
 		fclose(rnn);
-		
 		init=0;		
 	  }
 	else{		
