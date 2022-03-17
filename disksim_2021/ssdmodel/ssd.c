@@ -5543,7 +5543,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			if(second==first){
 				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			}
-		}		
+		}	
+		run_profit(ptr_buffer_cache,0);	
 		printf("after mark,mark count:%d\n",current_block[i][j].current_mark_count);			     
       }
 	  }
@@ -5572,6 +5573,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			printf("index:%d block:%d benefit:%f channel:%d plane:%d\n",count,current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit,insert->channel_num,insert->plane);		
 			assert(insert->channel_num<8);
 			assert(insert->plane<8);
+			assert(current_block[insert->channel_num][insert->plane].ptr_lru_node->page[0].channel_num==insert->channel_num);
+			assert(current_block[insert->channel_num][insert->plane].ptr_lru_node->page[0].plane==insert->plane);
 			insert=insert->next;
 		}		
 }  	 
@@ -5631,8 +5634,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       order=order->next;
     }
     assert(look==ptr_buffer_cache->count);
-}
-	run_profit(ptr_buffer_cache,0);
+}	
 	//printf("pause\n");
 	//fgetc(stdin);
 	initial=0;		
