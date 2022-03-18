@@ -5287,7 +5287,6 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			count2++;
 			printf("index:%d block:%d benefit:%f\n",count2,cur_block,tmp->benefit);
 			count++;
-			//good
 		}
 		else{
 			printf("something wrong...\n");
@@ -5338,7 +5337,8 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		else{
 			printf("cur_block:%d\n",cur_block);
 			if(cur_block>=0){
-				printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
+				mark_bool[cur_block]=1;
+				printf("add mark_bool...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
 				exit(0);
 			}
 			else if(tmp->benefit==0 || cur_block<0 || cur_block>1000000){
