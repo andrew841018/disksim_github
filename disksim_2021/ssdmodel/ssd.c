@@ -4149,11 +4149,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		}
 	}
     flag=Y_add_Pg_page_to_cache_buffer(lpn,ptr_buffer_cache);
-    if(ptr_buffer_cache->ptr_current_mark_node!=NULL){
-		if(ptr_buffer_cache->ptr_current_mark_node->logical_node_num==30820){
-			int g5=3;
-		}
-	}
     scount = ssd_choose_aligned_count(currdisk->params.page_size, blkno, count);
     assert(scount == currdisk->params.page_size);
     count -= scount;
@@ -5104,10 +5099,14 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 }
 profit *ttt;
 void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
-  profit *test=ptr_buffer_cache->p,*order=ptr_buffer_cache->p;
+  profit *test=malloc(sizeof(profit)),*order=malloc(sizeof(profit));
+  order=ptr_buffer_cache->p;
+  test=ptr_buffer_cache->p;
   int run_block[1000000]={0},cur_block,next_block;
   //one or zero node
   if(test==NULL || (test!=NULL && test->next==NULL)){
+	printf("test only have one node\n");
+	exit(0);
     return;
   }
   else{//more than one node
@@ -5145,8 +5144,8 @@ void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
 }
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
   printf("begin of insert_node.........\n");
-  remove_duplicate_profit(ptr_buffer_cache);
   run_profit(ptr_buffer_cache,7);
+  remove_duplicate_profit(ptr_buffer_cache);
   profit *insert,*prev,*current,*start=malloc(sizeof(profit)),*tmp=malloc(sizeof(profit)); 
   int first=0;
   ptr_buffer_cache->count++;
@@ -5397,9 +5396,15 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	int count=0;
 	printf("(run_profit)testing.....................................\n");
 	if(test==NULL){
+		printf("test==NULL\n");
+		exit(0);
 		return;
 	}
-	int next_block,cur_block,duplicate=0;
+	else if(test->next==NULL){
+		printf("one node\n");
+		exit(0);
+	}
+	int next_block,cur_block,duplicate=0,b=0;
 	while(test->next!=NULL){
 		//for some unknown reason,the next_block will move one node
 		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
@@ -5435,26 +5440,26 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			printf("still have duplicate block:%d\n",cur_block);
 			duplicate++;			
 		}		
-		int b=0;
 		//profit pointer in wrong order
 		if(test->next!=NULL){
 			//in the first
 			if(test->benefit>test->next->benefit && b==0){
-				ptr_buffer_cache->p=test->next;
-				test->next=NULL;
+				printf("wrong node in the first\n");
+				ptr_buffer_cache->p=ptr_buffer_cache->p->next;
 				insert_node(test->channel_num,test->plane,test->benefit,ptr_buffer_cache,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);
 				b=1;
 			}
-			if(prev!=NULL){
+			if(prev!=NULL && test->next!=NULL){
 				//in the middle
 				if(test->benefit>test->next->benefit){
+					printf("wrong node in the middle\n");
 					prev->next=test->next;
-					test->next=NULL;
 					insert_node(test->channel_num,test->plane,test->benefit,ptr_buffer_cache,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);
 				}	
 			}			
 		}
 		else{//in the end
+			printf("wrong node in the end\n");
 			prev->next=NULL;
 			insert_node(test->channel_num,test->plane,test->benefit,ptr_buffer_cache,current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);
 		}
@@ -5492,8 +5497,6 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	if(block_num!=7)
 		printf("(run_profit)end..........\n");
 	assert(ptr_buffer_cache->count==count);
-	
-	//assert(b==1);	
 }
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
@@ -5654,7 +5657,6 @@ void A_match_channel_and_plane(buffer_cache *ptr_buffer_cache,unsigned int chann
 		ptr_buffer_cache->ptr_current_mark_node->page[i].channel_num=channel_num;
 		ptr_buffer_cache->ptr_current_mark_node->page[i].plane=plane;
 	}
-	run_profit(ptr_buffer_cache,0);
 }
 //this function will let all page in ptr_buffer_cache->ptr_current_mark_node exist become 2....if it exist(exist=1)
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
