@@ -5186,7 +5186,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   if(insert->next!=NULL){
     assert(insert->next->channel_num<8 && insert->next->channel_num>=0);
     assert(insert->next->plane<8 && insert->next->plane>=0);
-	printf("more than one node\n");
+	  printf("more than one node\n");
     //the new block is first(benefit is min)
     if(benefit<=insert->benefit){
       printf("insert to the first node\n");
@@ -5206,7 +5206,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
 		insert->next=NULL;
 	  } 					             				
       if(benefit>insert->benefit){
-		printf("insert node not the first one\n");
+		    printf("insert node not the first one\n");
         prev=insert;//store previous insert position
         insert=insert->next;
         enter=1;
@@ -5225,13 +5225,13 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
     }
     //leave the while not by break	
     if(reach_finish_line==1){
-		current->benefit=benefit;
-		current->channel_num=channel;
-		current->plane=plane;
-		current->next=NULL;
-		insert->next=current;
-		ptr_buffer_cache->p=tmp;
-		goto end;
+      current->benefit=benefit;
+      current->channel_num=channel;
+      current->plane=plane;
+      current->next=NULL;
+      insert->next=current;
+      ptr_buffer_cache->p=tmp;
+      goto end;
 	}	  
   }  
   printf("after insert....\n");
