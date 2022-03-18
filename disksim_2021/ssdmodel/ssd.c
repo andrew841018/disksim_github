@@ -5139,12 +5139,9 @@ void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
     }
   }
   ptr_buffer_cache->p=order;
-  printf("ending of remove_duplicate_profit-->check\n");
-  run_profit(ptr_buffer_cache,0);
 }
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
   printf("begin of insert_node.........\n");
-  run_profit(ptr_buffer_cache,7);
   remove_duplicate_profit(ptr_buffer_cache);
   profit *insert,*prev,*current,*start=malloc(sizeof(profit)),*tmp=malloc(sizeof(profit)); 
   int first=0;
@@ -5250,7 +5247,6 @@ end:
 end1:
 	printf("inside end1\n");
 	remove_duplicate_profit(ptr_buffer_cache);
-	run_profit(ptr_buffer_cache,0);
 	check_profit(ptr_buffer_cache);
 	//run_profit(ptr_buffer_cache,current_block[channel][plane].ptr_lru_node->logical_node_num);   
 }
@@ -5259,7 +5255,6 @@ int mark_count;
 int testing[1000000];
 //check  profit block is match to mark_bool block or not
 void check_profit(buffer_cache *ptr_buffer_cache){
-	run_profit(ptr_buffer_cache,7);//assign 7 means to more print in this function
 	profit *tmp,*tmp1;
 	int count=0;
 	tmp=ptr_buffer_cache->p;
@@ -5328,6 +5323,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 	//next node=null,but curr node exist
 	if(tmp!=NULL){		
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
+		printf("cur_block:%d\n",cur_block);
 		if(mark_bool[cur_block]==1){
 			if(tmp->benefit==0 || cur_block<0 || cur_block>1000000){
 				mark_bool[cur_block]=0;
@@ -5340,6 +5336,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			//good
 		}
 		else{
+			printf("cur_block:%d\n",cur_block);
 			if(cur_block>=0){
 				printf("something wrong...channel:%d plane:%d block num:%d benefit:%f\n",tmp->channel_num,tmp->plane,cur_block,tmp->benefit);
 				exit(0);
@@ -5358,9 +5355,6 @@ next:
 		ptr_buffer_cache->count=count;
 	}
 	int mark_bool_num=0,c=0;
-	//scan all mark_bool and print mark block.
-	printf("inside the check_profit and enter run_profit\n");
-	run_profit(ptr_buffer_cache,0);
 	for(i=0;i<1000000;i++){	
 		if(mark_bool[i]==1 && testing[i]==1){
 			mark_bool_num++;
@@ -5550,6 +5544,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             //the new block enter,after A_kick kick a block
             printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]); 
             insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
+			run_profit(ptr_buffer_cache,0);
           }   
           b1=1;
 	   }
@@ -5904,7 +5899,6 @@ void remove_mark_in_the_node(lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cac
       else if(ptr_lru_node->page[i].exist == 2)
       {
         ptr_lru_node->page[i].exist = 1;
-        mark_bool[ptr_lru_node->logical_node_num]=0;
         remve_read_intensive_page(i,ptr_lru_node);  
       }
     }
