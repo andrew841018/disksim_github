@@ -5344,15 +5344,6 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			else{					
 				tmp->next=NULL;
 			}
-		}
-		else if(mark_bool[next_block]==1 && (tmp->next->benefit==0 || next_block<0)){
-			mark_bool[next_block]=0;
-			if(tmp->next->next!=NULL){
-				tmp->next=tmp->next->next;
-			}
-			else{					
-				tmp->next=NULL;
-			}
 		}		
 		//go to next node			
 		tmp=tmp->next;
