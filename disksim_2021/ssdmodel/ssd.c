@@ -4259,7 +4259,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 		if(ig==0){	
 			fprintf(t,"%lld ",tmp1[i]);
-	}  		
+		}  		
 	}    
 	fprintf(t,"%d ",physical_node_num);	
 	int b=0,count=0;
@@ -5114,6 +5114,7 @@ void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
     while(test->next!=NULL){
       //一開始進入時的cur_block會和之後的cur_block不同，不知原因為何，但current_block會自動往前一個node(相當於有人幫他做:
       //current_block[][].ptr_lru_node= current_block[][].ptr_lru_node->next;)
+      assert(current_block[test->channel_num][test->plane].ptr_lru_node!=NULL);
       cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
       next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
       if(run_block[cur_block]==0){
@@ -5203,12 +5204,13 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
     }					
     //insert node is not the first one.
     int enter=0,reach_finish_line=1;
-    while(insert->next!=NULL && first==0 && insert->next->benefit>0){ 
+    while(insert->next!=NULL && first==0 && insert->next->benefit>0){
+		assert(current_block[insert->channel_num][insert->plane].ptr_lru_node!=NULL); 
 	  if(insert->next->benefit==0){
 		insert->next=NULL;
 	  } 					             				
       if(benefit>insert->benefit){
-		    printf("insert node not the first one\n");
+		printf("insert node not the first one\n");
         prev=insert;//store previous insert position
         insert=insert->next;
         enter=1;
@@ -5314,10 +5316,17 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			exit(0);
 		}
 	}
+	profit *prev;
 	//in there tmp!=NULL && tmp->next!=NULL or there must be something wrong...
-	while(tmp->next!=NULL){			
+	while(tmp->next!=NULL){	
+		if(current_block[tmp->channel_num][tmp->plane].ptr_lru_node==NULL){
+			prev=tmp;
+			tmp=tmp->next;
+			prev=NULL;
+		}	
 		//current_block will move one node from here when it really print....I don't know why
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
+		assert(current_block[tmp->channel_num][tmp->plane].ptr_lru_node!=NULL);
 		next_block=current_block[tmp->next->channel_num][tmp->next->plane].ptr_lru_node->logical_node_num;	
 		if(mark_bool[cur_block]==1){
 			count2++;
@@ -5438,10 +5447,11 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	while(test->next!=NULL){
 		//for some unknown reason,the next_block will move one node
 		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
+		assert(current_block[test->channel_num][test->plane].ptr_lru_node!=NULL);
 		next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
 		//judge next block exist or not
 		if(test->next->next!=NULL){
-			printf("cur_block:%d next_block:%d\n",cur_block,next_block);
+			printf("cur_block:%d channel:%d plane:%d next_block:%d channel:%d plane:%d\n",cur_block,test->channel_num,test->plane,next_block,test->next->channel_num,test->next->plane);
 			if(next_block<0 || test->next->benefit==0 || next_block>=1000000){
 				if(block_num!=7)
 					printf("(in the middle)this block Invalid\n");
@@ -5449,7 +5459,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			}
 		}
 		else{
-			if(next_block<0 || test->next->benefit==0 || next_block>=1000000 ){
+			if(next_block<0 || test->next->benefit==0 || next_block>=1000000){
 				if(block_num!=7)
 					printf("(in the end)this block Invalid\n");
 				test->next=NULL;
@@ -5504,7 +5514,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  int i = 0,j = 0,b1=0,k=0,w,first1;
+  int i = 0,j = 0,b1=0,k=0,w,first1,channel_1,plane_1,mark_block_num;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
   profit *insert,*prev,*current,*start;
   insert=malloc(sizeof(profit));
@@ -5520,12 +5530,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			if(initial==0){
 				printf("enter\n");         
 			}
-		    int mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
+		mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
-			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;
-			A_match_channel_and_plane(ptr_buffer_cache,i,j);
-			mark_for_specific_current_block(ptr_buffer_cache,i,j);			
+			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;			
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);					
 			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
 			assert(current_block[i][j].ptr_lru_node->page[0].channel_num==i);
 			assert(current_block[i][j].ptr_lru_node->page[0].plane==j);
@@ -5550,21 +5559,47 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!   		   
           if(initial==0){
-            printf("hiiii\n");		
-            //the new block enter,after A_kick kick a block
-            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]); 
-            insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
-            run_profit(ptr_buffer_cache,0);
-            A_fix_profit_order(ptr_buffer_cache);
-			run_profit(ptr_buffer_cache,0);
+			insert:
+				printf("hiiii\n");		
+				//the new block enter,after A_kick kick a block
+				printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]); 
+				insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
+				run_profit(ptr_buffer_cache,0);
+				A_fix_profit_order(ptr_buffer_cache);
+				run_profit(ptr_buffer_cache,0);
           }   
           b1=1;
 	   }
-	   else if(mark_bool[mark_block_num]==1){ 
-			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-			goto up;
-		}	
-		printf("after mark,mark count:%d\n",current_block[i][j].current_mark_count);			     
+	   else if(mark_bool[mark_block_num]==1){
+		   ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+		   goto up; 
+		    /*printf("mark_bool==1 mark_block_num:%d\n",mark_block_num);
+			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;		
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);
+			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
+			b1=1;
+			channel_1=i;
+			plane_1=j;
+			assert(current_block[i][j].ptr_lru_node->page[0].channel_num==i);
+			assert(current_block[i][j].ptr_lru_node->page[0].plane==j);
+			assert(current_block[i][j].current_mark_count>0);
+			assert(mark_block_num==current_block[i][j].ptr_lru_node->logical_node_num);
+			second=ptr_buffer_cache->ptr_current_mark_node;
+			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
+			//assert(current_block[i][j].ptr_lru_node->logical_node_num==tmp_mark_block); 
+			assert(tmp[i][j]>0);	
+			if(second==first){
+				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+			}						
+			//make sure mark all page in block
+			for(k=0;k<LRUSIZE;k++){
+			  if(current_block[i][j].ptr_lru_node->page[k].exist==1){
+				printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
+				exit(0);
+			  }
+			}*/
+		}		
+		printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);			     
       }
 	  }
   }		
@@ -5585,11 +5620,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 				//do nothing,and left the if condition
 			}
 		}
-		int count=0;
-	
-		while(insert->next!=NULL){							
+		int count=0,cur_block; 	
+		while(insert->next!=NULL){	
+			cur_block=current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num;									
 			count++;
-			printf("index:%d block:%d benefit:%f channel:%d plane:%d\n",count,current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit,insert->channel_num,insert->plane);		
+			printf("index:%d current_block[%d][%d].ptr_lru_node->logical_node_num:%d benefit:%f \n",count,insert->channel_num,insert->plane,current_block[insert->channel_num][insert->plane].ptr_lru_node->logical_node_num,insert->benefit);		
 			assert(insert->channel_num<8);
 			assert(insert->plane<8);
 			assert(current_block[insert->channel_num][insert->plane].ptr_lru_node->page[0].channel_num==insert->channel_num);
@@ -5660,6 +5695,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 }
 void A_match_channel_and_plane(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
 	int i;
+	assert(current_block[channel_num][plane].ptr_lru_node==ptr_buffer_cache->ptr_current_mark_node);
 	for(i=0;i<LRUSIZE;i++){
 		ptr_buffer_cache->ptr_current_mark_node->page[i].channel_num=channel_num;
 		ptr_buffer_cache->ptr_current_mark_node->page[i].plane=plane;
@@ -5683,6 +5719,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
   //curr block all marked
   if(outout==0){
 	  printf("marked! block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+	  current_block[channel_num][plane].ptr_lru_node=ptr_buffer_cache->ptr_current_mark_node;
+	  A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
 	  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 	  return;
   }
@@ -5749,10 +5787,10 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
     //mark write intensive node
 		current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
 		current_block[channel_num][plane].offset_in_node =ptr_buffer_cache->current_mark_offset;
+		A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
 		//all block is marked
 		if(g==0){
 			printf("(g=0)marked!\n");
-			A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			return;
 		}		
@@ -5813,7 +5851,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		ptr_buffer_cache->current_mark_offset ++;
     //printf("ptr_buffer_cache->current_mark_offset=%d\n", ptr_buffer_cache->current_mark_offset);
 		//when need  find new buffer page is marked
-		current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;	
     //整個block marked，換下一個
 		if(ptr_buffer_cache->current_mark_offset == LRUSIZE && current_block[channel_num][plane].current_mark_count > 0)
 		{	
