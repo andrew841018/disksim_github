@@ -4207,6 +4207,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 double min2=100000;
+unsigned int mark_bool[100000000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -4369,13 +4370,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   while(1)
   {
     if(Pg_node == NULL)
-      break;
-    else{
-      /*if(benefit_value[Pg_node->logical_node_num]>0 && Pg_node->logical_node_num==physical_node_num&& benefit_bool[physical_node_num % HASHSIZE]==0){
-        ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[Pg_node->logical_node_num];
-        benefit_bool[physical_node_num % HASHSIZE]=1;*/  
-		}					 		
-	
+      break;					 			
     if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find
     {
       //fprintf(lpb_lpn, "if(Pg_node->logical_node_num == physical_node_num )\nphysical_node_num=%d\n", physical_node_num);
@@ -4402,20 +4397,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   {
     //fprintf(lpb_ppn, "if(Pg_node != NULL)\tphysical_node_num=%d\n", physical_node_num);
     //printf("find node\n"); 
-    //remove the mark page int the hit node
-    
-	
+    //remove the mark page int the hit node 
+    mark_bool[Pg_node->logical_node_num]=0;
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
-    /* if(myssd.node_page_nm[logical_node_num][offset_in_node]==1)
-    {
-    add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
-    }
-    else
-    {
-      add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,Pg_node,ptr_buffer_cache,1);
-    }*/
-    //add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
-    //add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,Pg_node,ptr_buffer_cache,0);   //bug problem
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
   return 0;
@@ -5051,7 +5035,6 @@ int find_idle_channel(unsigned int *channel_num,unsigned int *plane)
   }
   return -1;
 }
-unsigned int mark_bool[100000000]={0};
 int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 {
   fprintf(outputssd, "--------mark_for_page_striping_node\n");
@@ -5566,7 +5549,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	   else if(mark_bool[mark_block_num]==1){
 		   ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 		   goto up; 
-		}		
+	  }		
 		printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);			     
       }
 	  }
@@ -5674,6 +5657,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");
   int outout=0,i;
+start:
+  outout=0;
   for(i=0;i<LRUSIZE;i++){
 	 //purpose:make sure have exist==1 page.
 	if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==1){ 
@@ -5686,10 +5671,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
   }
   //curr block all marked
   if(outout==0){
-	  printf("marked! block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-	  current_block[channel_num][plane].ptr_lru_node=ptr_buffer_cache->ptr_current_mark_node;
-	  A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
 	  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+	  goto start;
 	  return;
   }
   else{
