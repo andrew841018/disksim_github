@@ -8,17 +8,12 @@ typedef struct _profit{
 	struct _profit *next;
 }profit;
 
-int main(){
-	int a=1;
-	if(a){
-		return;
-	}
+int main(){	
 	profit *wb=malloc(sizeof(profit)),*order=malloc(sizeof(profit)),*prev;
 	wb->plane=55;
+	order=wb;
 	wb->next=malloc(sizeof(profit));
 	wb->next->plane=36;
-	order->plane=123;
-	order->next=wb;
-	wb=order;
+	wb=wb->next;
 	return 0;
 }
