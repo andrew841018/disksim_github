@@ -5390,6 +5390,7 @@ next:
 	printf("(leave check_profit)all good\n");
 } 
 int match=0;
+int run_profit_channel,run_profit_plane;
 void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	ttt=malloc(sizeof(profit));
 	int i;
@@ -5409,30 +5410,21 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	else if(test->next==NULL){
 		printf("one node\n");
 		if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
-			match=1;
+			match=1;//the current_block equal to the exist profit pointer block
+      run_profit_channel=test->channel_num;
+      run_profit_plane=test->plane;
 		}
 		return;
 	}
 	int next_block,cur_block,duplicate=0,b=0;
 	while(test->next!=NULL){
-		
 		//for some unknown reason,the next_block will move one node
 		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
-		if(cur_block==block_num){
-			int b1=0;
-			for(i=0;i<LRUSIZE;i++){
-				if(current_block[test->channel_num][test->plane].ptr_lru_node->page[i].exist==1){
-					b1=1;
-				}
-				else if(current_block[test->channel_num][test->plane].ptr_lru_node->page[i].exist==2){
-					
-				}
-			}
-			if(b1==0){
-				printf("all page is marked\n");
-				exit(0);
-			}
+		if(cur_block==block_num){		
 			match=1;
+      run_profit_channel=test->channel_num;
+      run_profit_plane=test->plane;
+      return;
 		}
 		assert(current_block[test->channel_num][test->plane].ptr_lru_node!=NULL);
 		next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
@@ -5440,9 +5432,6 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		if(test->next->next!=NULL){
 			printf("cur_block:%d channel:%d plane:%d next_block:%d channel:%d plane:%d\n",cur_block,test->channel_num,test->plane,next_block,test->next->channel_num,test->next->plane);
 			printf("\n");
-			if(cur_block==32792){
-				printf("in the run_profit\n");
-			}
 			if(next_block<0 || test->next->benefit==0 || next_block>=1000000){
 				if(block_num!=7)
 					printf("(in the middle)this block Invalid\n");
@@ -5519,63 +5508,83 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {					
         up:
-			if(initial==0){
-				printf("enter\n");         
-			}
-		mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
-		printf("block number:%d mark_node:%d\n",mark_block_num,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-		assert(mark_block_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){				
-			///the following code put the right place
-			if(current_block[i][j].ptr_lru_node!=NULL){
-				run_profit(ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
-				if(match==1){//curr block already exist in profit pointer			
-					exit(0);
-				}
-			}
-			///
-			int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
-			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;			
-			mark_for_specific_current_block(ptr_buffer_cache,i,j);					
-			printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
-			assert(current_block[i][j].ptr_lru_node->page[0].channel_num==i);
-			assert(current_block[i][j].ptr_lru_node->page[0].plane==j);
-			printf("current_block[%d][%d].current_mark_count:%d\n",i,j,current_block[i][j].current_mark_count);
-			assert(current_block[i][j].current_mark_count>0);			
-			second=ptr_buffer_cache->ptr_current_mark_node;
-			tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
-			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
-			assert(current_block[i][j].ptr_lru_node->logical_node_num==mark_block_num); 
-			assert(tmp[i][j]>0);	
-			if(second==first){
-				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-			}						
-			//make sure mark all page in block
-			for(k=0;k<LRUSIZE;k++){
-			  if(current_block[i][j].ptr_lru_node->page[k].exist==1){
-				printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
-				exit(0);
-			  }
-			}  		
-		  //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
-          //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
-          //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!   		   
           if(initial==0){
-			printf("hiiii\n");		
-			//the new block enter,after A_kick kick a block
-			printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]); 			
-			insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
-			//run_profit(ptr_buffer_cache,0);
-			//A_fix_profit_order(ptr_buffer_cache);
-			//run_profit(ptr_buffer_cache,0);
-          }   
-          b1=1;
-	   }
-	   else if(mark_bool[mark_block_num]==1){
-		   ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-		   goto up; 
-	  }		
-		printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);			     
+            printf("enter\n");         
+          }
+        mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
+        printf("block number:%d mark_node:%d\n",mark_block_num,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+        assert(mark_block_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+        if(current_block[i][j].ptr_lru_node!=NULL || current_block[i][j].ptr_lru_node->logical_node_num<1000000 && current_block[i][j].ptr_lru_node->logical_node_num>=0){
+            printf("curr block")           
+            run_profit(ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
+            //curr block already exist in profit pointer
+            if(match==1){		
+              assert(i==run_profit_channel && j==run_profit_plane);
+              int cur_exist=0;
+              for(w=0;w<LRUSIZE;w++){
+                if(current_block[i][j].ptr_lru_node->page[w].exist==1){
+                  cur_exist=1;//can mark this block because have exist=1 page
+                }
+                else if(current_block[i][j].ptr_lru_node->page[w].exist==2){
+                  current_block[i][j].current_mark_count++;
+                }
+              }
+              if(cur_exist==0){//all page in block is marked
+                assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==1);
+                continue;
+              }
+              else{
+                current_block[i][j].current_mark_count=0;
+                assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0);
+              }	
+            }
+            else{//current block is not in profit pointer
+              assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0);
+            }
+          }
+        if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){	         
+          int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
+          lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;			
+          mark_for_specific_current_block(ptr_buffer_cache,i,j);					
+          printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
+          assert(current_block[i][j].ptr_lru_node->page[0].channel_num==i);
+          assert(current_block[i][j].ptr_lru_node->page[0].plane==j);
+          printf("current_block[%d][%d].current_mark_count:%d\n",i,j,current_block[i][j].current_mark_count);
+          assert(current_block[i][j].current_mark_count>0);			
+          second=ptr_buffer_cache->ptr_current_mark_node;
+          tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
+          mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
+          assert(current_block[i][j].ptr_lru_node->logical_node_num==mark_block_num); 
+          assert(tmp[i][j]>0);	
+          if(second==first){
+            ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+          }						
+          //make sure mark all page in block
+          for(k=0;k<LRUSIZE;k++){
+            if(current_block[i][j].ptr_lru_node->page[k].exist==1){
+              printf("not mark! %d\n",current_block[i][j].ptr_lru_node->logical_node_num);
+              exit(0);
+            }
+          }  		
+          //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
+              //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
+              //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!   		   
+              if(initial==0){
+                printf("hiiii\n");		
+                //the new block enter,after A_kick kick a block
+                printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]); 			
+                insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
+                //run_profit(ptr_buffer_cache,0);
+                //A_fix_profit_order(ptr_buffer_cache);
+                //run_profit(ptr_buffer_cache,0);
+              }   
+              b1=1;
+        }
+      else if(mark_bool[mark_block_num]==1){
+        ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+        goto up; 
+      }		
+        printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);			     
       }
 	  }
   }		
