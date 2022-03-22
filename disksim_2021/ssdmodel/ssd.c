@@ -5548,9 +5548,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
                 }	
             }
             else{ 
+				printf("block number as same as one of block in profit pointer...but channel & plane is not\n");
               //進入這，代表current block exist in profit pointer
               //但是profit pointer紀錄的channel & plane和當下的channel & plane 不一樣。so we skip this block
-              ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;               
               //block number(current_block[i][j].ptr_lru_node->logical_node_num) is same,but channel & plane is different,
               //means if ptr_buffer_cache->ptr_current_mark_node==block number，profit pointer會有兩個相同的block
               //但是位置不同(plane,channel)
@@ -5565,6 +5565,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
                 }
                 //some page is not marked.
                 if(cur_exist==1){
+					printf("some page is not marked\n");
                   mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]=0;
                   break;              
                 }       
@@ -5574,6 +5575,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             }
           }
           else{//current block is not in profit pointer
+			printf("not in profit pointer\n");
             cur_exist=1;
             while(ptr_buffer_cache->ptr_current_mark_node!=current_block[i][j].ptr_lru_node || cur_exist==0){
               ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -5589,12 +5591,13 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               }
               //some page is not marked.
               if(cur_exist==1){
+				printf("some page is not marked\n");
                 mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]=0;
                 break;              
               }
               else{//all page is marked
                 printf("current mark block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-                assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==1);
+                mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]=0;
               }       
             }	
             printf("(not in profit pointer)current mark block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);            
