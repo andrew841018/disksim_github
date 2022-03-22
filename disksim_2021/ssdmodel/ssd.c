@@ -5511,10 +5511,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         up:
           if(initial==0){
             printf("enter\n");         
-          }
-        mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
-        printf("block number:%d mark_node:%d\n",mark_block_num,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-        assert(mark_block_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+          }       
         if(current_block[i][j].ptr_lru_node!=NULL){
           if(current_block[i][j].ptr_lru_node->logical_node_num<1000000 && current_block[i][j].ptr_lru_node->logical_node_num>=0){
             printf("curr block:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);           
@@ -5600,6 +5597,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           }
           }
         }
+        else{
+			printf("current block==NULL\n");
+		}
+		mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
+        printf("block number:%d mark_node:%d\n",mark_block_num,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+        assert(mark_block_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){	         
           int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
           lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;			
@@ -5612,7 +5615,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           second=ptr_buffer_cache->ptr_current_mark_node;
           tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
           mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
-          assert(current_block[i][j].ptr_lru_node->logical_node_num==mark_block_num); 
+          assert(current_block[i][j].ptr_lru_node->logical_node_num==tmp_mark_block); 
           assert(tmp[i][j]>0);	
           if(second==first){
             ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -5639,8 +5642,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               b1=1;
         }
       else if(mark_bool[mark_block_num]==1){
-        printf("mark_bool==1 block num:%d\n",mark_block_num);
-        exit(0); 
+		printf("mark_bool==1 block num:%d\n",mark_block_num);
+		ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+		goto up;     
       }		
         printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);			     
       }
