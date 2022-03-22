@@ -5174,14 +5174,12 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
     //the new block is first(benefit is min)
     if(benefit<=insert->benefit){
       printf("insert to the first node\n");
-      run_profit(ptr_buffer_cache,0); //block 32792 alreay exist in profit pointer...
       current->benefit=benefit;
       current->channel_num=channel;
       current->plane=plane;
       current->next=insert;     
       ptr_buffer_cache->p=current;
       printf("after...\n");
-      run_profit(ptr_buffer_cache,0); 
       goto end1;
     }					
     //insert node is not the first one.
@@ -5230,7 +5228,7 @@ end:
 	}
 end1:
 	printf("inside end1\n");
-	run_profit(ptr_buffer_cache,0);
+	run_profit(ptr_buffer_cache,-1);
 	check_profit(ptr_buffer_cache);	
 	//run_profit(ptr_buffer_cache,current_block[channel][plane].ptr_lru_node->logical_node_num);   
 }
@@ -5391,7 +5389,7 @@ next:
 	printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);	
 	printf("(leave check_profit)all good\n");
 } 
-int duplicat_block=0;
+int match=0;
 void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	ttt=malloc(sizeof(profit));
 	int i;
@@ -5406,17 +5404,36 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	printf("(run_profit)testing.....................................\n");
 	if(test==NULL){
 		printf("test==NULL\n");
-		exit(0);
 		return;
 	}
 	else if(test->next==NULL){
 		printf("one node\n");
-		exit(0);
+		if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
+			match=1;
+		}
+		return;
 	}
 	int next_block,cur_block,duplicate=0,b=0;
 	while(test->next!=NULL){
+		
 		//for some unknown reason,the next_block will move one node
 		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
+		if(cur_block==block_num){
+			int b1=0;
+			for(i=0;i<LRUSIZE;i++){
+				if(current_block[test->channel_num][test->plane].ptr_lru_node->page[i].exist==1){
+					b1=1;
+				}
+				else if(current_block[test->channel_num][test->plane].ptr_lru_node->page[i].exist==2){
+					
+				}
+			}
+			if(b1==0){
+				printf("all page is marked\n");
+				exit(0);
+			}
+			match=1;
+		}
 		assert(current_block[test->channel_num][test->plane].ptr_lru_node!=NULL);
 		next_block=current_block[test->next->channel_num][test->next->plane].ptr_lru_node->logical_node_num;
 		//judge next block exist or not
@@ -5509,6 +5526,14 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 		printf("block number:%d mark_node:%d\n",mark_block_num,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 		assert(mark_block_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){				
+			///the following code put the right place
+			if(current_block[i][j].ptr_lru_node!=NULL){
+				run_profit(ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
+				if(match==1){//curr block already exist in profit pointer			
+					exit(0);
+				}
+			}
+			///
 			int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
 			lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;			
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);					
@@ -5672,6 +5697,8 @@ start:
   //curr block all marked
   if(outout==0){
 	  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+	  printf("not need to mark\n");
+	  exit(0);
 	  goto start;
 	  return;
   }
@@ -6069,7 +6096,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
 	printf("middle of A_kick\n");
-	run_profit(ptr_buffer_cache,0);	
+	run_profit(ptr_buffer_cache,-1);	
 	order=ptr_buffer_cache->p;
 	count2=0;
 	while(order->next!=NULL){
@@ -6174,7 +6201,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       /*
        * if the plane is not any mark page ,we help mark the new node 
        * */
-      printf("channel:%d plane:%d (lru_node)channel:%d plane:%d\n",channel_num,plane,ptr_lru_node->page[k].channel_num,ptr_lru_node->page[k].plane);
       if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL)
       {
         current_block[channel_num][plane].trigger=1;
@@ -6256,7 +6282,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 				//然後就會直接略過那個block，指向下一個profit pointer，這也就是為什麼一開始都沒問題，到後期就出問題以及
 				//為什麼明明使用了goto，使用前ok，使用後卻出錯，而中間明明就沒有什麼會影響到count的程式碼，這最大的原因
 				//就出在remove_a_page_in_the_node這個function
-				run_profit(ptr_buffer_cache,ptr_lru_node->logical_node_num);
+				run_profit(ptr_buffer_cache,-1);
 				printf("(after remove)ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
 				mark_bool[ptr_lru_node->logical_node_num]=0;	
 				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);				
@@ -6337,7 +6363,7 @@ outside:
 	printf("out\n");
 	kick_channel_times++;
 	ptr_buffer_cache->p=order;
-	run_profit(ptr_buffer_cache,0);
+	run_profit(ptr_buffer_cache,-1);
   }
   /*
   if(current_block[channel_num][plane].current_mark_count!=0)
@@ -6371,7 +6397,7 @@ outside:
 	  }
 	  printf("(actual)profit pointer count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
 	  assert(count==ptr_buffer_cache->count || count+1==ptr_buffer_cache->count);
-	  run_profit(ptr_buffer_cache,0);
+	  run_profit(ptr_buffer_cache,-1);
 }
  // exit(0);
   kick_count+=kick;
