@@ -5594,7 +5594,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           if(initial==0){
             printf("enter\n");         
           }       
-        if(current_block[i][j].ptr_lru_node!=NULL){
+        if(current_block[i][j].ptr_lru_node!=NULL && initial==0){
           if(current_block[i][j].ptr_lru_node->logical_node_num<1000000 && current_block[i][j].ptr_lru_node->logical_node_num>=0){
             printf("curr block:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);           
             run_profit(ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
@@ -5610,7 +5610,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
                 }             
               }
               else{ 
-				        printf("block number as same as one of block in profit pointer...but channel & plane is not\n");
+			    printf("block number as same as one of block in profit pointer...but channel & plane is not\n");
                 match_block_but_channel_and_plane_is_not(i,j,ptr_buffer_cache);
               }                      
             }
@@ -5623,11 +5623,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           }
         }
         else{
-			printf("current block==NULL\n");
+			//printf("current block==NULL\n");
 		}
-      }
-    } 
-	  mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
+      mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
       printf("block number:%d mark_node:%d\n",mark_block_num,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
       assert(mark_block_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
       if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){	         
@@ -5666,14 +5664,16 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //A_fix_profit_order(ptr_buffer_cache);
           //run_profit(ptr_buffer_cache,0);
         }   
-        b1=1;
+			b1=1;
         }
         else if(mark_bool[mark_block_num]==1){
           printf("mark_bool==1 block num:%d\n",mark_block_num);
           ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
           goto up;     
         }		
-        printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);			     
+        printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);
+      }
+    } 	  			     
   }		
   if(b1==0){
     printf("b1=0\n");
@@ -5734,7 +5734,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       order->channel_num=channel;
       order->plane=plane;
       assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].channel_num==order->channel_num);
-	    assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].plane==order->plane);
+	  assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].plane==order->plane);
       ptr_buffer_cache->count++;
       printf("(when initial==1)ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
       assert(tmp[channel][plane]!=0);
