@@ -5496,7 +5496,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  int i = 0,j = 0,b1=0,k=0,w,first1,channel_1,plane_1,mark_block_num;
+  int i = 0,j = 0,b1=0,k=0,w,first1,channel_1,plane_1,mark_block_num,cur_exist=0;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
   profit *insert,*prev,*current,*start;
   insert=malloc(sizeof(profit));
@@ -5516,39 +5516,89 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         printf("block number:%d mark_node:%d\n",mark_block_num,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
         assert(mark_block_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
         if(current_block[i][j].ptr_lru_node!=NULL){
-			if(current_block[i][j].ptr_lru_node->logical_node_num<1000000 && current_block[i][j].ptr_lru_node->logical_node_num>=0){
-				printf("curr block:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);           
-				run_profit(ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
-				//curr block already exist in profit pointer
-				if(match==1){		
-				  printf("i:%d j:%d run_profit_channel:%d run_profit_plane:%d\n",i,j,run_profit_channel,run_profit_plane);
-				  if(i==run_profit_channel && j==run_profit_plane){
-					  int cur_exist=0;
-					  for(w=0;w<LRUSIZE;w++){
-						if(current_block[i][j].ptr_lru_node->page[w].exist==1){
-						  cur_exist=1;//can mark this block because have exist=1 page
-						}
-						else if(current_block[i][j].ptr_lru_node->page[w].exist==2){
-						  current_block[i][j].current_mark_count++;
-						}
-					  }
-					  if(cur_exist==0){//all page in block is marked
-						assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==1);
-						continue;
-					  }
-					  else{
-						current_block[i][j].current_mark_count=0;
-						assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0);
-					  }	
-				}
-				else{ 
-					ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;			 
-				}
-			  }
-				else{//current block is not in profit pointer
-				  assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0);
-				}
-			}
+          if(current_block[i][j].ptr_lru_node->logical_node_num<1000000 && current_block[i][j].ptr_lru_node->logical_node_num>=0){
+            printf("curr block:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);           
+            run_profit(ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
+            //curr block already exist in profit pointer,but current_block[i][j].current_mark_count=0-->need to solve.
+            if(match==1){		
+              printf("i:%d j:%d run_profit_channel:%d run_profit_plane:%d\n",i,j,run_profit_channel,run_profit_plane);
+              //進入下列條件式，代表current block 和profit pointer中的block所在位置一模一樣
+              if(i==run_profit_channel && j==run_profit_plane){
+                cur_exist=0;
+                for(w=0;w<LRUSIZE;w++){
+                  if(current_block[i][j].ptr_lru_node->page[w].exist==1){
+                    cur_exist=1;//can mark this block because have exist=1 page
+                  }
+                  else if(current_block[i][j].ptr_lru_node->page[w].exist==2){
+                    current_block[i][j].current_mark_count++;
+                  }
+                }
+                if(cur_exist==0){//all page in block is marked
+                  assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==1);
+                  continue;
+                }
+                else{//exist some page is not marked.
+                  current_block[i][j].current_mark_count=0;               
+                  while(ptr_buffer_cache->ptr_current_mark_node!=current_block[i][j].ptr_lru_node){
+                    ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+                  }
+                  assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0);
+                }	
+            }
+            else{ 
+              //進入這，代表current block exist in profit pointer
+              //但是profit pointer紀錄的channel & plane和當下的channel & plane 不一樣。so we skip this block
+              ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;               
+              //block number(current_block[i][j].ptr_lru_node->logical_node_num) is same,but channel & plane is different,
+              //means if ptr_buffer_cache->ptr_current_mark_node==block number，profit pointer會有兩個相同的block
+              //但是位置不同(plane,channel)
+              while(ptr_buffer_cache->ptr_current_mark_node==current_block[i][j].ptr_lru_node || cur_exist==0){
+                ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+                cur_exist=0;
+                for(w=0;w<LRUSIZE;w++){
+                  if(ptr_buffer_cache->ptr_current_mark_node->page[w].exist==1){
+                    cur_exist=1;
+                    break;
+                  }
+                }
+                //some page is not marked.
+                if(cur_exist==1){
+                  mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]=0;
+                  break;              
+                }       
+                printf("current mark block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+                assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==1);        
+              }		                                       
+            }
+          }
+          else{//current block is not in profit pointer
+            cur_exist=1;
+            while(ptr_buffer_cache->ptr_current_mark_node!=current_block[i][j].ptr_lru_node || cur_exist==0){
+              ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+              cur_exist=0;
+              for(w=0;w<LRUSIZE;w++){
+                if(ptr_buffer_cache->ptr_current_mark_node->page[w].exist==1){
+                  cur_exist=1;
+                  break;
+                }
+                else if(ptr_buffer_cache->ptr_current_mark_node->page[w].exist==2 &&ptr_buffer_cache->ptr_current_mark_node==current_block[i][j].ptr_lru_node){
+                  current_block[i][j].current_mark_count++;
+                }
+              }
+              //some page is not marked.
+              if(cur_exist==1){
+                mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]=0;
+                break;              
+              }
+              else{//all page is marked
+                printf("current mark block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+                assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==1);
+              }       
+            }	
+            printf("(not in profit pointer)current mark block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);            
+            assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0);
+          }
+          }
         }
         if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){	         
           int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
@@ -5589,8 +5639,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               b1=1;
         }
       else if(mark_bool[mark_block_num]==1){
-        ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-        goto up; 
+        printf("mark_bool==1 block num:%d\n",mark_block_num);
+        exit(0); 
       }		
         printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);			     
       }
