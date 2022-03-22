@@ -5494,7 +5494,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	assert(ptr_buffer_cache->count==count);
 }
 int cur_exist=0,no_insert=0;
-void match_for_channel_and_plane_and_block(int channel_num,int plane_num,buffer_cache *ptr_buffer_cache){
+void match_for_channel_and_plane_and_block(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
   int w;
   //check each page is marked or not
   for(w=0;w<LRUSIZE;w++){
@@ -5514,7 +5514,7 @@ void match_for_channel_and_plane_and_block(int channel_num,int plane_num,buffer_
     //let it pass to mark_for_specific_current_block...
     current_block[channel_num][plane].current_mark_count=0;
     //此時profit pointer中已經這個block，所以這裡做的是更新，而非新增，因此mark node 要match to current block
-    while(ptr_buffer_cache->ptr_current_mark_node!=current_block[i][j].ptr_lru_node){
+    while(ptr_buffer_cache->ptr_current_mark_node!=current_block[channel_num][plane].ptr_lru_node){
       ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
     }
     printf("block:%d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num);
@@ -5525,7 +5525,7 @@ void match_for_channel_and_plane_and_block(int channel_num,int plane_num,buffer_
   }
 }
 // same block but different channel_num and plane
-void match_block_but_channel_and_plane_is_not(int channel_num,int plane_num,buffer_cache *ptr_buffer_cache){
+void match_block_but_channel_and_plane_is_not(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
   int w;
   //make sure this current block != current mark node, or profit pointer will have duplicate block
   //and also make sure there are some page is not marked
@@ -5562,7 +5562,7 @@ void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_ca
         cur_exist=1;
       }
       else if(ptr_buffer_cache->ptr_current_mark_node->page[w].exist==2){
-        current_block[i][j].current_mark_count++;
+        current_block[channel_num][plane].current_mark_count++;
       }
     }
     if(cur_exist==1){
@@ -5622,13 +5622,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             }
           }
         }
-          
-      }
-    }
-    else{
+        else{
 			printf("current block==NULL\n");
 		}
-		  mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
+      }
+    } 
+	  mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
       printf("block number:%d mark_node:%d\n",mark_block_num,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
       assert(mark_block_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
       if(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){	         
