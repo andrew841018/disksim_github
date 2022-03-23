@@ -5145,9 +5145,17 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   //remove_duplicate_profit(ptr_buffer_cache);
   profit *insert,*prev,*current,*start=malloc(sizeof(profit)),*tmp=malloc(sizeof(profit)); 
   int first=0;
+  insert=ptr_buffer_cache->p;
+  //think...how to manage following code 
+  
+  /*if(insert!=NULL){
+	ptr_buffer_cache->p=test_not_assign_profit_pointer(insert,zero_is_zero);
+	insert=test_not_assign_profit_pointer(insert,zero_is_zero);
+  }*/
+  
+  
   ptr_buffer_cache->count++;
   printf("ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
-  insert=ptr_buffer_cache->p; 
   tmp=ptr_buffer_cache->p;
   current=malloc(sizeof(profit));
   prev=malloc(sizeof(profit));  
@@ -5160,14 +5168,12 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
 	ptr_buffer_cache->p=current;
 	assert(block_number==current_block[channel][plane].ptr_lru_node->logical_node_num);
 	return; 
-  }
+  } 
   assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
   assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
   current=malloc(sizeof(profit));
   prev=malloc(sizeof(profit));
 //insert current block to profit pointer--->according to the benefit value.
-
-  insert=test_not_assign_profit_pointer(insert,zero_is_zero);
 //only have one node
   if(insert!=NULL && insert->next==NULL){
 	  printf("only have one node exist\n");
