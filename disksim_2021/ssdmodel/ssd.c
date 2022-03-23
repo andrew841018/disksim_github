@@ -5119,6 +5119,27 @@ void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
   ptr_buffer_cache->p=order;
   printf("leave remove_duplicate profit\n");
 }
+profit *test_not_assign_profit_pointer(profit *p,int zero[]){
+	int initial=0;
+	if(p->channel_num==0 && p->plane==0){
+		if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
+			printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
+			return p;
+		}
+		else{
+			p=NULL;
+			return NULL;
+		}
+	}
+	else{
+		if(p->channel_num>1000000 || p->channel_num<0){
+			return NULL;
+		}
+		printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
+		return p;
+	}
+}
+int zero_is_zero[10000000]={0};
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
   printf("begin of insert_node.........\n"); 
   //remove_duplicate_profit(ptr_buffer_cache);
@@ -5146,6 +5167,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   prev=malloc(sizeof(profit));
 //insert current block to profit pointer--->according to the benefit value.
 
+  insert=test_not_assign_profit_pointer(insert,zero_is_zero);
 //only have one node
   if(insert!=NULL && insert->next==NULL){
 	  printf("only have one node exist\n");
@@ -5382,28 +5404,7 @@ next:
 	printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);	
 	printf("(leave check_profit)all good\n");
 } 
-profit *test_not_assign_profit_pointer(profit *p,int zero[]){
-	int initial=0;
-	if(p->channel_num==0 && p->plane==0){
-		if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
-			printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
-			return p; 
-		}
-		else{
-			p=NULL;
-			return NULL;
-		}
-	}
-	else{
-		if(p->channel_num>1000000 || p->channel_num<0){
-			return NULL;
-		}
-		printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
-		return p;
-	}
-}
 int match=0;
-int zero_is_zero[10000000]={0};
 int run_profit_channel,run_profit_plane;
 void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	match=0;
@@ -5422,7 +5423,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		return;
 	}
 	else if(test->next==NULL){
-		test=test_not_assign_profit_pointer(ptr_buffer_cache,zero_is_zero);
+		test=test_not_assign_profit_pointer(test,zero_is_zero);
 		if(test==NULL){
 			return;
 		}
