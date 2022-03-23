@@ -5387,7 +5387,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 	if(p->channel_num==0 && p->plane==0){
 		if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
 			printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
-			return p;
+			return p; 
 		}
 		else{
 			p=NULL;
@@ -5395,6 +5395,9 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 		}
 	}
 	else{
+		if(p->channel_num>1000000 || p->channel_num<0){
+			return NULL;
+		}
 		printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
 		return p;
 	}
