@@ -5439,7 +5439,6 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		}
 		if(testing[cur_block]==0){
 			count++;
-			mark_bool[cur_block]=1;
 			testing[cur_block]=1;
 			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
 			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
@@ -6482,9 +6481,19 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			count2++;
 			printf("(..out)index:%d benefit:%f logical_block:%d mark:%d\n",count2,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);	
 		}
+		else{
+			printf("duplicate block:%d\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
+			exit(0);
+		}
+	}
+	else if(zero_is_zero[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]==0){
+		order=NULL;
 	}
 	else{
-		order=NULL;
+		if(acc[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]==0){
+			count2++;
+			printf("(.out)index:%d benefit:%f logical_block:%d mark:%d\n",count2,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);	
+		}
 	}		
   }
 	printf("order count2:%d ptr_buffer_cache->count:%d\n",count2,ptr_buffer_cache->count);
