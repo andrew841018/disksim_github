@@ -5132,6 +5132,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   prev=malloc(sizeof(profit));  
   if(ptr_buffer_cache->p==NULL){
 	printf("there is no block exist....\n");
+	asssert(ptr_buffer_cache->count==1);
 	current->benefit=benefit;
 	current->channel_num=channel;
 	current->plane=plane;
@@ -5148,6 +5149,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
 //only have one node
   if(insert!=NULL && insert->next==NULL){
 	  printf("only have one node exist\n");
+	  assert(ptr_buffer_cache->count==2);
 	  current->benefit=benefit;
       current->channel_num=channel;
       current->plane=plane;  			
@@ -5447,10 +5449,8 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 					ttt=test;
 				}
 				else{
-					test=test->next;
-					if(test==NULL){
-						break;
-					}
+					test=test->next;	
+					continue;				
 				}
 			}
 			else{
@@ -5466,8 +5466,11 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		else if(testing[cur_block]==1){
 			printf("still have duplicate block:%d\n",cur_block);
 			exit(0);
-		}		
+		}				
 		test=test->next;
+		if(test==NULL){
+			break;
+		}
 	}
 	if(test!=NULL){
 		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
