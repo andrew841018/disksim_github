@@ -5132,6 +5132,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   prev=malloc(sizeof(profit));  
   if(ptr_buffer_cache->p==NULL){
 	printf("there is no block exist....\n");
+	assert(ptr_buffer_cache->count==1);
 	current->benefit=benefit;
 	current->channel_num=channel;
 	current->plane=plane;
@@ -5148,6 +5149,7 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
 //only have one node
   if(insert!=NULL && insert->next==NULL){
 	  printf("only have one node exist\n");
+	  assert(ptr_buffer_cache->count==2);
 	  current->benefit=benefit;
       current->channel_num=channel;
       current->plane=plane;  			
@@ -5380,6 +5382,23 @@ next:
 	printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);	
 	printf("(leave check_profit)all good\n");
 } 
+profit *test_not_assign_profit_pointer(profit *p,int zero[]){
+	int initial=0;
+	if(p->channel_num==0 && p->plane==0){
+		if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
+			printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
+			return p;
+		}
+		else{
+			p=NULL;
+			return NULL;
+		}
+	}
+	else{
+		printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
+		return p;
+	}
+}
 int match=0;
 int zero_is_zero[10000000]={0};
 int run_profit_channel,run_profit_plane;
@@ -5400,11 +5419,17 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		return;
 	}
 	else if(test->next==NULL){
-		printf("one node:%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);
-		if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
-			match=1;//the current_block equal to the exist profit pointer block
-			run_profit_channel=test->channel_num;
-			run_profit_plane=test->plane;
+		test=test_not_assign_profit_pointer(ptr_buffer_cache,zero_is_zero);
+		if(test==NULL){
+			return;
+		}
+		else{
+			printf("one node:\n");
+			if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
+				match=1;//the current_block equal to the exist profit pointer block
+				run_profit_channel=test->channel_num;
+				run_profit_plane=test->plane;
+			}
 		}
 		return;
 	}
@@ -6444,57 +6469,51 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	order=ptr_buffer_cache->p;
 	count2=0;
 	int acc[1000000]={0};
-	while(order->next!=NULL){
-		if(acc[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]==0){
+	while(ptr_buffer_cache->p->next!=NULL){
+		if(acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==0){
 			count2++;
-			acc[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]=1;
-			printf("index:%d benefit:%f logical_block:%d\n",count2,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);	
+			acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]=1;
+			printf("index:%d benefit:%f logical_block:%d\n",count2,ptr_buffer_cache->p->benefit,current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num);	
 		}
-		if(order->next->channel_num<0 || order->next->channel_num>1000000 || order->next->benefit==0){
-			if(order->next->next!=NULL){
-				order->next=order->next->next;
+		if(ptr_buffer_cache->p->next->channel_num<0 || ptr_buffer_cache->p->next->channel_num>1000000 || ptr_buffer_cache->p->next->benefit==0){
+			if(ptr_buffer_cache->p->next->next!=NULL){
+				ptr_buffer_cache->p->next=ptr_buffer_cache->p->next->next;
 			}
 			else{
-				order->next=NULL;
+				ptr_buffer_cache->p->next=NULL;
 				break;
 			}
 		}
-		assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].channel_num==order->channel_num);
-		assert(current_block[order->channel_num][order->plane].ptr_lru_node->page[0].plane==order->plane);		
-		order=order->next;
+		assert(current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->page[0].channel_num==ptr_buffer_cache->p->channel_num);
+		assert(current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->page[0].plane==ptr_buffer_cache->p->plane);		
+		ptr_buffer_cache->p=ptr_buffer_cache->p->next;
   }
-  if(order!=NULL && order->benefit!=0 && current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num>=0){
-	if(order->channel_num==0 && order->plane==0){
-		int ggg=3;
-	}
-	if(order->channel_num==0 && order->plane==0){
-		if(zero_is_zero[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]==1){	
-			if(acc[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]==0){
+  if(ptr_buffer_cache->p!=NULL && ptr_buffer_cache->p->benefit!=0 && current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num>=0){
+	if(ptr_buffer_cache->p->channel_num==0 && ptr_buffer_cache->p->plane==0){
+		if(zero_is_zero[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==1){	
+			if(acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==0){
 				count2++;
-				printf("(..out)index:%d benefit:%f logical_block:%d mark:%d\n",count2,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);	
+				printf("(..out)index:%d benefit:%f logical_block:%d mark:%d\n",count2,order->benefit,current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]);	
 			}
 			else{
-				printf("duplicate block:%d\n",current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num);
+				printf("duplicate block:%d\n",current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num);
 				exit(0);
 			}
 		}
 		else{
-			order=NULL;
+			ptr_buffer_cache->p=NULL;
 		}
 	}
 	else{
-		if(acc[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]==0){
+		if(acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==0){
 			count2++;
-			printf("(.out)index:%d benefit:%f logical_block:%d mark:%d\n",count2,order->benefit,current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]);	
+			printf("(.out)index:%d benefit:%f logical_block:%d mark:%d\n",count2,ptr_buffer_cache->p->benefit,current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]);	
 		}
 	}		
   }
 	printf("order count2:%d ptr_buffer_cache->count:%d\n",count2,ptr_buffer_cache->count);
     assert(count2==ptr_buffer_cache->count);
-    if(ptr_buffer_cache->count>count){
-		ptr_buffer_cache->count=count2;
-	}
-    order=ptr_buffer_cache->p;    
+	ptr_buffer_cache->p=order;   
     int k=0,remove=0; 
     kick=1; 
     if(no_page_can_evict == 0){ 	
@@ -6589,9 +6608,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
        * */    
       else if(ptr_lru_node->page[k].exist == 2 && ptr_lru_node->page[k].channel_num == channel_num && ptr_lru_node->page[k].plane==plane)
       {
-		printf("enter vary import conditiond\n");
+		//printf("enter vary import conditiond\n");
        //printf("* if the page already been marked|\n");
-       //
         current_block[channel_num][plane].trigger=2;
         assert(current_block[channel_num][plane].current_mark_count != 0);  
         //total number of the page has been marked(including read and write).
