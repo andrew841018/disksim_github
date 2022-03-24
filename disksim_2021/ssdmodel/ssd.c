@@ -5585,8 +5585,33 @@ void match_block_but_channel_and_plane_is_not(int channel_num,int plane,buffer_c
 void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
   //make sure current mark node match current block.....if can't then skip this part
   int w;
-  while(cur_exist==0){
-    ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+  cur_exist=0;
+  for(w=0;w<LRUSIZE;w++){
+	if(current_block[channel_num][plane].ptr_lru_node->page[w].exist==1){
+		cur_exist=1;
+	}
+	else if(current_block[channel_num][plane].ptr_lru_node->page[w].exist==2){
+		current_block[channel_num][plane].current_mark_count++;
+	}
+  }
+  //marked before
+  if(cur_exist==0){
+	  printf("current_block:%d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num);
+	  assert(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==0);
+	  mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]=1;
+	  if(benefit_value[current_block[channel_num][plane].ptr_lru_node->logical_node_num]!=0){
+		current_block[channel_num][plane].ptr_lru_node->benefit=benefit_value[current_block[channel_num][plane].ptr_lru_node->logical_node_num];
+	  }
+	  else{
+		printf("not have this block\n");
+		exit(0);
+	  }
+  }
+  else{
+	current_block[channel_num][plane].current_mark_count=0;
+	cur_exist=0;
+  }
+  while(cur_exist==0){   
     cur_exist=0;
     for(w=0;w<LRUSIZE;w++){
       if(ptr_buffer_cache->ptr_current_mark_node->page[w].exist==1){
@@ -5599,11 +5624,13 @@ void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_ca
     if(cur_exist==1){
 	  current_block[channel_num][plane].current_mark_count=0;
       printf("some page is not marked\n");
-      assert(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==0);
+      printf("marked block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+      assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0);
     }
     else{//all page is marked-->stay in while until some current_mark node is not marked.
       printf("current mark block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-    }       
+    }   
+    ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;    
   }	
 }
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
@@ -5644,7 +5671,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               }                      
             }
             else{//current block is not in profit pointer
-              printf("not in profit pointer\n");
+              printf("not in profit pointer:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);
               not_in_profit_pointer(i,j,ptr_buffer_cache);
               assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0);
             }
@@ -5668,7 +5695,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         second=ptr_buffer_cache->ptr_current_mark_node;
         tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
         mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
-        assert(current_block[i][j].ptr_lru_node->logical_node_num==tmp_mark_block); 
+        //assert(current_block[i][j].ptr_lru_node->logical_node_num==tmp_mark_block); 
         assert(tmp[i][j]>0);	
         if(second==first){
           ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -6130,8 +6157,9 @@ start:
 		}
 		else{
 			g=0;
-		  //printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+			printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 		  //exit(0);
+			
 			while(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 			  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;		  
 			}
