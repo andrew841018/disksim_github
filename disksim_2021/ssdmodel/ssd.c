@@ -5748,7 +5748,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     for(j = 0;j < PLANE_NUM;j++)
     {   	
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
-      {					
+      {				
+		no_insert=0;  	
         up:
           if(initial==0){
             printf("enter\n");         
