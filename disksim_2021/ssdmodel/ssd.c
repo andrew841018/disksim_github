@@ -5727,7 +5727,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
                 }             
               }
               else{ 
-			    printf("block number as same as one of block in profit pointer...but channel & plane is not\n");
+			          printf("block number as same as one of block in profit pointer...but channel & plane is not\n");
                 match_block_but_channel_and_plane_is_not(i,j,ptr_buffer_cache);
               }                      
             }
@@ -5735,16 +5735,16 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               printf("not in profit pointer:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);
               not_in_profit_pointer(i,j,ptr_buffer_cache);  
               if(cur_exist==0){
-				tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
-				goto insert;
-			  }           
+                tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
+                goto insert;
+			        }           
               assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0);
             }
           }
         }
         else{
-			//printf("current block==NULL\n");
-		}
+			    //printf("current block==NULL\n");
+		    }
       mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
       printf("block number:%d mark_node:%d\n",mark_block_num,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
       assert(mark_block_num==ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
@@ -5776,14 +5776,29 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
         //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!   		   
         if(initial==0 && no_insert==0){
-			insert:
-			  printf("hiiii\n");		
-			  //the new block enter,after A_kick kick a block
-			  printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]); 			
-			  if(i==0 && j==0){
-				zero_is_zero[current_block[i][j].ptr_lru_node->logical_node_num]=1;
-			  }
-			  insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
+          int have_page=0;
+          for(w=0;w<LRUSIZE;w++){
+            switch(current_block[i][j].ptr_lru_node->page[w].exist){
+              case 0:
+                break;	
+                ///
+              case 1:
+                printf("oh no why?\n");
+                exit(0);
+              case 2:
+                have_page=1;
+                break;
+            }
+          }
+          assert(have_page==1);
+          insert:
+            printf("hiiii\n");		
+            //the new block enter,after A_kick kick a block
+            printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]); 			
+            if(i==0 && j==0){
+              zero_is_zero[current_block[i][j].ptr_lru_node->logical_node_num]=1;
+            }
+            insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
 			  //run_profit(ptr_buffer_cache,0);
 			  //A_fix_profit_order(ptr_buffer_cache);
 			  //run_profit(ptr_buffer_cache,0);
@@ -6609,37 +6624,37 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	}		
   }
 	printf("order count2:%d ptr_buffer_cache->count:%d\n",count2,ptr_buffer_cache->count);
-    assert(count2==ptr_buffer_cache->count);
+  assert(count2==ptr_buffer_cache->count);
 	ptr_buffer_cache->p=order;   
-    int k=0,remove=0; 
-    kick=1; 
-    if(no_page_can_evict == 0){ 	
-		channel_num=order->channel_num;
-		plane=order->plane;		
-		printf("channel:%d plane:%d\n",channel_num,plane);
-		for(i=0;i<LRUSIZE;i++){
-			if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
-				if(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==1){
-					current_block[channel_num][plane].current_mark_count=0;
-					mark_for_all_current_block(ptr_buffer_cache);
-				}
-				else{
-					printf("have unmark block!! current_block[%d][%d].mark_count:%d block num:%d mark_bool:%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count,current_block[channel_num][plane].ptr_lru_node->logical_node_num,mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]);			
-					exit(0);
-				}				
-			}
-		}
-		order=order->next;
-		ptr_buffer_cache->p=order;
-		printf("channel:%d plane:%d\n",channel_num,plane);	
-        assert(channel_num >=0 && channel_num < 8);
-        assert(plane >=0 && plane < 8);
-         //表示要寫入SSD的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
-		//然後寫入的page index=offset_in_node. 
-		//disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 	 
-		ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
-		assert(ptr_lru_node->page[0].channel_num==channel_num);
-		assert(ptr_lru_node->page[0].plane==plane);		
+  int k=0,remove=0; 
+  kick=1; 
+  if(no_page_can_evict == 0){ 	
+    channel_num=order->channel_num;
+    plane=order->plane;		
+    printf("channel:%d plane:%d\n",channel_num,plane);
+    for(i=0;i<LRUSIZE;i++){
+      if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
+        if(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==1){
+          current_block[channel_num][plane].current_mark_count=0;
+          mark_for_all_current_block(ptr_buffer_cache);
+        }
+        else{
+          printf("have unmark block!! current_block[%d][%d].mark_count:%d block num:%d mark_bool:%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count,current_block[channel_num][plane].ptr_lru_node->logical_node_num,mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]);			
+          exit(0);
+        }				
+      }
+    }
+      order=order->next;
+      ptr_buffer_cache->p=order;
+      printf("channel:%d plane:%d\n",channel_num,plane);	
+      assert(channel_num >=0 && channel_num < 8);
+      assert(plane >=0 && plane < 8);
+      //表示要寫入SSD的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
+      //然後寫入的page index=offset_in_node. 
+      //disksim will assign different block to same channel_num and plane---for example:assign(block 1)->kick->assign(block 5)... 	 
+      ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
+      assert(ptr_lru_node->page[0].channel_num==channel_num);
+      assert(ptr_lru_node->page[0].plane==plane);		
     }
     //because we assign benefit info to profit pointer is the same time mark current block
     //so when current mark count=0,In theory,the profit pointer =NULL.
