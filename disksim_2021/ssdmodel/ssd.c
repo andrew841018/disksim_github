@@ -6659,7 +6659,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     //because we assign benefit info to profit pointer is the same time mark current block
     //so when current mark count=0,In theory,the profit pointer =NULL.
     
-    
+    int count_k=0;
     //as a result,if the program can't enter in this while loop 
     //the main reason will because current_mark_count=0. 
     while(k<LRUSIZE)
@@ -6689,6 +6689,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		  exit(0);
 	  }
       if(ptr_lru_node->page[k].exist ==0){
+        count_k++;
         k++;  
         continue;
 	  }
@@ -6796,7 +6797,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			//因此，一旦執行free，所有指的位置變成指向空，因此不論是current_block,ptr_lru_node或是其他原本可以存取到ptr_lru_node struct
 			//的變數，通通都無法存取。
 			//因為指標的目的地已經不存在了，當然連帶後續的指標也不可能存取到(link list的缺點)
-      printf("ptr_buffer_page:%d\n",ptr_lru_node->buffer_page_num);
 			remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);								
 		}
     else{
@@ -6851,6 +6851,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     }
     //the same time remove all pages,is the same time mark count=0....I tested.
 outside:
+  printf("how many page not exist:%d\n",count_k);
 	assert(remove_node==1);
 	printf("k:%d\n",k);
 	printf("current_block[%d][%d] count:%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count);
