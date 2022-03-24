@@ -5120,7 +5120,6 @@ void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
   printf("leave remove_duplicate profit\n");
 }
 profit *test_not_assign_profit_pointer(profit *p,int zero[]){
-	int initial=0;
 	if(p->channel_num==0 && p->plane==0){
 		if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
 			printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
@@ -5145,37 +5144,41 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   //remove_duplicate_profit(ptr_buffer_cache);
   profit *insert,*prev,*current,*start=malloc(sizeof(profit)),*tmp=malloc(sizeof(profit)); 
   int first=0;
-  insert=ptr_buffer_cache->p;
-  //think...how to manage following code 
-  
-  /*if(insert!=NULL){
-	ptr_buffer_cache->p=test_not_assign_profit_pointer(insert,zero_is_zero);
-	insert=test_not_assign_profit_pointer(insert,zero_is_zero);
-  }*/
-  
-  
+  insert=ptr_buffer_cache->p; 
   ptr_buffer_cache->count++;
   printf("ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
   tmp=ptr_buffer_cache->p;
   current=malloc(sizeof(profit));
   prev=malloc(sizeof(profit));  
   if(ptr_buffer_cache->p==NULL){
-	printf("there is no block exist....\n");
-	assert(ptr_buffer_cache->count==1);
-	current->benefit=benefit;
-	current->channel_num=channel;
-	current->plane=plane;
-	ptr_buffer_cache->p=current;
-	assert(block_number==current_block[channel][plane].ptr_lru_node->logical_node_num);
-	return; 
+	not_exist:  
+		printf("there is no block exist....\n");
+		assert(ptr_buffer_cache->count==1);
+		current->benefit=benefit;
+		current->channel_num=channel;
+		current->plane=plane;
+		ptr_buffer_cache->p=current;
+		assert(block_number==current_block[channel][plane].ptr_lru_node->logical_node_num);
+		return; 
+  }
+  if(ptr_buffer_cache->p->next==NULL){
+	ptr_buffer_cache->p=test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
+	goto not_exist;
   } 
   assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
   assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
   current=malloc(sizeof(profit));
   prev=malloc(sizeof(profit));
-//insert current block to profit pointer--->according to the benefit value.
-//only have one node
+  //two node
+  if(insert!=NULL && insert->next!=NULL && insert->next->next==NULL){
+	insert->next=test_not_assign_profit_pointer(insert->next,zero_is_zero);
+  }
+  //one node
   if(insert!=NULL && insert->next==NULL){
+	  insert=test_not_assign_profit_pointer(insert,zero_is_zero);
+	  if(insert==NULL){
+		goto not_exist;
+	  }
 	  printf("only have one node exist\n");
 	  assert(ptr_buffer_cache->count==2);
 	  current->benefit=benefit;
@@ -5579,12 +5582,10 @@ void match_block_but_channel_and_plane_is_not(int channel_num,int plane,buffer_c
     }
   }
 }
-int marked=0;
 void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
   //make sure current mark node match current block.....if can't then skip this part
   int w;
-  marked=0;
-  while(ptr_buffer_cache->ptr_current_mark_node!=current_block[channel_num][plane].ptr_lru_node || cur_exist==0){
+  while(cur_exist==0){
     ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
     cur_exist=0;
     for(w=0;w<LRUSIZE;w++){
@@ -5598,14 +5599,10 @@ void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_ca
     if(cur_exist==1){
 	  current_block[channel_num][plane].current_mark_count=0;
       printf("some page is not marked\n");
-      if(ptr_buffer_cache->ptr_current_mark_node==current_block[channel_num][plane].ptr_lru_node){
-        break;
-      }
+      assert(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==0);
     }
     else{//all page is marked-->stay in while until some current_mark node is not marked.
       printf("current mark block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-      marked=1;
-      return;
     }       
   }	
 }
@@ -5647,13 +5644,9 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               }                      
             }
             else{//current block is not in profit pointer
-              /*printf("not in profit pointer\n");
+              printf("not in profit pointer\n");
               not_in_profit_pointer(i,j,ptr_buffer_cache);
-              if(marked=1){
-				continue;
-			  }
-              printf("(not in profit pointer)current mark block:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);            
-              assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0);*/
+              assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0);
             }
           }
         }

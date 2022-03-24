@@ -14,6 +14,6 @@ int main(){
 	order=wb;
 	wb->next=malloc(sizeof(profit));
 	wb->next->plane=36;
-	order->next=NULL;
+	order=NULL;
 	return 0;
 }
