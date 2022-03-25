@@ -5570,7 +5570,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 				test->next=NULL;
 				break;
 			}
-		}
+		} 
 		if(testing[cur_block]==0){
 			count++;
 			testing[cur_block]=1;
