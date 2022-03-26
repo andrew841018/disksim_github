@@ -5141,26 +5141,7 @@ void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
   ptr_buffer_cache->p=order;
   printf("leave remove_duplicate profit\n");
 }
-void remove_invalid_pointer(buffer_cache *ptr_buffer_cache){
-	char buf[1024];
-	int i;
-	while(ptr_buffer_cache->p->next!=NULL){
-			memset(buf,-1,sizeof(buf));
-			sprintf(buf,"%p\n",ptr_buffer_cache->p->next);
-			for(i=0;buf[i]!=-1;i++){
-			}
-			if(i<=7){
-				if(ptr_buffer_cache->p->next->next!=NULL){
-					ptr_buffer_cache->p->next=ptr_buffer_cache->p->next->next;
-				}
-				else{
-					ptr_buffer_cache->p->next=NULL;
-					break;
-				}
-			}		
-		ptr_buffer_cache->p=ptr_buffer_cache->p->next;
-	}
-}
+int zero_is_zero[10000000]={0};
 profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 	profit *tmp=p,*p1=p;
 	int not_enter_loop=1;
@@ -5169,15 +5150,20 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 	}
 	if(p!=NULL && p->next!=NULL){
 		if(p->channel_num==0 && p->plane==0){
-			if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
-				printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
+			if(current_block[0][0].ptr_lru_node!=NULL){
+				if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
+					printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
+				}
+				else{
+					tmp=p->next;
+				}
 			}
 			else{
 				tmp=p->next;
 			}
 		}
 		else{
-			if(p->channel_num>1000000 || p->channel_num<0){
+			if(p->channel_num>8 || p->channel_num<0){
 				tmp=p->next;
 			}
 			printf("(inside testing function)block number:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
@@ -5215,7 +5201,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 			}
 		}
 		else{
-			if(p->next->channel_num>1000000 || p->next->channel_num<0){
+			if(p->next->channel_num>8 || p->next->channel_num<0){
 				if(p->next->next!=NULL){
 					p->next=p->next->next;
 				}
@@ -5235,9 +5221,15 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 	//testing if only exist one node
 	if(p!=NULL && p->next==NULL && not_enter_loop==1){
 		if(p->channel_num==0 && p->plane==0){
-			if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
-				printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
-				return p;
+			if(current_block[0][0].ptr_lru_node!=NULL){
+				if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
+					printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
+					return p;
+				}
+				else{
+					p=NULL;
+					return NULL;
+				}
 			}
 			else{
 				p=NULL;
@@ -5245,7 +5237,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 			}
 		}
 		else{
-			if(p->channel_num>1000000 || p->channel_num<0){
+			if(p->channel_num>8 || p->channel_num<0){
 				return NULL;
 			}
 			printf("(inside testing function)block number:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
@@ -5255,7 +5247,49 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 	p=tmp;
 	return p;
 }
-int zero_is_zero[10000000]={0};
+void remove_invalid_pointer(buffer_cache *ptr_buffer_cache){
+	char buf[1024];
+	int i;	
+	profit *order=ptr_buffer_cache->p;
+	//check curr node
+	memset(buf,-1,sizeof(buf));
+	sprintf(buf,"%p\n",ptr_buffer_cache->p);
+	for(i=0;buf[i]!=-1;i++){
+	}
+	if(i<=8){
+		ptr_buffer_cache->p=NULL;
+		ptr_buffer_cache->p=order;
+		return;
+	}
+	//check next node
+	test_not_assign_profit_pointer(ptr_buffer_cache->p->next,zero_is_zero);
+	memset(buf,-1,sizeof(buf));
+	sprintf(buf,"%p\n",ptr_buffer_cache->p->next);
+	for(i=0;buf[i]!=-1;i++){
+	}
+	if(i<=8){
+		ptr_buffer_cache->p->next=NULL;
+		ptr_buffer_cache->p=order;
+		return;
+	}
+	while(ptr_buffer_cache->p->next!=NULL){
+			memset(buf,-1,sizeof(buf));
+			sprintf(buf,"%p\n",ptr_buffer_cache->p->next);
+			for(i=0;buf[i]!=-1;i++){
+			}
+			if(i<=7){
+				if(ptr_buffer_cache->p->next->next!=NULL){
+					ptr_buffer_cache->p->next=ptr_buffer_cache->p->next->next;
+				}
+				else{
+					ptr_buffer_cache->p->next=NULL;
+					break;
+				}
+			}		
+		ptr_buffer_cache->p=ptr_buffer_cache->p->next;
+	}
+	ptr_buffer_cache->p=order;
+}
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
   printf("begin of insert_node.........\n"); 
   //remove_duplicate_profit(ptr_buffer_cache);
@@ -6621,6 +6655,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   {
 	printf("middle of A_kick\n");
 	remove_invalid_pointer(ptr_buffer_cache);
+	ptr_buffer_cache->p=test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
 	run_profit(ptr_buffer_cache,-1);	
 	ptr_buffer_cache->p=test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
 	run_profit(ptr_buffer_cache,-1);	
@@ -6631,7 +6666,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	while(ptr_buffer_cache->p->next!=NULL){
 		if(acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==0){
 			count2++;
-			acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]=1;
+			acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]=1;			
 			printf("index:%d benefit:%f logical_block:%d channel:%d plane:%d\n",count2,ptr_buffer_cache->p->benefit,current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num,ptr_buffer_cache->p->channel_num,ptr_buffer_cache->p->plane);	
 		}
 		if(ptr_buffer_cache->p->next->channel_num<0 || ptr_buffer_cache->p->next->channel_num>1000000 || ptr_buffer_cache->p->next->benefit==0){
