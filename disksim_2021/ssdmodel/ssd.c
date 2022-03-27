@@ -4667,6 +4667,9 @@ void remove_invalid_pointer(buffer_cache *ptr_buffer_cache){
 	char buf[1024];
 	int i;	
 	profit *order=ptr_buffer_cache->p;
+	if(order==NULL){
+		return;
+	}
 	//check curr node
 	memset(buf,"",sizeof(buf));
 	sprintf(buf,"%p\n",ptr_buffer_cache->p);
@@ -4990,7 +4993,6 @@ next:
 int match=0;
 int run_profit_channel,run_profit_plane;
 void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
-	test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
 	match=0;
 	ttt=calloc(1,sizeof(profit));
 	int i;
@@ -5007,7 +5009,6 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		return;
 	}
 	else if(test->next==NULL){
-		test=test_not_assign_profit_pointer(test,zero_is_zero);
 		if(test==NULL){
 			return;
 		}
@@ -5311,7 +5312,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!   		   
           if(initial==0 && no_insert==0){
-            sleep(1);
             insert:
               printf("hiiii\n");		
               //the new block enter,after A_kick kick a block
@@ -6058,20 +6058,24 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
 	printf("middle of A_kick\n");
-	ptr_buffer_cache->p=test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
-	remove_invalid_pointer(ptr_buffer_cache);
 	run_profit(ptr_buffer_cache,-1);	
 	order=ptr_buffer_cache->p;
 	count2=0;
 	int acc[1000000]={0};
-	  /////the will have bug....    
+	if(ptr_buffer_cache->count==0){
+		int ggg=3;
+	}
+	if(ptr_buffer_cache->p==NULL){
+		printf("no block can evict...");
+	}   
 	while(ptr_buffer_cache->p->next!=NULL){
+		printf("channel:%d plane:%d benefit:%f\n",ptr_buffer_cache->p->channel_num,ptr_buffer_cache->p->plane,ptr_buffer_cache->p->benefit);
 		if(acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==0){
 			count2++;
 			acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]=1;			
 			printf("index:%d benefit:%f logical_block:%d channel:%d plane:%d\n",count2,ptr_buffer_cache->p->benefit,current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num,ptr_buffer_cache->p->channel_num,ptr_buffer_cache->p->plane);	
 		}
-		if(ptr_buffer_cache->p->next->channel_num<0 || ptr_buffer_cache->p->next->channel_num>1000000 || ptr_buffer_cache->p->next->benefit==0){
+		if(ptr_buffer_cache->p->next->channel_num<0 || ptr_buffer_cache->p->next->channel_num>=8 || ptr_buffer_cache->p->next->benefit==0){
 			if(ptr_buffer_cache->p->next->next!=NULL){
 				ptr_buffer_cache->p->next=ptr_buffer_cache->p->next->next;
 			}
