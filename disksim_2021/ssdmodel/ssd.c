@@ -5097,7 +5097,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 profit *ttt;
 void remove_duplicate_profit(buffer_cache *ptr_buffer_cache){
 	printf("enter remove_duplicate_profit\n");
-  profit *test=malloc(sizeof(profit)),*order=malloc(sizeof(profit));
+  profit *test=calloc(1,sizeof(profit)),*order=calloc(1,sizeof(profit));
   order=ptr_buffer_cache->p;
   test=ptr_buffer_cache->p;
   int run_block[1000000]={0},cur_block,next_block;
@@ -5156,22 +5156,32 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 				}
 				else{
 					tmp=p->next;
+					free(p);
+					p=NULL;
 				}
 			}
 			else{
 				tmp=p->next;
+				free(p);
+				p=NULL;
 			}
 		}
 		else{
 			if(p->channel_num>8 || p->channel_num<0){
 				tmp=p->next;
+				free(p);
+				p=NULL;
 			}
 			printf("(inside testing function)block number:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
 		}
 	}
+	int count=0;
 	while(p1->next!=NULL){
+		count++;
+		printf("%d\n",count);
 		if(current_block[p1->next->channel_num][p1->next->plane].ptr_lru_node==NULL){
 			if(p1->next->next!=NULL){
+				
 				p1->next=p1->next->next;
 			}
 			else{
@@ -5252,7 +5262,7 @@ void remove_invalid_pointer(buffer_cache *ptr_buffer_cache){
 	int i;	
 	profit *order=ptr_buffer_cache->p;
 	//check curr node
-	memset(buf,-1,sizeof(buf));
+	memset(buf,"",sizeof(buf));
 	sprintf(buf,"%p\n",ptr_buffer_cache->p);
 	for(i=0;buf[i]!=-1;i++){
 	}
@@ -5261,8 +5271,12 @@ void remove_invalid_pointer(buffer_cache *ptr_buffer_cache){
 		ptr_buffer_cache->p=order;
 		return;
 	}
+	else if(buf=="0xffffffff"){
+		ptr_buffer_cache->p=NULL;
+		ptr_buffer_cache->p=order;
+		return;
+	}
 	//check next node
-	test_not_assign_profit_pointer(ptr_buffer_cache->p->next,zero_is_zero);
 	memset(buf,-1,sizeof(buf));
 	sprintf(buf,"%p\n",ptr_buffer_cache->p->next);
 	for(i=0;buf[i]!=-1;i++){
@@ -5293,14 +5307,14 @@ void remove_invalid_pointer(buffer_cache *ptr_buffer_cache){
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
   printf("begin of insert_node.........\n"); 
   //remove_duplicate_profit(ptr_buffer_cache);
-  profit *insert,*prev,*current,*start=malloc(sizeof(profit)),*tmp=malloc(sizeof(profit)); 
+  profit *insert,*prev,*current,*start=calloc(1,sizeof(profit)),*tmp=calloc(1,sizeof(profit)); 
   int first=0;
   insert=ptr_buffer_cache->p; 
   ptr_buffer_cache->count++;
   printf("ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
   tmp=ptr_buffer_cache->p;
-  current=malloc(sizeof(profit));
-  prev=malloc(sizeof(profit));  
+  current=calloc(1,sizeof(profit));
+  prev=calloc(1,sizeof(profit));  
   if(ptr_buffer_cache->p==NULL){
 	not_exist:  
 		printf("there is no block exist....\n");
@@ -5318,8 +5332,8 @@ void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_c
   } 
   assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
   assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
-  current=malloc(sizeof(profit));
-  prev=malloc(sizeof(profit));
+  current=calloc(1,sizeof(profit));
+  prev=calloc(1,sizeof(profit));
   //two node
   if(insert!=NULL && insert->next!=NULL && insert->next->next==NULL){
 	insert->next=test_not_assign_profit_pointer(insert->next,zero_is_zero);
@@ -5572,7 +5586,7 @@ int run_profit_channel,run_profit_plane;
 void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
 	match=0;
-	ttt=malloc(sizeof(profit));
+	ttt=calloc(1,sizeof(profit));
 	int i;
 	for(i=0;i<1000000;i++){
 		if(testing[i]!=0){
@@ -5612,7 +5626,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			//return;
 		}
 		assert(current_block[test->channel_num][test->plane].ptr_lru_node!=NULL);
-		if(test->next->channel_num>1000000 || test->next->channel_num<0 || test->next->benefit==0){
+		if(test->next->channel_num>8 || test->next->channel_num<0 || test->next->benefit==0){
 			//judge next block exist or not
 			if(test->next->next!=NULL){
 				printf("cur_block:%d channel:%d plane:%d\n",cur_block,test->channel_num,test->plane);
@@ -5814,7 +5828,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   int i = 0,j = 0,b1=0,k=0,w,channel_1,plane_1,mark_block_num;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
   profit *insert,*prev,*current,*start;
-  insert=malloc(sizeof(profit));
+  insert=calloc(1,sizeof(profit));
   mark_count=0;	  
   for(i = 0;i < CHANNEL_NUM;i++)
   {
@@ -5945,7 +5959,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     double min;
     int channel,plane,b=0,count=0;
     profit *order1,*order;
-    order=malloc(sizeof(profit));//from min benefit to max benefit
+    order=calloc(1,sizeof(profit));//from min benefit to max benefit
     ptr_buffer_cache->count=0;
     order1=order;//store order address to order1
     assert(order!=NULL);
@@ -5980,7 +5994,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       assert(tmp[channel][plane]!=0);
       order->benefit=tmp[channel][plane];
       tmp[channel][plane]=10;
-      order->next=malloc(sizeof(profit));
+      order->next=calloc(1,sizeof(profit));
       order=order->next;        
     }
     printf("after first assgin...initial==1\n");
@@ -6654,10 +6668,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
 	printf("middle of A_kick\n");
+	ptr_buffer_cache->p=test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
 	remove_invalid_pointer(ptr_buffer_cache);
-	ptr_buffer_cache->p=test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
-	run_profit(ptr_buffer_cache,-1);	
-	ptr_buffer_cache->p=test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
 	run_profit(ptr_buffer_cache,-1);	
 	order=ptr_buffer_cache->p;
 	count2=0;
