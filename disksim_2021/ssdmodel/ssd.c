@@ -5904,6 +5904,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
         //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!   		   
         if(initial==0 && no_insert==0){
+		  sleep(1);
           insert:
             printf("hiiii\n");		
             //the new block enter,after A_kick kick a block
@@ -5919,6 +5920,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 			b1=1;
         }
         else if(mark_bool[mark_block_num]==1){
+		  b1=1;
           printf("mark_bool==1 block num:%d\n",mark_block_num);
           int not_mark=0;         
           for(w=0;w<LRUSIZE;w++){
