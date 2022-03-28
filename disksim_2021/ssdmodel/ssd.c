@@ -5797,6 +5797,15 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 			printf("inside the mark_for_specific...%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 			A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
 		}
+		else{
+			int w;
+			for(w=0;w<LRUSIZE;w++){
+				if(current_block[channel_num][plane].ptr_lru_node!=NULL){
+					current_block[channel_num][plane].ptr_lru_node->page[w].channel_num=channel_num;
+					current_block[channel_num][plane].ptr_lru_node->page[w].plane=plane;
+				}
+			}
+		}
 		//all block is marked
 		if(g==0){
 			printf("(g=0)marked!\n");
