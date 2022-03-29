@@ -3700,7 +3700,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		init=0;		
 	  }
 	else{		
-	}	  
+	}
+	//calculate block and sector hit count	  
 	  int sector;
 	  for(i=0;i<block_index;i++){
 	    for(j=0;j<sector_index[i];j++){		
@@ -3748,6 +3749,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			break;
 	}
   }
+  ////
 	for(i=0;i<=block_index;i++){
 		if(block_num[i]==physical_node_num){
 			fprintf(t,"%d ",block_count[i]);
@@ -3806,6 +3808,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
 	  }
 	  else{
+		FILE *skip=fopen("skip.txt","a+");
+		fprintf(skip,"skip block number:%d\n",physical_node_num);
+		fclose(skip);
 		longjmp(jmpbuffer, 1);//skip this request ,jump to syssim_drive,and run continue
 	  }
   }

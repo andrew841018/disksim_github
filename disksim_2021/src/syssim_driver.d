@@ -39,6 +39,6 @@ syssim_driver.o: syssim_driver.c /usr/include/stdc-predef.h \
  /usr/include/i386-linux-gnu/bits/posix_opt.h \
  /usr/include/i386-linux-gnu/bits/environments.h \
  /usr/include/i386-linux-gnu/bits/confname.h /usr/include/getopt.h \
- /usr/include/assert.h /usr/include/setjmp.h \
+ /usr/include/assert.h /usr/include/xlocale.h /usr/include/setjmp.h \
  /usr/include/i386-linux-gnu/bits/setjmp.h syssim_driver.h \
  disksim_interface.h disksim_reqflags.h disksim_rand48.h
