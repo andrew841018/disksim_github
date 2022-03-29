@@ -79,6 +79,7 @@ one block=64 pages
 #include <unistd.h>
 #include <assert.h>
 #include <sys/time.h>
+#include <time.h>
 #include <setjmp.h>       
 #include "syssim_driver.h"
 #include "disksim_interface.h"
@@ -1810,6 +1811,8 @@ void calculate_predict()
 int main(int argc, char *argv[]) 
 {
   unsigned long diffall;
+  clock_t start,finish;
+  start=clock();
   gettimeofday(&start1, NULL); 
   int i;
   int nsectors = 1000;
@@ -1913,7 +1916,10 @@ int main(int argc, char *argv[])
       fclose(wb);
       int jmpVal = setjmp(jmpbuffer);//jump destination....
 	  if(jmpVal==1){
-		printf("\n");
+		FILE *skip=fopen("skip.txt","a+");
+		fprintf(skip,"request:%d\n",ReqCount);
+		fclose(skip);
+		jmpVal=0;
 		continue;
 	  }
       if(blnum > 56000000 && R_W == 0)
@@ -2187,6 +2193,8 @@ int main(int argc, char *argv[])
  // printf ("invalid =%d\n", cur->invalid);
   //float acratio_FA=0,acratio_R=0; 
   gettimeofday(&end1, NULL);
+  finish=clock();
+  double difference=finish-start;
   diffall=1000000 * (end1.tv_sec-start1.tv_sec)+ end1.tv_usec-start1.tv_usec;
   prstime = tot_Rtime/Sumcount;
   fprintf(outputfd,"!!!!!!ALL = %ld\n",diffall);
@@ -2206,6 +2214,7 @@ int main(int argc, char *argv[])
   printf(LIGHT_GREEN"[CHEN] ft_hint_count=%d\n",ft_hint_count);
   printf(LIGHT_GREEN"[CHEN] rp_hint_count=%d\n",rp_hint_count);
   printf(LIGHT_GREEN"[CHEN] total_hint_count=%d\n",fa_hint_count+ft_hint_count+rp_hint_count);
+  printf("total minute:%f\n",difference/CLOCKS_PER_SEC/60);
 //-----------------------------------------------------------------------------------------------------------------------
   fprintf(finaloutput,"Unique page=%d\n",unique_page);
   fprintf(finaloutput,"flush個數=%d, replacement個數=%d\n", flushgj4, replacegj4);
@@ -2224,8 +2233,6 @@ int main(int argc, char *argv[])
  
   /* NOTE: it is bad to use this internal disksim call from external... */
   DISKSIM_srand48(1);
- 
-   
   disksim_interface_shutdown(disksim, now);
   printf("\n****Response time****");
   fprintf(finaloutput,"\n****Response time****");

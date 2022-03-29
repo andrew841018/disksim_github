@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<time.h>
 typedef struct _profit{
 	int channel_num;
 	int plane;
@@ -9,6 +10,8 @@ typedef struct _profit{
 }profit;
 
 int main(){	
+	clock_t start,end;
+	start=clock();
 	profit *wb=malloc(sizeof(profit)),*order=malloc(sizeof(profit)),*prev,*node;
 	prev=wb;
 	wb->plane=55;
@@ -20,5 +23,8 @@ int main(){
 	node=wb->next;
 	order->next=order->next->next;
 	node=NULL;
+	end=clock();
+	double diff=end-start;
+	printf("total minute:%f\n",diff/CLOCKS_PER_SEC);
 	return 0;
 }
