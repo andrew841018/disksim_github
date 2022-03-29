@@ -1811,8 +1811,8 @@ void calculate_predict()
 int main(int argc, char *argv[]) 
 {
   unsigned long diffall;
-  clock_t start,finish;
-  start=clock();
+  clock_t begining,ending;
+  begining=clock();
   gettimeofday(&start1, NULL); 
   int i;
   int nsectors = 1000;
@@ -2193,8 +2193,8 @@ int main(int argc, char *argv[])
  // printf ("invalid =%d\n", cur->invalid);
   //float acratio_FA=0,acratio_R=0; 
   gettimeofday(&end1, NULL);
-  finish=clock();
-  double difference=finish-start;
+  ending=clock();
+  double difference=ending-begining;
   diffall=1000000 * (end1.tv_sec-start1.tv_sec)+ end1.tv_usec-start1.tv_usec;
   prstime = tot_Rtime/Sumcount;
   fprintf(outputfd,"!!!!!!ALL = %ld\n",diffall);
@@ -2214,7 +2214,6 @@ int main(int argc, char *argv[])
   printf(LIGHT_GREEN"[CHEN] ft_hint_count=%d\n",ft_hint_count);
   printf(LIGHT_GREEN"[CHEN] rp_hint_count=%d\n",rp_hint_count);
   printf(LIGHT_GREEN"[CHEN] total_hint_count=%d\n",fa_hint_count+ft_hint_count+rp_hint_count);
-  printf("total minute:%f\n",difference/CLOCKS_PER_SEC/60);
 //-----------------------------------------------------------------------------------------------------------------------
   fprintf(finaloutput,"Unique page=%d\n",unique_page);
   fprintf(finaloutput,"flush個數=%d, replacement個數=%d\n", flushgj4, replacegj4);
@@ -2237,6 +2236,7 @@ int main(int argc, char *argv[])
   printf("\n****Response time****");
   fprintf(finaloutput,"\n****Response time****");
   print_statistics(&st, &wst, &rst, &wstp, &rstp, "response time");
+  printf("total minute:%f\n",difference/CLOCKS_PER_SEC/60);
   //fclose(evict_fread);
   fclose(fread);
   fclose(fwrite);
