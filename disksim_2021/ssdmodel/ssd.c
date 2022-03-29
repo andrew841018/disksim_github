@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <setjmp.h>
 #include <stdbool.h>
 
 #include <sys/time.h>
@@ -43,7 +44,7 @@
 #define CHANNEL_NUM 8
 #define PLANE_NUM 8
 #define TOTAL_NODE ((512*1024*80)/64)
-
+jmp_buf jmpbuffer;
 int kick_node=0,kick_block_strip_node=0,kick_block_strip_sumpage=0;
 int kick_block_striping_page_count=0;
 int kick_page_striping_page_count=0;
@@ -3804,6 +3805,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       if(benefit_value[physical_node_num]!=0){
 		ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
 	  }
+	  else{
+		longjmp(jmpbuffer, 1);//skip this request ,jump to syssim_drive,and run continue
+	  }
   }
   else
   {
@@ -5060,6 +5064,8 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		if(testing[cur_block]==0){
 			count++;
 			testing[cur_block]=1;
+			printf("(curr) channel:%d plane:%d channel:%d plane:%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num,current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane,test->channel_num,test->plane);
+			printf("block number:%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);
 			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
 			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
 			if(block_num!=7){
@@ -5797,6 +5803,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 			A_match_channel_and_plane(ptr_buffer_cache,channel_num,plane);
 		}
 		else{//match=1
+			assert(current_block[channel_num][plane].ptr_lru_node!=NULL);
 			int w;
 			for(w=0;w<LRUSIZE;w++){
 				if(current_block[channel_num][plane].ptr_lru_node!=NULL){
@@ -5808,6 +5815,13 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		//all block is marked
 		if(g==0){
 			printf("(g=0)marked!\n");
+			assert(current_block[channel_num][plane].current_mark_count==0);
+			int w;
+			for(w=0;w<LRUSIZE;w++){
+				if(current_block[channel_num][plane].ptr_lru_node->page[w].exist==2){
+					current_block[channel_num][plane].current_mark_count++;
+				}
+			}
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			return;
 		}		

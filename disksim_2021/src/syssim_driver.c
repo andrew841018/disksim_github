@@ -79,10 +79,11 @@ one block=64 pages
 #include <unistd.h>
 #include <assert.h>
 #include <sys/time.h>
-       
+#include <setjmp.h>       
 #include "syssim_driver.h"
 #include "disksim_interface.h"
 #include "disksim_rand48.h"
+jmp_buf jmpbuffer;
 extern int sum_block_count[1000000] = {100}; //在my_ssd.c裡宣告
 extern int clean_replace = 0;
 extern int clean_flush1 = 0;
@@ -1910,6 +1911,11 @@ int main(int argc, char *argv[])
       FILE *wb=fopen("wb.txt","w");      
       fprintf(wb,"request:%d\n",ReqCount);
       fclose(wb);
+      int jmpVal = setjmp(jmpbuffer);//jump destination....
+	  if(jmpVal==1){
+		printf("\n");
+		continue;
+	  }
       if(blnum > 56000000 && R_W == 0)
         continue;
       //fprintf(outputfd, "----接收新的request----|ReqCount=%d\n", ReqCount);
@@ -2091,7 +2097,7 @@ int main(int argc, char *argv[])
           //fprintf(outputfd,"////////////////////實際執行定時flush//////////////////////\n");
             
           Ttime=CacheTime;
-          period_write_back(hash, q,fwrite,disksim,1); //實際執行定時flush
+          period_write_back(hash, q,fwrite,disksim,1); //實際執行定時flush              
           //sleep(10);
           //重算sum_block_count↓///
           QNode *block_count_Point = q->rear;
