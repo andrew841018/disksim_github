@@ -5068,6 +5068,11 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		} 
 		if(testing[cur_block]==0){
 			count++;
+			int w;
+			for(w=0;w<LRUSIZE;w++){
+				current_block[test->channel_num][test->plane].ptr_lru_node->page[w].channel_num=test->channel_num;
+				current_block[test->channel_num][test->plane].ptr_lru_node->page[w].plane=test->plane;
+			}
 			testing[cur_block]=1;
 			printf("(curr) channel:%d plane:%d channel:%d plane:%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num,current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane,test->channel_num,test->plane);
 			printf("block number:%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);
@@ -5293,7 +5298,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           }       
         if(current_block[i][j].ptr_lru_node!=NULL && initial==0){
           if(current_block[i][j].ptr_lru_node->logical_node_num<1000000 && current_block[i][j].ptr_lru_node->logical_node_num>=0){
-            printf("curr block:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);           
+            printf("curr block:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);                     
             run_profit(ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
             //curr block already exist in profit pointer,but current_block[i][j].current_mark_count=0-->need to solve.
             if(match==1){		
@@ -7171,7 +7176,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  write_benefit_to_txt(1);
+  //write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
