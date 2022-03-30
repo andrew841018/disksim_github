@@ -3680,7 +3680,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				sector_num[i][j]=-1;
 			}
 		}	 
-		/*FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+		FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
 			char buf[1024];
 			char *substr=NULL;
 			const char *const delim=" ";
@@ -3697,7 +3697,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				substr=strtok(NULL,delim);//benefit     
 				benefit_value[physical_block_num]=atof(substr);
 				} 				    
-		fclose(rnn);*/
+		fclose(rnn);
 		init=0;		
 	  }
 	else{		
