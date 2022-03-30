@@ -84,7 +84,6 @@ one block=64 pages
 #include "syssim_driver.h"
 #include "disksim_interface.h"
 #include "disksim_rand48.h"
-jmp_buf jmpbuffer;
 extern int sum_block_count[1000000] = {100}; //在my_ssd.c裡宣告
 extern int clean_replace = 0;
 extern int clean_flush1 = 0;
@@ -1914,14 +1913,6 @@ int main(int argc, char *argv[])
       FILE *wb=fopen("wb.txt","w");      
       fprintf(wb,"request:%d\n",ReqCount);
       fclose(wb);
-      int jmpVal = setjmp(jmpbuffer);//jump destination....
-	  if(jmpVal==1){
-		FILE *skip=fopen("skip.txt","a+");
-		fprintf(skip,"request:%d\n",ReqCount);
-		fclose(skip);
-		jmpVal=0;
-		continue;
-	  }
       if(blnum > 56000000 && R_W == 0)
         continue;
       //fprintf(outputfd, "----接收新的request----|ReqCount=%d\n", ReqCount);

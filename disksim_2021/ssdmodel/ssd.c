@@ -3616,6 +3616,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 }
 double min2=100000;
 unsigned int mark_bool[100000000]={0};
+unsigned int skip_block[10000000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3679,7 +3680,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				sector_num[i][j]=-1;
 			}
 		}	 
-		FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+		/*FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
 			char buf[1024];
 			char *substr=NULL;
 			const char *const delim=" ";
@@ -3696,7 +3697,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				substr=strtok(NULL,delim);//benefit     
 				benefit_value[physical_block_num]=atof(substr);
 				} 				    
-		fclose(rnn);
+		fclose(rnn);*/
 		init=0;		
 	  }
 	else{		
@@ -3800,19 +3801,22 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   {
     //printf("add node\n");
     //fprintf(lpb_ppn, "if(Pg_node == NULL)\tphysical_node_num=%d\n", physical_node_num);
-      flag=0;     
+      flag=0; 
+      if(benefit_value[physical_node_num]==0){
+		if(skip_block[physical_node_num]==0){
+			FILE *skip=fopen("skip.txt","a+");
+			fprintf(skip,"skip block number:%d\n",physical_node_num);			
+			fclose(skip);
+			skip_block[physical_node_num]=1;
+		}
+		return flag;
+	  }    
       //write buffer does have this node-->add one
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
       if(benefit_value[physical_node_num]!=0){
 		ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
-	  }
-	  else{
-		FILE *skip=fopen("skip.txt","a+");
-		fprintf(skip,"skip block number:%d\n",physical_node_num);
-		fclose(skip);
-		longjmp(jmpbuffer, 1);//skip this request ,jump to syssim_drive,and run continue
-	  }
+	  }	  
   }
   else
   {
@@ -5788,7 +5792,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 	else{
 		g=0;
 		printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-	  //exit(0);
+	    exit(0);
 		
 		while(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 		  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;		  
@@ -7176,7 +7180,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  //write_benefit_to_txt(1);
+  write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
