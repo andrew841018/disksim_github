@@ -3497,13 +3497,11 @@ void write_benefit_to_txt(int g){
   char tmp[200];
   FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","w");//sector number,block,number,benefit,sector_count
 	for(i=0;i<block_index;i++){
-		for(j=0;j<LRUSIZE;j++){
-		  if(write_buffer->logical_block[i]->block_count!=0 && write_buffer->logical_block[i]->page[j].lpn!=-1){
+		for(j=0;j<write_buffer->logical_block[i]->sector_index;j++){
 			benefit=(float)write_buffer->logical_block[i]->block_count/64;
 			benefit/=64;
 			sprintf(tmp,"%d %d %.20f %d",write_buffer->logical_block[i]->page[j].lpn,write_buffer->logical_block[i]->logical_node_num,benefit,write_buffer->logical_block[i]->page[j].sector_count);
 			fprintf(info,"%s\n",tmp);
-		}
 		}
 	}
 	fclose(info);
@@ -3565,15 +3563,15 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       //ptr_current_mark_node can access all link list.(2022/3/17 add by andrew)
       ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev;
       ptr_buffer_cache->current_mark_offset = 0;
-      mark_for_all_current_block (ptr_buffer_cache);
+     // mark_for_all_current_block (ptr_buffer_cache);
       full_cache = 1;
     }
     else if( full_cache == 1)
     { 
-      mark_for_all_current_block(ptr_buffer_cache);
+    //  mark_for_all_current_block(ptr_buffer_cache);
     }    
   } 
-  A_kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);  
+ // A_kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);  
 }
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -3666,14 +3664,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	//ptr_buffer_cache->ptr_head is circular link list!!!!	
   if(init==1){	
 	 write_buffer=calloc(1,sizeof(buffer_cache));
-	 for(i=0;i<1000;i++){
+	 for(i=0;i<5000;i++){
 		 write_buffer->logical_block[i]=calloc(1,sizeof(lru_node));
 		 write_buffer->logical_block[i]->logical_node_num=-1;
 		 for(j=0;j<64;j++){
 			write_buffer->logical_block[i]->page[j].lpn=-1;
 		 }
 	 } 
-		FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+	/*	FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
 			char buf[1024];
 			char *substr=NULL;
 			const char *const delim=" ";
@@ -3690,7 +3688,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				substr=strtok(NULL,delim);//benefit     
 				benefit_value[physical_block_num]=atof(substr);
 			} 				    
-		fclose(rnn);
+		fclose(rnn);*/
 		init=0;		
 	  }
   int b=0,count=0,block_hit=0,hit_block_index;	  
@@ -7160,7 +7158,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  //write_benefit_to_txt(1);
+  write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
