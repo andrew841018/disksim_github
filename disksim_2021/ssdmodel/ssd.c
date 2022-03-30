@@ -3684,7 +3684,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				sector_num[i][j]=-1;
 			}
 		}	 
-	/*	FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+		FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
 			char buf[1024];
 			char *substr=NULL;
 			const char *const delim=" ";
@@ -3700,13 +3700,15 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				physical_block_num=atoi(substr);
 				substr=strtok(NULL,delim);//benefit     
 				benefit_value[physical_block_num]=atof(substr);
-				} 				    
-		fclose(rnn);*/
+			} 				    
+		fclose(rnn);
 		init=0;		
 	  }
 	else{		
 	}
 	//calculate block and sector hit count	  
+	
+	
 	  int sector;
 	  for(i=0;i<block_index;i++){
 	    for(j=0;j<sector_index[i];j++){		
@@ -3735,8 +3737,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}  
 	if(b==0){//new block and sector
 	    block_num[block_index]=physical_node_num;
-	  //sector_index[block_index] mean the block number=block_index, and this block current writing
-	  //sector number is sector_index[block_index] 
 	    sector=sector_index[block_index];
 	    sector_num[block_index][sector]=blkno;	
 	    sector_count[block_index][sector]++;//sector count;	    	    
@@ -3754,7 +3754,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			break;
 	}
   }
-  ////
 	for(i=0;i<=block_index;i++){
 		if(block_num[i]==physical_node_num){
 			fprintf(t,"%d ",block_count[i]);
