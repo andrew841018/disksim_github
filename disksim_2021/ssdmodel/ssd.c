@@ -68,7 +68,7 @@ unsigned int channel_plane_write_count[8][8]={0};
 typedef struct _buffer_cache
 {
   struct _lru_node *ptr_head;         //lru list ,point to the group node head
-  struct _lru_node *logical_block[1000];
+  struct _lru_node *logical_block[5000];
   double benefit;
   struct _profit *p,*q;
   unsigned int count; 
@@ -3494,7 +3494,7 @@ int sector_index=0;
 void write_benefit_to_txt(int g){
   int i,j,c;
   double benefit;
-  char tmp[100];
+  char tmp[200];
   FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","w");//sector number,block,number,benefit,sector_count
 	for(i=0;i<block_index;i++){
 		for(j=0;j<LRUSIZE;j++){
@@ -3612,6 +3612,7 @@ unsigned int mark_bool[100000000]={0};
 unsigned int skip_block[10000000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
+  printf("begining of Y_add_Pg\n");
   //printf("Y_add_Pg_page_to_cache_buffer\n");
   //fprintf(lpb_ppn, "Y_add_Pg_page\t");
   int flag=0;
@@ -3701,6 +3702,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		block_hit=1;
 		hit_block_index=i;
         if(write_buffer->logical_block[i]->page[j].lpn==blkno){//sector hit
+		  printf("1:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num,blkno,i,j);
           write_buffer->logical_block[i]->block_count++;
           write_buffer->logical_block[i]->page[j].sector_count++;         
           b=1;
@@ -3710,22 +3712,23 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   }
   if(b==0 && block_hit==1){//block overwrite but sector not
 	sector_index=write_buffer->logical_block[hit_block_index]->sector_index;
+	printf("2:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num,blkno,block_index,sector_index);
 	write_buffer->logical_block[hit_block_index]->page[sector_index].lpn=blkno;
 	write_buffer->logical_block[hit_block_index]->block_count++;
 	write_buffer->logical_block[hit_block_index]->page[sector_index].sector_count++;
 	write_buffer->logical_block[hit_block_index]->sector_index++;
   }
   else if(b==0){//new block and new sector
-	printf("block num:%d sector num:%d\n",physical_node_num,blkno);
-    write_buffer->logical_block[block_index]->logical_node_num=physical_node_num;
+	write_buffer->logical_block[block_index]->logical_node_num=physical_node_num;
     sector_index=write_buffer->logical_block[block_index]->sector_index;
+    printf("3:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num,blkno,block_index,sector_index);    
     write_buffer->logical_block[block_index]->page[sector_index].lpn=blkno;
     write_buffer->logical_block[block_index]->block_count++;
-    write_buffer->logical_block[block_index]->page[sector_index].sector_count++;
-    block_index++;
+    write_buffer->logical_block[block_index]->page[sector_index].sector_count++;   
     write_buffer->logical_block[block_index]->sector_index++;
+    block_index++;
     assert(sector_index<=64);
-    assert(block_index<=1000);
+    assert(block_index<=5000);
   }  
 	for(i=0;i<=block_index;i++){
 		if(write_buffer->logical_block[i]->logical_node_num==physical_node_num){
@@ -3784,6 +3787,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			fprintf(skip,"skip block number:%d\n",physical_node_num);			
 			fclose(skip);
 			skip_block[physical_node_num]=1;
+			//fgetc(stdin);
 		}		
 		return flag;
 	  }    
