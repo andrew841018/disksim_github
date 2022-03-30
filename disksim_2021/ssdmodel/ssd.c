@@ -3502,7 +3502,7 @@ void write_benefit_to_txt(int g){
     }
     block_count[i]=c;
   }
-  FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
+  FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","w");//sector number,block,number,benefit,sector_count
 	for(i=0;i<10000;i++){
 		for(j=0;j<10000;j++){
 		  if(block_count[i]!=0 && sector_num[i][j]!=-1){
@@ -3617,6 +3617,8 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 double min2=100000;
 unsigned int mark_bool[100000000]={0};
 unsigned int skip_block[10000000]={0};
+unsigned int enter_block[10000000]={0};
+int enter_block_index=0;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3631,6 +3633,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //so hash_Pg index is logical_node_num in write buffer
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+  enter_block[enter_block_index]=physical_node_num;
+  enter_block_index++;
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
@@ -3680,7 +3684,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				sector_num[i][j]=-1;
 			}
 		}	 
-		FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+	/*	FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
 			char buf[1024];
 			char *substr=NULL;
 			const char *const delim=" ";
@@ -3697,7 +3701,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				substr=strtok(NULL,delim);//benefit     
 				benefit_value[physical_block_num]=atof(substr);
 				} 				    
-		fclose(rnn);
+		fclose(rnn);*/
 		init=0;		
 	  }
 	else{		
@@ -3758,7 +3762,20 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
 	fprintf(t,"%s\n","");	
-	fclose(t);	
+	fclose(t);
+	/*int fit=0;
+	for(i=0;i<enter_block_index;i++){
+		fit=0;
+		for(j=0;j<block_index;j++){
+			if(enter_block[i]==block_num[j]){
+				fit=1;
+			}
+		}
+		if(fit==0){
+			printf("not fit block:%d\n",enter_block[i]);
+		}
+		assert(fit==1);
+	}*/
   while(1)
   {
     if(ptr_lru_node == NULL)
@@ -3808,7 +3825,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			fprintf(skip,"skip block number:%d\n",physical_node_num);			
 			fclose(skip);
 			skip_block[physical_node_num]=1;
-		}
+		}		
 		return flag;
 	  }    
       //write buffer does have this node-->add one
@@ -7180,7 +7197,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  //rite_benefit_to_txt(1);
+  write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
