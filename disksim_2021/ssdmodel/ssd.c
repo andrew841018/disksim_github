@@ -3713,32 +3713,17 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	  for(i=0;i<block_index;i++){
 	    for(j=0;j<sector_index[i];j++){		
 	      if(sector_num[i][j]==blkno && block_num[i]==physical_node_num){//sector overwrite(same block same sector)	
-			//program won't enter there
-			sector_count[i][j]++;		
-			b=1;
-			break;
-		  }	      
+			    sector_count[i][j]++;		
+          b=1;
+		    }	      
 	    }
-	    if(b==1)
-			break;
-	  }
-	  if(b==0){
-		  for(i=0;i<block_index;i++){			  
-		  	if(block_num[i]==physical_node_num){//block overwrite but sector not
-			    //we need two dimension array
-				sector=sector_index[i];//num of sector in block i
-				sector_num[i][sector]=blkno;
-				sector_index[i]++;		    
-				sector_count[i][sector]++;								
-				b=1;
-				break;
-			}														
-		}		
-	}  
+	  } 
 	if(b==0){//new block and sector
-	    block_num[block_index]=physical_node_num;
-	    sector=sector_index[block_index];
-	    sector_num[block_index][sector]=blkno;	
+	    block_num[block_index]=physical_node_num;//第【block_index】個block number是physical_node_num
+	    sector=sector_index[block_index];//在第【block_index】個block中，被寫入到第【sector_index[block_index]】個sector
+      //第【block_index】個block中，第【sector_index[block_index]】個sector所存放的sector number是
+      //sector_num[block_index][sector]
+	    sector_num[block_index][sector]=blkno;
 	    sector_count[block_index][sector]++;//sector count;	    	    
 	    sector_index[block_index]++;
 	    block_index++;	    
@@ -3751,8 +3736,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				c+=sector_count[i][j];//calculate total count in block i
 			}
 			block_count[i]=c;
-			break;
-	}
+      for(j=0;j<10000;j++){
+        assert(sector_count[i][j]>0);
+      }
+      break;
+	  }
   }
 	for(i=0;i<=block_index;i++){
 		if(block_num[i]==physical_node_num){
