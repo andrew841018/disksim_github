@@ -5944,7 +5944,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		  break;
 		}
 	}	
-	assert(current_block[channel_num][plane].trigger==2);
+//	assert(current_block[channel_num][plane].trigger==2);
 }
 void remove_mark_in_the_node(lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache)
 {
