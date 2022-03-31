@@ -5237,7 +5237,7 @@ void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_ca
       current_block[channel_num][plane].current_mark_count=0;
       cur_exist=0;
   }
-  while(cur_exist==0){   
+  while(cur_exist==0 || mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==1){   
     cur_exist=0;
     for(w=0;w<LRUSIZE;w++){
       if(ptr_buffer_cache->ptr_current_mark_node->page[w].exist==1){
@@ -5323,7 +5323,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;		
           assert(current_block[i][j].current_mark_count==0);
           A_mark_for_specific_current_block(ptr_buffer_cache,i,j);
-          assert(current_block[i][j].current_mark_count<=64);
+          assert(current_block[i][j].current_mark_count<=64 && current_block[i][j].current_mark_count>0);
           check_block_exist(current_block[i][j].ptr_lru_node);					
           printf("outside the function:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].ptr_lru_node->benefit);       						                
           assert(current_block[i][j].ptr_lru_node->page[0].channel_num==i);
@@ -5827,9 +5827,9 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(ptr_buffer_cache->current_mark_offset<LRUSIZE)
 	{			
-    if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1){//強制使用block striping(mark部分)
-      ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-    }					
+		if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1){//強制使用block striping(mark部分)
+		  ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
+		}					
 		//mark a write intensive request 
 		//printf("block num:%d exist:%d strip_way:%d offset:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist,ptr_buffer_cache->ptr_current_mark_node->StripWay,ptr_buffer_cache->current_mark_offset);
 		//if exist=1 program must enter this condition--->I tested before.(2022/3/2)
@@ -5845,7 +5845,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
       //fprintf(lpb_ppn, "---%d[%d].channel=%d,plane=%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->current_mark_offset,channel_num,plane);
       //fprintf(cc, "---%d[%d].channel=%d,plane=%d block striping\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->current_mark_offset,channel_num,plane);
 			current_block[channel_num][plane].trigger=2;
-			current_block[channel_num][plane].current_mark_count ++;     
+			current_block[channel_num][plane].cu                     rrent_mark_count ++;     
 		}
 
     if(ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist == 1 && ptr_buffer_cache->ptr_current_mark_node->StripWay==1)
@@ -5947,7 +5947,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		  break;
 		}
 	}	
-//	assert(current_block[channel_num][plane].trigger==2);
+	assert(current_block[channel_num][plane].trigger==2);
 }
 void remove_mark_in_the_node(lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache)
 {
