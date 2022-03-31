@@ -5753,9 +5753,9 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 	{
 		printf("ptr_buffer_cache->ptr_current_mark_node=%d == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 		return;
-    }
+  }
 		//if the current mark node is read intensive
-	mark_for_read_intensive_buffer(ptr_buffer_cache);
+	  mark_for_read_intensive_buffer(ptr_buffer_cache);
 	
 	}
 	//the special channel and plane have had mark request
@@ -5826,7 +5826,10 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		assert(current_block[channel_num][plane].current_mark_count == 0);
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(ptr_buffer_cache->current_mark_offset<LRUSIZE)
-	{								
+	{			
+    if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1){//強制使用block striping(mark部分)
+      ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
+    }					
 		//mark a write intensive request 
 		//printf("block num:%d exist:%d strip_way:%d offset:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist,ptr_buffer_cache->ptr_current_mark_node->StripWay,ptr_buffer_cache->current_mark_offset);
 		//if exist=1 program must enter this condition--->I tested before.(2022/3/2)
