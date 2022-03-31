@@ -3563,15 +3563,15 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       //ptr_current_mark_node can access all link list.(2022/3/17 add by andrew)
       ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev;
       ptr_buffer_cache->current_mark_offset = 0;
-     // mark_for_all_current_block (ptr_buffer_cache);
+      mark_for_all_current_block (ptr_buffer_cache);
       full_cache = 1;
     }
     else if( full_cache == 1)
     { 
-    //  mark_for_all_current_block(ptr_buffer_cache);
+      mark_for_all_current_block(ptr_buffer_cache);
     }    
   } 
- // A_kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);  
+  A_kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);  
 }
 void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -3664,14 +3664,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	//ptr_buffer_cache->ptr_head is circular link list!!!!	
   if(init==1){	
 	 write_buffer=calloc(1,sizeof(buffer_cache));
-	 for(i=0;i<5000;i++){
+	 for(i=0;i<1000;i++){
 		 write_buffer->logical_block[i]=calloc(1,sizeof(lru_node));
 		 write_buffer->logical_block[i]->logical_node_num=-1;
 		 for(j=0;j<64;j++){
 			write_buffer->logical_block[i]->page[j].lpn=-1;
 		 }
 	 } 
-	/*	FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+		FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
 			char buf[1024];
 			char *substr=NULL;
 			const char *const delim=" ";
@@ -3688,48 +3688,62 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				substr=strtok(NULL,delim);//benefit     
 				benefit_value[physical_block_num]=atof(substr);
 			} 				    
-		fclose(rnn);*/
+		fclose(rnn);
 		init=0;		
 	  }
-  int b=0,count=0,block_hit=0,hit_block_index;	  
+  int b=0,count=0,block_hit=0,hit_block_index,add_info=0;
+  int add_block_index,add_sector_index;	  
 	//calculate block and sector hit count	 
 	//in the below code sector=page 
   for(i=0;i<block_index;i++){	//same sector same block overwrite  
     for(j=0;j<write_buffer->logical_block[i]->sector_index;j++){  
-      if(write_buffer->logical_block[i]->logical_node_num==physical_node_num){//block hit
+      if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
 		block_hit=1;
 		hit_block_index=i;
-        if(write_buffer->logical_block[i]->page[j].lpn==blkno){//sector hit
-		  printf("1:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num,blkno,i,j);
+        if(write_buffer->logical_block[i]->page[j].lpn==blkno%LRUSIZE){//sector hit
+		  add_block_index=i;
+		  add_sector_index=j;
+		  printf("1:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num % HASHSIZE,blkno%LRUSIZE,i,j);
           write_buffer->logical_block[i]->block_count++;
           write_buffer->logical_block[i]->page[j].sector_count++;         
           b=1;
+          add_info=1;
         }       
       }
     }
   }
   if(b==0 && block_hit==1){//block overwrite but sector not
 	sector_index=write_buffer->logical_block[hit_block_index]->sector_index;
-	printf("2:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num,blkno,block_index,sector_index);
-	write_buffer->logical_block[hit_block_index]->page[sector_index].lpn=blkno;
+	add_block_index=hit_block_index;
+    add_sector_index=sector_index;
+	printf("2:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num % HASHSIZE,blkno%LRUSIZE,block_index,sector_index);
+	write_buffer->logical_block[hit_block_index]->page[sector_index].lpn=blkno%LRUSIZE;
 	write_buffer->logical_block[hit_block_index]->block_count++;
 	write_buffer->logical_block[hit_block_index]->page[sector_index].sector_count++;
 	write_buffer->logical_block[hit_block_index]->sector_index++;
+	assert(write_buffer->logical_block[hit_block_index]->sector_index<=64);
+	add_info=1;
   }
   else if(b==0){//new block and new sector
-	write_buffer->logical_block[block_index]->logical_node_num=physical_node_num;
+	write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;	
     sector_index=write_buffer->logical_block[block_index]->sector_index;
-    printf("3:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num,blkno,block_index,sector_index);    
-    write_buffer->logical_block[block_index]->page[sector_index].lpn=blkno;
+    add_block_index=block_index;
+    add_sector_index=sector_index;
+    printf("3:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num % HASHSIZE,blkno%LRUSIZE,block_index,sector_index);    
+    write_buffer->logical_block[block_index]->page[sector_index].lpn=blkno%LRUSIZE;
     write_buffer->logical_block[block_index]->block_count++;
     write_buffer->logical_block[block_index]->page[sector_index].sector_count++;   
     write_buffer->logical_block[block_index]->sector_index++;
     block_index++;
-    assert(sector_index<=64);
-    assert(block_index<=5000);
+    assert(write_buffer->logical_block[block_index]->sector_index<=64);
+    assert(block_index<=1000);
+    add_info=1;
   }  
+  assert(add_info==1);
+  assert(write_buffer->logical_block[add_block_index]->logical_node_num==physical_node_num % HASHSIZE);
+  assert(write_buffer->logical_block[add_block_index]->page[add_sector_index].lpn==blkno%LRUSIZE);
 	for(i=0;i<=block_index;i++){
-		if(write_buffer->logical_block[i]->logical_node_num==physical_node_num){
+		if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){
 			fprintf(t,"%d ",write_buffer->logical_block[i]->block_count);
 			break;
 		}
@@ -3774,27 +3788,28 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     Pg_node = Pg_node->next;
 }
+	if(benefit_value[physical_node_num % HASHSIZE]==0){
+		if(skip_block[physical_node_num % HASHSIZE]==0){
+			FILE *skip=fopen("skip.txt","a+");
+			fprintf(skip,"skip block number:%d\n",physical_node_num % HASHSIZE);			
+			fclose(skip);
+			skip_block[physical_node_num % HASHSIZE]=1;
+			//fgetc(stdin);
+		}		
+		return 0;
+   }
   if(Pg_node == NULL)
   {
     //printf("add node\n");
     //fprintf(lpb_ppn, "if(Pg_node == NULL)\tphysical_node_num=%d\n", physical_node_num);
-      flag=0; 
-      if(benefit_value[physical_node_num]==0){
-		if(skip_block[physical_node_num]==0){
-			FILE *skip=fopen("skip.txt","a+");
-			fprintf(skip,"skip block number:%d\n",physical_node_num);			
-			fclose(skip);
-			skip_block[physical_node_num]=1;
-			//fgetc(stdin);
-		}		
-		return flag;
-	  }    
+      flag=0;      		    
       //write buffer does have this node-->add one
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
-      if(benefit_value[physical_node_num]!=0){
-		ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
-	  }	  
+      if(benefit_value[physical_node_num % HASHSIZE]!=0){
+		ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num % HASHSIZE];
+	  }	
+	  return flag;  
   }
   else
   {
@@ -5769,13 +5784,13 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 	}
 	else{
 		g=0;
-		printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+		/*printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 	    exit(0);
 		
 		while(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 		  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;		  
-		}
-		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num];		  					
+		}*/
+		ptr_buffer_cache->ptr_current_mark_node->benefit=0.015;		  					
 		check_block_exist(ptr_buffer_cache->ptr_current_mark_node);
 		for(i=0;i<LRUSIZE;i++){
 			if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==1){
