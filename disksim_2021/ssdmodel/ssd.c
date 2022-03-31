@@ -5311,7 +5311,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               else{ 
                 printf("block number as same as one of block in profit pointer...but channel & plane is not\n");
                 match_block_but_channel_and_plane_is_not(i,j,ptr_buffer_cache);
-			        }                      
+			  }                      
            }
             else{//current block is not in profit pointer             
               not_in_profit_pointer(i,j,ptr_buffer_cache);  
@@ -5778,9 +5778,9 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
     return;
   }
 	int g=9;
-	if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]!=0){
-		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num];
-		printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]);
+	if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]!=0){
+		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];
+		printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]);
 	}
 	else{
 		g=0;
@@ -5800,6 +5800,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 			}//page.exist=2,already finish in "match_for_channel_and_plane_and_block" function 
 		}
 	}
+	run_profit(ptr_buffer_cache,ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
     ptr_buffer_cache->current_mark_offset=0;
     //mark write intensive node
 		if(match==0){
@@ -7173,7 +7174,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  write_benefit_to_txt(1);
+  //write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
