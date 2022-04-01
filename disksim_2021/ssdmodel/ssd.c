@@ -3784,8 +3784,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			FILE *skip=fopen("skip.txt","a+");
 			fprintf(skip,"skip block number:%d\n",physical_node_num % HASHSIZE);			
 			fclose(skip);
-			skip_block[physical_node_num % HASHSIZE]=1;
-			//fgetc(stdin);
+			skip_block[physical_node_num % HASHSIZE]=1;			
+			fgetc(stdin);
 		}		
 		return flag;
 	  }    
@@ -4815,6 +4815,7 @@ end:
 	if(first==1){
 		ptr_buffer_cache->p=start;
 		printf("yoyo~\n");
+		run_profit(ptr_buffer_cache,block_number);
 		check_profit(ptr_buffer_cache);
 	}
 end1:
@@ -5010,6 +5011,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 				run_profit_channel=test->channel_num;
 				run_profit_plane=test->plane;
 			}
+			testing[current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num]=1;
 			printf("block:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
 			printf("(run_profit)end..........\n");
 		}
@@ -5409,6 +5411,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   }		
   if(b1==0){
     printf("b1=0\n");
+    //assert(ptr_buffer_cache->total_buffer_page_num <= ptr_buffer_cache->max_buffer_page_num);
     return;
   }	 	 
   if(initial==1){	
@@ -6146,11 +6149,9 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 	order=ptr_buffer_cache->p;
 	count2=0;
 	int acc[1000000]={0};
-	if(ptr_buffer_cache->count==0){
-		int ggg=3;
-	}
 	if(ptr_buffer_cache->p==NULL){
-		printf("no block can evict...");
+		printf("no block can evict...\n");
+		return;//for temporay
 	}   
 	while(ptr_buffer_cache->p->next!=NULL){
 		printf("channel:%d plane:%d benefit:%f\n",ptr_buffer_cache->p->channel_num,ptr_buffer_cache->p->plane,ptr_buffer_cache->p->benefit);
@@ -6171,6 +6172,9 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		assert(current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->page[0].channel_num==ptr_buffer_cache->p->channel_num);
 		assert(current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->page[0].plane==ptr_buffer_cache->p->plane);		
 		ptr_buffer_cache->p=ptr_buffer_cache->p->next;
+		if(ptr_buffer_cache->p==NULL){
+			break;
+		}
   }
   if(ptr_buffer_cache->p!=NULL && ptr_buffer_cache->p->benefit!=0 && current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num>=0){
 	if(ptr_buffer_cache->p->channel_num==0 && ptr_buffer_cache->p->plane==0){
@@ -7175,7 +7179,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  write_benefit_to_txt(1);
+  //write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
