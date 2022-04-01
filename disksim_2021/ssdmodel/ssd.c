@@ -3691,7 +3691,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		fclose(rnn);
 		init=0;		
 	  }
-  int b=0,count=0,block_hit=0,hit_block_index;	  
+  int b=0,count=0,block_hit=0,hit_block_index,enter_pointer=0,hit_sector_index;	  
 	//calculate block and sector hit count	 
 	//in the below code sector=page 
   for(i=0;i<block_index;i++){	//same sector same block overwrite  
@@ -3702,7 +3702,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
         if(write_buffer->logical_block[i]->page[j].lpn==blkno % LRUSIZE){//sector hit
 		  printf("1:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num % HASHSIZE,blkno % LRUSIZE,i,j);
           write_buffer->logical_block[i]->block_count++;
-          write_buffer->logical_block[i]->page[j].sector_count++;         
+          write_buffer->logical_block[i]->page[j].sector_count++; 
+          enter_pointer=1;        
+          hit_sector_index=j;
           b=1;
         }       
       }
@@ -3715,6 +3717,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	write_buffer->logical_block[hit_block_index]->block_count++;
 	write_buffer->logical_block[hit_block_index]->page[sector_index].sector_count++;
 	write_buffer->logical_block[hit_block_index]->sector_index++;
+	enter_pointer=1;
+	hit_sector_index=sector_index;
   }
   else if(b==0){//new block and new sector
 	write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;
@@ -3724,7 +3728,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     write_buffer->logical_block[block_index]->block_count++;
     write_buffer->logical_block[block_index]->page[sector_index].sector_count++;   
     write_buffer->logical_block[block_index]->sector_index++;
+    hit_block_index=block_index;
+    hit_sector_index=sector_index;
     block_index++;
+    enter_pointer=1;
     assert(sector_index<=64);
     assert(block_index<=1000);
   }  
@@ -3736,6 +3743,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}
 	fprintf(t,"%s\n","");	
 	fclose(t);
+	assert(enter_pointer==1);
+	assert(write_buffer->logical_block[hit_block_index]->logical_node_num==physical_node_num % HASHSIZE);
+	assert(write_buffer->logical_block[hit_block_index]->page[hit_sector_index].lpn==blkno % LRUSIZE);
   while(1)
   {
     if(ptr_lru_node == NULL)
@@ -3785,7 +3795,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			fprintf(skip,"skip block number:%d\n",physical_node_num % HASHSIZE);			
 			fclose(skip);
 			skip_block[physical_node_num % HASHSIZE]=1;			
-			fgetc(stdin);
+			//fgetc(stdin); 
 		}		
 		return flag;
 	  }    
@@ -4906,6 +4916,7 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 			count++;
 		}
 		else{
+			int ggg=3;
 			printf("something wrong...benefit:%f block:%d channel:%d plane:%d\n",tmp->benefit,cur_block,tmp->channel_num,tmp->plane);
 			exit(0);
 		}
@@ -5268,7 +5279,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
-    {   	
+    {	   	
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {				
 		    no_insert=0; 
@@ -5308,8 +5319,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             }
           }
           else{
-			      current_block[i][j].ptr_lru_node=NULL;
-		      }
+			current_block[i][j].ptr_lru_node=NULL;
+		  }
         }
         mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;		
         printf("block number:%d mark_bool:%d\n",mark_block_num,mark_bool[mark_block_num]);
@@ -5358,6 +5369,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!   		   
           if(initial==0 && no_insert==0){
+			assert(current_block[i][j].ptr_lru_node!=NULL);
             insert:
               printf("hiiii\n");		
               //the new block enter,after A_kick kick a block
@@ -5406,9 +5418,14 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         }		
         check_block_exist(current_block[i][j].ptr_lru_node);
         printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);
-      }
+      }   
     } 	  			     
-  }		
+  }	
+	if(current_block[4][3].ptr_lru_node!=NULL){
+		if(current_block[4][3].ptr_lru_node->logical_node_num==128964){
+			int ggg;
+		}
+	  }	
   if(b1==0){
     printf("b1=0\n");
     //assert(ptr_buffer_cache->total_buffer_page_num <= ptr_buffer_cache->max_buffer_page_num);
@@ -5838,7 +5855,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(ptr_buffer_cache->current_mark_offset<LRUSIZE)
 	{			
-		if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1){//強制使用block striping(mark部分)
+		if(ptr_buffer_cache->ptr_current_mark_node->StripWay!=1){//強制使用block striping(mark部分)
 		  ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
 		}					
 		//mark a write intensive request 
@@ -7179,7 +7196,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  //write_benefit_to_txt(1);
+  write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
