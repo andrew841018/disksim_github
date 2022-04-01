@@ -5765,7 +5765,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
       current_block[channel_num][plane].current_mark_count=0;
     }
     else if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==2){
-      current_block[channel_num][plane].current_mark_count++;
+      ptr_buffer_cache->ptr_current_mark_node->page[i].exist=1;
     }
   }
   if(outout==1){
