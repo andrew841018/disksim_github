@@ -5115,6 +5115,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			else{
 				count++;
 				testing[cur_block]=1;
+				A_match_current_block(test->channel_num,test->plane,current_block[test->channel_num][test->plane].ptr_lru_node);
 				assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
 				assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
 				if(block_num!=7){
@@ -5768,10 +5769,10 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
     }
   }
   if(outout==1){
-	  printf("have not marked block\n");
-	  current_block[channel_num][plane].current_mark_count=0;
+	  printf("have not marked block\n"); 
 	  outout=0;//reset outout
   }
+   current_block[channel_num][plane].current_mark_count=0;
     /*sh-- check again: no pages feed for this cur blk */
 	if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL || current_block[channel_num][plane].current_mark_count != 0)
 	{
@@ -5791,6 +5792,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		printf("ptr_buffer_cache->ptr_current_mark_node=%d == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 		return;
   }
+		printf("a_1\n");
 		//if the current mark node is read intensive
 	  mark_for_read_intensive_buffer(ptr_buffer_cache);
 	
@@ -5984,7 +5986,14 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		  break;
 		}
 	}
-	for(i=0;i<LRUSIZE;i++){
+	int execute=0;
+	if(current_block[channel_num][plane].current_mark_count==0){
+		execute=1;
+	}
+	for(i=0;i<LRUSIZE;i++){		
+		if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==2 && execute==1){
+			current_block[channel_num][plane].current_mark_count++;
+		}
 		current_block[channel_num][plane].ptr_lru_node->page[i].channel_num=channel_num;
 		current_block[channel_num][plane].ptr_lru_node->page[i].plane=plane;
 	}	
