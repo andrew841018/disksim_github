@@ -44,7 +44,7 @@
 #define CHANNEL_NUM 8
 #define PLANE_NUM 8
 #define TOTAL_NODE ((512*1024*80)/64)
-int print=0;//any function won't print
+int print=1;//any function won't print
 int kick_node=0,kick_block_strip_node=0,kick_block_strip_sumpage=0;
 int kick_block_striping_page_count=0;
 int kick_page_striping_page_count=0;
@@ -3495,13 +3495,15 @@ void write_benefit_to_txt(int g){
   int i,j,c;
   double benefit;
   char tmp[200];
-  FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","w");//sector number,block,number,benefit,sector_count
+  FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","a+");//sector number,block,number,benefit,sector_count
 	for(i=0;i<block_index;i++){
-		for(j=0;j<write_buffer->logical_block[i]->sector_index;j++){
-			benefit=(float)write_buffer->logical_block[i]->block_count/64;
-			benefit/=64;
-			sprintf(tmp,"%d %d %.20f %d",write_buffer->logical_block[i]->page[j].lpn,write_buffer->logical_block[i]->logical_node_num,benefit,write_buffer->logical_block[i]->page[j].sector_count);
-			fprintf(info,"%s\n",tmp);
+		for(j=0;j<LRUSIZE;j++){
+			if(write_buffer->logical_block[i]->page[j].sector_count>0){
+				benefit=(float)write_buffer->logical_block[i]->block_count/64;
+				benefit/=64;
+				sprintf(tmp,"%d %d %.20f %d",j,write_buffer->logical_block[i]->logical_node_num,benefit,write_buffer->logical_block[i]->page[j].sector_count);
+				fprintf(info,"%s\n",tmp);
+			}
 		}
 	}
 	fclose(info);
@@ -3696,11 +3698,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	//calculate block and sector hit count	 
 	//in the below code sector=page 
   for(i=0;i<block_index;i++){	//same sector same block overwrite  
-    for(j=0;j<write_buffer->logical_block[i]->sector_index;j++){  
+    for(j=0;j<LRUSIZE;j++){  
       if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
 		block_hit=1;
 		hit_block_index=i;
-        if(write_buffer->logical_block[i]->page[j].lpn==blkno % LRUSIZE){//sector hit
+        if(write_buffer->logical_block[i]->page[j].sector_count>=1){//sector hit
 		  //printf("1:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num % HASHSIZE,blkno % LRUSIZE,i,j);
           write_buffer->logical_block[i]->block_count++;
           write_buffer->logical_block[i]->page[j].sector_count++; 
@@ -3712,25 +3714,19 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
   }
   if(b==0 && block_hit==1){//block overwrite but sector not
-	sector_index=write_buffer->logical_block[hit_block_index]->sector_index;
 	//printf("2:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num % HASHSIZE,blkno % LRUSIZE,block_index,sector_index);
-	write_buffer->logical_block[hit_block_index]->page[sector_index].lpn=blkno % LRUSIZE;
+	write_buffer->logical_block[hit_block_index]->page[phy_node_offset].sector_count++;
 	write_buffer->logical_block[hit_block_index]->block_count++;
-	write_buffer->logical_block[hit_block_index]->page[sector_index].sector_count++;
-	write_buffer->logical_block[hit_block_index]->sector_index++;
 	enter_pointer=1;
-	hit_sector_index=sector_index;
+	hit_sector_index=phy_node_offset;
   }
   else if(b==0){//new block and new sector
 	write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;
-    sector_index=write_buffer->logical_block[block_index]->sector_index;
     //printf("3:block num:%d sector num:%d block_index:%d sector_index:%d\n",physical_node_num % HASHSIZE,blkno % LRUSIZE,block_index,sector_index);    
-    write_buffer->logical_block[block_index]->page[sector_index].lpn=blkno % LRUSIZE;
+    write_buffer->logical_block[block_index]->page[phy_node_offset].sector_count++;
     write_buffer->logical_block[block_index]->block_count++;
-    write_buffer->logical_block[block_index]->page[sector_index].sector_count++;   
-    write_buffer->logical_block[block_index]->sector_index++;
     hit_block_index=block_index;
-    hit_sector_index=sector_index;
+    hit_sector_index=phy_node_offset;
     block_index++;
     enter_pointer=1;
     assert(sector_index<=64);
@@ -3746,7 +3742,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	fclose(t);
 	assert(enter_pointer==1);
 	assert(write_buffer->logical_block[hit_block_index]->logical_node_num==physical_node_num % HASHSIZE);
-	assert(write_buffer->logical_block[hit_block_index]->page[hit_sector_index].lpn==blkno % LRUSIZE);
   while(1)
   {
     if(ptr_lru_node == NULL)
@@ -3785,6 +3780,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     Pg_node = Pg_node->next;
 }
+  printf("enter block:%d\n",physical_node_num % HASHSIZE);
   if(Pg_node == NULL)
   {
     //printf("add node\n");
@@ -5773,7 +5769,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
   if(outout==1){
 	  if(print==1)
 		printf("have not marked block\n"); 
-	  outout=0;//reset outout
+	outout=0;//reset outout
   }
    current_block[channel_num][plane].current_mark_count=0;
     /*sh-- check again: no pages feed for this cur blk */
@@ -6269,7 +6265,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
         {
 		  if(print==1)
 			printf("%d:",ptr_lru_node->page[i].exist);
-          if(ptr_lru_node->page[i].exist == 2 && print==1)
+          if(ptr_lru_node->page[i].exist == 2)
           {
             printf("[%d][%d]", ptr_lru_node->page[i].channel_num, ptr_lru_node->page[i].plane);
           }
@@ -7206,7 +7202,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  //write_benefit_to_txt(1);
+  write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
