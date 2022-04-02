@@ -5169,10 +5169,19 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 	}
 }
 void match_for_channel_and_plane_and_block(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
-	while(ptr_buffer_cache->ptr_current_mark_node->logical_node_num==current_block[channel_num][plane].ptr_lru_node->logical_node_num){
-	  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+	int i;
+	assert(current_block[channel_num][plane].current_mark_count==0);
+	for(i=0;i<LRUSIZE;i++){
+		if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
+			current_block[channel_num][plane].ptr_lru_node->page[i].exist=2;
+			current_block[channel_num][plane].current_mark_count++;
+		}
+		else if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==2){
+			current_block[channel_num][plane].current_mark_count++;
+		}
 	}
 }
+
 // same block but different channel_num and plane
 void match_block_but_channel_and_plane_is_not(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
   int w;
@@ -5181,6 +5190,19 @@ void match_block_but_channel_and_plane_is_not(int channel_num,int plane,buffer_c
   while(ptr_buffer_cache->ptr_current_mark_node->logical_node_num==current_block[channel_num][plane].ptr_lru_node->logical_node_num){
     ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
   }
+  profit *p=ptr_buffer_cache->p;
+  while(ptr_buffer_cache->p->next!=NULL){
+	if(current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->benefit!=ptr_buffer_cache->p->benefit){
+		ptr_buffer_cache->p->benefit=current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->benefit;
+	}
+	ptr_buffer_cache->p=ptr_buffer_cache->p->next;
+  }
+  if(ptr_buffer_cache->p!=NULL){
+	if(current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->benefit!=ptr_buffer_cache->p->benefit){
+		ptr_buffer_cache->p->benefit=current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->benefit;
+	}
+  }
+  ptr_buffer_cache->p=p;
 }
 void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
   /*int w;
@@ -5249,6 +5271,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               //進入下列條件式，代表current block 和profit pointer中的block所在位置一模一樣
               if(i==run_profit_channel && j==run_profit_plane){
                 match_for_channel_and_plane_and_block(i,j,ptr_buffer_cache); 
+                continue;
               }
               else{ 
                 printf("block number as same as one of block in profit pointer...but channel & plane is not\n");
@@ -5336,7 +5359,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               assert(tmp[i][j]==current_block[i][j].ptr_lru_node->benefit);
               insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
 			  //A_fix_profit_order(ptr_buffer_cache);
-          //run_profit(ptr_buffer_cache,0);
+			  //run_profit(ptr_buffer_cache,0);
           }   
         }
         else if(mark_bool[mark_block_num]==1){	  		 
