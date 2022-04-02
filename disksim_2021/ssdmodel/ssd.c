@@ -4615,7 +4615,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 					return p;
 				}
 			}
-			if(p->channel_num!=0 && p->plane!=0){
+			if(p->channel_num!=0 || p->plane!=0){
 				printf("4:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num,p->channel_num,p->plane);
 				num_of_block[current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num]++;
 			}
@@ -4654,7 +4654,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 			return p;
 		}
 	}
-	if(p!=NULL){
+	if(p!=NULL && not_enter_loop==0){
 		if(p->channel_num==0 && p->plane==0){
 			if(current_block[0][0].ptr_lru_node!=NULL){
 				if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
@@ -4745,7 +4745,9 @@ void remove_invalid_pointer(buffer_cache *ptr_buffer_cache){
 int match=0;
 void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
   printf("begin of insert_node:%d benefit:%f\n",block_number,benefit);
+  match=0;
   run_profit(ptr_buffer_cache,block_number);
+  assert(match==0);
   mark_bool[block_number]=1; 
   //remove_duplicate_profit(ptr_buffer_cache);
   profit *insert,*prev,*current,*start=calloc(1,sizeof(profit)),*tmp=calloc(1,sizeof(profit)); 
@@ -5095,13 +5097,15 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
 			if(block_num!=7){
 				printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,testing[cur_block]);
+				assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
 				check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
 			}
 			ttt=test;
 		}
-		else{
+		else if(test->benefit!=0){			
+			printf("index:%d block:%d benefit:%f mark:%d channel:%d plane:%d\n",count,cur_block,test->benefit,testing[cur_block],test->channel_num,test->plane);
 			printf("still have duplicate block:%d\n",cur_block);
-			exit(0);
+			exit(0);			
 		}		
 		test=test->next;
 	}
@@ -5122,6 +5126,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 							//retursn;
 						}
 						printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
+						assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
 						check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
 					}
 					ttt=test;
@@ -5144,6 +5149,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 						//return;
 					}
 					printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
+					assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
 					check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
 				}
 				ttt=test;
@@ -5264,12 +5270,14 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           else{
 			current_block[i][j].ptr_lru_node=NULL;
 		  }
-        }
-        mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;	
+        }      	
         match=1;
-        while(match==1 && initial==0){
+        mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
+        //make sure insert block not match and mark_bool=0
+        while(match==1 && initial==0 && mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==1){
+			mark_block_num=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
 			run_profit(ptr_buffer_cache,mark_block_num);
-			if(match==0){
+			if(match==0 && mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0){
 				break;
 			}	
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -5300,9 +5308,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           assert(current_block[i][j].ptr_lru_node->page[0].plane==j);
           second=ptr_buffer_cache->ptr_current_mark_node;
           tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
-          if(initial==0){
-			mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]=1;
-		  }
           //assert(current_block[i][j].ptr_lru_node->logical_node_num==tmp_mark_block); 
           assert(tmp[i][j]>0);	
           if(second==first){
@@ -5326,10 +5331,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               printf("new block:%d benefit:%f\n",current_block[i][j].ptr_lru_node->logical_node_num,tmp[i][j]); 			
               if(i==0 && j==0){
                 zero_is_zero[current_block[i][j].ptr_lru_node->logical_node_num]=1;
-              }     
+              }  
+              assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0);
+              assert(tmp[i][j]==current_block[i][j].ptr_lru_node->benefit);
               insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
-          //run_profit(ptr_buffer_cache,0);
-			  A_fix_profit_order(ptr_buffer_cache);
+			  //A_fix_profit_order(ptr_buffer_cache);
           //run_profit(ptr_buffer_cache,0);
           }   
         }
@@ -5408,6 +5414,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 	  }     
       printf("(when initial==1)ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
       assert(tmp[channel][plane]!=0);
+      assert(current_block[order->channel_num][order->plane].ptr_lru_node->benefit==tmp[channel][plane]);
       order->benefit=tmp[channel][plane];
       tmp[channel][plane]=10;
       order->next=calloc(1,sizeof(profit));
@@ -5743,7 +5750,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		
 		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];		  					
 		check_block_exist(ptr_buffer_cache->ptr_current_mark_node);*/
-		ptr_buffer_cache->ptr_current_mark_node->benefit=0.015;		
+		ptr_buffer_cache->ptr_current_mark_node->benefit=0.019;		
 	}
     ptr_buffer_cache->current_mark_offset=0;
     //mark write intensive node
