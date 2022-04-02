@@ -5143,33 +5143,10 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 		printf("(run_profit)end..........\n");
 	}
 }
-int cur_exist=0,no_insert=0;
+int cur_exist=0;
 void match_for_channel_and_plane_and_block(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
-  int w;
-  //check each page is marked or not
-  for(w=0;w<LRUSIZE;w++){
-    if(current_block[channel_num][plane].ptr_lru_node->page[w].exist==1){
-      cur_exist=1;
-    }
-  }
-  //all block is marked
-  if(cur_exist==0){
-    printf("(all marked)block:%d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num);
-    assert(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==1);	
-  }
-  else{//at leaset one page is not marked
-	printf("have some page not mark\n");
-  }
-	no_insert=1;
-	lru_node *original,*final;
-	original=ptr_buffer_cache->ptr_current_mark_node->prev;
-	final=ptr_buffer_cache->ptr_current_mark_node;
-	while(original!=final){
-		if(original==current_block[channel_num][plane].ptr_lru_node){
-		ptr_buffer_cache->ptr_current_mark_node=original;
-		return;
-	}
-	  original=original->prev;
+	while(ptr_buffer_cache->ptr_current_mark_node==current_block[channel_num][plane].ptr_lru_node){
+	  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 	}
 }
 // same block but different channel_num and plane
@@ -5233,7 +5210,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     {	   	
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {				
-		    no_insert=0; 
 		    match=0; 	
         up:
           if(initial==0){
@@ -5320,7 +5296,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           //切記，所有指標變數都是位置，比如說:profit *a=ptr_buffer_cache->p，這不會讓a被給予所有p的資訊，而是讓a被給予
           //p當下的位置，所以起始位置要先存起來，經過一連串指標的新增,刪除後，所需要做的就是，將起始位置指定給目的地的指標
           //比如說:profit *start儲存起始位置，而目標指標是profit *b,那最後要做的事情就是b=start,這樣就可以掌握所有的指標了!   		   
-          if(initial==0 && no_insert==0){
+          if(initial==0){
 			assert(current_block[i][j].ptr_lru_node!=NULL);
             insert:
               printf("hiiii\n");		
@@ -5359,6 +5335,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   }			
   if(b1==0){
     printf("b1=0\n");
+    printf("total page:%d max_page:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
+    if(ptr_buffer_cache->total_buffer_page_num <= ptr_buffer_cache->max_buffer_page_num){
+		return;
+	}
     assert(ptr_buffer_cache->count>10);//Keep 10 block in evict list
     return;
   }	 	 
