@@ -4569,35 +4569,6 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 	if(p==NULL){
 		return NULL;
 	}
-	if(p!=NULL && p->next!=NULL){
-		if(p->channel_num==0 && p->plane==0){
-			if(current_block[0][0].ptr_lru_node!=NULL){
-				if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
-					printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
-					num_of_block[current_block[0][0].ptr_lru_node->logical_node_num]++;
-				}
-				else{
-					tmp=p->next;
-					free(p);
-					p=NULL;
-				}
-			}
-			else{
-				tmp=p->next;
-				free(p);
-				p=NULL;
-			}
-		}
-		else{
-			if(p->channel_num>8 || p->channel_num<0){
-				tmp=p->next;
-				free(p);
-				p=NULL;
-			}
-			printf("(inside testing function)block number:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
-			num_of_block[current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num]++;
-		}
-	}
 	int count=0;
 	while(p1->next!=NULL){
 		count++;
@@ -4618,8 +4589,8 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 	while(p->next!=NULL){
 		not_enter_loop=0;
 		if(p->next->channel_num==0 && p->next->plane==0){				
-			if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
-				printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
+			if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1 && p->next->benefit!=0){
+				printf("3:(inside testing function)block number:%d channel:%d plane:%d benefit:%f\n",current_block[0][0].ptr_lru_node->logical_node_num,0,0,p->next->benefit);
 				num_of_block[current_block[0][0].ptr_lru_node->logical_node_num]++;
 			}
 			else{
@@ -4644,8 +4615,10 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 					return p;
 				}
 			}
-			printf("(inside testing function)block number:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
-			num_of_block[current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num]++;
+			if(p->channel_num!=0 && p->plane!=0){
+				printf("4:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num,p->channel_num,p->plane);
+				num_of_block[current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num]++;
+			}
 		}		  		
 		p=p->next;
 		if(p==NULL){
@@ -4658,7 +4631,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 		if(p->channel_num==0 && p->plane==0){
 			if(current_block[0][0].ptr_lru_node!=NULL){
 				if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
-					printf("(inside testing function)block number:%d\n",current_block[0][0].ptr_lru_node->logical_node_num);
+					printf("5:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[0][0].ptr_lru_node->logical_node_num,0,0);
 					num_of_block[current_block[0][0].ptr_lru_node->logical_node_num]++;		
 					return p;
 				}
@@ -4676,9 +4649,38 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 			if(p->channel_num>8 || p->channel_num<0){
 				return NULL;
 			}
-			printf("(inside testing function)block number:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
+			printf("6:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num,p->channel_num,p->plane);
 			num_of_block[current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num]++;			
 			return p;
+		}
+	}
+	if(p!=NULL){
+		if(p->channel_num==0 && p->plane==0){
+			if(current_block[0][0].ptr_lru_node!=NULL){
+				if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
+					printf("1:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[0][0].ptr_lru_node->logical_node_num,0,0);
+					num_of_block[current_block[0][0].ptr_lru_node->logical_node_num]++;
+				}
+				else{
+					tmp=p->next;
+					free(p);
+					p=NULL;
+				}
+			}
+			else{
+				tmp=p->next;
+				free(p);
+				p=NULL;
+			}
+		}
+		else{
+			if(p->channel_num>8 || p->channel_num<0){
+				tmp=p->next;
+				free(p);
+				p=NULL;
+			}
+			printf("2:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num,p->channel_num,p->plane);
+			num_of_block[current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num]++;
 		}
 	}
 	for(i=0;i<10000000;i++){
@@ -5429,6 +5431,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       order=order->next;
     }
     assert(look==ptr_buffer_cache->count);
+    test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
 }	
 	//printf("pause\n");
 	//fgetc(stdin);
