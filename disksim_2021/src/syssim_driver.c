@@ -2243,5 +2243,6 @@ int main(int argc, char *argv[])
   fclose(finaloutput);
   fclose(gc_info);
   fclose(gc_info2);
+  gc_info2=fopen("gc_information2.txt","w");
   exit(0);
 }
