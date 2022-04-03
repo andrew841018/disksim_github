@@ -4696,221 +4696,153 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 	p=tmp;
 	return p;
 }
-void remove_invalid_pointer(buffer_cache *ptr_buffer_cache){
-	char buf[1024];
-	int i;	
-	profit *order=ptr_buffer_cache->p;
-	if(order==NULL){
+int match=0;
+int testing[1000000];
+int run_profit_channel,run_profit_plane;
+void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
+	match=0;
+	ttt=calloc(1,sizeof(profit));
+	int i;
+	for(i=0;i<1000000;i++){
+		if(testing[i]!=0){
+			testing[i]=0;
+		}
+	}
+	profit *test=ptr_buffer_cache->p,*prev;
+	int count=0;
+	if(print==1)
+		printf("(run_profit)testing.....................................\n");
+	if(test==NULL){
+		if(print==1){
+			printf("test==NULL\n");
+			printf("(run_profit)end..........\n");
+		}
 		return;
 	}
-	//check curr node
-	memset(buf,"",sizeof(buf));
-	sprintf(buf,"%p\n",ptr_buffer_cache->p);
-	for(i=0;buf[i]!=-1;i++){
-	}
-	if(i<=8){
-		ptr_buffer_cache->p=NULL;
-		ptr_buffer_cache->p=order;
-		return;
-	}
-	else if(buf=="0xffffffff"){
-		ptr_buffer_cache->p=NULL;
-		ptr_buffer_cache->p=order;
-		return;
-	}
-	//check next node
-	memset(buf,-1,sizeof(buf));
-	sprintf(buf,"%p\n",ptr_buffer_cache->p->next);
-	for(i=0;buf[i]!=-1;i++){
-	}
-	if(i<=8){
-		ptr_buffer_cache->p->next=NULL;
-		ptr_buffer_cache->p=order;
-		return;
-	}
-	while(ptr_buffer_cache->p->next!=NULL){
-			memset(buf,-1,sizeof(buf));
-			sprintf(buf,"%p\n",ptr_buffer_cache->p->next);
-			for(i=0;buf[i]!=-1;i++){
+	else if(test->next==NULL){
+		if(test==NULL){
+			return;
+		}
+		else{
+			if(print==1)
+				printf("one node:\n");
+			if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
+				match=1;//the current_block equal to the exist profit pointer block
+				run_profit_channel=test->channel_num;
+				run_profit_plane=test->plane;
 			}
-			if(i<=7){
-				if(ptr_buffer_cache->p->next->next!=NULL){
-					ptr_buffer_cache->p->next=ptr_buffer_cache->p->next->next;
+			testing[current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num]=1;
+			printf("block:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
+			printf("(run_profit)end..........\n");
+		}
+		return;
+	}
+	int next_block,cur_block,duplicate=0,b=0;
+	while(test->next!=NULL){
+		//for some unknown reason,the next_block will move one node
+		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
+		if(cur_block==block_num){		
+			match=1;
+			run_profit_channel=test->channel_num;
+			run_profit_plane=test->plane;
+			//return;
+		}
+		assert(current_block[test->channel_num][test->plane].ptr_lru_node!=NULL);
+		if(test->next->channel_num>8 || test->next->channel_num<0 || test->next->benefit==0){
+			//judge next block exist or not
+			if(test->next->next!=NULL){
+				if(print==1){
+					printf("cur_block:%d channel:%d plane:%d\n",cur_block,test->channel_num,test->plane);
+					printf("(in the middle)this block Invalid\n");
+				}
+				test->next=test->next->next;
+			}
+			else{
+				if(print==1)
+					printf("(in the end)this block Invalid\n");
+				test->next=NULL;
+				break;
+			}
+		} 
+		if(testing[cur_block]==0){
+			count++;
+			int w;
+			for(w=0;w<LRUSIZE;w++){
+				current_block[test->channel_num][test->plane].ptr_lru_node->page[w].channel_num=test->channel_num;
+				current_block[test->channel_num][test->plane].ptr_lru_node->page[w].plane=test->plane;
+			}
+			testing[cur_block]=1;
+			A_match_current_block(test->channel_num,test->plane,current_block[test->channel_num][test->plane].ptr_lru_node);
+			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
+			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
+			if(print==1)
+				printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,testing[cur_block]);
+			assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
+			check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
+			ttt=test;
+		}
+		else if(test->benefit!=0){					
+			printf("index:%d block:%d benefit:%f mark:%d channel:%d plane:%d\n",count,cur_block,test->benefit,testing[cur_block],test->channel_num,test->plane);
+			printf("still have duplicate block:%d\n",cur_block);
+			exit(0);			
+		}		
+		test=test->next;
+	}
+	if(test!=NULL){
+		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
+		if(testing[cur_block]==0 && test->benefit!=0 && current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num>=0){
+			if(test->channel_num==0 && test->plane==0){
+				if(zero_is_zero[current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num]==1){
+					count++;
+					testing[cur_block]=1;
+					assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
+					assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
+					if(cur_block==block_num){		
+						match=1;
+						run_profit_channel=test->channel_num;
+						run_profit_plane=test->plane;
+						//retursn;
+					}
+					if(print==1)
+						printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
+					assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
+					check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
+					ttt=test;
 				}
 				else{
-					ptr_buffer_cache->p->next=NULL;
-					break;
+					test=NULL;
 				}
-			}		
-		ptr_buffer_cache->p=ptr_buffer_cache->p->next;
-	}
-	ptr_buffer_cache->p=order;
-}
-int match=0;
-void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
-  if(print==1)
-	printf("begin of insert_node:%d benefit:%f\n",block_number,benefit);
-  match=0;
-  run_profit(ptr_buffer_cache,block_number);
-  assert(match==0);
-  mark_bool[block_number]=1; 
-  //remove_duplicate_profit(ptr_buffer_cache);
-  profit *insert,*prev,*current,*start=calloc(1,sizeof(profit)),*tmp=calloc(1,sizeof(profit)); 
-  int first=0;
-  insert=ptr_buffer_cache->p; 
-  ptr_buffer_cache->count++;
-  if(print==1)
-	printf("ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
-  tmp=ptr_buffer_cache->p;
-  current=calloc(1,sizeof(profit));
-  prev=calloc(1,sizeof(profit)); 
-  if(ptr_buffer_cache->p!=NULL){
-	ptr_buffer_cache->p=test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
-  } 
-  if(ptr_buffer_cache->p==NULL){
-	not_exist:  
-		printf("there is no block exist....\n");
-		assert(ptr_buffer_cache->count==1);
-		current->benefit=benefit;
-		current->channel_num=channel;
-		current->plane=plane;
-		ptr_buffer_cache->p=current;
-		assert(block_number==current_block[channel][plane].ptr_lru_node->logical_node_num);
-		return; 
-  }  
-  assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
-  assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
-  current=calloc(1,sizeof(profit));
-  prev=calloc(1,sizeof(profit));
-  //one node
-  if(insert!=NULL && insert->next==NULL){
-	  insert=test_not_assign_profit_pointer(insert,zero_is_zero);
-	  printf("only have one node exist\n");
-	  assert(ptr_buffer_cache->count==2);
-	  current->benefit=benefit;
-      current->channel_num=channel;
-      current->plane=plane;  			
-    if(benefit>insert->benefit){
-      insert->next=current;
-      start=insert;
-    }
-    else{
-      current->next=insert;
-      start=current;
-    }
-    first=1;
-  }	
-  //exist more than one node
-  if(insert->next!=NULL){
-    assert(insert->next->channel_num<8 && insert->next->channel_num>=0);
-    assert(insert->next->plane<8 && insert->next->plane>=0);
-    if(print==1)
-		printf("more than one node\n");
-    //the new block is first(benefit is min)
-    if(benefit<=insert->benefit){
-		if(print==1)
-			printf("insert to the first node\n");
-      current->benefit=benefit;
-      current->channel_num=channel;
-      current->plane=plane;
-      current->next=insert;     
-      ptr_buffer_cache->p=current;
-      if(print==1)
-		printf("after...\n");
-      goto end1;
-    }					
-    //insert node is not the first one.
-    int enter=0,reach_finish_line=1;
-    while(insert->next!=NULL && first==0 && insert->next->benefit>0){
-	  assert(current_block[insert->channel_num][insert->plane].ptr_lru_node!=NULL); 
-	  if(insert->next->benefit==0){
-		insert->next=NULL;
-	  } 					             				
-      if(benefit>insert->benefit){
-		if(print==1)
-			printf("insert node not the first one\n");
-        prev=insert;//store previous insert position
-        insert=insert->next;
-        enter=1;
-      }
-      else if(enter==1){
-		  if(print==1)
-			printf("insert in the middle of profit pointer\n");
-        current->benefit=benefit;
-        current->channel_num=channel;
-        current->plane=plane;
-        prev->next=current;
-        current->next=insert;
-        reach_finish_line=0;
-        break;
-      } 
-        									
-    }
-    //leave the while not by break	
-    if(reach_finish_line==1){
-      current->benefit=benefit;
-      current->channel_num=channel;
-      current->plane=plane;
-      current->next=NULL;
-      insert->next=current;
-      ptr_buffer_cache->p=tmp;
-      goto end;
-	}	  
-  }  
-  if(print==1)
-	printf("after insert....\n");
-end:  	
-	assert(block_number==current_block[channel][plane].ptr_lru_node->logical_node_num);
-	if(first==1){
-		ptr_buffer_cache->p=start;
-		if(print==1)
-			printf("yoyo~\n");
-		run_profit(ptr_buffer_cache,block_number);
-		check_profit(ptr_buffer_cache);
-	}
-end1:
-	if(print==1)
-		printf("inside end1\n");
-	//remove_duplicate_profit(ptr_buffer_cache);it will remove one bug...somehow...
-	run_profit(ptr_buffer_cache,block_number);
-	assert(match==1);
-	check_profit(ptr_buffer_cache);	
-	//run_profit(ptr_buffer_cache,current_block[channel][plane].ptr_lru_node->logical_node_num);   
-}
-int mark_block[1000000];
-int mark_count;
-int testing[1000000];
-void A_fix_profit_order(buffer_cache *ptr_buffer_cache){
-	profit *p=ptr_buffer_cache->p,*prev;
-	assert(p!=NULL && p->next!=NULL);
-	int b=0;
-	while(p->next!=NULL){
-	//profit pointer in wrong order
-		if(p->next!=NULL){
-			//in the first
-			if(p->benefit>p->next->benefit && b==0){
-				printf("wrong node in the first\n");
-				ptr_buffer_cache->p=ptr_buffer_cache->p->next;
-				insert_node(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
-				b=1;
 			}
-			if(prev!=NULL && p->next!=NULL){
-				//in the middle
-				if(p->benefit>p->next->benefit){
-					printf("wrong node in the middle\n");
-					prev->next=p->next;
-					insert_node(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
-				}	
-			}			
+			else{
+				count++;
+				testing[cur_block]=1;
+				A_match_current_block(test->channel_num,test->plane,current_block[test->channel_num][test->plane].ptr_lru_node);
+				assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
+				assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
+				if(cur_block==block_num){		
+					match=1;
+					run_profit_channel=test->channel_num;
+					run_profit_plane=test->plane;
+					//return;
+				}
+				if(print==1)
+					printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
+				assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
+				check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
+				ttt=test;
+			}
 		}
-		else{//in the end
-			printf("wrong node in the end\n");
-			prev->next=NULL;
-			insert_node(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
+		else if(testing[cur_block]==1){
+			printf("still have duplicate block:%d\n",cur_block);
+			exit(0);
 		}
-		prev=p;
-		p=p->next;
+		else{
+			test==NULL;
+		}	
 	}
+	assert(ptr_buffer_cache->count==count);
+	if(print==1)
+		printf("(run_profit)end..........\n");
 }
 //check  profit block is match to mark_bool block or not
 void check_profit(buffer_cache *ptr_buffer_cache){
@@ -4931,7 +4863,6 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 		cur_block=current_block[tmp->channel_num][tmp->plane].ptr_lru_node->logical_node_num;
 		if(mark_bool[cur_block]==1){
 			count++;
-			printf("enter..\n");
 			//good
 		}
 		else{
@@ -5011,8 +4942,6 @@ void check_profit(buffer_cache *ptr_buffer_cache){
 	//if call run_profit here,actual profit count will decrease.
 next:
 	ptr_buffer_cache->p=tmp1;
-	if(print==1)
-		printf("(actual run profit pointer)count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
 	assert(count<=ptr_buffer_cache->count);
 	if(ptr_buffer_cache->count!=count){
 		ptr_buffer_cache->count=count;
@@ -5021,8 +4950,6 @@ next:
 	for(i=0;i<1000000;i++){	
 		if(mark_bool[i]==1 && testing[i]==1){
 			mark_bool_num++;
-			if(print==1)
-				printf("index:%d mark block:%d\n",mark_bool_num,i);
 		}
 		//mark_bool=1 but you can't find in profit pointer--->assign mark_bool to 0
 		if(mark_bool[i]==1 && testing[i]==0){
@@ -5038,161 +4965,168 @@ next:
 		ptr_buffer_cache->count=mark_bool_num;
 	}
 	if(print==1){
-		printf("num of profit pointer:%d number of mark_bool:%d\n",ptr_buffer_cache->count,mark_bool_num);	
 		printf("(leave check_profit)all good\n");
 	}
 } 
-int run_profit_channel,run_profit_plane;
-void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
-	match=0;
-	ttt=calloc(1,sizeof(profit));
-	int i;
-	for(i=0;i<1000000;i++){
-		if(testing[i]!=0){
-			testing[i]=0;
-		}
+void insert_node(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
+  if(print==1)
+	printf("begin of insert_node:%d benefit:%f\n",block_number,benefit);
+  match=0;
+  run_profit(ptr_buffer_cache,block_number);
+  assert(match==0);
+  mark_bool[block_number]=1; 
+  //remove_duplicate_profit(ptr_buffer_cache);
+  profit *insert,*prev,*current,*start=calloc(1,sizeof(profit)),*tmp=calloc(1,sizeof(profit)); 
+  int first=0;
+  insert=ptr_buffer_cache->p; 
+  ptr_buffer_cache->count++;
+  if(print==1)
+	printf("ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
+  tmp=ptr_buffer_cache->p;
+  current=calloc(1,sizeof(profit));
+  prev=calloc(1,sizeof(profit)); 
+  if(ptr_buffer_cache->p!=NULL){
+	ptr_buffer_cache->p=test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
+  } 
+  if(ptr_buffer_cache->p==NULL){
+	not_exist:  
+		printf("there is no block exist....\n");
+		assert(ptr_buffer_cache->count==1);
+		current->benefit=benefit;
+		current->channel_num=channel;
+		current->plane=plane;
+		ptr_buffer_cache->p=current;
+		assert(block_number==current_block[channel][plane].ptr_lru_node->logical_node_num);
+		return; 
+  }  
+  assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
+  assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
+  current=calloc(1,sizeof(profit));
+  prev=calloc(1,sizeof(profit));
+  //one node
+  if(insert!=NULL && insert->next==NULL){
+	  insert=test_not_assign_profit_pointer(insert,zero_is_zero);
+	  printf("only have one node exist\n");
+	  assert(ptr_buffer_cache->count==2);
+	  current->benefit=benefit;
+      current->channel_num=channel;
+      current->plane=plane;  			
+    if(benefit>insert->benefit){
+      insert->next=current;
+      start=insert;
+    }
+    else{
+      current->next=insert;
+      start=current;
+    }
+    first=1;
+  }	
+  //exist more than one node
+  if(insert->next!=NULL){
+    assert(insert->next->channel_num<8 && insert->next->channel_num>=0);
+    assert(insert->next->plane<8 && insert->next->plane>=0);
+    if(print==1)
+		printf("more than one node\n");
+    //the new block is first(benefit is min)
+    if(benefit<=insert->benefit){
+		if(print==1)
+			printf("insert to the first node\n");
+      current->benefit=benefit;
+      current->channel_num=channel;
+      current->plane=plane;
+      current->next=insert;     
+      ptr_buffer_cache->p=current;
+      goto end1;
+    }					
+    //insert node is not the first one.
+    int enter=0,reach_finish_line=1;
+    while(insert->next!=NULL && first==0 && insert->next->benefit>0){
+	  assert(current_block[insert->channel_num][insert->plane].ptr_lru_node!=NULL); 
+	  if(insert->next->benefit==0){
+		insert->next=NULL;
+	  } 					             				
+      if(benefit>insert->benefit){
+		if(print==1)
+			printf("insert node not the first one\n");
+        prev=insert;//store previous insert position
+        insert=insert->next;
+        enter=1;
+      }
+      else if(enter==1){
+		  if(print==1)
+			printf("insert in the middle of profit pointer\n");
+        current->benefit=benefit;
+        current->channel_num=channel;
+        current->plane=plane;
+        prev->next=current;
+        current->next=insert;
+        reach_finish_line=0;
+        break;
+      } 
+        									
+    }
+    //leave the while not by break	
+    if(reach_finish_line==1){
+      current->benefit=benefit;
+      current->channel_num=channel;
+      current->plane=plane;
+      current->next=NULL;
+      insert->next=current;
+      ptr_buffer_cache->p=tmp;
+      goto end;
+	}	  
+  }  
+end:  	
+	assert(block_number==current_block[channel][plane].ptr_lru_node->logical_node_num);
+	if(first==1){
+		ptr_buffer_cache->p=start;
+		if(print==1)
+			printf("yoyo~\n");
+		run_profit(ptr_buffer_cache,block_number);
+		check_profit(ptr_buffer_cache);
 	}
-	profit *test=ptr_buffer_cache->p,*prev;
-	int count=0;
+end1:
 	if(print==1)
-		printf("(run_profit)testing.....................................\n");
-	if(test==NULL){
-		if(print==1){
-			printf("test==NULL\n");
-			printf("(run_profit)end..........\n");
+		printf("inside end1\n");
+	//remove_duplicate_profit(ptr_buffer_cache);it will remove one bug...somehow...
+	run_profit(ptr_buffer_cache,block_number);
+	assert(match==1);
+	check_profit(ptr_buffer_cache);	
+	//run_profit(ptr_buffer_cache,current_block[channel][plane].ptr_lru_node->logical_node_num);   
+}
+int mark_block[1000000];
+int mark_count;
+void A_fix_profit_order(buffer_cache *ptr_buffer_cache){
+	profit *p=ptr_buffer_cache->p,*prev;
+	assert(p!=NULL && p->next!=NULL);
+	int b=0;
+	while(p->next!=NULL){
+	//profit pointer in wrong order
+		if(p->next!=NULL){
+			//in the first
+			if(p->benefit>p->next->benefit && b==0){
+				printf("wrong node in the first\n");
+				ptr_buffer_cache->p=ptr_buffer_cache->p->next;
+				insert_node(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
+				b=1;
+			}
+			if(prev!=NULL && p->next!=NULL){
+				//in the middle
+				if(p->benefit>p->next->benefit){
+					printf("wrong node in the middle\n");
+					prev->next=p->next;
+					insert_node(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
+				}	
+			}			
 		}
-		return;
+		else{//in the end
+			printf("wrong node in the end\n");
+			prev->next=NULL;
+			insert_node(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
+		}
+		prev=p;
+		p=p->next;
 	}
-	else if(test->next==NULL){
-		if(test==NULL){
-			return;
-		}
-		else{
-			if(print==1)
-				printf("one node:\n");
-			if(current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num==block_num){
-				match=1;//the current_block equal to the exist profit pointer block
-				run_profit_channel=test->channel_num;
-				run_profit_plane=test->plane;
-			}
-			testing[current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num]=1;
-			printf("block:%d benefit:%f\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num,test->benefit);
-			printf("(run_profit)end..........\n");
-		}
-		return;
-	}
-	int next_block,cur_block,duplicate=0,b=0;
-	while(test->next!=NULL){
-		//for some unknown reason,the next_block will move one node
-		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
-		if(cur_block==block_num){		
-			match=1;
-			run_profit_channel=test->channel_num;
-			run_profit_plane=test->plane;
-			//return;
-		}
-		assert(current_block[test->channel_num][test->plane].ptr_lru_node!=NULL);
-		if(test->next->channel_num>8 || test->next->channel_num<0 || test->next->benefit==0){
-			//judge next block exist or not
-			if(test->next->next!=NULL){
-				if(print==1){
-					printf("cur_block:%d channel:%d plane:%d\n",cur_block,test->channel_num,test->plane);
-					printf("(in the middle)this block Invalid\n");
-				}
-				test->next=test->next->next;
-			}
-			else{
-				if(print==1)
-					printf("(in the end)this block Invalid\n");
-				test->next=NULL;
-				break;
-			}
-		} 
-		if(testing[cur_block]==0){
-			count++;
-			int w;
-			for(w=0;w<LRUSIZE;w++){
-				current_block[test->channel_num][test->plane].ptr_lru_node->page[w].channel_num=test->channel_num;
-				current_block[test->channel_num][test->plane].ptr_lru_node->page[w].plane=test->plane;
-			}
-			testing[cur_block]=1;
-			if(print==1){
-				printf("(curr) channel:%d plane:%d channel:%d plane:%d ",current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num,current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane,test->channel_num,test->plane);
-				printf("block number:%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);			
-			}
-			A_match_current_block(test->channel_num,test->plane,current_block[test->channel_num][test->plane].ptr_lru_node);
-			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
-			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
-			if(print==1)
-				printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,testing[cur_block]);
-			assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
-			check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
-			ttt=test;
-		}
-		else if(test->benefit!=0){					
-			printf("index:%d block:%d benefit:%f mark:%d channel:%d plane:%d\n",count,cur_block,test->benefit,testing[cur_block],test->channel_num,test->plane);
-			printf("still have duplicate block:%d\n",cur_block);
-			exit(0);			
-		}		
-		test=test->next;
-	}
-	if(test!=NULL){
-		cur_block=current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num;
-		if(testing[cur_block]==0 && test->benefit!=0 && current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num>=0){
-			if(test->channel_num==0 && test->plane==0){
-				if(zero_is_zero[current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num]==1){
-					count++;
-					testing[cur_block]=1;
-					assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
-					assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
-					if(cur_block==block_num){		
-						match=1;
-						run_profit_channel=test->channel_num;
-						run_profit_plane=test->plane;
-						//retursn;
-					}
-					if(print==1)
-						printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
-					assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
-					check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
-					ttt=test;
-				}
-				else{
-					test=NULL;
-				}
-			}
-			else{
-				count++;
-				testing[cur_block]=1;
-				A_match_current_block(test->channel_num,test->plane,current_block[test->channel_num][test->plane].ptr_lru_node);
-				assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
-				assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
-				if(cur_block==block_num){		
-					match=1;
-					run_profit_channel=test->channel_num;
-					run_profit_plane=test->plane;
-					//return;
-				}
-				if(print==1)
-					printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
-				assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
-				check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
-				ttt=test;
-			}
-		}
-		else if(testing[cur_block]==1){
-			printf("still have duplicate block:%d\n",cur_block);
-			exit(0);
-		}
-		else{
-			test==NULL;
-		}	
-	}
-	if(print==1)
-		printf("count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);	
-	assert(ptr_buffer_cache->count==count);
-	if(print==1)
-		printf("(run_profit)end..........\n");
 }
 void match_for_channel_and_plane_and_block(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
 	int i;
@@ -5231,37 +5165,6 @@ void match_block_but_channel_and_plane_is_not(int channel_num,int plane,buffer_c
   ptr_buffer_cache->p=p;
 }
 void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_cache){
-  /*int w;
-  cur_exist=0;
-  int no_page=1;
-  for(w=0;w<LRUSIZE;w++){
-    if(current_block[channel_num][plane].ptr_lru_node->page[w].exist==1){
-      cur_exist=1;
-      no_page=0;
-    }
-    else if(current_block[channel_num][plane].ptr_lru_node->page[w].exist==2){
-      current_block[channel_num][plane].current_mark_count++;
-      no_page=0;
-    }
-  }
-  //marked before
-  if(cur_exist==0){
-	  if(no_page==1){//no page exist
-		  printf("no page exist\n");
-		  goto down;
-	  }
-	  printf("current_block:%d\n",current_block[channel_num][plane].ptr_lru_node->logical_node_num);
-	  assert(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==0);
-	  if(benefit_value[current_block[channel_num][plane].ptr_lru_node->logical_node_num]!=0){
-		  current_block[channel_num][plane].ptr_lru_node->benefit=benefit_value[current_block[channel_num][plane].ptr_lru_node->logical_node_num % HASHSIZE];
-	  }
-	  else{
-		printf("not have this block\n");
-		exit(0);
-	  }
-	  return;
-  }	   
-down:	*/
   while(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==1){   
     check_block_exist(ptr_buffer_cache->ptr_current_mark_node);//if no page,this function will call exit(0);    
     ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;    
@@ -5307,18 +5210,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
                 match_block_but_channel_and_plane_is_not(i,j,ptr_buffer_cache);
 			 }                      
            }
-            else{//current block is not in profit pointer             
-              not_in_profit_pointer(i,j,ptr_buffer_cache);  
-              /*
-              if(cur_exist==0){//current_block marked before and not in profit pointer.
-				printf("marked before and not in profit pointer\n");
-                tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;
-                goto insert;
-			  } */  
-			  if(print==1)
-				printf("not in profit pointer:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);        
-              assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0);
-            }
+			else{//current block is not in profit pointer             
+			  not_in_profit_pointer(i,j,ptr_buffer_cache);    
+			  assert(mark_bool[ptr_buffer_cache->ptr_current_mark_node->logical_node_num]==0);
+			}
           }
           else{
 			current_block[i][j].ptr_lru_node=NULL;
@@ -5341,8 +5236,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           int tmp_mark_block=ptr_buffer_cache->ptr_current_mark_node->logical_node_num;
           lru_node *first=ptr_buffer_cache->ptr_current_mark_node,*second;		
           assert(current_block[i][j].current_mark_count==0);
-          if(print==1)
-			printf("ptr_current_mark_node:%d i:%d j:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,i,j);
           A_mark_for_specific_current_block(ptr_buffer_cache,i,j);
           assert(current_block[i][j].current_mark_count<=64 && current_block[i][j].current_mark_count>0);
           //check current_mark_count is correct.
@@ -5365,7 +5258,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           assert(current_block[i][j].ptr_lru_node->page[0].plane==j);
           second=ptr_buffer_cache->ptr_current_mark_node;
           tmp[i][j]=current_block[i][j].ptr_lru_node->benefit;	
-          //assert(current_block[i][j].ptr_lru_node->logical_node_num==tmp_mark_block); 
           assert(tmp[i][j]>0);	
           if(second==first){
             ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -5417,10 +5309,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
             }        
         }	
         b1=1;	
-        check_block_exist(current_block[i][j].ptr_lru_node);
-        if(print==1)
-			printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);
-      }   
+        check_block_exist(current_block[i][j].ptr_lru_node); 
     } 	  			     
   }			
   if(b1==0){
@@ -5505,11 +5394,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       order=order->next;
     }
     assert(look==ptr_buffer_cache->count);
-    test_not_assign_profit_pointer(ptr_buffer_cache->p,zero_is_zero);
 }	
 	//printf("pause\n");
 	//fgetc(stdin);
 	initial=0;		
+}
 }
 void A_match_channel_and_plane(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
 	int i;
@@ -6209,8 +6098,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		}
 	}		
 }
-  if(print==1)
-	printf("order count2:%d ptr_buffer_cache->count:%d\n",count2,ptr_buffer_cache->count);
   assert(count2==ptr_buffer_cache->count);
   ptr_buffer_cache->p=order;   
   int k=0,remove=0; 
@@ -6234,8 +6121,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     }
       order=order->next;
       ptr_buffer_cache->p=order;
-      if(print==1)
-		printf("channel:%d plane:%d\n",channel_num,plane);	
       assert(channel_num >=0 && channel_num < 8);
       assert(plane >=0 && plane < 8);
       //表示要寫入SSD的channel,plane分別是：channel_num,plane，然後寫入的block是ptr_lru_node
@@ -6372,9 +6257,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 				//然後就會直接略過那個block，指向下一個profit pointer，這也就是為什麼一開始都沒問題，到後期就出問題以及
 				//為什麼明明使用了goto，使用前ok，使用後卻出錯，而中間明明就沒有什麼會影響到count的程式碼，這最大的原因
 				//就出在remove_a_page_in_the_node這個function
-				run_profit(ptr_buffer_cache,-1);
-				if(print==1)
-					printf("(after remove)ptr_buffer_cache->count:%d\n",ptr_buffer_cache->count);
 				mark_bool[ptr_lru_node->logical_node_num]=0;	
 				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);				
 				k++;						 		
@@ -6459,10 +6341,7 @@ outside:
 	assert(remove_node==1);
 	kick_channel_times++;
 	ptr_buffer_cache->p=order;
-	run_profit(ptr_buffer_cache,-1);
   }
-  if(print==1)
-	printf("current block mark count:%d\n",current_block[channel_num][plane].current_mark_count);
   assert(current_block[channel_num][plane].current_mark_count==0);
   ptr_buffer_cache->p=order;
   int count=0;
@@ -6504,8 +6383,6 @@ outside:
 			}
 		}
 	  }
-	  if(print==1)
-		printf("(actual)profit pointer count:%d ptr_buffer_cache->count:%d\n",count,ptr_buffer_cache->count);
 	  assert(count==ptr_buffer_cache->count);
 }
  // exit(0);
