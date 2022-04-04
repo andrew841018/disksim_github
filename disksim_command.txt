@@ -1,7 +1,7 @@
 
 for window(vmware): 
 
-./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/ rewrite disksim/trace/run1_Postmark_2475.txt' 1 262144
+./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/block striping/trace/run1_Postmark_2475.txt' 1 262144
 
 
 for mac:
