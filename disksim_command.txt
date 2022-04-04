@@ -4,9 +4,9 @@ for window(vmware):
 ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/block striping/trace/cut_iozone_234204.txt' 1 262144
 
 
-for mac:
+for Linux:
 
- ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/disksim_github/trace/cut_iozone_234204.txt' 1 262144
+ ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/jen/Desktop/disksim/block striping/trace/cut_iozone_234204.txt' 1 262144
 
 
 
