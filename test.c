@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<time.h>
+#include<assert.h>
 typedef struct _profit{
 	int channel_num;
 	int plane;
