@@ -3682,7 +3682,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	tmp1[3]=curr1->busno;
 	tmp1[5]=ptr_buffer_cache->w_miss_count;
 	tmp1[12]=ptr_buffer_cache->w_hit_count;
-	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
+	FILE *t=fopen("info(iozone2).txt","a+");
 	//arrive time,page index,busno,miss count,hit count,physcial_node_num % HASHSIZE,block_write_count
 	fprintf(t,"%f ",tmp[0]);
 	ignore[0]=0;
