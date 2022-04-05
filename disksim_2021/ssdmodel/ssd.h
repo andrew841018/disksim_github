@@ -1,5 +1,5 @@
 // DiskSim SSD support
-// ©2008 Microsoft Corporation. All Rights Reserved
+// ï¿½2008 Microsoft Corporation. All Rights Reserved
 
 #include "disksim_global.h"
 #include "disksim_iosim.h"
@@ -294,7 +294,7 @@ typedef struct _gang_metadata {
 typedef struct _ssd_timing_params {
     int    ssd_model;                   // e.g. SSD_*_MODEL above
     int    nelements;                   // how many concurrent entities (chips)
-    int    page_size;                   // sectors per page
+    int    page_size;                   // sectors per page.....8 sector=1 page
     int    pages_per_block;             // pages per block
     int    blocks_per_element;          // total blocks per chip
     int    element_stride_pages;        // usually 1 or 2

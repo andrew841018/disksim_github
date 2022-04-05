@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\physical\\"
-
 duration_model = tf.keras.models.load_model(addr+'(with ignore)duration_model.h5')
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(for testing)\\"
 data=np.loadtxt(addr+'info(iozone2).txt',delimiter=' ',usecols=range(7))

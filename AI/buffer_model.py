@@ -24,11 +24,10 @@ from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 #for window
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
-buffer=np.loadtxt(addr+'with ignore(RNN paper method)\\(physical)buffer_or_not.txt',delimiter=' ')#cached request index,benefit,size,duration
-
+buffer=np.loadtxt(addr+'trace(used to build RNN)\\physical\\info(run1_Postmark_2475).txt',delimiter=' ')#cached request index,benefit,size,duration
 # for mac   
 #addr='//Users/mhtseng/Desktop/git/disksim_github/collected data(from disksim)/'
-#buffer=np.loadtxt(addr+'with ignore(RNN paper method)/(physical)buffer_or_not.txt',delimiter=' ')
+buffer=np.loadtxt(addr+'with ignore(RNN paper method)/(physical)buffer_or_not.txt',delimiter=' ')
 #for window
 addr1=addr+'trace(used to build RNN)\\physical\\'
 # for mac 
@@ -62,12 +61,13 @@ y_train,y_test=train_test_split(y,random_state=777,train_size=0.8)
 
 
 
-test=np.loadtxt(addr+"trace(for testing)\\info(iozone2).txt",delimiter=' ',usecols=range(7))
+##test=np.loadtxt(addr+"trace(for testing)\\info(iozone2).txt",delimiter=' ',usecols=range(7))
 ########################### build model 
 model=XGBClassifier(n_estimators=100, learning_rate= 0.3)
 model.fit(x_train,y_train)
 model.score(x_train,y_train)
-buffer_or_not=model.predict(test)
+buffer_or_not=model.predict(x_test)
+'''
 hit_count=0
 total=0
 for i in test:# req=trace     
@@ -77,13 +77,13 @@ for i in test:# req=trace
         hit_count+=1
     total+=1 
     print('{:.2%}'.format(hit_count/total))
-        
+'''        
 
             
         
     
     
-np.savetxt('iozone2_buffer_info.txt', model.predict(test))
+np.savetxt('run1_Postmark_2475_buffer_info.txt', model.predict(buffer))
 
 '''
 c=0
