@@ -3680,10 +3680,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	tmp[0]=curr1->arrive_time;
 	tmp1[2]=phy_node_offset;
 	tmp1[3]=curr1->busno;
-	tmp1[5]=curr1->r_count;
-	tmp1[12]=curr1->w_count;	
+	tmp1[5]=ptr_buffer_cache->w_miss_count;
+	tmp1[12]=ptr_buffer_cache->w_hit_count;
 	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
-	//arrive time,page index,busno,r_count,write_count,physcial_node_num % HASHSIZE,block_write_count
+	//arrive time,page index,busno,miss count,hit count,physcial_node_num % HASHSIZE,block_write_count
 	fprintf(t,"%f ",tmp[0]);
 	ignore[0]=0;
 	ignore[1]=1;
