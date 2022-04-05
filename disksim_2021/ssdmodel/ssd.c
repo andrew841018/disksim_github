@@ -104,6 +104,7 @@ typedef struct  _lru_node
 {
   int logical_node_num;        //logical_node_num == lpn / LRUSIZE
   int block_count,sector_index;
+  int duration;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
   buffer_page page[LRUSIZE];          //phy page in the node
@@ -3664,27 +3665,15 @@ int init1=1;
 int logical_block_number=0,total_page_num=0,max_page_num=4000;
 int min_block_index=-1;
 void simulate_all_buffer(int physical_node_num,int page_index){
-  wb=calloc(1,sizeof(buffer_cache));
-  if(init1==1){
-    int i,j;
-    for(i=0;i<HASHSIZE;i++){
-      wb->logical_block[i]->benefit=0;
-      wb->logical_block[i]->logical_node_num=-1;//這裡表示physical_block_number
-      wb->logical_block[i]->duration=-1;
-      for(j=0;j<LRUSIZE;j++){
-        wb->logical_block[i]->page[j].exist=0;
-        wb->logical_block[i]->page[j].sector_count=0;
-      }
-    }
-    init1=0;
-  }
-  int block_hit=0,sector_hit=0,prev_block_index;
+  int i,j;
+  int block_hit=0,sector_hit=0,prev_block_index,hit_block_num;
   for(i=0;i<logical_block_number;i++){
     for(j=0;j<LRUSIZE;j++){
       if(wb->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
         wb->logical_block[i]->duration++;
         wb->logical_block[i]->benefit=benefit_value[physical_node_num % HASHSIZE];
         block_hit=1;
+        hit_block_num=i;
         if(wb->logical_block[i]->page[j].sector_count>=1){//sector hit          
           wb->logical_block[i]->page[j].sector_count++;  
           total_page_num++; 
@@ -3694,42 +3683,47 @@ void simulate_all_buffer(int physical_node_num,int page_index){
    }
   }
   if(block_hit==1 && sector_hit==0){//block overwrite but sector is not
-    wb->logical_block[logical_block_number]->page[page_index].exist=1;
-    wb->logical_block[logical_block_number]->page[page_index].sector_count++;
-    wb->logical_block[logical_block_number]->duration++;
+    wb->logical_block[hit_block_num]->page[page_index].exist=1;
+    wb->logical_block[hit_block_num]->page[page_index].sector_count++;
+    wb->logical_block[hit_block_num]->duration++;
     total_page_num++; 
   }
   else if(block_hit==0 && sector_hit==0){//new block,new sector
-    if(min_block_index>=0){//先用掉剛剛踢掉的block
-      prev_block_index=logical_block_number;
-      logical_block_number=min_block_index;
-    }
+	int enter_loop=0;
+	for(i=0;i<logical_block_number;i++){
+		if(wb->logical_block[i]->logical_node_num==-1){
+			prev_block_index=logical_block_number;
+			logical_block_number=i;
+			enter_loop=1;
+			break;
+		}
+	}
     wb->logical_block[logical_block_number]->logical_node_num=physical_node_num % HASHSIZE;
     wb->logical_block[logical_block_number]->page[page_index].sector_count++;
     wb->logical_block[logical_block_number]->duration++;
     wb->logical_block[logical_block_number]->benefit=benefit_value[physical_node_num % HASHSIZE];
     wb->logical_block[logical_block_number]->page[page_index].exist=1;
-    if(min_block_index>=0){
-      logical_block_number=prev_block_index;//再回存原本的block index
-      min_block_index=-1;
-    }
-    else{
-      logical_block_number++;
-    }  
+    if(enter_loop==1){
+		logical_block_number=prev_block_index;
+	}
+	else{
+		logical_block_number++;
+	}  
     total_page_num++; 
   }
   if(total_page_num>=max_page_num){//write buffer full...
     //select min benefit block to evict
     double min=10000;
     for(i=0;i<logical_block_number;i++){
-      if(min>=wb->logical_block[i]->benefit){
+		assert(wb->logical_block[i]->logical_node_num!=-1);
+      if(min>=wb->logical_block[i]->benefit && wb->logical_block[i]->benefit!=-1){	
         min=wb->logical_block[i]->benefit;
         min_block_index=i;
       }
     }
     FILE *dur=fopen("duration.txt","a+");
     //evict block
-    fprintf(dur,"%d %d",wb->logical_block[min_block_index]->logical_node_num,wb->logical_block[min_block_index]->duration);
+    fprintf(dur,"%d %d\n",wb->logical_block[min_block_index]->logical_node_num,wb->logical_block[min_block_index]->duration);
     fclose(dur);
     wb->logical_block[min_block_index]->benefit=0;
     wb->logical_block[min_block_index]->duration=0;
@@ -3760,6 +3754,21 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]; 
+  if(init1==1){	
+	wb=calloc(1,sizeof(buffer_cache));
+    for(i=0;i<HASHSIZE;i++){
+	  wb->logical_block[i]=calloc(1,sizeof(lru_node));	
+      wb->logical_block[i]->benefit=0;
+      wb->logical_block[i]->logical_node_num=-1;//這裡表示physical_block_number
+      wb->logical_block[i]->duration=-1;
+      for(j=0;j<LRUSIZE;j++){
+        wb->logical_block[i]->page[j].exist=0;
+        wb->logical_block[i]->page[j].sector_count=0;
+      }
+    }
+    init1=0;
+  }
+  simulate_all_buffer(physical_node_num,phy_node_offset);
 	for(i=0;i<100;i++)
 		ignore[i]=-1;
 	tmp[0]=curr1->arrive_time;
