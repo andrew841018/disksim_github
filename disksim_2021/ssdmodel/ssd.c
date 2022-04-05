@@ -3758,7 +3758,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   }  
 	for(i=0;i<=block_index;i++){
 		if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){
-			fprintf(t,"%d ",write_buffer->logical_block[i]->block_count);
+			fprintf(t,"%d",write_buffer->logical_block[i]->block_count);
 			break;
 		}
 	}
