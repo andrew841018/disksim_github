@@ -1,0 +1,41 @@
+Unique page=137168
+flush個數=210715, replacement個數=0
+Sumcount = 234204,Hitcount = 97036 Hit = 41.43
+,miss_ratio=58.567744
+
+****參數顯示****
+[CHEN] HINTGROUP=5, alpha=0.800000
+[CHEN] Trace File=/home/andrew/Desktop/disksim/block striping/trace/cut_iozone_234204.txt, max_req=1, MEM Size=262144
+[CHEN] Pd_FA_count=0,Pd_R_count=73
+[CHEN] FA_count=0,R_count=0
+[CHEN] tot_Rtime=13803182,prstime=58.936577
+[CHEN] fa_hint_count=0
+[CHEN] ft_hint_count=796438
+[CHEN] rp_hint_count=5818
+[CHEN] total_hint_count=802256
+[CHEN] RWRATIO=0.400000, EVICTWINDOW=0.300000
+[CHEN] WB_size = 4000
+[YIFEN] write hit count = 28590 write miss count = 182374 write hit rate = 0.135521
+[YIFEN] read hit count = 249 read miss count = 10638 read hit rate = 0.022871
+[YIFEN] all hit rate = 0.129993
+---[YIFEN] State0=0, State1=0, State2=0
+---[YIFEN] kick_channel_times = 90494 
+
+****Striping 資訊****
+[YIFEN] kick_page_striping_page_count=0, kick_block_striping_page_count=178374, kick_all_page_count = 178374
+---[YIFEN] kick_block_strip_node = 0 | kick_block_strip_sumpage = 0|avg_block_strip_size =-nan
+
+[Yifen] kick_count=88855
+
+**** GC ****
+ytc94u total_live_page_cp_count2 = 3952345,total_gc_count = 65486
+ytc94u average live page num in  victim block = 60.354045
+ytc94u GC_count_per_elem = 178545,GC_count_per_plane = 357090 ,average = 2
+ytc94u average block associate logical block = 25.639216
+
+****Response time****
+all req avg response time: n=215066 average=4.906231 std. deviation=113.743902
+write req avg response time: n=204196 average=3.438030 std. deviation=69.789893
+write_page avg response time: n=210715 average=3.331666 std. deviation=68.704427
+read req avgresponse time: n=10870 average=32.486785 std. deviation=404.571648
+read_page avg response time: n=10887 average=32.436057 std. deviation=404.257691
