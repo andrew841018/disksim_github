@@ -3783,13 +3783,13 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     Pg_node = Pg_node->next;
 } 
-  /*if(ptr_buffer_cache->w_miss_count>0){
+ /* if(ptr_buffer_cache->w_miss_count>0){
 	  double hit_ratio=(float)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count);
-	  if(hit_ratio>0){
+	 // if(hit_ratio>0){
 		FILE *hit=fopen("hit_count.txt","a+");
 		fprintf(hit,"hit count:%d hit ratio:%f miss count:%d\n",ptr_buffer_cache->w_hit_count,hit_ratio,ptr_buffer_cache->w_miss_count);
 		fclose(hit);
-	  }
+	 // }
   }*/
   if(Pg_node == NULL)
   {
@@ -3817,7 +3817,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     //fprintf(lpb_ppn, "if(Pg_node != NULL)\tphysical_node_num=%d\n", physical_node_num);
     //printf("find node\n"); 
     //remove the mark page int the hit node 
-    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+    
+    
+    //remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
   return 0;
@@ -4184,13 +4186,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
   //printf("add_a_page_in_the_node\n");
 	int i,b=0;
 	for(i=0;i<LRUSIZE;i++){
-		if(page_count[logical_node_num % HASHSIZE][i]>200){
-			add_a_page_in_the_node(lpn,logical_node_num,i,ptr_node,ptr_buffer_cache,flag);
-			b=1;
-		}
-	}
-	if(b==0){
-		add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
+		add_a_page_in_the_node(lpn,logical_node_num,i,ptr_node,ptr_buffer_cache,flag);
 	}
 }
 
@@ -6308,10 +6304,10 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 				//的block就會消失，而在下面的run_profit中，就會偵測到有某個block number異常的大或者是負數（因為該block 不存在）
 				//然後就會直接略過那個block，指向下一個profit pointer，這也就是為什麼一開始都沒問題，到後期就出問題以及
 				//為什麼明明使用了goto，使用前ok，使用後卻出錯，而中間明明就沒有什麼會影響到count的程式碼，這最大的原因
-				//就出在remove_a_page_in_the_node這個function
-				run_profit(ptr_buffer_cache,-1);
+				//就出在remove_a_page_in_the_node這個function			
 				mark_bool[ptr_lru_node->logical_node_num]=0;	
-				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);				
+				remove_a_page_in_the_node(k,ptr_lru_node,ptr_buffer_cache,channel_num,plane,0);	
+				run_profit(ptr_buffer_cache,-1);			
 				k++;						 		
 				goto outside;
 			  }
@@ -7136,7 +7132,6 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	if(fgets(buf,1024,rnn)!=NULL){
 		write_benefit_to_txt(1);
 	}
-	write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
