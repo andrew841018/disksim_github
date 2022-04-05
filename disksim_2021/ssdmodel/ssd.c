@@ -3609,6 +3609,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 double min2=100000;
 unsigned int mark_bool[100000000]={0};
 unsigned int skip_block[10000000]={0};
+unsigned int page_count[1000][64];
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("begining of Y_add_Pg\n");
@@ -3676,7 +3677,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			char buf[1024];
 			char *substr=NULL;
 			const char *const delim=" ";
-			int physical_block_num;
+			int physical_block_num,sector_number;
 			int p=-1;
 			if(fgets(buf,1024,rnn)==NULL){
 				printf("fopen return NULL\n");
@@ -3684,10 +3685,13 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			}	
 			while(fgets(buf,1024,rnn)!=NULL){
 				substr=strtok(buf,delim);//sector number	
+				sector_number=atoi(substr);
 				substr=strtok(NULL,delim);//physical block number
 				physical_block_num=atoi(substr);
 				substr=strtok(NULL,delim);//benefit     
 				benefit_value[physical_block_num]=atof(substr);
+				substr=strtok(NULL,delim);//sector_count
+				page_count[physical_block_num][sector_number]=atoi(substr);				
 			} 				    
 		fclose(rnn);
 		init=0;		
@@ -3778,7 +3782,15 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       break;
     }
     Pg_node = Pg_node->next;
-}
+} 
+  /*if(ptr_buffer_cache->w_miss_count>0){
+	  double hit_ratio=(float)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count);
+	  if(hit_ratio>0){
+		FILE *hit=fopen("hit_count.txt","a+");
+		fprintf(hit,"hit count:%d hit ratio:%f miss count:%d\n",ptr_buffer_cache->w_hit_count,hit_ratio,ptr_buffer_cache->w_miss_count);
+		fclose(hit);
+	  }
+  }*/
   if(Pg_node == NULL)
   {
     //printf("add node\n");
@@ -4170,49 +4182,18 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 		ptr_buffer_cache->ptr_head = ptr_node->prev = ptr_node->next = ptr_node;
 	}
   //printf("add_a_page_in_the_node\n");
-	add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
+	int i,b=0;
+	for(i=0;i<LRUSIZE;i++){
+		if(page_count[logical_node_num % HASHSIZE][i]>200){
+			add_a_page_in_the_node(lpn,logical_node_num,i,ptr_node,ptr_buffer_cache,flag);
+			b=1;
+		}
+	}
+	if(b==0){
+		add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
+	}
 }
 
-// void add_a_page_in_the_node(unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache )
-// {
-//   if(ptr_lru_node->page[offset_in_node].exist != 0) 
-//   {
-//     ptr_buffer_cache->w_hit_count ++;
-//     if(ptr_lru_node->page[offset_in_node].lpn == page_RW_count->page_num)
-//     {
-//       LPN_RWtimes[ptr_lru_node->logical_node_num][0] += page_RW_count->r_count;
-//       LPN_RWtimes[ptr_lru_node->logical_node_num][1] += page_RW_count->w_count;
-//     }
-
-//   }
-//   else
-//   { 
-//     ptr_buffer_cache->w_miss_count ++;
-//     ptr_buffer_cache->total_buffer_page_num ++;
-//     ptr_lru_node->buffer_page_num++;
-//     ptr_lru_node->page[offset_in_node].exist = 1;
-//     ptr_lru_node->page[offset_in_node].lpn = logical_node_num * LRUSIZE + offset_in_node;
-    
-//     if(ptr_lru_node->page[offset_in_node].lpn == page_RW_count->page_num)
-//     {
-//       LPN_RWtimes[ptr_lru_node->logical_node_num][0] += page_RW_count->r_count;
-//       LPN_RWtimes[ptr_lru_node->logical_node_num][1] += page_RW_count->w_count;
-//     }
-//   }
-//   if(ptr_lru_node == ptr_buffer_cache->ptr_head)
-//     return ;
-//   ptr_lru_node->prev->next = ptr_lru_node->next;
-//   ptr_lru_node->next->prev = ptr_lru_node->prev;
-  
-//   ptr_lru_node->prev = ptr_buffer_cache->ptr_head->prev;
-//   ptr_lru_node->next = ptr_buffer_cache->ptr_head;
-  
-//   ptr_buffer_cache->ptr_head->prev->next = ptr_lru_node;
-//   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
-  
-//   ptr_buffer_cache->ptr_head = ptr_lru_node;
-  
-// }
 
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
@@ -4856,37 +4837,96 @@ end1:
 	check_profit(ptr_buffer_cache);	
 	//run_profit(ptr_buffer_cache,current_block[channel][plane].ptr_lru_node->logical_node_num);   
 }
+void fix_order(int channel,int plane,double benefit,buffer_cache *ptr_buffer_cache,int block_number){
+  //remove_duplicate_profit(ptr_buffer_cache);
+  profit *insert,*prev,*current,*start=calloc(1,sizeof(profit)),*tmp=calloc(1,sizeof(profit)); 
+  int first=0;
+  insert=ptr_buffer_cache->p; 
+  tmp=ptr_buffer_cache->p;
+  current=calloc(1,sizeof(profit));
+  prev=calloc(1,sizeof(profit)); 
+  if(ptr_buffer_cache->p==NULL){
+	not_exist:  
+		printf("there is no block exist....\n");
+		assert(ptr_buffer_cache->count==1);
+		current->benefit=benefit;
+		current->channel_num=channel;
+		current->plane=plane;
+		ptr_buffer_cache->p=current;
+		assert(block_number==current_block[channel][plane].ptr_lru_node->logical_node_num);
+		return; 
+  }  
+  assert(ptr_buffer_cache->p->channel_num<8 && ptr_buffer_cache->p->channel_num>=0);
+  assert(ptr_buffer_cache->p->plane<8 && ptr_buffer_cache->p->plane>=0);
+  current=calloc(1,sizeof(profit));
+  prev=calloc(1,sizeof(profit)); 	
+    //insert node is not the first one.
+    int enter=0,reach_finish_line=1;
+    while(insert->next!=NULL && first==0 && insert->next->benefit>0){
+	  assert(current_block[insert->channel_num][insert->plane].ptr_lru_node!=NULL); 
+	  if(insert->next->benefit==0){
+		insert->next=NULL;
+	  } 					             				
+      if(benefit>insert->benefit){
+		printf("insert node not the first one\n");
+        prev=insert;//store previous insert position
+        insert=insert->next;
+        enter=1;
+      }
+      else if(enter==1){
+        printf("insert in the middle of profit pointer\n");
+        current->benefit=benefit;
+        current->channel_num=channel;
+        current->plane=plane;
+        prev->next=current;
+        current->next=insert;
+        reach_finish_line=0;
+        break;
+      } 
+        									
+    }
+    //leave the while not by break	
+    if(reach_finish_line==1){
+      current->benefit=benefit;
+      current->channel_num=channel;
+      current->plane=plane;
+      current->next=NULL;
+      insert->next=current;
+      ptr_buffer_cache->p=tmp;
+      goto end;
+	}	    
+end:  	
+	assert(block_number==current_block[channel][plane].ptr_lru_node->logical_node_num);
+	if(first==1){
+		ptr_buffer_cache->p=start;
+		printf("yoyo~\n");
+		run_profit(ptr_buffer_cache,block_number);
+		check_profit(ptr_buffer_cache);
+	} 
+}
 int mark_block[1000000];
 int mark_count;
 int testing[1000000];
 void A_fix_profit_order(buffer_cache *ptr_buffer_cache){
-	profit *p=ptr_buffer_cache->p,*prev;
+	profit *p=ptr_buffer_cache->p,*prev=NULL;
 	assert(p!=NULL && p->next!=NULL);
 	int b=0;
 	while(p->next!=NULL){
 	//profit pointer in wrong order
-		if(p->next!=NULL){
 			//in the first
-			if(p->benefit>p->next->benefit && b==0){
-				printf("wrong node in the first\n");
-				ptr_buffer_cache->p=ptr_buffer_cache->p->next;
-				insert_node(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
-				b=1;
-			}
-			if(prev!=NULL && p->next!=NULL){
-				//in the middle
-				if(p->benefit>p->next->benefit){
-					printf("wrong node in the middle\n");
-					prev->next=p->next;
-					insert_node(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
-				}	
-			}			
+		if(p->benefit>p->next->benefit && b==0){
+			printf("wrong node in the first\n");
+			fix_order(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
+			b=1;
 		}
-		else{//in the end
-			printf("wrong node in the end\n");
-			prev->next=NULL;
-			insert_node(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
-		}
+		if(prev!=NULL){
+			//in the middle
+			if(p->benefit>p->next->benefit){
+				printf("wrong node in the middle\n");
+				prev->next=p->next;
+				fix_order(p->channel_num,p->plane,p->benefit,ptr_buffer_cache,current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num);
+			}	
+		}				
 		prev=p;
 		p=p->next;
 	}
@@ -5316,7 +5356,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
               assert(mark_bool[current_block[i][j].ptr_lru_node->logical_node_num]==0);
               assert(tmp[i][j]==current_block[i][j].ptr_lru_node->benefit);
               insert_node(i,j,tmp[i][j],ptr_buffer_cache,current_block[i][j].ptr_lru_node->logical_node_num);
-			  //A_fix_profit_order(ptr_buffer_cache);
+			  A_fix_profit_order(ptr_buffer_cache);
 			  //run_profit(ptr_buffer_cache,0);
           }   
         }
@@ -7096,7 +7136,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	if(fgets(buf,1024,rnn)!=NULL){
 		write_benefit_to_txt(1);
 	}
-    write_benefit_to_txt(1);
+	write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
