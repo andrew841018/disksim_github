@@ -3658,7 +3658,92 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
 }
-
+buffer_cache *wb;
+double benefit_value[10000000]={0};
+int init1=1;
+int logical_block_number=0,total_page_num=0,max_page_num=4000;
+int min_block_index=-1;
+void simulate_all_buffer(int physical_node_num,int page_index){
+  wb=calloc(1,sizeof(buffer_cache));
+  if(init1==1){
+    int i,j;
+    for(i=0;i<HASHSIZE;i++){
+      wb->logical_block[i]->benefit=0;
+      wb->logical_block[i]->logical_node_num=-1;//這裡表示physical_block_number
+      wb->logical_block[i]->duration=-1;
+      for(j=0;j<LRUSIZE;j++){
+        wb->logical_block[i]->page[j].exist=0;
+        wb->logical_block[i]->page[j].sector_count=0;
+      }
+    }
+    init1=0;
+  }
+  int block_hit=0,sector_hit=0,prev_block_index;
+  for(i=0;i<logical_block_number;i++){
+    for(j=0;j<LRUSIZE;j++){
+      if(wb->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
+        wb->logical_block[i]->duration++;
+        wb->logical_block[i]->benefit=benefit_value[physical_node_num % HASHSIZE];
+        block_hit=1;
+        if(wb->logical_block[i]->page[j].sector_count>=1){//sector hit          
+          wb->logical_block[i]->page[j].sector_count++;  
+          total_page_num++; 
+          sector_hit=1;  
+        }
+     }
+   }
+  }
+  if(block_hit==1 && sector_hit==0){//block overwrite but sector is not
+    wb->logical_block[logical_block_number]->page[page_index].exist=1;
+    wb->logical_block[logical_block_number]->page[page_index].sector_count++;
+    wb->logical_block[logical_block_number]->duration++;
+    total_page_num++; 
+  }
+  else if(block_hit==0 && sector_hit==0){//new block,new sector
+    if(min_block_index>=0){//先用掉剛剛踢掉的block
+      prev_block_index=logical_block_number;
+      logical_block_number=min_block_index;
+    }
+    wb->logical_block[logical_block_number]->logical_node_num=physical_node_num % HASHSIZE;
+    wb->logical_block[logical_block_number]->page[page_index].sector_count++;
+    wb->logical_block[logical_block_number]->duration++;
+    wb->logical_block[logical_block_number]->benefit=benefit_value[physical_node_num % HASHSIZE];
+    wb->logical_block[logical_block_number]->page[page_index].exist=1;
+    if(min_block_index>=0){
+      logical_block_number=prev_block_index;//再回存原本的block index
+      min_block_index=-1;
+    }
+    else{
+      logical_block_number++;
+    }  
+    total_page_num++; 
+  }
+  if(total_page_num>=max_page_num){//write buffer full...
+    //select min benefit block to evict
+    double min=10000;
+    for(i=0;i<logical_block_number;i++){
+      if(min>=wb->logical_block[i]->benefit){
+        min=wb->logical_block[i]->benefit;
+        min_block_index=i;
+      }
+    }
+    FILE *dur=fopen("duration.txt","a+");
+    //evict block
+    fprintf(dur,"%d %d",wb->logical_block[min_block_index]->logical_node_num,wb->logical_block[min_block_index]->duration);
+    fclose(dur);
+    wb->logical_block[min_block_index]->benefit=0;
+    wb->logical_block[min_block_index]->duration=0;
+    wb->logical_block[min_block_index]->logical_node_num=-1;
+    for(i=0;i<LRUSIZE;i++){
+      if(wb->logical_block[min_block_index]->page[i].exist!=0){
+        wb->logical_block[min_block_index]->page[i].exist=0;
+        total_page_num--;
+      }
+      wb->logical_block[min_block_index]->page[i].sector_count=0;    
+    }
+  }
+  assert(logical_block_number<=1000);
+}
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3708,15 +3793,32 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}    
 	fprintf(t,"%d ",physical_node_num % HASHSIZE);	
     if(init==1){
-		write_buffer=calloc(1,sizeof(buffer_cache));
-		for(i=0;i<1000;i++){
-			write_buffer->logical_block[i]=calloc(1,sizeof(lru_node));
-			write_buffer->logical_block[i]->logical_node_num=-1;
-			for(j=0;j<64;j++){
-				write_buffer->logical_block[i]->page[j].sector_count=0;
-			}
-		} 	    
-		init=0;
+      write_buffer=calloc(1,sizeof(buffer_cache));
+      for(i=0;i<1000;i++){
+        write_buffer->logical_block[i]=calloc(1,sizeof(lru_node));
+        write_buffer->logical_block[i]->logical_node_num=-1;
+        for(j=0;j<64;j++){
+          write_buffer->logical_block[i]->page[j].sector_count=0;
+        }
+      } 	 
+      FILE *file=fopen("sector num-physical block num-benefit-sector count.txt","r");
+      char buf[1024];
+      char *substr=NULL;
+      const char *const delim=" ";
+      int physical_block_number,sector_number;
+      if(fgets(buf,1024,file)==NULL){
+        printf("fopen return NULL\n");
+        exit(0);
+      }   
+      while(fgets(buf,1024,file)!=NULL){
+        substr=strtok(buf,delim);//sector number
+        substr=strtok(NULL,delim);//physical block number
+        physical_block_number=atoi(substr);
+        substr=strtok(NULL,delim);//benefit
+        benefit_value[physical_block_number % HASHSIZE]=atof(substr);
+        substr=strtok(NULL,delim);//sector count
+      }
+      init=0;
 	}  
 	int b=0,count=0,block_hit=0,hit_block_index,enter_pointer=0,hit_sector_index;	  
 	//calculate block and sector hit count	 
@@ -3724,8 +3826,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   for(i=0;i<block_index;i++){	//same sector same block overwrite  
     for(j=0;j<LRUSIZE;j++){  
       if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
-		block_hit=1;
-		hit_block_index=i;
+		    block_hit=1;
+		    hit_block_index=i;
         if(write_buffer->logical_block[i]->page[j].sector_count>=1){//sector hit
 		 // printf("1:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,j,i);
           write_buffer->logical_block[i]->block_count++;
@@ -3745,7 +3847,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	hit_sector_index=phy_node_offset;
   }
   else if(b==0){//new block and new sector
-	write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;
+	  write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;
    // printf("3:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,phy_node_offset,block_index);    
     write_buffer->logical_block[block_index]->page[phy_node_offset].sector_count++;
     write_buffer->logical_block[block_index]->block_count++;
