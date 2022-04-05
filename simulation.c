@@ -3,37 +3,26 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+typedef struct _buffer_page{
+	int page_count;	
+	int exist;
+}buffer_page;
 typedef struct write_buffer
 {
-  struct write_buffer *block[40];//write buffer size=1184 blocks, 超過1183，用來存放那些不會被放入write buffer的資訊
+  struct lru_node *block[60];
+}buf;
+typedef struct _lru_node{
+  struct buffer_page page[64];
   int physical_block_number;
-  int full;//0..not full,1...is full         
   float benefit;
-  int free_block;//free block
   int duration;
   int buffer_or_not;
-  int sector_index;
-  int sector_num[64];//total 64 page...each block ppn from 0~63
-}buf;
-int exist[1000000]={0};
-char tmp[1000000][1024];
-int block[1000000],write_count[1000000];
-double benefit[1000000];
+}lru_node;
+double benefit[1000]={0};
 int main(){	
-	int req_count=0;
-    //write buffer size set to 10MB,contained 40 blocks
     clock_t start,end;
     start=clock();
-    int count=0,i,k,j,kick_count=0;
-    for(i=0;i<1000000;i++){
-        block[i]=-1;
-        write_count[i]=0;
-        benefit[i]=0;
-    }
     buf *wb;
-    int enter=0;
-    int testing[100]={0};
-    int test=0;
     char buffer[1024],buffer1[1024],buffer0[1024];
     char *substr=NULL,*substr1=NULL,*substr0=NULL;
     int tmp_block_num;
@@ -41,14 +30,12 @@ int main(){
     int sector_number,sector_number1;
     const char *const delim=" ";
     const char *const delim1=":";
-    int physical_block_num,dur_count=0;//dur_count is the index of duration array, it mean which lpn 
+    int physical_block_num,free_block;
     wb=malloc(sizeof(buf));
-    wb->free_block=40;	
-    for(i=0;i<wb->free_block;i++){
+    free_block=60;	
+    for(i=0;i<free_block;i++){
       wb->block[i]=malloc(sizeof(buf));
       wb->block[i]->duration=0;
-      wb->block[i]->full=0;
-      wb->block[i]->sector_index=0;
       wb->block[i]->physical_block_number=-1;
 		for(j=0;j<64;j++){
 			wb->block[i]->sector_num[j]=-1;
@@ -58,7 +45,10 @@ int main(){
     char dur[50000][100]={0},temp[100]={0};  
     int req_type;   
     // write buffer total 1184 blocks, 1 block=64 pages,  1 req=4kb=1 page=8 sectors
-	FILE *info=fopen("collected data(from disksim)/sector num-logical block num-benefit-sector count.txt","r");
+	FILE *info=fopen("collected data(from disksim)/sector num-physical block num-benefit-sector count.txt","r");
+	if(info==NULL){
+		exit(0);
+	}
 	while(fgets(buffer0,1024,info)!=NULL){
 		substr0=strtok(buffer0,delim);//sector number	
 		sector_number=atoi(substr0);
@@ -72,7 +62,7 @@ int main(){
 		req_count+=atoi(substr0);
 	}
 	fclose(info);
-    FILE *a=fopen("collected data(from disksim)/trace(run1_Postmark_2475).txt","r");
+    FILE *a=fopen("collected data(from disksim)/trace(for simulate)/trace(run1_Postmark_2475).txt","r");
     FILE *result=fopen("duration.txt","a+");
     while (fgets(buffer,1024,a)!=NULL)
     {		
@@ -156,19 +146,17 @@ int main(){
                         // printf("%d\n",atoi(substr1));
                         wb->block[count-1]->physical_block_number=block[sector_number];
                         wb->block[count-1]->benefit=benefit[sector_number];
-                        wb->free_block--; 	
-                        				
+                        wb->free_block--; 	                       				
                 }                                                                            				 	  								
                 }                                                  
             } 
         }            
     }
     fclose(a); 
-   fclose(result);
+    fclose(result);
     end=clock();
     double diff=end-start;
     printf("req_count:%d enter:%d\n",req_count,enter);
     printf("total excution time(s):%20.f\n",diff/CLOCKS_PER_SEC); 
-     
     return 0;
 }
