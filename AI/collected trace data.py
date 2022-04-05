@@ -6,7 +6,6 @@ from keras.utils import np_utils
 from tensorflow.keras.optimizers import Adam
 from sklearn import preprocessing
 from keras.utils.np_utils import * 
-import keras_metrics as km
 import pandas as pd
 import random
 import keras
@@ -21,14 +20,16 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM#, CuDNNLSTM
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from collections import OrderedDict
-addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\trace\\'
-for i in open(addr+'iozone2.txt','r'):
+addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(used to build RNN)\\physical\\'
+for i in open(addr+'info(run1_Postmark_2475).txt','r'):
     s=i.split()[0]+' '
     s+=i.split()[1]+' '
     s+=i.split()[2]+' '
     s+=i.split()[3]+' '
-    s+=i.split()[4]+'\n'
-    with open('trace(inzone2).txt','a') as f:
+    s+=i.split()[4]+' '
+    s+=i.split()[5]+' '
+    s+=i.split()[6]+'\n'
+    with open('info(run1_Postmark_2475).txt','a') as f:
         f.write(s)
     
     
