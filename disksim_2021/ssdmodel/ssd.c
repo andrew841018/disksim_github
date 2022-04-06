@@ -104,7 +104,7 @@ typedef struct  _lru_node
 {
   int logical_node_num;        //logical_node_num == lpn / LRUSIZE
   int block_count,sector_index;
-  int duration;
+  int duration,max;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
   buffer_page page[LRUSIZE];          //phy page in the node
@@ -3667,9 +3667,7 @@ int min_block_index=-1;
 int duration[5000]={0};
 void simulate_all_buffer(int physical_node_num,int page_index){
 	int i,j;
-	
 	int block_hit=0,sector_hit=0,prev_block_index,hit_block_num;
-	
 	//***** ignore code, keep it until need it ******//
 	/*
 	double min=10000;
@@ -3690,7 +3688,6 @@ void simulate_all_buffer(int physical_node_num,int page_index){
   for(i=0;i<logical_block_number;i++){
     for(j=0;j<LRUSIZE;j++){
       if(wb->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
-        wb->logical_block[i]->duration++;
         wb->logical_block[i]->benefit=benefit_value[physical_node_num % HASHSIZE];
         block_hit=1;
         hit_block_num=i;
@@ -3702,12 +3699,12 @@ void simulate_all_buffer(int physical_node_num,int page_index){
         }
      }
    }
+   wb->logical_block[i]->duration++;
   }
   if(block_hit==1 && sector_hit==0){//block overwrite but sector is not
 	printf("block overwrite:%d\n\n",physical_node_num % HASHSIZE);
     wb->logical_block[hit_block_num]->page[page_index].exist=1;
     wb->logical_block[hit_block_num]->page[page_index].sector_count++;
-    wb->logical_block[hit_block_num]->duration++;
     total_page_num++; 
   }
   else if(block_hit==0 && sector_hit==0){//new block,new sector
@@ -3722,7 +3719,6 @@ void simulate_all_buffer(int physical_node_num,int page_index){
 	printf("new sector:%d new block:%d\n\n",page_index,physical_node_num % HASHSIZE);
     wb->logical_block[logical_block_number]->logical_node_num=physical_node_num % HASHSIZE;
     wb->logical_block[logical_block_number]->page[page_index].sector_count++;
-    wb->logical_block[logical_block_number]->duration++;
     wb->logical_block[logical_block_number]->benefit=benefit_value[physical_node_num % HASHSIZE];
     wb->logical_block[logical_block_number]->page[page_index].exist=1;
     total_page_num++; 
@@ -3738,13 +3734,13 @@ void simulate_all_buffer(int physical_node_num,int page_index){
 	  }
    }
     //evict block
-    if(duration[wb->logical_block[min_block_index]->logical_node_num]==0){
-		FILE *dur=fopen("duration.txt","a+");
-		fprintf(dur,"%d %d\n",wb->logical_block[min_block_index]->logical_node_num,wb->logical_block[min_block_index]->duration);
-		fclose(dur);
-		duration[wb->logical_block[min_block_index]->logical_node_num]=1;
+	if(wb->logical_block[min_block_index]->duration==0){
+		wb->logical_block[min_block_index]->duration++;
 	}
-    wb->logical_block[min_block_index]->benefit=0;
+	if(wb->logical_block[min_block_index]->max<wb->logical_block[min_block_index]->duration){
+		wb->logical_block[min_block_index]->max=wb->logical_block[min_block_index]->duration;
+	}
+    wb->logical_block[min_block_index]->benefit=10;
     wb->logical_block[min_block_index]->duration=0;
     wb->logical_block[min_block_index]->logical_node_num=-1;
     for(i=0;i<LRUSIZE;i++){
@@ -6143,7 +6139,16 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  write_benefit_to_txt(1);
+  //write_benefit_to_txt(1);
+  int i;
+  for(i=0;i<5000;i++){
+	if(wb->logical_block[i]->max>0){
+		FILE *dur=fopen("duration.txt","a+");
+		fprintf(dur,"%d %d\n",wb->logical_block[i]->logical_node_num,wb->logical_block[i]->max);
+		fclose(dur);
+	}
+  }
+  
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
