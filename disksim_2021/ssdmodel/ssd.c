@@ -101,16 +101,23 @@ typedef struct _buffer_page
   unsigned int rcover;
   unsigned int wcover;
 }buffer_page;
+<<<<<<< HEAD
 typedef struct _profit{
 	int channel_num;
 	int plane;
 	double benefit;
 	struct _profit *next;
 }profit;
+=======
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
 typedef struct  _lru_node 
 {
   int logical_node_num;        //logical_node_num == lpn / LRUSIZE
   int block_count,sector_index;
+<<<<<<< HEAD
+=======
+  int duration;
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
   buffer_page page[LRUSIZE];          //phy page in the node
@@ -3507,6 +3514,7 @@ void write_benefit_to_txt(int g){
 	}
 	fclose(info);
 }
+
 unsigned int count,blkno;
 unsigned int physical_node_num, phy_node_offset;
 int initial=1;
@@ -3606,16 +3614,120 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
 }
+<<<<<<< HEAD
 double min2=100000;
 unsigned int mark_bool[100000000]={0};
 unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
+=======
+buffer_cache *wb;
+double benefit_value[10000000]={0};
+int init1=1;
+int logical_block_number=0,total_page_num=0,max_page_num=4000;
+int min_block_index=-1;
+int duration[5000]={0};
+void simulate_all_buffer(int physical_node_num,int page_index){
+	int i,j;
+	
+	int block_hit=0,sector_hit=0,prev_block_index,hit_block_num;
+	
+	//***** ignore code, keep it until need it ******//
+	/*
+	double min=10000;
+	for(i=0;i<logical_block_number;i++){
+		assert(wb->logical_block[i]->logical_node_num!=-1);
+		assert(wb->logical_block[i]->benefit!=0);
+	  if(min>=wb->logical_block[i]->benefit){	
+		min=wb->logical_block[i]->benefit;
+		min_block_index=i;
+	  }
+    }
+    
+  if(min>benefit_value[physical_node_num % HASHSIZE]){
+	//ignore current request
+	return;
+  }*/
+  
+  for(i=0;i<logical_block_number;i++){
+    for(j=0;j<LRUSIZE;j++){
+      if(wb->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
+        wb->logical_block[i]->duration++;
+        wb->logical_block[i]->benefit=benefit_value[physical_node_num % HASHSIZE];
+        block_hit=1;
+        hit_block_num=i;
+        if(wb->logical_block[i]->page[j].sector_count>=1 && j==page_index){//sector hit          
+          printf("sector overwrite  block:%d sector:%d\n\n",wb->logical_block[i]->logical_node_num,j);
+          wb->logical_block[i]->page[j].sector_count++;  
+          sector_hit=1;  
+          
+        }
+     }
+   }
+  }
+  if(block_hit==1 && sector_hit==0){//block overwrite but sector is not
+	printf("block overwrite:%d\n\n",physical_node_num % HASHSIZE);
+    wb->logical_block[hit_block_num]->page[page_index].exist=1;
+    wb->logical_block[hit_block_num]->page[page_index].sector_count++;
+    wb->logical_block[hit_block_num]->duration++;
+    total_page_num++; 
+  }
+  else if(block_hit==0 && sector_hit==0){//new block,new sector
+	int enter_loop=0;
+	for(i=0;i<5000;i++){
+		if(wb->logical_block[i]->logical_node_num==-1){
+			logical_block_number=i;
+			enter_loop=1;
+			break;
+		}
+	}
+	printf("new sector:%d new block:%d\n\n",page_index,physical_node_num % HASHSIZE);
+    wb->logical_block[logical_block_number]->logical_node_num=physical_node_num % HASHSIZE;
+    wb->logical_block[logical_block_number]->page[page_index].sector_count++;
+    wb->logical_block[logical_block_number]->duration++;
+    wb->logical_block[logical_block_number]->benefit=benefit_value[physical_node_num % HASHSIZE];
+    wb->logical_block[logical_block_number]->page[page_index].exist=1;
+    total_page_num++; 
+  }
+  printf("total page:%d max page:%d\n\n",total_page_num,max_page_num);
+  if(total_page_num>=max_page_num){//write buffer full...
+    //evict min benefit block
+    double min=10000;
+	for(i=0;i<logical_block_number;i++){
+	  if(min>=wb->logical_block[i]->benefit && wb->logical_block[i]->logical_node_num!=-1 && wb->logical_block[i]->benefit!=0){	
+		min=wb->logical_block[i]->benefit;
+		min_block_index=i;
+	  }
+   }
+    //evict block
+    if(duration[wb->logical_block[min_block_index]->logical_node_num]==0){
+		FILE *dur=fopen("duration.txt","a+");
+		fprintf(dur,"%d %d\n",wb->logical_block[min_block_index]->logical_node_num,wb->logical_block[min_block_index]->duration);
+		fclose(dur);
+		duration[wb->logical_block[min_block_index]->logical_node_num]=1;
+	}
+    wb->logical_block[min_block_index]->benefit=0;
+    wb->logical_block[min_block_index]->duration=0;
+    wb->logical_block[min_block_index]->logical_node_num=-1;
+    for(i=0;i<LRUSIZE;i++){
+      if(wb->logical_block[min_block_index]->page[i].exist!=0){
+        wb->logical_block[min_block_index]->page[i].exist=0;
+        total_page_num--;
+      }
+      wb->logical_block[min_block_index]->page[i].sector_count=0;    
+    }
+  }
+  assert(logical_block_number<=1000);
+}
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("begining of Y_add_Pg\n");
   //printf("Y_add_Pg_page_to_cache_buffer\n");
   //fprintf(lpb_ppn, "Y_add_Pg_page\t");
-  int flag=0;
+  double tmp[2];
+  int i,j,ig=0,ignore[100],flag=0;
+  unsigned long long tmp1[13];
+  char tmp2[100];
   lru_node *ptr_lru_node = NULL, *Pg_node = NULL;
   unsigned int logical_node_num = lpn/LRUSIZE;
   unsigned int offset_in_node = lpn % LRUSIZE;
@@ -3624,22 +3736,48 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //write buffer size=HASHSIZE=1000
   //so hash_Pg index is logical_node_num in write buffer
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
+<<<<<<< HEAD
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   double tmp[2];
 	int i,j,ig=0;
 	unsigned long long tmp1[13];
 	char tmp2[100];
 	int ignore[100];
+=======
+  Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]; 
+  if(init1==1){	
+	wb=calloc(1,sizeof(buffer_cache));
+    for(i=0;i<HASHSIZE;i++){
+	  wb->logical_block[i]=calloc(1,sizeof(lru_node));	
+      wb->logical_block[i]->benefit=0;
+      wb->logical_block[i]->logical_node_num=-1;//這裡表示physical_block_number
+      wb->logical_block[i]->duration=-1;
+      for(j=0;j<LRUSIZE;j++){
+        wb->logical_block[i]->page[j].exist=0;
+        wb->logical_block[i]->page[j].sector_count=0;
+      }
+    }
+    init1=0;
+  }
+  simulate_all_buffer(physical_node_num,phy_node_offset);
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
 	for(i=0;i<100;i++)
 		ignore[i]=-1;
 	tmp[0]=curr1->arrive_time;
-	tmp1[2]=curr1->blkno;
+	tmp1[2]=phy_node_offset;
 	tmp1[3]=curr1->busno;
+<<<<<<< HEAD
 	tmp1[5]=curr1->r_count;
 	tmp1[12]=curr1->w_count;	
 	FILE *t=fopen("info(run1_Postmark_2475).txt","w");
 	//arrive time,blkno,busno,r_count,write_count,physcial_node_num,block_write_count
 	lru_node *temporary=NULL;
+=======
+	tmp1[5]=ptr_buffer_cache->w_miss_count;
+	tmp1[12]=ptr_buffer_cache->w_hit_count;
+	FILE *t=fopen("info(iozone2).txt","w");
+	//arrive time,page index,busno,miss count,hit count,physcial_node_num % HASHSIZE,block_write_count
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
 	fprintf(t,"%f ",tmp[0]);
 	ignore[0]=0;
 	ignore[1]=1;
@@ -3662,6 +3800,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			fprintf(t,"%lld ",tmp1[i]);
 		}  		
 	}    
+<<<<<<< HEAD
 	fprintf(t,"%d ",physical_node_num);		
 	//ptr_buffer_cache->ptr_head is circular link list!!!!	
   if(init==1){	
@@ -3707,13 +3846,59 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			init=0;		
 	  }
   int b=0,count=0,block_hit=0,hit_block_index,enter_pointer=0,hit_sector_index;	  
+=======
+	fprintf(t,"%d ",physical_node_num % HASHSIZE);
+    if(init==1){
+      write_buffer=calloc(1,sizeof(buffer_cache));
+      for(i=0;i<5000;i++){
+        write_buffer->logical_block[i]=calloc(1,sizeof(lru_node));
+        write_buffer->logical_block[i]->logical_node_num=-1;
+        for(j=0;j<64;j++){
+          write_buffer->logical_block[i]->page[j].sector_count=0;
+        }
+      } 	 
+      FILE *file=fopen("sector num-physical block num-benefit-sector count.txt","r");
+      char buf[1024];
+      char *substr=NULL;
+      const char *const delim=" ";
+      int physical_block_number,sector_number;
+      if(fgets(buf,1024,file)==NULL){
+        printf("fopen return NULL\n");
+        exit(0);
+      }
+      else{
+	    substr=strtok(buf,delim);//sector number
+        substr=strtok(NULL,delim);//physical block number
+        physical_block_number=atoi(substr);
+        substr=strtok(NULL,delim);//benefit
+		benefit_value[physical_block_number]=atof(substr);
+        substr=strtok(NULL,delim);//sector count
+	  }
+      while(fgets(buf,1024,file)!=NULL){
+        substr=strtok(buf,delim);//sector number
+        substr=strtok(NULL,delim);//physical block number
+        physical_block_number=atoi(substr);
+        substr=strtok(NULL,delim);//benefit
+		benefit_value[physical_block_number]=atof(substr);
+        substr=strtok(NULL,delim);//sector count
+      }
+      fclose(file);
+      init=0;
+	}  
+	int b=0,count=0,block_hit=0,hit_block_index,enter_pointer=0,hit_sector_index;	  
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
 	//calculate block and sector hit count	 
 	//in the below code sector=page 
   for(i=0;i<block_index;i++){	//same sector same block overwrite  
     for(j=0;j<LRUSIZE;j++){  
       if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
+<<<<<<< HEAD
 		block_hit=1;
 		hit_block_index=i;
+=======
+		    block_hit=1;
+		    hit_block_index=i;
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
         if(write_buffer->logical_block[i]->page[j].sector_count>=1){//sector hit
 		 // printf("1:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,j,i);
           write_buffer->logical_block[i]->block_count++;
@@ -3733,7 +3918,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	hit_sector_index=phy_node_offset;
   }
   else if(b==0){//new block and new sector
+<<<<<<< HEAD
 	write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;
+=======
+	  write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
    // printf("3:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,phy_node_offset,block_index);    
     write_buffer->logical_block[block_index]->page[phy_node_offset].sector_count++;
     write_buffer->logical_block[block_index]->block_count++;
@@ -3746,7 +3935,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   }  
 	for(i=0;i<=block_index;i++){
 		if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){
+<<<<<<< HEAD
 			fprintf(t,"%d ",write_buffer->logical_block[i]->block_count);
+=======
+			fprintf(t,"%d",write_buffer->logical_block[i]->block_count);
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
 			break;
 		}
 	}

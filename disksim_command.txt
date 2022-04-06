@@ -1,5 +1,6 @@
 
 for window(vmware): 
+<<<<<<< HEAD
 
 ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/block striping/trace/run1_Postmark_2475.txt' 1 262144
 
@@ -12,6 +13,16 @@ for Linux:
 
 
 
+=======
+./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/data collect/trace/run1_Postmark_2475.txt' 1 262144
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
 
 
+
+
+
+
+
+
+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
 

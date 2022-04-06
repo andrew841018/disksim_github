@@ -291,6 +291,7 @@ Sizes = [
 
 loadparams complete
 Initialization complete
+<<<<<<< HEAD
 Simulation complete
 
 SIMULATION STATISTICS
@@ -24378,3 +24379,5 @@ Bus #1 (busHBA0) Arbitration wait time distribution
    =  0    <  1    <  2    <  5    < 10    < 15    < 25    < 40    < 60     60+
       0       0       0       0       0       0       0       0       0       0 
 
+=======
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d

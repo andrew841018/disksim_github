@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Unique page=41315
 flush個數=185548, replacement個數=0
 Sumcount = 367940,Hitcount = 326625 Hit = 88.77
@@ -39,3 +40,5 @@ write req avg response time: n=60212 average=8.424690 std. deviation=35.073748
 write_page avg response time: n=185548 average=2.733888 std. deviation=20.365622
 read req avgresponse time: n=2775 average=26.174398 std. deviation=155.624301
 read_page avg response time: n=3186 average=22.797851 std. deviation=145.504689
+=======
+>>>>>>> 320e4d064b6caefd11de3f634306ff2833b3bc0d
