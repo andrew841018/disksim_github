@@ -3709,6 +3709,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		} 				    
 		fclose(rnn);
 		init=0;	
+		physical_block_num=-1;
 		FILE *dur=fopen("duration.txt","r");
 		char buf1[1024];
 		char *substr1=NULL;
@@ -3719,16 +3720,16 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			exit(0);
 		}
 		else{
-			substr=strtok(buf1,delim1);//block number	
+			substr1=strtok(buf1,delim1);//block number	
 			physical_block_num=atoi(substr1);
-			substr=strtok(NULL,delim1);//duration label
+			substr1=strtok(NULL,delim1);//duration label
 			duration_label=atoi(substr1);
 			duration_arr[physical_block_num]=duration_label;//physical_block_num=physical_node_num % HASHSIZE
 		}	
 		while(fgets(buf1,1024,dur)!=NULL){
-			substr=strtok(buf1,delim1);//block number	
+			substr1=strtok(buf1,delim1);//block number	
 			physical_block_num=atoi(substr1);
-			substr=strtok(NULL,delim1);//duration label
+			substr1=strtok(NULL,delim1);//duration label
 			duration_label=atoi(substr1);
 			duration_arr[physical_block_num]=duration_label;//physical_block_num=physical_node_num % HASHSIZE					
 		} 				    
@@ -5298,7 +5299,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   profit *insert,*prev,*current,*start;
   insert=calloc(1,sizeof(profit));//this is important,if you use malloc instead, then it will have some bug.
   //for example:some pointer will be 0x50,it won't be accessed but it is not NULL too.
-  mark_count=0;	  
+  mark_count=0;
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
@@ -5434,7 +5435,24 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
         printf("current_block[%d][%d].mark_count:%d\n",i,j,current_block[i][j].current_mark_count);
       }   
     } 	  			     
-  }			
+  }	
+//*****the  following code need to make some modify *******/
+/*
+  int min=10000,min_i,min_j;	
+  if(initial==0){
+	for(i=0;i<8;i++){
+		for(j=0;j<8;j++){
+			if(current_block[i][j].ptr_lru_node->duration_label==0 && min>current_block[i][j].ptr_lru_node->duration_priority){
+				min=current_block[i][j].ptr_lru_node->duration_priority;
+				min_i=i;
+				min_j=j;
+			}
+		}
+	}
+	printf("min_channel:%d min_plane:%d\n",min_i,min_j);
+	current_block[min_i][min_j].ptr_lru_node->benefit=0.0001;
+  }		
+  */
   if(b1==0){
     printf("b1=0\n");
     printf("total page:%d max_page:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
@@ -6160,23 +6178,68 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
 	printf("middle of A_kick\n");
-    int k=0,remove=0,j,dur_label,dur_priority,min_channel,min_plane; 
-    kick=1; 
-    int min=10000;
-    for(i=0;i<8;i++){
-		for(j=0;j<8;j++){
-			dur_label=current_block[i][j].ptr_lru_node->duration_label;
-			dur_priority=current_block[i][j].ptr_lru_node->duration_priority;
-			if(dur_label==0 && min>dur_priority){//soon label
-				min=dur_priority;
-				min_channel=i;
-				min_plane=j;
+    run_profit(ptr_buffer_cache,-1);	
+	order=ptr_buffer_cache->p;
+	count2=0;
+	int acc[1000000]={0};
+	if(ptr_buffer_cache->p==NULL){
+		printf("no block can evict...\n");
+		return;//for temporay
+	}   
+	while(ptr_buffer_cache->p->next!=NULL){
+		printf("channel:%d plane:%d benefit:%f\n",ptr_buffer_cache->p->channel_num,ptr_buffer_cache->p->plane,ptr_buffer_cache->p->benefit);
+		if(acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==0){
+			count2++;
+			acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]=1;			
+			printf("index:%d benefit:%f logical_block:%d channel:%d plane:%d\n",count2,ptr_buffer_cache->p->benefit,current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num,ptr_buffer_cache->p->channel_num,ptr_buffer_cache->p->plane);	
+		}
+		if(ptr_buffer_cache->p->next->channel_num<0 || ptr_buffer_cache->p->next->channel_num>=8 || ptr_buffer_cache->p->next->benefit==0){
+			if(ptr_buffer_cache->p->next->next!=NULL){
+				ptr_buffer_cache->p->next=ptr_buffer_cache->p->next->next;
+			}
+			else{
+				ptr_buffer_cache->p->next=NULL;
+				break;
 			}
 		}
+		assert(current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->page[0].channel_num==ptr_buffer_cache->p->channel_num);
+		assert(current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->page[0].plane==ptr_buffer_cache->p->plane);		
+		ptr_buffer_cache->p=ptr_buffer_cache->p->next;
+		if(ptr_buffer_cache->p==NULL){
+			break;
+		}
+  }
+  if(ptr_buffer_cache->p!=NULL && ptr_buffer_cache->p->benefit!=0 && current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num>=0){
+	if(ptr_buffer_cache->p->channel_num==0 && ptr_buffer_cache->p->plane==0){
+		if(zero_is_zero[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==1){	
+			if(acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==0){
+				count2++;
+				printf("(..out)index:%d benefit:%f logical_block:%d mark:%d\n",count2,order->benefit,current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]);	
+			}
+			else{
+				printf("duplicate block:%d\n",current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num);
+				exit(0);
+			}
+		}
+		else{
+			ptr_buffer_cache->p=NULL;
+		}
 	}
+	else{
+		if(acc[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]==0){
+			count2++;
+			printf("(.out)index:%d benefit:%f logical_block:%d mark:%d\n",count2,ptr_buffer_cache->p->benefit,current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num,mark_bool[current_block[ptr_buffer_cache->p->channel_num][ptr_buffer_cache->p->plane].ptr_lru_node->logical_node_num]);	
+		}
+	}		
+}
+	printf("order count2:%d ptr_buffer_cache->count:%d\n",count2,ptr_buffer_cache->count);
+  assert(count2==ptr_buffer_cache->count);
+  ptr_buffer_cache->p=order;   
+  int k=0,remove=0; 
+  kick=1; 
   if(no_page_can_evict == 0){ 	
-    channel_num=min_channel;
-    plane=min_plane;   
+    channel_num=order->channel_num;
+    plane=order->plane;   
     printf("channel:%d plane:%d\n",channel_num,plane);
     for(i=0;i<LRUSIZE;i++){
       if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
