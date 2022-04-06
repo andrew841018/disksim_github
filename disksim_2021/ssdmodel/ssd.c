@@ -3682,6 +3682,16 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(fgets(buf,1024,rnn)==NULL){
 				printf("fopen return NULL\n");
 				exit(0);
+			}
+			else{
+				substr=strtok(buf,delim);//sector number	
+				sector_number=atoi(substr);
+				substr=strtok(NULL,delim);//physical block number
+				physical_block_num=atoi(substr);
+				substr=strtok(NULL,delim);//benefit     
+				benefit_value[physical_block_num]=atof(substr);
+				substr=strtok(NULL,delim);//sector_count
+				page_count[physical_block_num][sector_number]=atoi(substr);
 			}	
 			while(fgets(buf,1024,rnn)!=NULL){
 				substr=strtok(buf,delim);//sector number	
@@ -3693,8 +3703,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 				substr=strtok(NULL,delim);//sector_count
 				page_count[physical_block_num][sector_number]=atoi(substr);				
 			} 				    
-		fclose(rnn);
-		init=0;		
+			fclose(rnn);
+			init=0;		
 	  }
   int b=0,count=0,block_hit=0,hit_block_index,enter_pointer=0,hit_sector_index;	  
 	//calculate block and sector hit count	 
@@ -3819,7 +3829,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     //remove the mark page int the hit node 
     
     
-    //remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
   return 0;
@@ -4184,10 +4194,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 		ptr_buffer_cache->ptr_head = ptr_node->prev = ptr_node->next = ptr_node;
 	}
   //printf("add_a_page_in_the_node\n");
-	int i,b=0;
-	for(i=0;i<LRUSIZE;i++){
-		add_a_page_in_the_node(lpn,logical_node_num,i,ptr_node,ptr_buffer_cache,flag);
-	}
+	add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
 }
 
 
@@ -5111,6 +5118,10 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			for(w=0;w<LRUSIZE;w++){
 				current_block[test->channel_num][test->plane].ptr_lru_node->page[w].channel_num=test->channel_num;
 				current_block[test->channel_num][test->plane].ptr_lru_node->page[w].plane=test->plane;
+				/*if(current_block[test->channel_num][test->plane].ptr_lru_node->page[w].exist==1){
+					printf("why?\n");
+					assert(0);
+				}*/
 			}
 			testing[cur_block]=1;
 			printf("(curr) channel:%d plane:%d channel:%d plane:%d ",current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num,current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane,test->channel_num,test->plane);
@@ -5313,7 +5324,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
           for(w=0;w<LRUSIZE;w++){
 			if(current_block[i][j].ptr_lru_node->page[w].exist==2){
 				mark_page_num++;
-			}
+			} 
 		  }
 		  if(mark_page_num>current_block[i][j].current_mark_count){
 			current_block[i][j].current_mark_count=mark_page_num;
@@ -5416,6 +5427,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       assert(order!=NULL);       
       order->channel_num=channel;
       order->plane=plane;
+      for(i=0;i<LRUSIZE;i++){
+		if(current_block[channel][plane].ptr_lru_node->page[i].exist==1){
+			printf("really? not marked?\n");
+			exit(0);
+		}
+	  }
       if(channel==0 && plane==0){
 		zero_is_zero[current_block[order->channel_num][order->plane].ptr_lru_node->logical_node_num]=1;
 	  }
@@ -6163,8 +6180,8 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
     for(i=0;i<LRUSIZE;i++){
       if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==1){
         if(mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]==1){
-          current_block[channel_num][plane].current_mark_count=0;
-          mark_for_all_current_block(ptr_buffer_cache);
+          printf("not marked!!\n");
+          exit(0);
         }
         else{
           printf("have unmark block!! current_block[%d][%d].mark_count:%d block num:%d mark_bool:%d\n",channel_num,plane,current_block[channel_num][plane].current_mark_count,current_block[channel_num][plane].ptr_lru_node->logical_node_num,mark_bool[current_block[channel_num][plane].ptr_lru_node->logical_node_num]);			
