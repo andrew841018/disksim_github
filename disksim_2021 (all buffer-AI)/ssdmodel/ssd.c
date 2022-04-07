@@ -5300,6 +5300,16 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   insert=calloc(1,sizeof(profit));//this is important,if you use malloc instead, then it will have some bug.
   //for example:some pointer will be 0x50,it won't be accessed but it is not NULL too.
   mark_count=0;
+  //*****assign min priority block(soon LRU) with min benefit *******/
+  int min,min_i,min_j;	
+  if(ptr_buffer_cache->ptr_current_mark_node!=NULL){
+	lru_node *curr_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+	while(ptr_buffer_cache->ptr_current_mark_node!=curr_mark_node){
+	}
+	
+  }
+    
+ }		
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
@@ -5436,23 +5446,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       }   
     } 	  			     
   }	
-//*****the  following code need to make some modify *******/
-/*
-  int min=10000,min_i,min_j;	
-  if(initial==0){
-	for(i=0;i<8;i++){
-		for(j=0;j<8;j++){
-			if(current_block[i][j].ptr_lru_node->duration_label==0 && min>current_block[i][j].ptr_lru_node->duration_priority){
-				min=current_block[i][j].ptr_lru_node->duration_priority;
-				min_i=i;
-				min_j=j;
-			}
-		}
-	}
-	printf("min_channel:%d min_plane:%d\n",min_i,min_j);
-	current_block[min_i][min_j].ptr_lru_node->benefit=0.0001;
-  }		
-  */
+
   if(b1==0){
     printf("b1=0\n");
     printf("total page:%d max_page:%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
@@ -5832,7 +5826,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
     return;
   }
 	if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]!=0){
-		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];
+		//ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];
 		printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]);
 	}
 	else{		
