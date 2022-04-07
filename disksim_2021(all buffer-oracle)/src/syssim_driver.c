@@ -1904,12 +1904,13 @@ int main(int argc, char *argv[])
     while(fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W)!= EOF) //接收新的request
     //while(myreqcount<reqamount)
     {
-      //myreqcount++;
+	  gc_info2 = fopen("gc_information2.txt","w");
+	  fclose(gc_info2);
       //fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W);
       //fprintf(myoutput,"time:%lf,devno:%ld,blnum:%ld,size:%ld,R_W:%ld\n",time,devno,blnum,size,R_W);
       ReqCount++;
       test_RQ++;
-      printf("----接收新的request----|ReqCount=%d\n", ReqCount);
+      printf("----接收新的request----|ReqCount=%d\n", ReqCount);     
       FILE *wb=fopen("wb.txt","w");      
       fprintf(wb,"request:%d\n",ReqCount);
       fclose(wb);
@@ -2243,6 +2244,5 @@ int main(int argc, char *argv[])
   fclose(finaloutput);
   fclose(gc_info);
   fclose(gc_info2);
-  gc_info2=fopen("gc_information2.txt","w");
   exit(0);
 }

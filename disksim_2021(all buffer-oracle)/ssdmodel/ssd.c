@@ -3829,7 +3829,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     //remove the mark page int the hit node 
     
     
-    //remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
   return 0;
@@ -4195,12 +4195,12 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	}
   //printf("add_a_page_in_the_node\n");
 	int i;
-	for(i=0;i<LRUSIZE;i++){
+	/*for(i=0;i<LRUSIZE;i++){
 		if(ptr_node->page[i].exist==0){
 			add_a_page_in_the_node(lpn,logical_node_num,i,ptr_node,ptr_buffer_cache,flag);
 		}
-	}
-	//add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
+	}*/
+	add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
 }
 
 
@@ -7155,7 +7155,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	if(fgets(buf,1024,rnn)!=NULL){
 		write_benefit_to_txt(1);
 	}
-	write_benefit_to_txt(1);
+	//write_benefit_to_txt(1);
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
