@@ -3848,7 +3848,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
       if(benefit_value[physical_node_num]!=0){
-		ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
+		//ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
 	  }	  
   }
   else
@@ -5302,12 +5302,39 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   mark_count=0;
   //*****assign min priority block(soon LRU) with min benefit *******/
   int min,min_i,min_j;	
+  double max=0,max1=0;
+  lru_node *curr_mark_node=ptr_buffer_cache->ptr_current_mark_node;
   if(ptr_buffer_cache->ptr_current_mark_node!=NULL){
-	lru_node *curr_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-	while(ptr_buffer_cache->ptr_current_mark_node!=curr_mark_node){
+	while(1){		
+		switch(ptr_buffer_cache->ptr_current_mark_node->duration_label){
+			printf("label:%d priority:%d\n",ptr_buffer_cache->ptr_current_mark_node->duration_label,ptr_buffer_cache->ptr_current_mark_node->duration_priority);
+			case 0://soon
+				ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.0001;
+				if(max<ptr_buffer_cache->ptr_current_mark_node->benefit){
+					max=ptr_buffer_cache->ptr_current_mark_node->benefit;
+				}
+				break;
+			case 1://mean
+				ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.001;
+				while(ptr_buffer_cache->ptr_current_mark_node->benefit>max){
+					ptr_buffer_cache->ptr_current_mark_node->benefit=max+0.001;
+				}
+				if(max1<ptr_buffer_cache->ptr_current_mark_node->benefit){
+					max1=ptr_buffer_cache->ptr_current_mark_node->benefit;
+				}
+				break;
+			case 2://late
+				ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.01;
+				while(ptr_buffer_cache->ptr_current_mark_node->benefit>max1){
+					ptr_buffer_cache->ptr_current_mark_node->benefit=max1+0.01;
+				}
+				break;		
+		}		
+		ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+		if(ptr_buffer_cache->ptr_current_mark_node==curr_mark_node){
+			break;
+		}
 	}
-	
-  }
     
  }		
   for(i = 0;i < CHANNEL_NUM;i++)
@@ -5528,11 +5555,11 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       check_block_exist(current_block[order->channel_num][order->plane].ptr_lru_node);
       order=order->next;
     }
-    assert(look==ptr_buffer_cache->count);
-}	
+    assert(look==ptr_buffer_cache->count);	
 	//printf("pause\n");
 	//fgetc(stdin);
-	initial=0;		
+	initial=0;	
+	}	
 }
 void A_match_channel_and_plane(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane){
 	int i;
