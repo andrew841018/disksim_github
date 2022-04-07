@@ -3847,9 +3847,18 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       //write buffer does have this node-->add one
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
-      if(benefit_value[physical_node_num]!=0){
-		ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
-	  }	  
+      switch(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_label){
+		  case 0:
+			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_priority+1)*0.0000001;
+			break;
+		  case 1:
+			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_priority+1)*0.1;
+			break;
+		  case 2:
+		  	ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_priority+1)*100000;
+		  break;
+	  
+	  }  
   }
   else
   {
@@ -4655,7 +4664,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 	if(p!=NULL && p->next==NULL && not_enter_loop==1){
 		printf("only have one node condition...\n");
 		if(p->channel_num==0 && p->plane==0){
-			if(current_block[0][0].ptr_lru_node!=NULL){
+			if(current_block[0][0].ptr_lru_node!=NULL && p->benefit!=0){
 				if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
 					//printf("5:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[0][0].ptr_lru_node->logical_node_num,0,0);
 					num_of_block[current_block[0][0].ptr_lru_node->logical_node_num]++;		
@@ -4680,6 +4689,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 			return p;
 		}
 	}
+	/*
 	if(p!=NULL && not_enter_loop==0){
 		if(p->channel_num==0 && p->plane==0){
 			if(current_block[0][0].ptr_lru_node!=NULL){
@@ -4708,7 +4718,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 			//printf("2:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num,p->channel_num,p->plane);
 			num_of_block[current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num]++;
 		}
-	}
+	}*/
 	for(i=0;i<1000000;i++){
 		if(num_of_block[i]>1){
 			printf("block:%d num_of_block:%d\n",i,num_of_block[i]);
@@ -5863,10 +5873,20 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
     return;
   }
 	if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]!=0){
-		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];
-		printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]);
+		switch(ptr_buffer_cache->ptr_current_mark_node->duration_label){
+		  case 0:
+			ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.0000001;
+			break;
+		  case 1:
+			ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.1;
+			break;
+		  case 2:
+		  	ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*100000;
+			break;
+	    }
+		printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->benefit);
 	}
-	else{		
+	//else{		
 		/*printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 		
 	    exit(0);
@@ -5877,8 +5897,8 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		
 		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];		  					
 		check_block_exist(ptr_buffer_cache->ptr_current_mark_node);*/
-		ptr_buffer_cache->ptr_current_mark_node->benefit=0.019;		
-	}
+	//	ptr_buffer_cache->ptr_current_mark_node->benefit=0.019;		
+//	}
     ptr_buffer_cache->current_mark_offset=0;
     //mark write intensive node
 		check_block_exist(ptr_buffer_cache->ptr_current_mark_node);
@@ -7244,17 +7264,8 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	if(fgets(buf,1024,rnn)!=NULL){
 		write_benefit_to_txt(1);
 	}
-	//write_benefit_to_txt(1);
-	lru_node *mark_node=ptr_buffer_cache->ptr_current_mark_node;
-	while(1){
-		printf("duration label:%d duration priority:%d\n",ptr_buffer_cache->ptr_current_mark_node->duration_label,ptr_buffer_cache->ptr_current_mark_node->duration_priority);
-		ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-		if(ptr_buffer_cache->ptr_current_mark_node==mark_node){
-			break;
-		}
-	}
-  statistic_the_data_in_every_stage();
-
+	//write_benefit_to_txt(1);	
+	statistic_the_data_in_every_stage();
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
