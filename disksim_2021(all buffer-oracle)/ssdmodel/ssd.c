@@ -4196,7 +4196,6 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
   //printf("add_a_page_in_the_node\n");
 	int i;
 	add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache,flag);
-	}
 }
 
 
