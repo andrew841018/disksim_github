@@ -3737,9 +3737,9 @@ void simulate_all_buffer(int physical_node_num,int page_index){
 	if(wb->logical_block[min_block_index]->duration==0){
 		wb->logical_block[min_block_index]->duration++;
 	}
-	if(wb->logical_block[min_block_index]->max<wb->logical_block[min_block_index]->duration){
-		wb->logical_block[min_block_index]->max=wb->logical_block[min_block_index]->duration;
-	}
+	FILE *dur=fopen("duration.txt","a+");
+	fprintf(dur,"%d %d\n",wb->logical_block[min_block_index]->logical_node_num,wb->logical_block[min_block_index]->duration);
+	fclose(dur);
     wb->logical_block[min_block_index]->benefit=10;
     wb->logical_block[min_block_index]->duration=0;
     wb->logical_block[min_block_index]->logical_node_num=-1;
@@ -3751,7 +3751,7 @@ void simulate_all_buffer(int physical_node_num,int page_index){
       wb->logical_block[min_block_index]->page[i].sector_count=0;    
     }
   }
-  assert(logical_block_number<=1000);
+  assert(logical_block_number<=5000);
 }
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
@@ -3771,7 +3771,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]; 
   if(init1==1){	
 	wb=calloc(1,sizeof(buffer_cache));
-    for(i=0;i<HASHSIZE;i++){
+    for(i=0;i<5000;i++){
 	  wb->logical_block[i]=calloc(1,sizeof(lru_node));	
       wb->logical_block[i]->benefit=0;
       wb->logical_block[i]->logical_node_num=-1;//這裡表示physical_block_number
@@ -6141,13 +6141,6 @@ void show_result(buffer_cache *ptr_buffer_cache)
   
   //write_benefit_to_txt(1);
   int i;
-  for(i=0;i<5000;i++){
-	if(wb->logical_block[i]->max>0){
-		FILE *dur=fopen("duration.txt","a+");
-		fprintf(dur,"%d %d\n",wb->logical_block[i]->logical_node_num,wb->logical_block[i]->max);
-		fclose(dur);
-	}
-  }
   
   statistic_the_data_in_every_stage();
 
