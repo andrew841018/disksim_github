@@ -20,6 +20,7 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM#, CuDNNLSTM
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from collections import OrderedDict
+'''
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(used to build RNN)\\physical\\'
 for i in open(addr+'info(run1_Postmark_2475).txt','r'):
     s=i.split()[0]+' '
@@ -31,18 +32,18 @@ for i in open(addr+'info(run1_Postmark_2475).txt','r'):
     s+=i.split()[6]+'\n'
     with open('info(run1_Postmark_2475).txt','a') as f:
         f.write(s)
+'''    
     
-    
-'''
+###**** same block may be have multiple duration,pick the max one as the duration***
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\all buffer\\'
 max1=0
 tmp=[]
 ignore=[]
 
-for i in open(addr+'(physical)duration.txt','r'):
+for i in open(addr+'duration.txt','r'):
     block_i=i.split()[0]    
     b=0
-    for j in open(addr+'(physical)duration.txt','r'):              
+    for j in open(addr+'duration.txt','r'):              
         block_j=j.split()[0]
         if block_i in ignore:
             b=1
@@ -50,8 +51,7 @@ for i in open(addr+'(physical)duration.txt','r'):
         if block_i==block_j:#碰到相同block number,including itself
             tmp.append(j.split()[1])  
     if b==0:                        
-        with open(addr+'duration.txt','a') as f:
+        with open(addr+'duration(new).txt','a') as f:
             f.write(block_i+" "+max(tmp)+"\n")
         tmp.clear() 
         ignore.append(block_i)
-'''
