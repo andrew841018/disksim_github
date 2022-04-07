@@ -3731,7 +3731,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			physical_block_num=atoi(substr1);
 			substr1=strtok(NULL,delim1);//duration label
 			duration_label=atoi(substr1);
-			duration_arr[physical_block_num]=duration_label;//physical_block_num=physical_node_num % HASHSIZE					
+			duration_arr[physical_block_num]=duration_label%3;//physical_block_num=physical_node_num % HASHSIZE					
 		} 				    
 		fclose(dur);				
 	  }
@@ -3848,7 +3848,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
       if(benefit_value[physical_node_num]!=0){
-		//ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
+		ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
 	  }	  
   }
   else
@@ -5178,6 +5178,9 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
 			if(block_num!=7){
 				printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,testing[cur_block]);
+				if(test->benefit!=current_block[test->channel_num][test->plane].ptr_lru_node->benefit){
+					test->benefit=current_block[test->channel_num][test->plane].ptr_lru_node->benefit;
+				}
 				assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
 				check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
 			}
@@ -5230,6 +5233,9 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 						//return;
 					}
 					printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
+					if(test->benefit!=current_block[test->channel_num][test->plane].ptr_lru_node->benefit){
+						test->benefit=current_block[test->channel_num][test->plane].ptr_lru_node->benefit;
+					}
 					assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
 					check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
 				}
@@ -5300,43 +5306,47 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   insert=calloc(1,sizeof(profit));//this is important,if you use malloc instead, then it will have some bug.
   //for example:some pointer will be 0x50,it won't be accessed but it is not NULL too.
   mark_count=0;
-  //*****assign min priority block(soon LRU) with min benefit *******/
-  int min,min_i,min_j;	
+/*  int min,min_i,min_j;	
   double max=0,max1=0;
   lru_node *curr_mark_node=ptr_buffer_cache->ptr_current_mark_node;
   if(ptr_buffer_cache->ptr_current_mark_node!=NULL){
 	while(1){		
+		printf("%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
 		switch(ptr_buffer_cache->ptr_current_mark_node->duration_label){
-			printf("label:%d priority:%d\n",ptr_buffer_cache->ptr_current_mark_node->duration_label,ptr_buffer_cache->ptr_current_mark_node->duration_priority);
 			case 0://soon
+				
 				ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.0001;
 				if(max<ptr_buffer_cache->ptr_current_mark_node->benefit){
 					max=ptr_buffer_cache->ptr_current_mark_node->benefit;
 				}
+				printf("(0)benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->benefit);
 				break;
 			case 1://mean
 				ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.001;
-				while(ptr_buffer_cache->ptr_current_mark_node->benefit>max){
+				if(ptr_buffer_cache->ptr_current_mark_node->benefit>max){
 					ptr_buffer_cache->ptr_current_mark_node->benefit=max+0.001;
 				}
 				if(max1<ptr_buffer_cache->ptr_current_mark_node->benefit){
 					max1=ptr_buffer_cache->ptr_current_mark_node->benefit;
 				}
+				printf("(1)benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->benefit);
 				break;
 			case 2://late
 				ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.01;
-				while(ptr_buffer_cache->ptr_current_mark_node->benefit>max1){
+				if(ptr_buffer_cache->ptr_current_mark_node->benefit>max1){
 					ptr_buffer_cache->ptr_current_mark_node->benefit=max1+0.01;
 				}
+				printf("(2)benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->benefit);
 				break;		
 		}		
+		assert(ptr_buffer_cache->ptr_current_mark_node->benefit!=0);
 		ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 		if(ptr_buffer_cache->ptr_current_mark_node==curr_mark_node){
 			break;
 		}
 	}
     
- }		
+ }		*/
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
@@ -5853,7 +5863,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
     return;
   }
 	if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]!=0){
-		//ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];
+		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];
 		printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]);
 	}
 	else{		
@@ -7234,7 +7244,15 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	if(fgets(buf,1024,rnn)!=NULL){
 		write_benefit_to_txt(1);
 	}
-	write_benefit_to_txt(1);
+	//write_benefit_to_txt(1);
+	lru_node *mark_node=ptr_buffer_cache->ptr_current_mark_node;
+	while(1){
+		printf("duration label:%d duration priority:%d\n",ptr_buffer_cache->ptr_current_mark_node->duration_label,ptr_buffer_cache->ptr_current_mark_node->duration_priority);
+		ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+		if(ptr_buffer_cache->ptr_current_mark_node==mark_node){
+			break;
+		}
+	}
   statistic_the_data_in_every_stage();
 
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
