@@ -1903,9 +1903,9 @@ int main(int argc, char *argv[])
     
     while(fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W)!= EOF) //接收新的request
     //while(myreqcount<reqamount)
-    {
+    {	  
+	  fclose(gc_info2);	  
 	  gc_info2 = fopen("gc_information2.txt","w");
-	  fclose(gc_info2);
       //fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W);
       //fprintf(myoutput,"time:%lf,devno:%ld,blnum:%ld,size:%ld,R_W:%ld\n",time,devno,blnum,size,R_W);
       ReqCount++;
@@ -1914,6 +1914,7 @@ int main(int argc, char *argv[])
       FILE *wb=fopen("wb.txt","w");      
       fprintf(wb,"request:%d\n",ReqCount);
       fclose(wb);
+      
       if(blnum > 56000000 && R_W == 0)
         continue;
       //fprintf(outputfd, "----接收新的request----|ReqCount=%d\n", ReqCount);

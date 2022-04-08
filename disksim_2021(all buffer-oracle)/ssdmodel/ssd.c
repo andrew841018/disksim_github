@@ -4639,11 +4639,11 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 			return p;
 		}
 	}
-	if(p!=NULL && not_enter_loop==0){
+/*	if(p!=NULL && not_enter_loop==0){
 		if(p->channel_num==0 && p->plane==0){
 			if(current_block[0][0].ptr_lru_node!=NULL){
 				if(zero[current_block[0][0].ptr_lru_node->logical_node_num]==1){
-					//printf("1:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[0][0].ptr_lru_node->logical_node_num,0,0);
+					printf("1:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[0][0].ptr_lru_node->logical_node_num,0,0);
 					num_of_block[current_block[0][0].ptr_lru_node->logical_node_num]++;
 				}
 				else{
@@ -4667,7 +4667,7 @@ profit *test_not_assign_profit_pointer(profit *p,int zero[]){
 			//printf("2:(inside testing function)block number:%d channel:%d plane:%d\n",current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num,p->channel_num,p->plane);
 			num_of_block[current_block[p->channel_num][p->plane].ptr_lru_node->logical_node_num]++;
 		}
-	}
+	}*/
 	for(i=0;i<1000000;i++){
 		if(num_of_block[i]>1){
 			printf("block:%d num_of_block:%d\n",i,num_of_block[i]);
