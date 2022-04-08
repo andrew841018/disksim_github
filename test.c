@@ -12,6 +12,6 @@ typedef struct _profit{
 typedef struct _lru_node{
 }lru_node;
 int main(){	
-	
+	exit(0);
 	return 0;
 }
