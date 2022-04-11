@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.0.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.0.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -147,7 +147,7 @@ extern int libparamdebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
+typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
 #line 55 "libparam.y" /* yacc.c:355  */
@@ -171,8 +171,6 @@ union YYSTYPE
 
 #line 173 "libparam.tab.c" /* yacc.c:355  */
 };
-
-typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -186,7 +184,7 @@ int libparamparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 190 "libparam.tab.c" /* yacc.c:358  */
+#line 188 "libparam.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -1297,7 +1295,7 @@ yyreduce:
         case 2:
 #line 92 "libparam.y" /* yacc.c:1646  */
     { }
-#line 1301 "libparam.tab.c" /* yacc.c:1646  */
+#line 1299 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
@@ -1308,7 +1306,7 @@ yyreduce:
   lp_new_tl_topo((yyvsp[0].topo).l, lp_filename);  
   load_topo((yyvsp[0].topo).l, (yyvsp[0].topo).len);
 }
-#line 1312 "libparam.tab.c" /* yacc.c:1646  */
+#line 1310 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
@@ -1318,7 +1316,7 @@ yyreduce:
   lp_new_tl_block((yyvsp[0].b), lp_filename);
   load_block((yyvsp[0].b)); 
 }
-#line 1322 "libparam.tab.c" /* yacc.c:1646  */
+#line 1320 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
@@ -1327,7 +1325,7 @@ yyreduce:
   lp_new_tl_inst((yyvsp[0].inst), lp_filename);
   lp_inst_list((yyvsp[0].inst));
 }
-#line 1331 "libparam.tab.c" /* yacc.c:1646  */
+#line 1329 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
@@ -1338,7 +1336,7 @@ yyreduce:
   (yyval.inst)->l = (yyvsp[-2].l);
   (yyval.inst)->name = (yyvsp[0].s);
 }
-#line 1342 "libparam.tab.c" /* yacc.c:1646  */
+#line 1340 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
@@ -1353,7 +1351,7 @@ yyreduce:
   (yyval.topo).l[0].name = (yyvsp[-1].s);
   (yyval.topo).l[0].l = (yyvsp[0].l);
 }
-#line 1357 "libparam.tab.c" /* yacc.c:1646  */
+#line 1355 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
@@ -1391,7 +1389,7 @@ yyreduce:
   
   free((yyvsp[-4].s));
 }
-#line 1395 "libparam.tab.c" /* yacc.c:1646  */
+#line 1393 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
@@ -1414,13 +1412,13 @@ yyreduce:
 
   free((yyvsp[-3].s));
 }
-#line 1418 "libparam.tab.c" /* yacc.c:1646  */
+#line 1416 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
 #line 211 "libparam.y" /* yacc.c:1646  */
     { (yyval.params).p = 0; (yyval.params).plen = 0; }
-#line 1424 "libparam.tab.c" /* yacc.c:1646  */
+#line 1422 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
@@ -1432,7 +1430,7 @@ yyreduce:
   (yyval.params).plen = 8; 
   (yyval.params).p[0] = (yyvsp[0].p);
 }
-#line 1436 "libparam.tab.c" /* yacc.c:1646  */
+#line 1434 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
@@ -1457,7 +1455,7 @@ yyreduce:
   }
 
 }
-#line 1461 "libparam.tab.c" /* yacc.c:1646  */
+#line 1459 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
@@ -1476,7 +1474,7 @@ yyreduce:
   }
   (yyval.params) = (yyvsp[-4].params);
 }
-#line 1480 "libparam.tab.c" /* yacc.c:1646  */
+#line 1478 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
@@ -1488,7 +1486,7 @@ yyreduce:
 
   (yyval.params) = (yyvsp[-2].params);
 }
-#line 1492 "libparam.tab.c" /* yacc.c:1646  */
+#line 1490 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
@@ -1503,7 +1501,7 @@ yyreduce:
 /*   $$->name = $1;  */
   (yyval.p)->v = (yyvsp[0].v);  
 }
-#line 1507 "libparam.tab.c" /* yacc.c:1646  */
+#line 1505 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
@@ -1511,7 +1509,7 @@ yyreduce:
     {
   (yyval.l) = (yyvsp[-1].l);
 }
-#line 1515 "libparam.tab.c" /* yacc.c:1646  */
+#line 1513 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
@@ -1522,7 +1520,7 @@ yyreduce:
   /*  $$->values_len = 0; */
   /*  $$ */
 }
-#line 1526 "libparam.tab.c" /* yacc.c:1646  */
+#line 1524 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
@@ -1537,7 +1535,7 @@ yyreduce:
   (yyval.l)->values_pop = 1; 
   (yyval.l)->values[0] = (yyvsp[0].v); 
 }
-#line 1541 "libparam.tab.c" /* yacc.c:1646  */
+#line 1539 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
@@ -1581,7 +1579,7 @@ yyreduce:
 
 
 }
-#line 1585 "libparam.tab.c" /* yacc.c:1646  */
+#line 1583 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
@@ -1621,7 +1619,7 @@ yyreduce:
 
 
 }
-#line 1625 "libparam.tab.c" /* yacc.c:1646  */
+#line 1623 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
@@ -1630,7 +1628,7 @@ yyreduce:
 /*    printf("list item\n"); */
   (yyval.l) = lp_list_add((yyvsp[-2].l), (yyvsp[0].v));
 }
-#line 1634 "libparam.tab.c" /* yacc.c:1646  */
+#line 1632 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
@@ -1639,7 +1637,7 @@ yyreduce:
   (yyval.v) = lp_new_intv((yyvsp[0].i));
   (yyval.v)->source_file = lp_filename;
 }
-#line 1643 "libparam.tab.c" /* yacc.c:1646  */
+#line 1641 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
@@ -1648,7 +1646,7 @@ yyreduce:
   (yyval.v) = lp_new_doublev((yyvsp[0].d));
   (yyval.v)->source_file = lp_filename;
 }
-#line 1652 "libparam.tab.c" /* yacc.c:1646  */
+#line 1650 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
@@ -1657,7 +1655,7 @@ yyreduce:
    (yyval.v) = lp_new_stringv((yyvsp[0].s));
   (yyval.v)->source_file = lp_filename;
 }
-#line 1661 "libparam.tab.c" /* yacc.c:1646  */
+#line 1659 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
@@ -1666,7 +1664,7 @@ yyreduce:
   (yyval.v) = lp_new_listv((yyvsp[0].l));
   (yyval.v)->source_file = lp_filename;
 }
-#line 1670 "libparam.tab.c" /* yacc.c:1646  */
+#line 1668 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
@@ -1676,7 +1674,7 @@ yyreduce:
   (yyval.v)->source_file = lp_filename;
   (yyval.v)->t = BLOCK;
 }
-#line 1680 "libparam.tab.c" /* yacc.c:1646  */
+#line 1678 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
@@ -1687,7 +1685,7 @@ yyreduce:
   (yyval.v)->v.b = (yyvsp[0].b);
   (yyval.v)->t = BLOCK;
 }
-#line 1691 "libparam.tab.c" /* yacc.c:1646  */
+#line 1689 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
@@ -1701,7 +1699,7 @@ yyreduce:
 
   (yyval.v)->t = TOPOSPEC;
 }
-#line 1705 "libparam.tab.c" /* yacc.c:1646  */
+#line 1703 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
@@ -1712,7 +1710,7 @@ yyreduce:
   (yyval.p)->name = (yyvsp[0].s);
   (yyval.p)->source_file = lp_filename;
 }
-#line 1716 "libparam.tab.c" /* yacc.c:1646  */
+#line 1714 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
@@ -1729,11 +1727,11 @@ yyreduce:
 
   (yyval.p)->name = tmp;  
 }
-#line 1733 "libparam.tab.c" /* yacc.c:1646  */
+#line 1731 "libparam.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1737 "libparam.tab.c" /* yacc.c:1646  */
+#line 1735 "libparam.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
