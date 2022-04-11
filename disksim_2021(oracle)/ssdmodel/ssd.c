@@ -3608,11 +3608,12 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 double min2=100000;
+int time_index[1000]={0};
 unsigned int mark_bool[100000000]={0};
 unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
 int first_time=1;
-double block_time[1000][10000000];
+double block_time[1000][100000];
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //reset when each access come
@@ -3827,9 +3828,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   {
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
-  }
+  }	
 	if(first_time==1){
-		int time_index[1000]={0};
 	  FILE *oracle=fopen("oracle_info.txt","r");
 		char buf[1024];
 		char *substr=NULL;
@@ -5809,7 +5809,6 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
     return;
   }
 	//***assign benefit to ptr_current_mark_node****//
-	
 		ptr_buffer_cache->ptr_current_mark_node->benefit=1/ptr_buffer_cache->ptr_current_mark_node->time;
 		ptr_buffer_cache->current_mark_offset=0;
     //mark write intensive node
