@@ -3854,6 +3854,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       for(i=0;i<time_index[physical_node_num % HASHSIZE];i++){
 			if(block_time[physical_node_num % HASHSIZE][i]>curr1->time){
 				ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time=block_time[physical_node_num % HASHSIZE][i];
+				break;
 			}
 	  }
 	  FILE *wb=fopen("exist_block.txt","a+");
@@ -3861,12 +3862,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	  fclose(wb);
   }
   else
-  {
+  {	
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
     for(i=0;i<time_index[physical_node_num % HASHSIZE];i++){
+		printf("block time:%f curr->time:%f\n",block_time[physical_node_num % HASHSIZE][i],curr1->time);
 		if(block_time[physical_node_num % HASHSIZE][i]>curr1->time){
 			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time=block_time[physical_node_num % HASHSIZE][i];
+			break;
 		}
 	}
   }	
