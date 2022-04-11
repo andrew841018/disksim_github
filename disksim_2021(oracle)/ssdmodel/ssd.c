@@ -3616,8 +3616,6 @@ int first_time=1;
 double block_time[1000][100000];
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
-  //reset when each access come
-  unsigned int assign[1000]={0};
   //printf("begining of Y_add_Pg\n");
   //printf("Y_add_Pg_page_to_cache_buffer\n");
   //fprintf(lpb_ppn, "Y_add_Pg_page\t");
@@ -3801,35 +3799,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 } 
   if(ptr_buffer_cache->w_miss_count>0){
 	  double hit_ratio=(float)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count);
-		FILE *hit=fopen("hit_count.txt","a+");
+		FILE *hit=fopen("hit_count.txt","w");
 		fprintf(hit,"hit count:%d hit ratio:%f miss count:%d\n",ptr_buffer_cache->w_hit_count,hit_ratio,ptr_buffer_cache->w_miss_count);
 		fclose(hit);
   }	
-  
-  if(Pg_node == NULL)
-  {
-    //printf("add node\n");
-    //fprintf(lpb_ppn, "if(Pg_node == NULL)\tphysical_node_num=%d\n", physical_node_num);
-      flag=0; 
-      if(benefit_value[physical_node_num % HASHSIZE]==0){
-		if(skip_block[physical_node_num % HASHSIZE]==0){
-			FILE *skip=fopen("skip.txt","a+");
-			fprintf(skip,"skip block number:%d\n",physical_node_num % HASHSIZE);			
-			fclose(skip);
-			skip_block[physical_node_num % HASHSIZE]=1;			
-			//fgetc(stdin); 
-		}		
-	  }    
-      //write buffer does have this node-->add one
-      add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
-      //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
-  }
-  else
-  {
-    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
-    add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
-  }	
-	if(first_time==1){
+  if(first_time==1){
 	  FILE *oracle=fopen("oracle_info.txt","r");
 		char buf[1024];
 		char *substr=NULL;
@@ -3846,6 +3820,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			substr=strtok(NULL,delim);//physical block number
 			block_number=atoi(substr);    
 			block_time[block_number][time_index[block_number]]=current_time;
+			assert(block_time[block_number][time_index[block_number]]>0);
 			time_index[block_number]++;
 		}
 		while(fgets(buf,1024,oracle)!=NULL){
@@ -3854,19 +3829,48 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			substr=strtok(NULL,delim);//physical block number
 			block_number=atoi(substr); 
 			block_time[block_number][time_index[block_number]]=current_time;
+			assert(block_time[block_number][time_index[block_number]]>0);
 			time_index[block_number]++;
 		}
 		fclose(oracle);
 		first_time=0;
 	}
-	else{		
-		for(i=0;i<time_index[physical_node_num % HASHSIZE];i++){
-			if(block_time[physical_node_num % HASHSIZE][i]>curr1->time && assign[physical_node_num % HASHSIZE]==0){
-				ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time=block_time[physical_node_num % HASHSIZE][i];
-				assign[physical_node_num % HASHSIZE]=1;
-			}
+  if(Pg_node == NULL)
+  {
+    //printf("add node\n");
+    //fprintf(lpb_ppn, "if(Pg_node == NULL)\tphysical_node_num=%d\n", physical_node_num);
+      flag=0; 
+      if(benefit_value[physical_node_num % HASHSIZE]==0){
+		if(skip_block[physical_node_num % HASHSIZE]==0){
+			FILE *skip=fopen("skip.txt","a+");
+			fprintf(skip,"skip block number:%d\n",physical_node_num % HASHSIZE);			
+			fclose(skip);
+			skip_block[physical_node_num % HASHSIZE]=1;			
+			//fgetc(stdin); 
 		}		
+	  }    
+      //write buffer does have this node-->add one
+      add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
+      for(i=0;i<time_index[physical_node_num % HASHSIZE];i++){
+			if(block_time[physical_node_num % HASHSIZE][i]>curr1->time){
+				ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time=block_time[physical_node_num % HASHSIZE][i];
+			}
+	  }
+	  FILE *wb=fopen("exist_block.txt","a+");
+	  fprintf(wb,"%d %f\n",physical_node_num % HASHSIZE,(double)10000/ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time);
+	  fclose(wb);
+  }
+  else
+  {
+    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+    add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
+    for(i=0;i<time_index[physical_node_num % HASHSIZE];i++){
+		if(block_time[physical_node_num % HASHSIZE][i]>curr1->time){
+			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time=block_time[physical_node_num % HASHSIZE][i];
+		}
 	}
+  }	
+  ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(double)10000/ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time;
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -5809,7 +5813,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
     return;
   }
 	//***assign benefit to ptr_current_mark_node****//
-		ptr_buffer_cache->ptr_current_mark_node->benefit=1/ptr_buffer_cache->ptr_current_mark_node->time;
+		ptr_buffer_cache->ptr_current_mark_node->benefit=(double)10000/ptr_buffer_cache->ptr_current_mark_node->time;
 		ptr_buffer_cache->current_mark_offset=0;
     //mark write intensive node
 		check_block_exist(ptr_buffer_cache->ptr_current_mark_node);
@@ -6131,6 +6135,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
+   
   int no_page_can_evict=0,w;
   // "before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
