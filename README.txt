@@ -13,6 +13,6 @@ rewrite-disksim_2021-base-on-simulation-info:
     
 build-model-after-simulation:
 
-1.這個主要是用來蒐集資料，目前我用於做simulation
+1.這個主要是用來蒐集資料，目前我用於做simulation,which will generate duration data and buffer or not data for both all buffer and with ignore method
 
 
