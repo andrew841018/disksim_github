@@ -5765,11 +5765,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		//if the current mark node is read intensive
 	  mark_for_read_intensive_buffer(ptr_buffer_cache);
 	
-	}
-	ptr_buffer_cache->ptr_current_mark_node->rw_intensive=1;
-	mark_for_read_intensive_buffer(ptr_buffer_cache);
-	return;
-	
+	}	
 	//the special channel and plane have had mark request
 	if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL || current_block[channel_num][plane].current_mark_count != 0)
 	{
