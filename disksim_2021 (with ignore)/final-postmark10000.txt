@@ -1,0 +1,35 @@
+Unique page=277547
+flush個數=192741, replacement個數=0
+Sumcount = 367940,Hitcount = 90393 Hit = 24.57
+,miss_ratio=75.432679
+
+****參數顯示****
+[CHEN] HINTGROUP=5, alpha=0.800000
+[CHEN] Trace File=/home/osnet/Downloads/run1_Postmark_2475.txt, max_req=1, MEM Size=10000
+[CHEN] Pd_FA_count=0,Pd_R_count=64
+[CHEN] FA_count=0,R_count=0
+[CHEN] tot_Rtime=3590950,prstime=9.759608
+[CHEN] RWRATIO=0.400000, EVICTWINDOW=0.200000
+[CHEN] WB_size = 4000
+[YIFEN] write hit count = 16281 write miss count = 176460 write hit rate = 0.084471
+[YIFEN] read hit count = 4661 read miss count = 119834 read hit rate = 0.037439
+[YIFEN] all hit rate = 0.066014
+---[YIFEN] State0=43908, State1=258, State2=31
+---[YIFEN] kick_channel_times = 21558 
+
+****Striping 資訊****
+[YIFEN] kick_page_striping_page_count=2, kick_block_striping_page_count=172462, kick_all_page_count = 172464
+---[YIFEN] kick_block_strip_node = 44373 | kick_block_strip_sumpage = 210447|avg_block_strip_size =4.742681
+
+**** GC ****
+ytc94u total_live_page_cp_count2 = 7909,total_gc_count = 1752
+ytc94u average live page num in  victim block = 4.514269
+ytc94u GC_count_per_elem = 1752,GC_count_per_plane = 3504 ,average = 2
+ytc94u average block associate logical block = 47.000715
+
+****Response time****
+all req avg response time: n=99806 average=0.182271 std. deviation=1.392898
+write req avg response time: n=63557 average=0.174944 std. deviation=1.715128
+write_page avg response time: n=192741 average=0.057688 std. deviation=0.988326
+read req avgresponse time: n=36249 average=0.195119 std. deviation=0.428869
+read_page avg response time: n=124495 average=0.056812 std. deviation=0.247814
