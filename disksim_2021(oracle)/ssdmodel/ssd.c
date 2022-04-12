@@ -111,7 +111,6 @@ typedef struct  _lru_node
 {
   int logical_node_num;        //logical_node_num == lpn / LRUSIZE
   int block_count,sector_index;
-  double time;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
   buffer_page page[LRUSIZE];          //phy page in the node
@@ -3608,12 +3607,9 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 double min2=100000;
-int time_index[1000]={0};
 unsigned int mark_bool[100000000]={0};
 unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
-int first_time=1;
-double block_time[1000][100000];
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("begining of Y_add_Pg\n");
@@ -3797,44 +3793,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     Pg_node = Pg_node->next;
 } 
-  if(ptr_buffer_cache->w_miss_count>0){
+ /* if(ptr_buffer_cache->w_miss_count>0){
 	  double hit_ratio=(float)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count);
-		FILE *hit=fopen("hit_count.txt","w");
+	 // if(hit_ratio>0){
+		FILE *hit=fopen("hit_count.txt","a+");
 		fprintf(hit,"hit count:%d hit ratio:%f miss count:%d\n",ptr_buffer_cache->w_hit_count,hit_ratio,ptr_buffer_cache->w_miss_count);
 		fclose(hit);
-  }	
-  if(first_time==1){
-	  FILE *oracle=fopen("oracle_info.txt","r");
-		char buf[1024];
-		char *substr=NULL;
-		const char *const delim=" ";
-		int block_number;
-		double current_time;
-		if(fgets(buf,1024,oracle)==NULL){
-			printf("fopen return NULL\n");
-			exit(0);
-		}
-		else{
-			substr=strtok(buf,delim);//time
-			current_time=atof(substr);
-			substr=strtok(NULL,delim);//physical block number
-			block_number=atoi(substr);    
-			block_time[block_number][time_index[block_number]]=current_time;
-			assert(block_time[block_number][time_index[block_number]]>0);
-			time_index[block_number]++;
-		}
-		while(fgets(buf,1024,oracle)!=NULL){
-			substr=strtok(buf,delim);//time
-			current_time=atof(substr);
-			substr=strtok(NULL,delim);//physical block number
-			block_number=atoi(substr); 
-			block_time[block_number][time_index[block_number]]=current_time;
-			assert(block_time[block_number][time_index[block_number]]>0);
-			time_index[block_number]++;
-		}
-		fclose(oracle);
-		first_time=0;
-	}
+	 // }
+  }*/
   if(Pg_node == NULL)
   {
     //printf("add node\n");
@@ -3851,29 +3817,21 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	  }    
       //write buffer does have this node-->add one
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
-      for(i=0;i<time_index[physical_node_num % HASHSIZE];i++){
-			if(block_time[physical_node_num % HASHSIZE][i]>curr1->time){
-				ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time=block_time[physical_node_num % HASHSIZE][i];
-				break;
-			}
-	  }
-	  FILE *wb=fopen("exist_block.txt","a+");
-	  fprintf(wb,"%d %f\n",physical_node_num % HASHSIZE,(double)10000/ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time);
-	  fclose(wb);
+      //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
+      if(benefit_value[physical_node_num]!=0){
+		ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=benefit_value[physical_node_num];
+	  }	  
   }
   else
-  {	
+  {
+    //fprintf(lpb_ppn, "if(Pg_node != NULL)\tphysical_node_num=%d\n", physical_node_num);
+    //printf("find node\n"); 
+    //remove the mark page int the hit node 
+    
+    
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
-    for(i=0;i<time_index[physical_node_num % HASHSIZE];i++){
-		printf("block time:%f curr->time:%f\n",block_time[physical_node_num % HASHSIZE][i],curr1->time);
-		if(block_time[physical_node_num % HASHSIZE][i]>curr1->time){
-			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time=block_time[physical_node_num % HASHSIZE][i];
-			break;
-		}
-	}
-  }	
-  ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(double)10000/ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->time;
+  }
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -5807,7 +5765,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 		//if the current mark node is read intensive
 	  mark_for_read_intensive_buffer(ptr_buffer_cache);
 	
-	}	
+	}
 	//the special channel and plane have had mark request
 	if(current_block[channel_num][plane].ptr_read_intensive_buffer_page != NULL || current_block[channel_num][plane].current_mark_count != 0)
 	{
@@ -5815,9 +5773,24 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
     printf("b\n");
     return;
   }
-	//***assign benefit to ptr_current_mark_node****//
-		ptr_buffer_cache->ptr_current_mark_node->benefit=(double)10000/ptr_buffer_cache->ptr_current_mark_node->time;
-		ptr_buffer_cache->current_mark_offset=0;
+	if(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]!=0){
+		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];
+		printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]);
+	}
+	else{		
+		/*printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
+		
+	    exit(0);
+		
+		while(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]==0){
+		  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;		  
+		}
+		
+		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];		  					
+		check_block_exist(ptr_buffer_cache->ptr_current_mark_node);*/
+		ptr_buffer_cache->ptr_current_mark_node->benefit=0.019;		
+	}
+    ptr_buffer_cache->current_mark_offset=0;
     //mark write intensive node
 		check_block_exist(ptr_buffer_cache->ptr_current_mark_node);
 		current_block[channel_num][plane].ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
@@ -6138,7 +6111,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
-   
   int no_page_can_evict=0,w;
   // "before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
