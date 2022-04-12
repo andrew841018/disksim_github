@@ -58125,3 +58125,2491 @@ Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42094
 last request:  dev=0, blk=18464, cnt=8, 1 (R==1)
 Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42095
 last request:  dev=0, blk=239032, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42096
+last request:  dev=0, blk=96864, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42097
+last request:  dev=0, blk=186208, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42098
+last request:  dev=0, blk=176240, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42099
+last request:  dev=0, blk=285160, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42100
+last request:  dev=0, blk=34488, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42101
+last request:  dev=0, blk=95816, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42102
+last request:  dev=0, blk=33200, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42103
+last request:  dev=0, blk=74304, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42104
+last request:  dev=0, blk=187648, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42105
+last request:  dev=0, blk=259720, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42106
+last request:  dev=0, blk=274768, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42107
+last request:  dev=0, blk=287672, cnt=16, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42108
+last request:  dev=0, blk=261600, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42109
+last request:  dev=0, blk=250352, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42110
+last request:  dev=0, blk=279976, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42111
+last request:  dev=0, blk=69408, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42112
+last request:  dev=0, blk=220328, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42113
+last request:  dev=0, blk=316664, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42114
+last request:  dev=0, blk=99920, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42115
+last request:  dev=0, blk=88168, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42116
+last request:  dev=0, blk=54136, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42117
+last request:  dev=0, blk=199352, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42118
+last request:  dev=0, blk=300480, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42119
+last request:  dev=0, blk=164160, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42120
+last request:  dev=0, blk=240, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42121
+last request:  dev=0, blk=323000, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42122
+last request:  dev=0, blk=263856, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42123
+last request:  dev=0, blk=143024, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42124
+last request:  dev=0, blk=109768, cnt=16, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42125
+last request:  dev=0, blk=53112, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42126
+last request:  dev=0, blk=161392, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42127
+last request:  dev=0, blk=189256, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42128
+last request:  dev=0, blk=38992, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42129
+last request:  dev=0, blk=317112, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42130
+last request:  dev=0, blk=4048, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42131
+last request:  dev=0, blk=17576, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42132
+last request:  dev=0, blk=24312, cnt=40, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42133
+last request:  dev=0, blk=38840, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42134
+last request:  dev=0, blk=47856, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42135
+last request:  dev=0, blk=62896, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42136
+last request:  dev=0, blk=69072, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42137
+last request:  dev=0, blk=71176, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42138
+last request:  dev=0, blk=76496, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42139
+last request:  dev=0, blk=86776, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42140
+last request:  dev=0, blk=113616, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42141
+last request:  dev=0, blk=114464, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42142
+last request:  dev=0, blk=129000, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42143
+last request:  dev=0, blk=130392, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42144
+last request:  dev=0, blk=144536, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42145
+last request:  dev=0, blk=166168, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42146
+last request:  dev=0, blk=173008, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42147
+last request:  dev=0, blk=174408, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42148
+last request:  dev=0, blk=191648, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42149
+last request:  dev=0, blk=198304, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42150
+last request:  dev=0, blk=200768, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42151
+last request:  dev=0, blk=201760, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42152
+last request:  dev=0, blk=202304, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42153
+last request:  dev=0, blk=221488, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42154
+last request:  dev=0, blk=226232, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42155
+last request:  dev=0, blk=229960, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42156
+last request:  dev=0, blk=237984, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42157
+last request:  dev=0, blk=255200, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42158
+last request:  dev=0, blk=258000, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42159
+last request:  dev=0, blk=258192, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42160
+last request:  dev=0, blk=269568, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42161
+last request:  dev=0, blk=282320, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42162
+last request:  dev=0, blk=286952, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42163
+last request:  dev=0, blk=289944, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42164
+last request:  dev=0, blk=290864, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42165
+last request:  dev=0, blk=292280, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42166
+last request:  dev=0, blk=292912, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42167
+last request:  dev=0, blk=293744, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42168
+last request:  dev=0, blk=296872, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42169
+last request:  dev=0, blk=299544, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42170
+last request:  dev=0, blk=300584, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42171
+last request:  dev=0, blk=64, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42172
+last request:  dev=0, blk=824, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42173
+last request:  dev=0, blk=2968, cnt=56, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42174
+last request:  dev=0, blk=4992, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42175
+last request:  dev=0, blk=5080, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42176
+last request:  dev=0, blk=5600, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42177
+last request:  dev=0, blk=10872, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42178
+last request:  dev=0, blk=11960, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42179
+last request:  dev=0, blk=12408, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42180
+last request:  dev=0, blk=17224, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42181
+last request:  dev=0, blk=17928, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42182
+last request:  dev=0, blk=18152, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42183
+last request:  dev=0, blk=19696, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42184
+last request:  dev=0, blk=20176, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42185
+last request:  dev=0, blk=20624, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42186
+last request:  dev=0, blk=20912, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42187
+last request:  dev=0, blk=23304, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42188
+last request:  dev=0, blk=23464, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42189
+last request:  dev=0, blk=24120, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42190
+last request:  dev=0, blk=24280, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42191
+last request:  dev=0, blk=25776, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42192
+last request:  dev=0, blk=26184, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42193
+last request:  dev=0, blk=26472, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42194
+last request:  dev=0, blk=27704, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42195
+last request:  dev=0, blk=28480, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42196
+last request:  dev=0, blk=30352, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42197
+last request:  dev=0, blk=31344, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42198
+last request:  dev=0, blk=32144, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42199
+last request:  dev=0, blk=34352, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42200
+last request:  dev=0, blk=36784, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42201
+last request:  dev=0, blk=38648, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42202
+last request:  dev=0, blk=40016, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42203
+last request:  dev=0, blk=40328, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42204
+last request:  dev=0, blk=44040, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42205
+last request:  dev=0, blk=55328, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42206
+last request:  dev=0, blk=57328, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42207
+last request:  dev=0, blk=57600, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42208
+last request:  dev=0, blk=59296, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42209
+last request:  dev=0, blk=64056, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42210
+last request:  dev=0, blk=68400, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42211
+last request:  dev=0, blk=69136, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42212
+last request:  dev=0, blk=70440, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42213
+last request:  dev=0, blk=72128, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42214
+last request:  dev=0, blk=72760, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42215
+last request:  dev=0, blk=73424, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42216
+last request:  dev=0, blk=76024, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42217
+last request:  dev=0, blk=76248, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42218
+last request:  dev=0, blk=77104, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42219
+last request:  dev=0, blk=82928, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42220
+last request:  dev=0, blk=83496, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42221
+last request:  dev=0, blk=84200, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42222
+last request:  dev=0, blk=84296, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42223
+last request:  dev=0, blk=84616, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42224
+last request:  dev=0, blk=85656, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42225
+last request:  dev=0, blk=87032, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42226
+last request:  dev=0, blk=87064, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42227
+last request:  dev=0, blk=89552, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42228
+last request:  dev=0, blk=91744, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42229
+last request:  dev=0, blk=93560, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42230
+last request:  dev=0, blk=94576, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42231
+last request:  dev=0, blk=98600, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42232
+last request:  dev=0, blk=99176, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42233
+last request:  dev=0, blk=101712, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42234
+last request:  dev=0, blk=102032, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42235
+last request:  dev=0, blk=108328, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42236
+last request:  dev=0, blk=110096, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42237
+last request:  dev=0, blk=111696, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42238
+last request:  dev=0, blk=114624, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42239
+last request:  dev=0, blk=117592, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42240
+last request:  dev=0, blk=119296, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42241
+last request:  dev=0, blk=120384, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42242
+last request:  dev=0, blk=122368, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42243
+last request:  dev=0, blk=123288, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42244
+last request:  dev=0, blk=124112, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42245
+last request:  dev=0, blk=126112, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42246
+last request:  dev=0, blk=128456, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42247
+last request:  dev=0, blk=129416, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42248
+last request:  dev=0, blk=130200, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42249
+last request:  dev=0, blk=130288, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42250
+last request:  dev=0, blk=132280, cnt=48, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42251
+last request:  dev=0, blk=134792, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42252
+last request:  dev=0, blk=136880, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42253
+last request:  dev=0, blk=137712, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42254
+last request:  dev=0, blk=138208, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42255
+last request:  dev=0, blk=139168, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42256
+last request:  dev=0, blk=139952, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42257
+last request:  dev=0, blk=140464, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42258
+last request:  dev=0, blk=141168, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42259
+last request:  dev=0, blk=141328, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42260
+last request:  dev=0, blk=141512, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42261
+last request:  dev=0, blk=142568, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42262
+last request:  dev=0, blk=142784, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42263
+last request:  dev=0, blk=144464, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42264
+last request:  dev=0, blk=145576, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42265
+last request:  dev=0, blk=145640, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42266
+last request:  dev=0, blk=146944, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42267
+last request:  dev=0, blk=147672, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42268
+last request:  dev=0, blk=148688, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42269
+last request:  dev=0, blk=152168, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42270
+last request:  dev=0, blk=152848, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42271
+last request:  dev=0, blk=156248, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42272
+last request:  dev=0, blk=156792, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42273
+last request:  dev=0, blk=159584, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42274
+last request:  dev=0, blk=161112, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42275
+last request:  dev=0, blk=166040, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42276
+last request:  dev=0, blk=166200, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42277
+last request:  dev=0, blk=166384, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42278
+last request:  dev=0, blk=167064, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42279
+last request:  dev=0, blk=169224, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42280
+last request:  dev=0, blk=170112, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42281
+last request:  dev=0, blk=170720, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42282
+last request:  dev=0, blk=174624, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42283
+last request:  dev=0, blk=177304, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42284
+last request:  dev=0, blk=177720, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42285
+last request:  dev=0, blk=178288, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42286
+last request:  dev=0, blk=181360, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42287
+last request:  dev=0, blk=181424, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42288
+last request:  dev=0, blk=181456, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42289
+last request:  dev=0, blk=181968, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42290
+last request:  dev=0, blk=184760, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42291
+last request:  dev=0, blk=187464, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42292
+last request:  dev=0, blk=188728, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42293
+last request:  dev=0, blk=189576, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42294
+last request:  dev=0, blk=191368, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42295
+last request:  dev=0, blk=199936, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42296
+last request:  dev=0, blk=200448, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42297
+last request:  dev=0, blk=201184, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42298
+last request:  dev=0, blk=201792, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42299
+last request:  dev=0, blk=201920, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42300
+last request:  dev=0, blk=202048, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42301
+last request:  dev=0, blk=202976, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42302
+last request:  dev=0, blk=215104, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42303
+last request:  dev=0, blk=221616, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42304
+last request:  dev=0, blk=227208, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42305
+last request:  dev=0, blk=227256, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42306
+last request:  dev=0, blk=227416, cnt=56, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42307
+last request:  dev=0, blk=228280, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42308
+last request:  dev=0, blk=228848, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42309
+last request:  dev=0, blk=230216, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42310
+last request:  dev=0, blk=232720, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42311
+last request:  dev=0, blk=232752, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42312
+last request:  dev=0, blk=232880, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42313
+last request:  dev=0, blk=234864, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42314
+last request:  dev=0, blk=235088, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42315
+last request:  dev=0, blk=237512, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42316
+last request:  dev=0, blk=238432, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42317
+last request:  dev=0, blk=238624, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42318
+last request:  dev=0, blk=241200, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42319
+last request:  dev=0, blk=241648, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42320
+last request:  dev=0, blk=242192, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42321
+last request:  dev=0, blk=246832, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42322
+last request:  dev=0, blk=248320, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42323
+last request:  dev=0, blk=249784, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42324
+last request:  dev=0, blk=256960, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42325
+last request:  dev=0, blk=265320, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42326
+last request:  dev=0, blk=266256, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42327
+last request:  dev=0, blk=266416, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42328
+last request:  dev=0, blk=269984, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42329
+last request:  dev=0, blk=283136, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42330
+last request:  dev=0, blk=284560, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42331
+last request:  dev=0, blk=292816, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42332
+last request:  dev=0, blk=295784, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42333
+last request:  dev=0, blk=298904, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42334
+last request:  dev=0, blk=300488, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42335
+last request:  dev=0, blk=302080, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42336
+last request:  dev=0, blk=307104, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42337
+last request:  dev=0, blk=313128, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42338
+last request:  dev=0, blk=313472, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42339
+last request:  dev=0, blk=313848, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42340
+last request:  dev=0, blk=313944, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42341
+last request:  dev=0, blk=314424, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42342
+last request:  dev=0, blk=314712, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42343
+last request:  dev=0, blk=326976, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42344
+last request:  dev=0, blk=1752, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42345
+last request:  dev=0, blk=2776, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42346
+last request:  dev=0, blk=5792, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42347
+last request:  dev=0, blk=10016, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42348
+last request:  dev=0, blk=12216, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42349
+last request:  dev=0, blk=13016, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42350
+last request:  dev=0, blk=13496, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42351
+last request:  dev=0, blk=15928, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42352
+last request:  dev=0, blk=17032, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42353
+last request:  dev=0, blk=18504, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42354
+last request:  dev=0, blk=19280, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42355
+last request:  dev=0, blk=19632, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42356
+last request:  dev=0, blk=20240, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42357
+last request:  dev=0, blk=21136, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42358
+last request:  dev=0, blk=22024, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42359
+last request:  dev=0, blk=23640, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42360
+last request:  dev=0, blk=26152, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42361
+last request:  dev=0, blk=26216, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42362
+last request:  dev=0, blk=31504, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42363
+last request:  dev=0, blk=33176, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42364
+last request:  dev=0, blk=34104, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42365
+last request:  dev=0, blk=37792, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42366
+last request:  dev=0, blk=39856, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42367
+last request:  dev=0, blk=41368, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42368
+last request:  dev=0, blk=43144, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42369
+last request:  dev=0, blk=43208, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42370
+last request:  dev=0, blk=44384, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42371
+last request:  dev=0, blk=46096, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42372
+last request:  dev=0, blk=46416, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42373
+last request:  dev=0, blk=47712, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42374
+last request:  dev=0, blk=49080, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42375
+last request:  dev=0, blk=50352, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42376
+last request:  dev=0, blk=52256, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42377
+last request:  dev=0, blk=53984, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42378
+last request:  dev=0, blk=54464, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42379
+last request:  dev=0, blk=57312, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42380
+last request:  dev=0, blk=57664, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42381
+last request:  dev=0, blk=59360, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42382
+last request:  dev=0, blk=61816, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42383
+last request:  dev=0, blk=69864, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42384
+last request:  dev=0, blk=70696, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42385
+last request:  dev=0, blk=71656, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42386
+last request:  dev=0, blk=72976, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42387
+last request:  dev=0, blk=75264, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42388
+last request:  dev=0, blk=80936, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42389
+last request:  dev=0, blk=84680, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42390
+last request:  dev=0, blk=87000, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42391
+last request:  dev=0, blk=89200, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42392
+last request:  dev=0, blk=89808, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42393
+last request:  dev=0, blk=91584, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42394
+last request:  dev=0, blk=92568, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42395
+last request:  dev=0, blk=93624, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42396
+last request:  dev=0, blk=94192, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42397
+last request:  dev=0, blk=95664, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42398
+last request:  dev=0, blk=96528, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42399
+last request:  dev=0, blk=97864, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42400
+last request:  dev=0, blk=99616, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42401
+last request:  dev=0, blk=102920, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42402
+last request:  dev=0, blk=105648, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42403
+last request:  dev=0, blk=106944, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42404
+last request:  dev=0, blk=108928, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42405
+last request:  dev=0, blk=113840, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42406
+last request:  dev=0, blk=114384, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42407
+last request:  dev=0, blk=116696, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42408
+last request:  dev=0, blk=117240, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42409
+last request:  dev=0, blk=118920, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42410
+last request:  dev=0, blk=120480, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42411
+last request:  dev=0, blk=123352, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42412
+last request:  dev=0, blk=124560, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42413
+last request:  dev=0, blk=125832, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42414
+last request:  dev=0, blk=126680, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42415
+last request:  dev=0, blk=132248, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42416
+last request:  dev=0, blk=133736, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42417
+last request:  dev=0, blk=138928, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42418
+last request:  dev=0, blk=139376, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42419
+last request:  dev=0, blk=141640, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42420
+last request:  dev=0, blk=142024, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42421
+last request:  dev=0, blk=142056, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42422
+last request:  dev=0, blk=142152, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42423
+last request:  dev=0, blk=148216, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42424
+last request:  dev=0, blk=158088, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42425
+last request:  dev=0, blk=159144, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42426
+last request:  dev=0, blk=159232, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42427
+last request:  dev=0, blk=160952, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42428
+last request:  dev=0, blk=162616, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42429
+last request:  dev=0, blk=163560, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42430
+last request:  dev=0, blk=169352, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42431
+last request:  dev=0, blk=173040, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42432
+last request:  dev=0, blk=174600, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42433
+last request:  dev=0, blk=175304, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42434
+last request:  dev=0, blk=177336, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42435
+last request:  dev=0, blk=178032, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42436
+last request:  dev=0, blk=179856, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42437
+last request:  dev=0, blk=180720, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42438
+last request:  dev=0, blk=184752, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42439
+last request:  dev=0, blk=186016, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42440
+last request:  dev=0, blk=186312, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42441
+last request:  dev=0, blk=187176, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42442
+last request:  dev=0, blk=188128, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42443
+last request:  dev=0, blk=192128, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42444
+last request:  dev=0, blk=194096, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42445
+last request:  dev=0, blk=194800, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42446
+last request:  dev=0, blk=195504, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42447
+last request:  dev=0, blk=202816, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42448
+last request:  dev=0, blk=203792, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42449
+last request:  dev=0, blk=204032, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42450
+last request:  dev=0, blk=204232, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42451
+last request:  dev=0, blk=204640, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42452
+last request:  dev=0, blk=205912, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42453
+last request:  dev=0, blk=206648, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42454
+last request:  dev=0, blk=207416, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42455
+last request:  dev=0, blk=208248, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42456
+last request:  dev=0, blk=211544, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42457
+last request:  dev=0, blk=212240, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42458
+last request:  dev=0, blk=214216, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42459
+last request:  dev=0, blk=216696, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42460
+last request:  dev=0, blk=217952, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42461
+last request:  dev=0, blk=218680, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42462
+last request:  dev=0, blk=220272, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42463
+last request:  dev=0, blk=221232, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42464
+last request:  dev=0, blk=222312, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42465
+last request:  dev=0, blk=222656, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42466
+last request:  dev=0, blk=228504, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42467
+last request:  dev=0, blk=230760, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42468
+last request:  dev=0, blk=238976, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42469
+last request:  dev=0, blk=239200, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42470
+last request:  dev=0, blk=240072, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42471
+last request:  dev=0, blk=241392, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42472
+last request:  dev=0, blk=241488, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42473
+last request:  dev=0, blk=243056, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42474
+last request:  dev=0, blk=245296, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42475
+last request:  dev=0, blk=245712, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42476
+last request:  dev=0, blk=248096, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42477
+last request:  dev=0, blk=248992, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42478
+last request:  dev=0, blk=253216, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42479
+last request:  dev=0, blk=253664, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42480
+last request:  dev=0, blk=259184, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42481
+last request:  dev=0, blk=259248, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42482
+last request:  dev=0, blk=259472, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42483
+last request:  dev=0, blk=262112, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42484
+last request:  dev=0, blk=264424, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42485
+last request:  dev=0, blk=264904, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42486
+last request:  dev=0, blk=265792, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42487
+last request:  dev=0, blk=266672, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42488
+last request:  dev=0, blk=267568, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42489
+last request:  dev=0, blk=270264, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42490
+last request:  dev=0, blk=270352, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42491
+last request:  dev=0, blk=273760, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42492
+last request:  dev=0, blk=278088, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42493
+last request:  dev=0, blk=278184, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42494
+last request:  dev=0, blk=278984, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42495
+last request:  dev=0, blk=279208, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42496
+last request:  dev=0, blk=279296, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42497
+last request:  dev=0, blk=279392, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42498
+last request:  dev=0, blk=279608, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42499
+last request:  dev=0, blk=281024, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42500
+last request:  dev=0, blk=283952, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42501
+last request:  dev=0, blk=286600, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42502
+last request:  dev=0, blk=289784, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42503
+last request:  dev=0, blk=290384, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42504
+last request:  dev=0, blk=293104, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42505
+last request:  dev=0, blk=294440, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42506
+last request:  dev=0, blk=294504, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42507
+last request:  dev=0, blk=294984, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42508
+last request:  dev=0, blk=295400, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42509
+last request:  dev=0, blk=299288, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42510
+last request:  dev=0, blk=303968, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42511
+last request:  dev=0, blk=305624, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42512
+last request:  dev=0, blk=307776, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42513
+last request:  dev=0, blk=307872, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42514
+last request:  dev=0, blk=308416, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42515
+last request:  dev=0, blk=309280, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42516
+last request:  dev=0, blk=309760, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42517
+last request:  dev=0, blk=309984, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42518
+last request:  dev=0, blk=310968, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42519
+last request:  dev=0, blk=311224, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42520
+last request:  dev=0, blk=311352, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42521
+last request:  dev=0, blk=311920, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42522
+last request:  dev=0, blk=314736, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42523
+last request:  dev=0, blk=315152, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42524
+last request:  dev=0, blk=323640, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42525
+last request:  dev=0, blk=1560, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42526
+last request:  dev=0, blk=3672, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42527
+last request:  dev=0, blk=10776, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42528
+last request:  dev=0, blk=11864, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42529
+last request:  dev=0, blk=12728, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42530
+last request:  dev=0, blk=14872, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42531
+last request:  dev=0, blk=20688, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42532
+last request:  dev=0, blk=21832, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42533
+last request:  dev=0, blk=22056, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42534
+last request:  dev=0, blk=28736, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42535
+last request:  dev=0, blk=31632, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42536
+last request:  dev=0, blk=31760, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42537
+last request:  dev=0, blk=31952, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42538
+last request:  dev=0, blk=32328, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42539
+last request:  dev=0, blk=38328, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42540
+last request:  dev=0, blk=42296, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42541
+last request:  dev=0, blk=44672, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42542
+last request:  dev=0, blk=47368, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42543
+last request:  dev=0, blk=47432, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42544
+last request:  dev=0, blk=47800, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42545
+last request:  dev=0, blk=49144, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42546
+last request:  dev=0, blk=50288, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42547
+last request:  dev=0, blk=50384, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42548
+last request:  dev=0, blk=55392, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42549
+last request:  dev=0, blk=55552, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42550
+last request:  dev=0, blk=56448, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42551
+last request:  dev=0, blk=61944, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42552
+last request:  dev=0, blk=64792, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42553
+last request:  dev=0, blk=65008, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42554
+last request:  dev=0, blk=65200, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42555
+last request:  dev=0, blk=68016, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42556
+last request:  dev=0, blk=69992, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42557
+last request:  dev=0, blk=71808, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42558
+last request:  dev=0, blk=74064, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42559
+last request:  dev=0, blk=75136, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42560
+last request:  dev=0, blk=75488, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42561
+last request:  dev=0, blk=79176, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42562
+last request:  dev=0, blk=79552, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42563
+last request:  dev=0, blk=81384, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42564
+last request:  dev=0, blk=86296, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42565
+last request:  dev=0, blk=86968, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42566
+last request:  dev=0, blk=90216, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42567
+last request:  dev=0, blk=92312, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42568
+last request:  dev=0, blk=93400, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42569
+last request:  dev=0, blk=94832, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42570
+last request:  dev=0, blk=98504, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42571
+last request:  dev=0, blk=100632, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42572
+last request:  dev=0, blk=100824, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42573
+last request:  dev=0, blk=101048, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42574
+last request:  dev=0, blk=102000, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42575
+last request:  dev=0, blk=102736, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42576
+last request:  dev=0, blk=106720, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42577
+last request:  dev=0, blk=106912, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42578
+last request:  dev=0, blk=107712, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42579
+last request:  dev=0, blk=111320, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42580
+last request:  dev=0, blk=111920, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42581
+last request:  dev=0, blk=119048, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42582
+last request:  dev=0, blk=122744, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42583
+last request:  dev=0, blk=125256, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42584
+last request:  dev=0, blk=125640, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42585
+last request:  dev=0, blk=125960, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42586
+last request:  dev=0, blk=126272, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42587
+last request:  dev=0, blk=130264, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42588
+last request:  dev=0, blk=130424, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42589
+last request:  dev=0, blk=131448, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42590
+last request:  dev=0, blk=132840, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42591
+last request:  dev=0, blk=133576, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42592
+last request:  dev=0, blk=134728, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42593
+last request:  dev=0, blk=137928, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42594
+last request:  dev=0, blk=138488, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42595
+last request:  dev=0, blk=139056, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42596
+last request:  dev=0, blk=139152, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42597
+last request:  dev=0, blk=145416, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42598
+last request:  dev=0, blk=145672, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42599
+last request:  dev=0, blk=150064, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42600
+last request:  dev=0, blk=150952, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42601
+last request:  dev=0, blk=152392, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42602
+last request:  dev=0, blk=154456, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42603
+last request:  dev=0, blk=155192, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42604
+last request:  dev=0, blk=155352, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42605
+last request:  dev=0, blk=155960, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42606
+last request:  dev=0, blk=156856, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42607
+last request:  dev=0, blk=157624, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42608
+last request:  dev=0, blk=159904, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42609
+last request:  dev=0, blk=161720, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42610
+last request:  dev=0, blk=162104, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42611
+last request:  dev=0, blk=163592, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42612
+last request:  dev=0, blk=167696, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42613
+last request:  dev=0, blk=173712, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42614
+last request:  dev=0, blk=175592, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42615
+last request:  dev=0, blk=176792, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42616
+last request:  dev=0, blk=183888, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42617
+last request:  dev=0, blk=184560, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42618
+last request:  dev=0, blk=188536, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42619
+last request:  dev=0, blk=189912, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42620
+last request:  dev=0, blk=191584, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42621
+last request:  dev=0, blk=193680, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42622
+last request:  dev=0, blk=198144, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42623
+last request:  dev=0, blk=199168, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42624
+last request:  dev=0, blk=201824, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42625
+last request:  dev=0, blk=203888, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42626
+last request:  dev=0, blk=204016, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42627
+last request:  dev=0, blk=204552, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42628
+last request:  dev=0, blk=209192, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42629
+last request:  dev=0, blk=209384, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42630
+last request:  dev=0, blk=209672, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42631
+last request:  dev=0, blk=209768, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42632
+last request:  dev=0, blk=210592, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42633
+last request:  dev=0, blk=212208, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42634
+last request:  dev=0, blk=218584, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42635
+last request:  dev=0, blk=225624, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42636
+last request:  dev=0, blk=226040, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42637
+last request:  dev=0, blk=226712, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42638
+last request:  dev=0, blk=228024, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42639
+last request:  dev=0, blk=229800, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42640
+last request:  dev=0, blk=230728, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42641
+last request:  dev=0, blk=231928, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42642
+last request:  dev=0, blk=236048, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42643
+last request:  dev=0, blk=236272, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42644
+last request:  dev=0, blk=237256, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42645
+last request:  dev=0, blk=241872, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42646
+last request:  dev=0, blk=245104, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42647
+last request:  dev=0, blk=246216, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42648
+last request:  dev=0, blk=247648, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42649
+last request:  dev=0, blk=248128, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42650
+last request:  dev=0, blk=250680, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42651
+last request:  dev=0, blk=252256, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42652
+last request:  dev=0, blk=252800, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42653
+last request:  dev=0, blk=252960, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42654
+last request:  dev=0, blk=254880, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42655
+last request:  dev=0, blk=255936, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42656
+last request:  dev=0, blk=257120, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42657
+last request:  dev=0, blk=260016, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42658
+last request:  dev=0, blk=269952, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42659
+last request:  dev=0, blk=271680, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42660
+last request:  dev=0, blk=277008, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42661
+last request:  dev=0, blk=277232, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42662
+last request:  dev=0, blk=277768, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42663
+last request:  dev=0, blk=278440, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42664
+last request:  dev=0, blk=283792, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42665
+last request:  dev=0, blk=284176, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42666
+last request:  dev=0, blk=287528, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42667
+last request:  dev=0, blk=288352, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42668
+last request:  dev=0, blk=289208, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42669
+last request:  dev=0, blk=290448, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42670
+last request:  dev=0, blk=294280, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42671
+last request:  dev=0, blk=295176, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42672
+last request:  dev=0, blk=295336, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42673
+last request:  dev=0, blk=295912, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42674
+last request:  dev=0, blk=297536, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42675
+last request:  dev=0, blk=297728, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42676
+last request:  dev=0, blk=299480, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42677
+last request:  dev=0, blk=299864, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42678
+last request:  dev=0, blk=301064, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42679
+last request:  dev=0, blk=301256, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42680
+last request:  dev=0, blk=303776, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42681
+last request:  dev=0, blk=304064, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42682
+last request:  dev=0, blk=306480, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42683
+last request:  dev=0, blk=307392, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42684
+last request:  dev=0, blk=309184, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42685
+last request:  dev=0, blk=310520, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42686
+last request:  dev=0, blk=312336, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42687
+last request:  dev=0, blk=313224, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42688
+last request:  dev=0, blk=314072, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42689
+last request:  dev=0, blk=315184, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42690
+last request:  dev=0, blk=1528, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42691
+last request:  dev=0, blk=3704, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42692
+last request:  dev=0, blk=4400, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42693
+last request:  dev=0, blk=6840, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42694
+last request:  dev=0, blk=7416, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42695
+last request:  dev=0, blk=9088, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42696
+last request:  dev=0, blk=11704, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42697
+last request:  dev=0, blk=12984, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42698
+last request:  dev=0, blk=17064, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42699
+last request:  dev=0, blk=19248, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42700
+last request:  dev=0, blk=22504, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42701
+last request:  dev=0, blk=23432, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42702
+last request:  dev=0, blk=28576, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42703
+last request:  dev=0, blk=31472, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42704
+last request:  dev=0, blk=32048, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42705
+last request:  dev=0, blk=34040, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42706
+last request:  dev=0, blk=35952, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42707
+last request:  dev=0, blk=38144, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42708
+last request:  dev=0, blk=42104, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42709
+last request:  dev=0, blk=42512, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42710
+last request:  dev=0, blk=46760, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42711
+last request:  dev=0, blk=49648, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42712
+last request:  dev=0, blk=51744, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42713
+last request:  dev=0, blk=52672, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42714
+last request:  dev=0, blk=53568, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42715
+last request:  dev=0, blk=55744, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42716
+last request:  dev=0, blk=57472, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42717
+last request:  dev=0, blk=60208, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42718
+last request:  dev=0, blk=62392, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42719
+last request:  dev=0, blk=66896, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42720
+last request:  dev=0, blk=67856, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42721
+last request:  dev=0, blk=70568, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42722
+last request:  dev=0, blk=79568, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42723
+last request:  dev=0, blk=82432, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42724
+last request:  dev=0, blk=83272, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42725
+last request:  dev=0, blk=84960, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42726
+last request:  dev=0, blk=85176, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42727
+last request:  dev=0, blk=87696, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42728
+last request:  dev=0, blk=87984, cnt=64, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42729
+last request:  dev=0, blk=88240, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42730
+last request:  dev=0, blk=90408, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42731
+last request:  dev=0, blk=92632, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42732
+last request:  dev=0, blk=92856, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42733
+last request:  dev=0, blk=93528, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42734
+last request:  dev=0, blk=95440, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42735
+last request:  dev=0, blk=97928, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42736
+last request:  dev=0, blk=99456, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42737
+last request:  dev=0, blk=100344, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42738
+last request:  dev=0, blk=106624, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42739
+last request:  dev=0, blk=109496, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42740
+last request:  dev=0, blk=110032, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42741
+last request:  dev=0, blk=110064, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42742
+last request:  dev=0, blk=110952, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42743
+last request:  dev=0, blk=113136, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42744
+last request:  dev=0, blk=117144, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42745
+last request:  dev=0, blk=117616, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42746
+last request:  dev=0, blk=121856, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42747
+last request:  dev=0, blk=128136, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42748
+last request:  dev=0, blk=128552, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42749
+last request:  dev=0, blk=129512, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42750
+last request:  dev=0, blk=132024, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42751
+last request:  dev=0, blk=133928, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42752
+last request:  dev=0, blk=133992, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42753
+last request:  dev=0, blk=135840, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42754
+last request:  dev=0, blk=137168, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42755
+last request:  dev=0, blk=137488, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42756
+last request:  dev=0, blk=138424, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42757
+last request:  dev=0, blk=140400, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42758
+last request:  dev=0, blk=142312, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42759
+last request:  dev=0, blk=144784, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42760
+last request:  dev=0, blk=145232, cnt=64, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42761
+last request:  dev=0, blk=145768, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42762
+last request:  dev=0, blk=149328, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42763
+last request:  dev=0, blk=149392, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42764
+last request:  dev=0, blk=150984, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42765
+last request:  dev=0, blk=151848, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42766
+last request:  dev=0, blk=152136, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42767
+last request:  dev=0, blk=152832, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42768
+last request:  dev=0, blk=154040, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42769
+last request:  dev=0, blk=156280, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42770
+last request:  dev=0, blk=161272, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42771
+last request:  dev=0, blk=162168, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42772
+last request:  dev=0, blk=162328, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42773
+last request:  dev=0, blk=163368, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42774
+last request:  dev=0, blk=164264, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42775
+last request:  dev=0, blk=164416, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42776
+last request:  dev=0, blk=165056, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42777
+last request:  dev=0, blk=166704, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42778
+last request:  dev=0, blk=168296, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42779
+last request:  dev=0, blk=171384, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42780
+last request:  dev=0, blk=172208, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42781
+last request:  dev=0, blk=174160, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42782
+last request:  dev=0, blk=175872, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42783
+last request:  dev=0, blk=176344, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42784
+last request:  dev=0, blk=178160, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42785
+last request:  dev=0, blk=179568, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42786
+last request:  dev=0, blk=180880, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42787
+last request:  dev=0, blk=181168, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42788
+last request:  dev=0, blk=182992, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42789
+last request:  dev=0, blk=183856, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42790
+last request:  dev=0, blk=184144, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42791
+last request:  dev=0, blk=185992, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42792
+last request:  dev=0, blk=187048, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42793
+last request:  dev=0, blk=188944, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42794
+last request:  dev=0, blk=192848, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42795
+last request:  dev=0, blk=194128, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42796
+last request:  dev=0, blk=194672, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42797
+last request:  dev=0, blk=195120, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42798
+last request:  dev=0, blk=197104, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42799
+last request:  dev=0, blk=197520, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42800
+last request:  dev=0, blk=197616, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42801
+last request:  dev=0, blk=199872, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42802
+last request:  dev=0, blk=201696, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42803
+last request:  dev=0, blk=204360, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42804
+last request:  dev=0, blk=206584, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42805
+last request:  dev=0, blk=207928, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42806
+last request:  dev=0, blk=208376, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42807
+last request:  dev=0, blk=210464, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42808
+last request:  dev=0, blk=211512, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42809
+last request:  dev=0, blk=218016, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42810
+last request:  dev=0, blk=218392, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42811
+last request:  dev=0, blk=221520, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42812
+last request:  dev=0, blk=224920, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42813
+last request:  dev=0, blk=228120, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42814
+last request:  dev=0, blk=229704, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42815
+last request:  dev=0, blk=231304, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42816
+last request:  dev=0, blk=232184, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42817
+last request:  dev=0, blk=234608, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42818
+last request:  dev=0, blk=235952, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42819
+last request:  dev=0, blk=238112, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42820
+last request:  dev=0, blk=241424, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42821
+last request:  dev=0, blk=241520, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42822
+last request:  dev=0, blk=248672, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42823
+last request:  dev=0, blk=253728, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42824
+last request:  dev=0, blk=257056, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42825
+last request:  dev=0, blk=258384, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42826
+last request:  dev=0, blk=259408, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42827
+last request:  dev=0, blk=259536, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42828
+last request:  dev=0, blk=261320, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42829
+last request:  dev=0, blk=265760, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42830
+last request:  dev=0, blk=265856, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42831
+last request:  dev=0, blk=266200, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42832
+last request:  dev=0, blk=266896, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42833
+last request:  dev=0, blk=270504, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42834
+last request:  dev=0, blk=272384, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42835
+last request:  dev=0, blk=276336, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42836
+last request:  dev=0, blk=277360, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42837
+last request:  dev=0, blk=278856, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42838
+last request:  dev=0, blk=279144, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42839
+last request:  dev=0, blk=279896, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42840
+last request:  dev=0, blk=280272, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42841
+last request:  dev=0, blk=280768, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42842
+last request:  dev=0, blk=281680, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42843
+last request:  dev=0, blk=282224, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42844
+last request:  dev=0, blk=286152, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42845
+last request:  dev=0, blk=289048, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42846
+last request:  dev=0, blk=289880, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42847
+last request:  dev=0, blk=296520, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42848
+last request:  dev=0, blk=298456, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42849
+last request:  dev=0, blk=299896, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42850
+last request:  dev=0, blk=300136, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42851
+last request:  dev=0, blk=301640, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42852
+last request:  dev=0, blk=302056, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42853
+last request:  dev=0, blk=303008, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42854
+last request:  dev=0, blk=305048, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42855
+last request:  dev=0, blk=307168, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42856
+last request:  dev=0, blk=307808, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42857
+last request:  dev=0, blk=310280, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42858
+last request:  dev=0, blk=311032, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42859
+last request:  dev=0, blk=315248, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42860
+last request:  dev=0, blk=315632, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42861
+last request:  dev=0, blk=316296, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42862
+last request:  dev=0, blk=316576, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42863
+last request:  dev=0, blk=317696, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42864
+last request:  dev=0, blk=318512, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42865
+last request:  dev=0, blk=318896, cnt=56, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42866
+last request:  dev=0, blk=319880, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42867
+last request:  dev=0, blk=320104, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42868
+last request:  dev=0, blk=320544, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42869
+last request:  dev=0, blk=320840, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42870
+last request:  dev=0, blk=320960, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42871
+last request:  dev=0, blk=321288, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42872
+last request:  dev=0, blk=321984, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42873
+last request:  dev=0, blk=322168, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42874
+last request:  dev=0, blk=322632, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42875
+last request:  dev=0, blk=323672, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42876
+last request:  dev=0, blk=98656, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42877
+last request:  dev=0, blk=888, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42878
+last request:  dev=0, blk=1464, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42879
+last request:  dev=0, blk=3544, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42880
+last request:  dev=0, blk=4712, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42881
+last request:  dev=0, blk=5056, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42882
+last request:  dev=0, blk=9168, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42883
+last request:  dev=0, blk=9264, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42884
+last request:  dev=0, blk=11928, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42885
+last request:  dev=0, blk=12792, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42886
+last request:  dev=0, blk=17544, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42887
+last request:  dev=0, blk=17704, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42888
+last request:  dev=0, blk=17832, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42889
+last request:  dev=0, blk=18440, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42890
+last request:  dev=0, blk=19504, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42891
+last request:  dev=0, blk=20048, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42892
+last request:  dev=0, blk=20944, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42893
+last request:  dev=0, blk=21992, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42894
+last request:  dev=0, blk=22152, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42895
+last request:  dev=0, blk=23768, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42896
+last request:  dev=0, blk=25296, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42897
+last request:  dev=0, blk=25424, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42898
+last request:  dev=0, blk=26032, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42899
+last request:  dev=0, blk=27192, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42900
+last request:  dev=0, blk=29200, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42901
+last request:  dev=0, blk=30064, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42902
+last request:  dev=0, blk=34472, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42903
+last request:  dev=0, blk=37632, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42904
+last request:  dev=0, blk=40640, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42905
+last request:  dev=0, blk=42544, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42906
+last request:  dev=0, blk=42792, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42907
+last request:  dev=0, blk=44352, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42908
+last request:  dev=0, blk=44448, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42909
+last request:  dev=0, blk=44896, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42910
+last request:  dev=0, blk=45440, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42911
+last request:  dev=0, blk=45600, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42912
+last request:  dev=0, blk=45816, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42913
+last request:  dev=0, blk=46192, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42914
+last request:  dev=0, blk=46600, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42915
+last request:  dev=0, blk=47080, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42916
+last request:  dev=0, blk=48504, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42917
+last request:  dev=0, blk=50160, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42918
+last request:  dev=0, blk=51232, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42919
+last request:  dev=0, blk=51296, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42920
+last request:  dev=0, blk=51872, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42921
+last request:  dev=0, blk=52800, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42922
+last request:  dev=0, blk=55136, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42923
+last request:  dev=0, blk=56000, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42924
+last request:  dev=0, blk=57568, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42925
+last request:  dev=0, blk=58176, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42926
+last request:  dev=0, blk=58272, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42927
+last request:  dev=0, blk=59328, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42928
+last request:  dev=0, blk=60496, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42929
+last request:  dev=0, blk=63328, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42930
+last request:  dev=0, blk=63704, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42931
+last request:  dev=0, blk=64600, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42932
+last request:  dev=0, blk=66640, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42933
+last request:  dev=0, blk=67312, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42934
+last request:  dev=0, blk=74944, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42935
+last request:  dev=0, blk=76880, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42936
+last request:  dev=0, blk=77296, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42937
+last request:  dev=0, blk=79912, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42938
+last request:  dev=0, blk=80200, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42939
+last request:  dev=0, blk=80488, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42940
+last request:  dev=0, blk=82400, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42941
+last request:  dev=0, blk=87472, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42942
+last request:  dev=0, blk=88720, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42943
+last request:  dev=0, blk=89776, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42944
+last request:  dev=0, blk=90944, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42945
+last request:  dev=0, blk=92152, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42946
+last request:  dev=0, blk=92792, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42947
+last request:  dev=0, blk=96336, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42948
+last request:  dev=0, blk=96744, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42949
+last request:  dev=0, blk=97320, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42950
+last request:  dev=0, blk=99832, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42951
+last request:  dev=0, blk=102128, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42952
+last request:  dev=0, blk=105216, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42953
+last request:  dev=0, blk=105552, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42954
+last request:  dev=0, blk=106248, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42955
+last request:  dev=0, blk=107296, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42956
+last request:  dev=0, blk=108960, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42957
+last request:  dev=0, blk=109808, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42958
+last request:  dev=0, blk=109872, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42959
+last request:  dev=0, blk=112624, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42960
+last request:  dev=0, blk=112656, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42961
+last request:  dev=0, blk=113808, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42962
+last request:  dev=0, blk=115512, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42963
+last request:  dev=0, blk=116568, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42964
+last request:  dev=0, blk=121920, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42965
+last request:  dev=0, blk=126368, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42966
+last request:  dev=0, blk=128008, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42967
+last request:  dev=0, blk=128200, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42968
+last request:  dev=0, blk=128648, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42969
+last request:  dev=0, blk=128680, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42970
+last request:  dev=0, blk=128776, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42971
+last request:  dev=0, blk=132872, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42972
+last request:  dev=0, blk=136664, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42973
+last request:  dev=0, blk=140976, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42974
+last request:  dev=0, blk=141200, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42975
+last request:  dev=0, blk=141704, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42976
+last request:  dev=0, blk=143288, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42977
+last request:  dev=0, blk=143960, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42978
+last request:  dev=0, blk=145040, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42979
+last request:  dev=0, blk=145832, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42980
+last request:  dev=0, blk=150272, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42981
+last request:  dev=0, blk=156600, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42982
+last request:  dev=0, blk=156632, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42983
+last request:  dev=0, blk=158072, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42984
+last request:  dev=0, blk=158184, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42985
+last request:  dev=0, blk=158376, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42986
+last request:  dev=0, blk=158792, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42987
+last request:  dev=0, blk=158856, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42988
+last request:  dev=0, blk=159136, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42989
+last request:  dev=0, blk=159776, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42990
+last request:  dev=0, blk=161560, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42991
+last request:  dev=0, blk=162456, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42992
+last request:  dev=0, blk=166696, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42993
+last request:  dev=0, blk=167664, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42994
+last request:  dev=0, blk=168328, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42995
+last request:  dev=0, blk=168872, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42996
+last request:  dev=0, blk=169192, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42997
+last request:  dev=0, blk=169416, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42998
+last request:  dev=0, blk=169832, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 42999
+last request:  dev=0, blk=171416, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43000
+last request:  dev=0, blk=174896, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43001
+last request:  dev=0, blk=177560, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43002
+last request:  dev=0, blk=179600, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43003
+last request:  dev=0, blk=183792, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43004
+last request:  dev=0, blk=189104, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43005
+last request:  dev=0, blk=189728, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43006
+last request:  dev=0, blk=190136, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43007
+last request:  dev=0, blk=193104, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43008
+last request:  dev=0, blk=198056, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43009
+last request:  dev=0, blk=199840, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43010
+last request:  dev=0, blk=200864, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43011
+last request:  dev=0, blk=200960, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43012
+last request:  dev=0, blk=207160, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43013
+last request:  dev=0, blk=207832, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43014
+last request:  dev=0, blk=207960, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43015
+last request:  dev=0, blk=210528, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43016
+last request:  dev=0, blk=211256, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43017
+last request:  dev=0, blk=212656, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43018
+last request:  dev=0, blk=214408, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43019
+last request:  dev=0, blk=214536, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43020
+last request:  dev=0, blk=214696, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43021
+last request:  dev=0, blk=215168, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43022
+last request:  dev=0, blk=217064, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43023
+last request:  dev=0, blk=218080, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43024
+last request:  dev=0, blk=219888, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43025
+last request:  dev=0, blk=223040, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43026
+last request:  dev=0, blk=228440, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43027
+last request:  dev=0, blk=232056, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43028
+last request:  dev=0, blk=232432, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43029
+last request:  dev=0, blk=233800, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43030
+last request:  dev=0, blk=234960, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43031
+last request:  dev=0, blk=235792, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43032
+last request:  dev=0, blk=236560, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43033
+last request:  dev=0, blk=237096, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43034
+last request:  dev=0, blk=237888, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43035
+last request:  dev=0, blk=238560, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43036
+last request:  dev=0, blk=244272, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43037
+last request:  dev=0, blk=244720, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43038
+last request:  dev=0, blk=245200, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43039
+last request:  dev=0, blk=245768, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43040
+last request:  dev=0, blk=246344, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43041
+last request:  dev=0, blk=250104, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43042
+last request:  dev=0, blk=250616, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43043
+last request:  dev=0, blk=250800, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43044
+last request:  dev=0, blk=251432, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43045
+last request:  dev=0, blk=253920, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43046
+last request:  dev=0, blk=255424, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43047
+last request:  dev=0, blk=259280, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43048
+last request:  dev=0, blk=263576, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43049
+last request:  dev=0, blk=263736, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43050
+last request:  dev=0, blk=267184, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43051
+last request:  dev=0, blk=269256, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43052
+last request:  dev=0, blk=274200, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43053
+last request:  dev=0, blk=277552, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43054
+last request:  dev=0, blk=279048, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43055
+last request:  dev=0, blk=281648, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43056
+last request:  dev=0, blk=281904, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43057
+last request:  dev=0, blk=283200, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43058
+last request:  dev=0, blk=283448, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43059
+last request:  dev=0, blk=284752, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43060
+last request:  dev=0, blk=285488, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43061
+last request:  dev=0, blk=289432, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43062
+last request:  dev=0, blk=290768, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43063
+last request:  dev=0, blk=291264, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43064
+last request:  dev=0, blk=292408, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43065
+last request:  dev=0, blk=292472, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43066
+last request:  dev=0, blk=301672, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43067
+last request:  dev=0, blk=302208, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43068
+last request:  dev=0, blk=302272, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43069
+last request:  dev=0, blk=304256, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43070
+last request:  dev=0, blk=304448, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43071
+last request:  dev=0, blk=305112, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43072
+last request:  dev=0, blk=308864, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43073
+last request:  dev=0, blk=309536, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43074
+last request:  dev=0, blk=309568, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43075
+last request:  dev=0, blk=312464, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43076
+last request:  dev=0, blk=312784, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43077
+last request:  dev=0, blk=322112, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43078
+last request:  dev=0, blk=1016, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43079
+last request:  dev=0, blk=2680, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43080
+last request:  dev=0, blk=3128, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43081
+last request:  dev=0, blk=9296, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43082
+last request:  dev=0, blk=11392, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43083
+last request:  dev=0, blk=13816, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43084
+last request:  dev=0, blk=14264, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43085
+last request:  dev=0, blk=14328, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43086
+last request:  dev=0, blk=16432, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43087
+last request:  dev=0, blk=17736, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43088
+last request:  dev=0, blk=18344, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43089
+last request:  dev=0, blk=18856, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43090
+last request:  dev=0, blk=23016, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43091
+last request:  dev=0, blk=25744, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43092
+last request:  dev=0, blk=26000, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43093
+last request:  dev=0, blk=26760, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43094
+last request:  dev=0, blk=36272, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43095
+last request:  dev=0, blk=42920, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43096
+last request:  dev=0, blk=50704, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43097
+last request:  dev=0, blk=50912, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43098
+last request:  dev=0, blk=51392, cnt=64, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43099
+last request:  dev=0, blk=52960, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43100
+last request:  dev=0, blk=54208, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43101
+last request:  dev=0, blk=56640, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43102
+last request:  dev=0, blk=56992, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43103
+last request:  dev=0, blk=58336, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43104
+last request:  dev=0, blk=59136, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43105
+last request:  dev=0, blk=62928, cnt=64, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43106
+last request:  dev=0, blk=64632, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43107
+last request:  dev=0, blk=65296, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43108
+last request:  dev=0, blk=70600, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43109
+last request:  dev=0, blk=72000, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43110
+last request:  dev=0, blk=73168, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43111
+last request:  dev=0, blk=78408, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43112
+last request:  dev=0, blk=78632, cnt=48, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43113
+last request:  dev=0, blk=79208, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43114
+last request:  dev=0, blk=79264, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43115
+last request:  dev=0, blk=80008, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43116
+last request:  dev=0, blk=80904, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43117
+last request:  dev=0, blk=81832, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43118
+last request:  dev=0, blk=81896, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43119
+last request:  dev=0, blk=82368, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43120
+last request:  dev=0, blk=83432, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43121
+last request:  dev=0, blk=85304, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43122
+last request:  dev=0, blk=85560, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43123
+last request:  dev=0, blk=86168, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43124
+last request:  dev=0, blk=87224, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43125
+last request:  dev=0, blk=88304, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43126
+last request:  dev=0, blk=88848, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43127
+last request:  dev=0, blk=92000, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43128
+last request:  dev=0, blk=93912, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43129
+last request:  dev=0, blk=94992, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43130
+last request:  dev=0, blk=98472, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43131
+last request:  dev=0, blk=104616, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43132
+last request:  dev=0, blk=104864, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43133
+last request:  dev=0, blk=105184, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43134
+last request:  dev=0, blk=107232, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43135
+last request:  dev=0, blk=108200, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43136
+last request:  dev=0, blk=110544, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43137
+last request:  dev=0, blk=114096, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43138
+last request:  dev=0, blk=114528, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43139
+last request:  dev=0, blk=116056, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43140
+last request:  dev=0, blk=118032, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43141
+last request:  dev=0, blk=120768, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43142
+last request:  dev=0, blk=120896, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43143
+last request:  dev=0, blk=123736, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43144
+last request:  dev=0, blk=125128, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43145
+last request:  dev=0, blk=125448, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43146
+last request:  dev=0, blk=125952, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43147
+last request:  dev=0, blk=126840, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43148
+last request:  dev=0, blk=126968, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43149
+last request:  dev=0, blk=139344, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43150
+last request:  dev=0, blk=139408, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43151
+last request:  dev=0, blk=141008, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43152
+last request:  dev=0, blk=142088, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43153
+last request:  dev=0, blk=143576, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43154
+last request:  dev=0, blk=143736, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43155
+last request:  dev=0, blk=144912, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43156
+last request:  dev=0, blk=149776, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43157
+last request:  dev=0, blk=150600, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43158
+last request:  dev=0, blk=154584, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43159
+last request:  dev=0, blk=156056, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43160
+last request:  dev=0, blk=156504, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43161
+last request:  dev=0, blk=156728, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43162
+last request:  dev=0, blk=158128, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43163
+last request:  dev=0, blk=163336, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43164
+last request:  dev=0, blk=163496, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43165
+last request:  dev=0, blk=165400, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43166
+last request:  dev=0, blk=165816, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43167
+last request:  dev=0, blk=167480, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43168
+last request:  dev=0, blk=169256, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43169
+last request:  dev=0, blk=170528, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43170
+last request:  dev=0, blk=173104, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43171
+last request:  dev=0, blk=173968, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43172
+last request:  dev=0, blk=178192, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43173
+last request:  dev=0, blk=181200, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43174
+last request:  dev=0, blk=182704, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43175
+last request:  dev=0, blk=186088, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43176
+last request:  dev=0, blk=191240, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43177
+last request:  dev=0, blk=196976, cnt=64, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43178
+last request:  dev=0, blk=198000, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43179
+last request:  dev=0, blk=198848, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43180
+last request:  dev=0, blk=200928, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43181
+last request:  dev=0, blk=201600, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43182
+last request:  dev=0, blk=202112, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43183
+last request:  dev=0, blk=202880, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43184
+last request:  dev=0, blk=203224, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43185
+last request:  dev=0, blk=207736, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43186
+last request:  dev=0, blk=208216, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43187
+last request:  dev=0, blk=208728, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43188
+last request:  dev=0, blk=210936, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43189
+last request:  dev=0, blk=212560, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43190
+last request:  dev=0, blk=213672, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43191
+last request:  dev=0, blk=214280, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43192
+last request:  dev=0, blk=221680, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43193
+last request:  dev=0, blk=224952, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43194
+last request:  dev=0, blk=227192, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43195
+last request:  dev=0, blk=227288, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43196
+last request:  dev=0, blk=227768, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43197
+last request:  dev=0, blk=230920, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43198
+last request:  dev=0, blk=231960, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43199
+last request:  dev=0, blk=232208, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43200
+last request:  dev=0, blk=234576, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43201
+last request:  dev=0, blk=236240, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43202
+last request:  dev=0, blk=238240, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43203
+last request:  dev=0, blk=243728, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43204
+last request:  dev=0, blk=244080, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43205
+last request:  dev=0, blk=247208, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43206
+last request:  dev=0, blk=247680, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43207
+last request:  dev=0, blk=249344, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43208
+last request:  dev=0, blk=251816, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43209
+last request:  dev=0, blk=252576, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43210
+last request:  dev=0, blk=252992, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43211
+last request:  dev=0, blk=254912, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43212
+last request:  dev=0, blk=265032, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43213
+last request:  dev=0, blk=265192, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43214
+last request:  dev=0, blk=265824, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43215
+last request:  dev=0, blk=267024, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43216
+last request:  dev=0, blk=268360, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43217
+last request:  dev=0, blk=272128, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43218
+last request:  dev=0, blk=275288, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43219
+last request:  dev=0, blk=281424, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43220
+last request:  dev=0, blk=282192, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43221
+last request:  dev=0, blk=285744, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43222
+last request:  dev=0, blk=289752, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43223
+last request:  dev=0, blk=291640, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43224
+last request:  dev=0, blk=292440, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43225
+last request:  dev=0, blk=292728, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43226
+last request:  dev=0, blk=293896, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43227
+last request:  dev=0, blk=301128, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43228
+last request:  dev=0, blk=304856, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43229
+last request:  dev=0, blk=305560, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43230
+last request:  dev=0, blk=309312, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43231
+last request:  dev=0, blk=310264, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43232
+last request:  dev=0, blk=310424, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43233
+last request:  dev=0, blk=310904, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43234
+last request:  dev=0, blk=313064, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43235
+last request:  dev=0, blk=314488, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43236
+last request:  dev=0, blk=315024, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43237
+last request:  dev=0, blk=318640, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43238
+last request:  dev=0, blk=318768, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43239
+last request:  dev=0, blk=319248, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43240
+last request:  dev=0, blk=319656, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43241
+last request:  dev=0, blk=320936, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43242
+last request:  dev=0, blk=321032, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43243
+last request:  dev=0, blk=322200, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43244
+last request:  dev=0, blk=322944, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43245
+last request:  dev=0, blk=323168, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43246
+last request:  dev=0, blk=323824, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43247
+last request:  dev=0, blk=324048, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43248
+last request:  dev=0, blk=324560, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43249
+last request:  dev=0, blk=324880, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43250
+last request:  dev=0, blk=325232, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43251
+last request:  dev=0, blk=325576, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43252
+last request:  dev=0, blk=325928, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43253
+last request:  dev=0, blk=325992, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43254
+last request:  dev=0, blk=326120, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43255
+last request:  dev=0, blk=326456, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43256
+last request:  dev=0, blk=326520, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43257
+last request:  dev=0, blk=326664, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43258
+last request:  dev=0, blk=326696, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43259
+last request:  dev=0, blk=327032, cnt=56, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43260
+last request:  dev=0, blk=328288, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43261
+last request:  dev=0, blk=9024, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43262
+last request:  dev=0, blk=23040, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43263
+last request:  dev=0, blk=24720, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43264
+last request:  dev=0, blk=24784, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43265
+last request:  dev=0, blk=25648, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43266
+last request:  dev=0, blk=26096, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43267
+last request:  dev=0, blk=30576, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43268
+last request:  dev=0, blk=34008, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43269
+last request:  dev=0, blk=36464, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43270
+last request:  dev=0, blk=55680, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43271
+last request:  dev=0, blk=65328, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43272
+last request:  dev=0, blk=66544, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43273
+last request:  dev=0, blk=76624, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43274
+last request:  dev=0, blk=93112, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43275
+last request:  dev=0, blk=93272, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43276
+last request:  dev=0, blk=93920, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43277
+last request:  dev=0, blk=109464, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43278
+last request:  dev=0, blk=112592, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43279
+last request:  dev=0, blk=123352, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43280
+last request:  dev=0, blk=128936, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43281
+last request:  dev=0, blk=132584, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43282
+last request:  dev=0, blk=133032, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43283
+last request:  dev=0, blk=133256, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43284
+last request:  dev=0, blk=135872, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43285
+last request:  dev=0, blk=150248, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43286
+last request:  dev=0, blk=155704, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43287
+last request:  dev=0, blk=157368, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43288
+last request:  dev=0, blk=164768, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43289
+last request:  dev=0, blk=168712, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43290
+last request:  dev=0, blk=173008, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43291
+last request:  dev=0, blk=174888, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43292
+last request:  dev=0, blk=175048, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43293
+last request:  dev=0, blk=179568, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43294
+last request:  dev=0, blk=180368, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43295
+last request:  dev=0, blk=190984, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43296
+last request:  dev=0, blk=195376, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43297
+last request:  dev=0, blk=207512, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43298
+last request:  dev=0, blk=215552, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43299
+last request:  dev=0, blk=218680, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43300
+last request:  dev=0, blk=218744, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43301
+last request:  dev=0, blk=225464, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43302
+last request:  dev=0, blk=240624, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43303
+last request:  dev=0, blk=253152, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43304
+last request:  dev=0, blk=261160, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43305
+last request:  dev=0, blk=265576, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43306
+last request:  dev=0, blk=293136, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43307
+last request:  dev=0, blk=317776, cnt=16, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43308
+last request:  dev=0, blk=20304, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43309
+last request:  dev=0, blk=21288, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43310
+last request:  dev=0, blk=41208, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43311
+last request:  dev=0, blk=61536, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43312
+last request:  dev=0, blk=74504, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43313
+last request:  dev=0, blk=101648, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43314
+last request:  dev=0, blk=103400, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43315
+last request:  dev=0, blk=104136, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43316
+last request:  dev=0, blk=121888, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43317
+last request:  dev=0, blk=136912, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43318
+last request:  dev=0, blk=200096, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43319
+last request:  dev=0, blk=202240, cnt=16, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43320
+last request:  dev=0, blk=223736, cnt=32, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43321
+last request:  dev=0, blk=249120, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43322
+last request:  dev=0, blk=252864, cnt=24, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43323
+last request:  dev=0, blk=310264, cnt=8, 0 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43324
+last request:  dev=0, blk=323256, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43325
+last request:  dev=0, blk=78112, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43326
+last request:  dev=0, blk=301568, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43327
+last request:  dev=0, blk=44032, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43328
+last request:  dev=0, blk=218640, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43329
+last request:  dev=0, blk=329272, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43330
+last request:  dev=0, blk=22688, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43331
+last request:  dev=0, blk=155920, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43332
+last request:  dev=0, blk=257832, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43333
+last request:  dev=0, blk=64848, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43334
+last request:  dev=0, blk=86952, cnt=16, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43335
+last request:  dev=0, blk=330024, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43336
+last request:  dev=0, blk=5336, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43337
+last request:  dev=0, blk=141032, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43338
+last request:  dev=0, blk=247360, cnt=8, 1 (R==1)
+Stopping simulation because of saturation: simtime 3164.541573, totalreqs 43339
+last request:  dev=0, blk=259592, cnt=8, 1 (R==1)
