@@ -5362,9 +5362,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       }
       if(current_block[channel_num][plane].current_mark_count == 0)
       {
-        //fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
-        //printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
-        continue;
+        //this code will make sure write intensive block do their work,so, if only use page striping
+        //you will be stuck at there
+        //continue;
       }
       
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5395,6 +5395,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         }
         
       }
+      else if(1){
+		return;
+	  }
       /*
        * if the page already been marked 
        * */

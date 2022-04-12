@@ -5253,6 +5253,9 @@ void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_ca
 }
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
+  FILE *wb=fopen("bug.txt","w");
+  fprintf(wb,"%f\n",curr1->time);
+  fclose(wb);
   int i = 0,j = 0,b1=0,k=0,w,channel_1,plane_1,mark_block_num;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
   profit *insert,*prev,*current,*start;
