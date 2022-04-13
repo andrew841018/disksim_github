@@ -5654,7 +5654,8 @@ void mark_for_read_intensive_buffer(buffer_cache *ptr_buffer_cache)
       ptr_lru_node->page[i].channel_num = channel_num;
       ptr_lru_node->page[i].plane = plane;
       ptr_lru_node->page[i].ptr_self_lru_node = ptr_lru_node;
-      add_read_intensive_page_to_list(i,ptr_lru_node);  
+      //this line will add to current_block[channel_num][plane].ptr_read_intensive_buffer_page  
+      add_read_intensive_page_to_list(i,ptr_lru_node);
     } 
   } 
   ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
