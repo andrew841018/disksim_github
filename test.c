@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<time.h>
+#include<unistd.h>
 #include<assert.h>
 typedef struct _profit{
 	int channel_num;
@@ -12,6 +13,8 @@ typedef struct _profit{
 typedef struct _lru_node{
 }lru_node;
 int main(){	
-	exit(0);
+	int i;
+	for(i=0;i<10;i++)
+		//loop
 	return 0;
 }

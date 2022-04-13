@@ -12,9 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <setjmp.h>
 #include <stdbool.h>
-
 #include <sys/time.h>
 //define-------------------------------------------------------
       
@@ -2915,12 +2913,6 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   Hint_page* p = (Hint_page *)malloc( sizeof( Hint_page ) );
   //printf("before state 0\n");
   int node_num=-1;
-  // fprintf(outputfd, "global_HQ:");
-  // for(i=0;i<global_HQ_size;i++)
-  // {
-  //   fprintf(outputfd, "%d,", global_HQ[i]);
-  // }
-  // fprintf(outputfd, "\n");
   int EW = (int)(ptr_buffer_cache->total_buffer_block_num * EVICTWINDOW);
   //fprintf(myoutput, "ptr_buffer_cache->total_buffer_block_num:%d\n",ptr_buffer_cache->total_buffer_block_num);
   if(EW<64)EW=64;
@@ -3166,10 +3158,6 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
           rw_ratio=node_rcount/(node_rcount+node_wcount);
           R_intensity = Read_cover * node_rcount;
           W_intensity = Write_cover * node_wcount;
-          // fprintf(myoutput,"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\n");
-          // fprintf(myoutput,"node_wcount:%lf\n",node_wcount);
-          // fprintf(myoutput,"node_rcount:%lf\n",node_rcount);
-          //fprintf(myoutput2,"state 1 R_inten=%lf,W_inten=%lf\n",R_intensity,W_intensity);
           //if(rw_ratio>=RWRATIO)//read intensive //page striping
           W_intensity=W_intensity+my_threshod;
           if(R_intensity > W_intensity)
@@ -5130,13 +5118,13 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 				}*/
 			}
 			testing[cur_block]=1;
-			printf("(curr) channel:%d plane:%d channel:%d plane:%d ",current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num,current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane,test->channel_num,test->plane);
-			printf("block number:%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);			
+			//printf("(curr) channel:%d plane:%d channel:%d plane:%d ",current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num,current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane,test->channel_num,test->plane);
+			//printf("block number:%d\n",current_block[test->channel_num][test->plane].ptr_lru_node->logical_node_num);			
 			A_match_current_block(test->channel_num,test->plane,current_block[test->channel_num][test->plane].ptr_lru_node);
 			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].channel_num==test->channel_num);
 			assert(current_block[test->channel_num][test->plane].ptr_lru_node->page[0].plane==test->plane);
 			if(block_num!=7){
-				printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,testing[cur_block]);
+				//printf("index:%d block:%d benefit:%f mark:%d\n",count,cur_block,test->benefit,testing[cur_block]);
 				assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
 				check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
 			}
@@ -5165,7 +5153,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 							run_profit_plane=test->plane;
 							//retursn;
 						}
-						printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
+						//printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
 						assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
 						check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
 					}
@@ -5188,7 +5176,7 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 						run_profit_plane=test->plane;
 						//return;
 					}
-					printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
+					//printf("(out)index:%d block:%d benefit:%f channel:%d plane:%d\n",count,cur_block,test->benefit,test->channel_num,test->plane);
 					assert(test->benefit==current_block[test->channel_num][test->plane].ptr_lru_node->benefit);
 					check_block_exist(current_block[test->channel_num][test->plane].ptr_lru_node);
 				}
@@ -5253,9 +5241,6 @@ void not_in_profit_pointer(int channel_num,int plane,buffer_cache *ptr_buffer_ca
 }
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  FILE *wb=fopen("bug.txt","w");
-  fprintf(wb,"%f\n",curr1->time);
-  fclose(wb);
   int i = 0,j = 0,b1=0,k=0,w,channel_1,plane_1,mark_block_num;
   double tmp[CHANNEL_NUM][PLANE_NUM]={0};
   profit *insert,*prev,*current,*start;
@@ -5861,9 +5846,9 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 			ptr_buffer_cache->current_mark_offset = 0;
 			kick_node++;
 			kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-			//int strip_way=0;
-			break;
-			int strip_way = check_which_node_to_evict(ptr_buffer_cache);    
+			//int strip_way=0;			
+			int strip_way = check_which_node_to_evict(ptr_buffer_cache);   
+			strip_way=0; 
 			while(strip_way==1)
 			{
 			// fprintf(lpb_ppn,"3390 while(ptr_buffer_cache->ptr_current_mark_node->group_type == 1)\n");
@@ -5872,7 +5857,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 			}
 			//printf("3186 current_block[%d][%d].ptr_lru_node = %d|.current_mark_count=%d;\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
 			//printf("f\n");
-			
+			break;		
 		}
 		else if(ptr_buffer_cache->current_mark_offset == LRUSIZE)
 		{			
@@ -5880,10 +5865,9 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 			ptr_buffer_cache->current_mark_offset = 0;
 			kick_node++;
 			kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-			//int strip_way=0;
-			break;
+			//int strip_way=0;			
 			int strip_way = check_which_node_to_evict(ptr_buffer_cache);
-
+			strip_way=0;
 			while(strip_way==1)
 			{
 			//fprintf(lpb_ppn,"3792 while(strip_way == 1)\n");
