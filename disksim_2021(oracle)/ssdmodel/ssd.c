@@ -5094,7 +5094,6 @@ void run_profit(buffer_cache *ptr_buffer_cache,int block_num){
 			//judge next block exist or not
 			if(test->next->next!=NULL){
 				printf("cur_block:%d channel:%d plane:%d\n",cur_block,test->channel_num,test->plane);
-				printf("\n");
 				if(block_num!=7)
 					printf("(in the middle)this block Invalid\n");
 				test->next=test->next->next;

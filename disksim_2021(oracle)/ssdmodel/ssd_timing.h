@@ -19,7 +19,7 @@ typedef struct _ssd_timing_t {
 
 // get a timing object ... params pointer is valid for lifetime of element
 ssd_timing_t   *ssd_new_timing_t(ssd_timing_params *params);
-int ssd_choose_aligned_count(int page_size, int blkno, int count);
+extern int ssd_choose_aligned_count(int page_size, int blkno, int count);
 void ssd_compute_access_time(ssd_t *s, int elem_num, ssd_req **reqs, int total);
 
 #endif
