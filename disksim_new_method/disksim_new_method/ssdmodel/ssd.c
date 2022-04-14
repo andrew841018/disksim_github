@@ -1598,11 +1598,12 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
+ioreq_event *curr1;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
   //fprintf(outputssd, "**************ssd inininininin\n");
-    
+  curr1=curr;
   req_check++;
   ssd_t *currdisk = getssd(curr->devno);
   int blkno = curr->blkno;
@@ -3648,7 +3649,8 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
   }
 }
 int init=1;
-double block_time[1000];
+double block_time[1000][100000];//block time...
+int block_index[1000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   int flag=0;
@@ -3676,14 +3678,16 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       block_number=atoi(substr);
       substr=strtok(NULL,delim);//time
       curr_time=atoi(substr);
-      block_time[block_number]=curr_time;
+      block_time[block_number][block_index[block_number]]=curr_time;
+      block_index[block_number]++;
     }	
     while(fgets(buf,1024,oracle)!=NULL){
       substr=strtok(buf,delim);//block number	
       block_number=atoi(substr);
       substr=strtok(NULL,delim);//time
       curr_time=atoi(substr);
-      block_time[block_number]=curr_time;
+      block_time[block_number][block_index[block_number]]=curr_time;
+      block_index[block_number]++;
     } 				    
     fclose(oracle);
     init=0;
@@ -3712,20 +3716,17 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //check hit ratio
   if(ptr_buffer_cache->w_miss_count>0){
 	  FILE *wb=fopen("write_count.txt","w");
-	  fprintf(wb,"write_hit:%d miss_hit:%d write_ratio:%f\n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(ptr_buffer_cache->w_hit_count)/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count));
+	  fprintf(wb,"write_hit:%d miss_hit:%d write_ratio:%f\n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count));
 	  fclose(wb);
-  }
-  if(current_block[0][5].ptr_lru_node!=NULL){
-	if(current_block[0][5].ptr_lru_node->logical_node_num==128699){
-		int gg=3;
-		assert(current_block[0][5].ptr_lru_node->buffer_page_num==current_block[0][5].current_mark_count);
-	}
-  }
+  }  
   if(Pg_node == NULL)
   {
     flag=0;
     add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
-    ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->next_acc_time=block_time[physical_node_num % HASHSIZE];
+    for(i=0;i<block_index[physical_node_num % HASHSIZE];i++){
+		if(block_time[physical_node_num % HASHSIZE][i]>curr1->time)
+			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->next_acc_time=block_time[physical_node_num % HASHSIZE][i];
+	}
     //assign to current block
     int assign=0,channel,plane;
     for(i=0;i<CHANNEL_NUM;i++){
@@ -3752,7 +3753,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
         current_block[channel][plane].current_mark_count++;
       }
     }
-    assert(current_block[channel][plane].ptr_lru_node->buffer_page_num==current_block[channel][plane].current_mark_count);
     //current block doesn't have free space,put data in current_block_1 for tmporary
     if(assign==0){
 		for(i=0;i<30;i++){
@@ -3775,7 +3775,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     //remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
-    ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->next_acc_time=block_time[physical_node_num % HASHSIZE];
+    for(i=0;i<block_index[physical_node_num % HASHSIZE];i++){
+		if(block_time[physical_node_num % HASHSIZE][i]>curr1->time)
+			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->next_acc_time=block_time[physical_node_num % HASHSIZE][i];
+	}
     //reassign to current block,because there is more page add to this block
     int assign=0,channel,plane;
     for(i=0;i<CHANNEL_NUM;i++){
@@ -3847,19 +3850,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}
 	assert(Pg_node==ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]);
   }
- /* for(i=0;i<CHANNEL_NUM;i++){
-	for(j=0;j<PLANE_NUM;j++){
-		if(current_block[i][j].ptr_lru_node!=NULL){
-			assert(current_block[i][j].ptr_lru_node
-		}
-	}
-  }*/
-  if(current_block[0][5].ptr_lru_node!=NULL){
-	if(current_block[0][5].ptr_lru_node->logical_node_num==128699){
-		assert(current_block[0][5].ptr_lru_node->buffer_page_num==current_block[0][5].current_mark_count);
-	}
-  }
-  
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -4370,7 +4360,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
   
 // }
 
-
+int kick_curr1=0;
 void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,unsigned int verify_channel,unsigned int verify_plane,int flag)
 {
 	unsigned int channel_num = ptr_lru_node->page[offset_in_node].channel_num;
@@ -5435,34 +5425,34 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 		  }
         }
       }
-    }
+    }   
     if(max==-1){
 		assert(0);
 	}
+	for(i=0;i<LRUSIZE;i++){
+	  if(current_block[channel][plane].ptr_lru_node->page[i].exist!=0){
+		current_block[channel][plane].ptr_lru_node->page[i].channel_num=channel;
+		current_block[channel][plane].ptr_lru_node->page[i].plane=plane;
+	  }
+	}
+	ptr_lru_node = current_block[channel][plane].ptr_lru_node;
     for(i=0;i<LRUSIZE;i++){
-      if(current_block[channel][plane].ptr_lru_node->page[i].exist!=0){
-        current_block[channel][plane].ptr_lru_node->page[i].channel_num=channel;
-        current_block[channel][plane].ptr_lru_node->page[i].plane=plane;
-      }
-    }
-    ptr_lru_node = current_block[channel][plane].ptr_lru_node;
-    for(i=0;i<LRUSIZE;i++){
-      if(ptr_lru_node->page[i].exist!=0){           
-        if(current_block[channel][plane].current_mark_count == 0)
-        {
-          assert(0);
-        }
-        assert(channel >=0 && channel < 8);
-        assert(plane >=0 && plane < 8);
-        current_block[channel][plane].trigger=2;
-        statistic.kick_write_intensive_page_count ++;
-        add_to_ioqueue(curr,channel,plane,ptr_lru_node->page[i].lpn,0);
+      if(ptr_lru_node->page[i].exist!=0){          
+		if(current_block[channel][plane].current_mark_count == 0)
+		{
+		  assert(0);
+		}
+		assert(channel >=0 && channel < 8);
+		assert(plane >=0 && plane < 8);
+		current_block[channel][plane].trigger=2;
+		ptr_lru_node->page[i].strip = 0;		
+		add_to_ioqueue(curr,channel,plane,ptr_lru_node->page[i].lpn,0);
+		current_block[channel][plane].flush_w_count_in_current ++;
         kick_block_striping_page_count++;
-        ptr_lru_node->page[i].strip = 0;
+        statistic.kick_write_intensive_page_count ++;
         remove_channel=channel;
         remove_plane=plane;
-        remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel,plane,flag);       
-        current_block[channel][plane].flush_w_count_in_current ++; 
+        remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel,plane,flag);        
       }
     }
     kick_channel_times++;
