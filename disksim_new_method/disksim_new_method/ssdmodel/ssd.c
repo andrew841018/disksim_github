@@ -1600,6 +1600,7 @@ void statistics_the_wait_time_by_striping(int elem_num)
   }
 
 }
+ioreq_event *curr1;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1608,6 +1609,7 @@ static void ssd_media_access_request_element (ioreq_event *curr)
   req_check++;
   ssd_t *currdisk = getssd(curr->devno);
   int blkno = curr->blkno;
+  curr1=curr;
  //printf("req_check=%d|blkno=%d\n",req_check,blkno);
   int count = curr->bcount; //sh--req block count( must be multiple of 8)
   static int sta_elem_num = 0,sta_die_num = 0,sta_plane_num = 0,first_run_this = 0;
@@ -3667,6 +3669,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+  FILE *request=fopen("request.txt","a+");
+  fprintf(request,"%d %f\n",physical_node_num % HASHSIZE,curr1->time);
+  fclose(request);
   int i;
   /*printf("hash_Pg:");
   for(i=0;i<1000;i++)
@@ -4408,9 +4413,8 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
       // kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
     }
 	}
-
 	free(ptr_lru_node);
-  ptr_buffer_cache->total_buffer_block_num--;
+	ptr_buffer_cache->total_buffer_block_num--;
 
 }
 
@@ -5362,9 +5366,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       }
       if(current_block[channel_num][plane].current_mark_count == 0)
       {
-        //this code will make sure write intensive block do their work,so, if only use page striping
-        //you will be stuck at there
-        //continue;
+        //fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
+        //printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
+        continue;
       }
       
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5395,9 +5399,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         }
         
       }
-      else if(1){
-		return;
-	  }
       /*
        * if the page already been marked 
        * */
@@ -5654,8 +5655,7 @@ void mark_for_read_intensive_buffer(buffer_cache *ptr_buffer_cache)
       ptr_lru_node->page[i].channel_num = channel_num;
       ptr_lru_node->page[i].plane = plane;
       ptr_lru_node->page[i].ptr_self_lru_node = ptr_lru_node;
-      //this line will add to current_block[channel_num][plane].ptr_read_intensive_buffer_page  
-      add_read_intensive_page_to_list(i,ptr_lru_node);
+      add_read_intensive_page_to_list(i,ptr_lru_node);  
     } 
   } 
   ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;

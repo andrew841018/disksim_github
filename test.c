@@ -20,5 +20,9 @@ void a(int *b,int *c){
 int main(){	
 	int p=2,q=3;
 	a(&p,&q);
+	profit *wb=malloc(sizeof(profit)),*wb1;
+	wb1=wb;
+	wb=NULL;
+	free(wb);
 	return 0;
 }
