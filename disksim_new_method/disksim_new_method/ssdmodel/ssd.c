@@ -3727,10 +3727,17 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     Pg_node = Pg_node->next;
   }
+  //check hit ratio
   if(ptr_buffer_cache->w_miss_count>0){
 	  FILE *wb=fopen("write_count.txt","w");
 	  fprintf(wb,"write_hit:%d miss_hit:%d write_ratio:%f\n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(ptr_buffer_cache->w_hit_count)/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count));
 	  fclose(wb);
+  }
+  if(current_block[0][5].ptr_lru_node!=NULL){
+	if(current_block[0][5].ptr_lru_node->logical_node_num==128699){
+		int gg=3;
+		assert(current_block[0][5].ptr_lru_node->buffer_page_num==current_block[0][5].current_mark_count);
+	}
   }
   if(Pg_node == NULL)
   {
@@ -3754,18 +3761,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
         break;
       }
     }
-    if(assign==0){
-		for(i=0;i<30;i++){
-			for(j=0;j<30;j++){
-				if(current_block_1[i][j].ptr_lru_node==NULL){
-					current_block_1[i][j].ptr_lru_node=ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-					assign=1;
-					break;
-				}
-			}
-		}
-	}
-    assert(assign==1);
+    //current block have space,assign corresponding current_mark_count to it(should equal to page count)
     for(i=0;i<LRUSIZE;i++){
 	  if(assign==0){
 		break;
@@ -3774,6 +3770,23 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
         current_block[channel][plane].current_mark_count++;
       }
     }
+    assert(current_block[channel][plane].ptr_lru_node->buffer_page_num==current_block[channel][plane].current_mark_count);
+    //current block doesn't have free space,put data in current_block_1 for tmporary
+    if(assign==0){
+		for(i=0;i<30;i++){
+			for(j=0;j<30;j++){
+				if(current_block_1[i][j].ptr_lru_node==NULL){
+					current_block_1[i][j].ptr_lru_node=ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];					
+					assign=1;
+					break;
+				}
+			}
+			if(assign==1){
+				break;
+			}
+		}
+	}
+    assert(assign==1);
   }
   else
   {
@@ -3786,7 +3799,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     for(i=0;i<CHANNEL_NUM;i++){
       for(j=0;j<PLANE_NUM;j++){
         if(current_block[i][j].ptr_lru_node==ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]){
-		  printf("block hit and in the current_block\n");
+		  printf("block hit and in the current_block:%d\n",physical_node_num);
           current_block[i][j].ptr_lru_node=ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
           current_block[i][j].current_mark_count=0;
           channel=i;
@@ -3801,10 +3814,13 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     //means block is in the current_block_1
     if(assign==0){
+		int curr1_channel,curr1_plane;
 		for(i=0;i<30;i++){
 			for(j=0;j<30;j++){
 				if(current_block_1[i][j].ptr_lru_node==ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]){
 					assign=1;
+					curr1_channel=i;
+					curr1_plane=j;
 					printf("block hit,but in the current_block_1\n");
 					break;			
 				}
@@ -3823,7 +3839,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 					current_block[i][j].ptr_lru_node=ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
 					channel=i;
 					plane=j;
-					printf("current_block have space\n");
+					printf("current_block have space:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);
+					current_block_1[curr1_channel][curr1_plane].ptr_lru_node=NULL;
 					assign=1;
 					break;
 				}
@@ -3835,6 +3852,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}
 	//
     for(i=0;i<LRUSIZE;i++){
+	//curr block is in current_block_1 but current_block doesn't have free space
 	  if(assign==0){
 		break;
 	  }
@@ -3842,6 +3860,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
         current_block[channel][plane].current_mark_count++;
       }
     }
+    if(assign==1){
+		assert(current_block[channel][plane].ptr_lru_node->buffer_page_num==current_block[channel][plane].current_mark_count);
+	}
+  }
+  if(current_block[0][5].ptr_lru_node!=NULL){
+	if(current_block[0][5].ptr_lru_node->logical_node_num==128699){
+		assert(current_block[0][5].ptr_lru_node->buffer_page_num==current_block[0][5].current_mark_count);
+	}
   }
   return 0;
 }
@@ -4360,26 +4386,22 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	unsigned int plane = ptr_lru_node->page[offset_in_node].plane;
 
   //printf("channel_num=%d |verify_channel=%d\n", channel_num,verify_channel);
-
 	assert(channel_num == verify_channel);
 	assert(plane == verify_plane);
-
-  ptr_lru_node->page[offset_in_node].rcover = 0 ;
-  ptr_lru_node->page[offset_in_node].wcover = 0 ;
-
+	ptr_lru_node->page[offset_in_node].rcover = 0 ;
+	ptr_lru_node->page[offset_in_node].wcover = 0 ;
 	ptr_lru_node->page[offset_in_node].exist = 0;
 	ptr_lru_node->buffer_page_num --;
 	ptr_buffer_cache->total_buffer_page_num --;
-
 	current_block[channel_num][plane].current_mark_count --;
+	assert(current_block[channel_num][plane].current_mark_count==ptr_lru_node->buffer_page_num);
 	current_block[channel_num][plane].current_write_offset ++;
-	
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
-    if(ptr_lru_node->group_type==0)
-		  remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
-    else if (ptr_lru_node->group_type==1)
-      remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
+		if(ptr_lru_node->group_type==0)
+			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
+		else if (ptr_lru_node->group_type==1)
+			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
 	}
 	
 }
@@ -5448,7 +5470,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         ptr_lru_node->page[i].strip = 0;
         remove_channel=channel;
         remove_plane=plane;
-        remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel,plane,flag);
+        remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel,plane,flag);       
         current_block[channel][plane].flush_w_count_in_current ++; 
       }
     }
