@@ -1,0 +1,1 @@
+write_hit:0 miss_hit:4092 write_ratio:0.000000
