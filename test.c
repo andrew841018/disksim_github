@@ -12,9 +12,13 @@ typedef struct _profit{
 }profit;
 typedef struct _lru_node{
 }lru_node;
+void a(int *b,int *c){
+	int g=11,k=12;
+	*b=g;
+	*c=k;
+}
 int main(){	
-	int i;
-	for(i=0;i<10;i++)
-		//loop
+	int p=2,q=3;
+	a(&p,&q);
 	return 0;
 }
