@@ -3709,24 +3709,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     flag=1;
     return flag;
   }
-
-  while(1)
-  {
-    if(Pg_node == NULL)
-      break;
-    if(Pg_node->logical_node_num == physical_node_num && Pg_node->group_type == 0)//find
-    {
-      //fprintf(lpb_lpn, "if(Pg_node->logical_node_num == physical_node_num )\nphysical_node_num=%d\n", physical_node_num);
-      break;
-    }
-    if(Pg_node == ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->h_prev)//only one node in hash
-    {
-      //fprintf(lpb_lpn, "if(Pg_node == ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->h_prev)\nPg_node->logical_node_num=%d\n", Pg_node->logical_node_num);
-      Pg_node = NULL;
-      break;
-    }
-    Pg_node = Pg_node->next;
-  }
   //check hit ratio
   if(ptr_buffer_cache->w_miss_count>0){
 	  FILE *wb=fopen("write_count.txt","w");
@@ -3798,9 +3780,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     int assign=0,channel,plane;
     for(i=0;i<CHANNEL_NUM;i++){
       for(j=0;j<PLANE_NUM;j++){
-        if(current_block[i][j].ptr_lru_node==ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]){
+        if(current_block[i][j].ptr_lru_node==Pg_node){
 		  printf("block hit and in the current_block:%d\n",physical_node_num);
-          current_block[i][j].ptr_lru_node=ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+          current_block[i][j].ptr_lru_node=Pg_node;
           current_block[i][j].current_mark_count=0;
           channel=i;
           plane=j;
@@ -3817,7 +3799,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		int curr1_channel,curr1_plane;
 		for(i=0;i<30;i++){
 			for(j=0;j<30;j++){
-				if(current_block_1[i][j].ptr_lru_node==ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]){
+				if(current_block_1[i][j].ptr_lru_node==Pg_node){
 					assign=1;
 					curr1_channel=i;
 					curr1_plane=j;
@@ -3836,7 +3818,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		for(i=0;i<CHANNEL_NUM;i++){
 			for(j=0;j<PLANE_NUM;j++){
 				if(current_block[i][j].ptr_lru_node==NULL){
-					current_block[i][j].ptr_lru_node=ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
+					current_block[i][j].ptr_lru_node=Pg_node;
 					channel=i;
 					plane=j;
 					printf("current_block have space:%d\n",current_block[i][j].ptr_lru_node->logical_node_num);
@@ -3863,12 +3845,21 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     if(assign==1){
 		assert(current_block[channel][plane].ptr_lru_node->buffer_page_num==current_block[channel][plane].current_mark_count);
 	}
+	assert(Pg_node==ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]);
   }
+ /* for(i=0;i<CHANNEL_NUM;i++){
+	for(j=0;j<PLANE_NUM;j++){
+		if(current_block[i][j].ptr_lru_node!=NULL){
+			assert(current_block[i][j].ptr_lru_node
+		}
+	}
+  }*/
   if(current_block[0][5].ptr_lru_node!=NULL){
 	if(current_block[0][5].ptr_lru_node->logical_node_num==128699){
 		assert(current_block[0][5].ptr_lru_node->buffer_page_num==current_block[0][5].current_mark_count);
 	}
   }
+  
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
