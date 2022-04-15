@@ -4425,7 +4425,7 @@ void add_page_striping_page_to_channel(unsigned int page_offset,lru_node *ptr_lr
   current_block[channel_num][plane].offset_in_node = page_offset;
   //assert(current_block[channel_num][plane].current_mark_count == 0);
   current_block[channel_num][plane].trigger = 1;
-  if(current_block[channel_num][plane].current_mark_count == 0)
+  if(current_block[channel_num][plane].current_mark_count <=63)
   {
     current_block[channel_num][plane].current_mark_count ++;
   }
@@ -4477,6 +4477,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
       ptr_lru_node->page[i].ptr_self_lru_node = ptr_lru_node;
       ptr_lru_node->page[i].strip=1;//page striping
       ptr_buffer_cache->current_mark_offset =i;
+      ptr_lru_node->StripWay=1;
       //fprintf(outputssd, "***%d[%d].channel=%d,plane=%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,i,channel_num,plane);
       
       //^ set ptr_lru_node ch p
@@ -4504,7 +4505,10 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
-        mark_for_specific_current_block(ptr_buffer_cache,i,j);
+		  
+        //mark_for_specific_current_block(ptr_buffer_cache,i,j);
+        check_which_node_to_evict(ptr_buffer_cache);
+        mark_for_page_striping_node(ptr_buffer_cache); 
         //fprintf(outputssd,"after mark_for_specific_current_block\n");
       }
     }
@@ -5219,12 +5223,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
   int kick=0;
-  while(1){
-	int strip=mark_for_page_striping_node(ptr_buffer_cache);
-	if(strip==-2){
-		break;
-	}
-  }
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
     //printf(" > max_buffer_page_num|");
@@ -5278,6 +5276,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       {
         //fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
         //printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
+        check_which_node_to_evict(ptr_buffer_cache);
+        mark_for_page_striping_node(ptr_buffer_cache); 
         continue;
       }
       
@@ -5305,7 +5305,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       
         if(current_block[channel_num][plane].ptr_read_intensive_buffer_page  == NULL)
         {
-          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+		//add by andrew
+         // mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
         }
         
       }
@@ -5384,7 +5385,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
           //printf("else if(current_block[channel_num][plane].current_mark_count == 0)\n");
           unsigned long diff;
           gettimeofday(&start, NULL);
-          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+          //remove by andrew
+          //mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
           gettimeofday(&end, NULL);
           diff=1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
           //"!!!!!!KICK current_mark_count == 0 mark_for_specific_current_block TIME = %ld\n",diff);
