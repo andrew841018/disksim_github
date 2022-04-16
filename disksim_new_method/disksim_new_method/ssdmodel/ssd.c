@@ -3470,8 +3470,8 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //   strip_way = 1;
   // }
   if(strip_way==0)
-  {
-    ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
+  {//remove by andrew
+   // ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
     kick_block_strip_node++;
     kick_block_strip_sumpage+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
   }
@@ -5278,7 +5278,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         //printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
         check_which_node_to_evict(ptr_buffer_cache);
         mark_for_page_striping_node(ptr_buffer_cache); 
-        continue;
+        //remove by andrew
+        //continue;
       }
       
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5377,7 +5378,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         {
           //printf("if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \n");
           current_block[channel_num][plane].current_write_offset = 0;
-          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+          //remove and add by andrew
+         // mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+         check_which_node_to_evict(ptr_buffer_cache);
+		 mark_for_page_striping_node(ptr_buffer_cache); 
 
         }
         else if(current_block[channel_num][plane].current_mark_count == 0)
