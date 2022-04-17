@@ -3477,7 +3477,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   }
   else if(strip_way==1)
   {
-    ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
+    //ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
   }
   return strip_way;
 }
@@ -4617,8 +4617,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			kick_node++;
 			kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
 			//int strip_way=0;
-			/*int strip_way = check_which_node_to_evict(ptr_buffer_cache);
-			while(strip_way==1)
+			int strip_way = check_which_node_to_evict(ptr_buffer_cache);
+			/*while(strip_way==1)
 			{
 			// fprintf(lpb_ppn,"3390 while(ptr_buffer_cache->ptr_current_mark_node->group_type == 1)\n");
 			strip_way=mark_for_page_striping_node(ptr_buffer_cache);       			
@@ -4634,8 +4634,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       kick_node++;
       kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
       //int strip_way=0;
-     /*int strip_way = check_which_node_to_evict(ptr_buffer_cache);  
-      while(strip_way==1)
+     int strip_way = check_which_node_to_evict(ptr_buffer_cache);  
+      /*while(strip_way==1)
       {
         //fprintf(lpb_ppn,"3792 while(strip_way == 1)\n");
         strip_way=mark_for_page_striping_node(ptr_buffer_cache);     
