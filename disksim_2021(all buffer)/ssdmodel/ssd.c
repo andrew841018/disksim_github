@@ -105,6 +105,7 @@ typedef struct  _lru_node
   int logical_node_num;        //logical_node_num == lpn / LRUSIZE
   int block_count,sector_index;
   int duration,max;
+  int block_size;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
   buffer_page page[LRUSIZE];          //phy page in the node
@@ -3542,15 +3543,20 @@ buffer_cache *write_buffer;
 int block_index=0;
 int sector_index=0;
 void write_benefit_to_txt(int g){
-  int i,j,c;
-  double benefit;
-  char tmp[200];
-  FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","w");//sector number,block,number,benefit,sector_count
+	int i,j,c;
+	double benefit;
+	char tmp[200];
+	FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","w");//sector number,block,number,benefit,sector_count
+	for(i=0;i<block_index;i++){
+		if(write_buffer->logical_block[i]->page[i].sector_count>0){
+			write_buffer->logical_block[i]->block_size++;
+		}
+	}
 	for(i=0;i<block_index;i++){
 		for(j=0;j<LRUSIZE;j++){
 			if(write_buffer->logical_block[i]->page[j].sector_count>0){
-				benefit=(float)write_buffer->logical_block[i]->block_count/64;
-				benefit/=64;
+				benefit=(float)write_buffer->logical_block[i]->block_count/write_buffer->logical_block[i]->block_size;
+				benefit/=write_buffer->logical_block[i]->block_size;
 				sprintf(tmp,"%d %d %.20f %d",j,write_buffer->logical_block[i]->logical_node_num,benefit,write_buffer->logical_block[i]->page[j].sector_count);
 				fprintf(info,"%s\n",tmp);
 			}
@@ -3560,12 +3566,14 @@ void write_benefit_to_txt(int g){
 }
 
 unsigned int count,blkno;
+ioreq_event *curr1;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
   static int full_cache = 0;
   unsigned int lpn,scount; //sector count
   ssd_t *currdisk;
+  curr1=curr;
   currdisk = getssd (curr->devno);
   blkno = curr->blkno;
   count = curr->bcount; //sh-- amount of  fs-block wait to be served. 
@@ -3769,6 +3777,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   phy_node_offset = (lba_table[lpn].ppn+(lba_table[lpn].elem_number*1048576)) % LRUSIZE;
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]; 
+  FILE *oracle=fopen("oracle_info.txt","a+");
+  fprintf(oracle,"%f %d %d\n",curr1->time,physical_node_num % HASHSIZE,phy_node_offset);
+  fclose(oracle);
   if(init1==1){	
 	wb=calloc(1,sizeof(buffer_cache));
     for(i=0;i<5000;i++){
@@ -3783,7 +3794,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     init1=0;
   }
-  simulate_all_buffer(physical_node_num,phy_node_offset);
+  //simulate_all_buffer(physical_node_num,phy_node_offset);
 	for(i=0;i<100;i++)
 		ignore[i]=-1;
 	tmp[0]=curr1->arrive_time;
@@ -3825,7 +3836,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
           write_buffer->logical_block[i]->page[j].sector_count=0;
         }
       } 	 
-      FILE *file=fopen("sector num-physical block num-benefit-sector count.txt","r");
+      /*FILE *file=fopen("sector num-physical block num-benefit-sector count.txt","r");
       char buf[1024];
       char *substr=NULL;
       const char *const delim=" ";
@@ -3850,7 +3861,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		benefit_value[physical_block_number]=atof(substr);
         substr=strtok(NULL,delim);//sector count
       }
-      fclose(file);
+      fclose(file);*/
       init=0;
 	}  
 	int b=0,count=0,block_hit=0,hit_block_index,enter_pointer=0,hit_sector_index;	  
@@ -6139,7 +6150,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  //write_benefit_to_txt(1);
+  write_benefit_to_txt(1);
   int i;
   
   statistic_the_data_in_every_stage();
