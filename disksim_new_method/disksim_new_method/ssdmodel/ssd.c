@@ -823,8 +823,8 @@ void assign_page_to_different_channel(unsigned int lpn,unsigned int seq_size)
  *
  * the function will find the logical sequential page is replacement in the same channel
  * */
-void find_the_locality_page(int *striping_node,unsigned int *lpn,unsigned int *seq_size)
 {
+void find_the_locality_page(int *striping_node,unsigned int *lpn,unsigned int *seq_size)
   int i = 0;
   *seq_size = 0;
   *lpn = (*striping_node)*LRUSIZE; // sh--LRUSIZE: LB page count
@@ -1638,6 +1638,7 @@ static void ssd_media_access_request_element (ioreq_event *curr)
 
    if(!(curr->flags&READ))
    {
+     //if you want to search write buffer,search ptr_buffer_cache->ptr_head
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
@@ -3701,7 +3702,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     flag=1;
     return flag;
   }
-
+  //找當下存取的page是寫入哪一個physical_block 
   while(1)
   {
     if(Pg_node == NULL)
@@ -3719,6 +3720,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     Pg_node = Pg_node->next;
   }
+  //in here,if Pg_node exist,it means,physical hash table have current node,and Pg_node is point at it.
   if(Pg_node == NULL)
   {
     //printf("add node\n");
@@ -4062,6 +4064,8 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
     }
     else
     {
+      //同個ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]可以存放多個physical_node_num，因此用多個node來存放
+      //當physical_node_num % HASHSIZE相同時，就移動node(h_prev or h_next)
       //printf("ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]=%d\n", ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->logical_node_num);
       ptr_node->h_next = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE];
       ptr_node->h_prev = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev;
