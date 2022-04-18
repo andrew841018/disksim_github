@@ -2917,9 +2917,9 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //   fprintf(outputfd, "%d,", global_HQ[i]);
   // }
   // fprintf(outputfd, "\n");
-  int EW = (int)(ptr_buffer_cache->total_buffer_block_num * EVICTWINDOW);
+  int EW = (int)(ptr_buffer_cache->total_buffer_block_num * EVICTWINDOW);//挑選某個比例的block為victim block
   //fprintf(myoutput, "ptr_buffer_cache->total_buffer_block_num:%d\n",ptr_buffer_cache->total_buffer_block_num);
-  if(EW<64)EW=64;
+  if(EW<64)EW=64;//victim block at least 64 blocks
   for(i=0;i<EW;i++)//from lru find 64 node
   {
     int pagecount=0,exist1=0;
@@ -2927,8 +2927,6 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
     c_node->hint_repeat = 0;
     c_node->hint_notrepeat = 0;
     int have_ev=0;
-    // unsigned long diff;
-    //gettimeofday(&start1, NULL);
     for(j=0;j<LRUSIZE;j++)//from lru node find 64 page
     {
       //=2 means already in evict area //=1 =2 means overwrite
@@ -2946,7 +2944,8 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
         pagecount++;
         for(k=global_HQ_size-1;k>=0;k--)
         {
-          if(c_node->page[j].lpn == global_HQ[k])
+          //this page will overwrite later...
+          if(c_node->page[j].lpn == global_HQ[k])//global_HQ store the page is about to arrive.(rihgt now at host)
           {
             //fprintf(myoutput3, "global_HQ:%d\n", global_HQ[k]);
             c_node->hint_repeat++;
@@ -2970,6 +2969,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       }
       else
       {
+        //means current block alredy in victim block--->ptr_buffer_cache->ptr_current_mark_node is victim block
         have_ev=1;
         break;
       }
@@ -2979,10 +2979,11 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
     //fprintf(outputssd, "state0|c_node=%d,i=%d,pagecount=%d\n",c_node->logical_node_num, i, pagecount);
     if(have_ev==1)
     {
+      //current block is in victim block move c_node
       c_node = c_node->prev;
       continue;
     }
-    //no page in hint //choose as evice
+    //no page in hint //choose as eviction
     if(c_node->hint_repeat == 0 && c_node->hint_notrepeat == 0 && c_node != ptr_buffer_cache->ptr_head) 
     {
       //fprintf(outputssd, "\t\tno page in hint|choose c_node[%d] as a victim\n", c_node->logical_node_num);
@@ -3002,8 +3003,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
           Write_cover++;
           //fprintf(myoutput,"Write_cover=%d,Page:%d\n",Write_cover,c_node->page[t].lpn);
         }
-      }
-      
+      }     
       R_intensity = Read_cover * node_rcount;
       W_intensity = Write_cover * node_wcount;
       // fprintf(myoutput,"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\n");
