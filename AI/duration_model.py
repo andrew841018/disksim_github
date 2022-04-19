@@ -25,7 +25,7 @@ from collections import OrderedDict
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
 
 duration=np.loadtxt(addr+'all buffer\\duration.txt',delimiter=' ')#cached request index,benefit,size,duration
-addr1=addr+'trace(used to build RNN)\\physical\\'
+addr1=addr+'trace(used to build RNN)\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 duration_label=np.array([])
 for i in range(200000):##for logical:1000 for physical:1 million
@@ -134,7 +134,7 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.000214431842549,1:4664.486486486487,2:172586}
+weight={0:1.0029552170947942,1: 95.91304347826087,2:4412}
 history=model.fit(x_train,y_train,epochs=1000,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
