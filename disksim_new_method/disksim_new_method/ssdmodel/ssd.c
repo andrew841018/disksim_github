@@ -93,8 +93,8 @@ typedef struct _buffer_page
   unsigned int r_count;
   unsigned int w_count;
   unsigned int strip;
-  unsigned int rcover;
-  unsigned int wcover;
+  unsigned int rcover;//total page num-number of page which only write
+  unsigned int wcover;//total page num-只寫不讀的page數量
 }buffer_page;
 typedef struct  _lru_node
 {
@@ -2989,7 +2989,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       //fprintf(outputssd, "\t\tno page in hint|choose c_node[%d] as a victim\n", c_node->logical_node_num);
       double rw_ratio=0, node_rcount=LPN_RWtimes[c_node->logical_node_num][0], node_wcount=LPN_RWtimes[c_node->logical_node_num][1];
       //fprintf(myoutput,"Page:%d,node_rcount:%lf,node_wcount:%lf\n",c_node->logical_node_num,node_rcount,node_wcount);
-      rw_ratio=node_rcount/(node_rcount+node_wcount);
+      rw_ratio=node_rcount/(node_rcount+node_wcount);//read ratio
       int t=0;
       for(t=0;t<LRUSIZE;t++)
       {
@@ -3004,8 +3004,8 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
           //fprintf(myoutput,"Write_cover=%d,Page:%d\n",Write_cover,c_node->page[t].lpn);
         }
       }     
-      R_intensity = Read_cover * node_rcount;
-      W_intensity = Write_cover * node_wcount;
+      R_intensity = Read_cover * node_rcount;//read_cover=total page-read count zero page number(read count=0的page個數)
+      W_intensity = Write_cover * node_wcount;//write_cover=total page-number of page which only read
       // fprintf(myoutput,"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\n");
       // fprintf(myoutput,"node_wcount:%lf\n",node_wcount);
       // fprintf(myoutput,"node_rcount:%lf\n",node_rcount);
@@ -3362,7 +3362,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 
 
   if(state == 0)
-  {
+  { 
     //printf("state==0\n");
     State0++;
     block_pcount=0;
@@ -3402,7 +3402,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
         }
       }
       //printf("rw_ratio=\n");
-      rw_ratio=node_rcount/(node_rcount+node_wcount);
+      rw_ratio=node_rcount/(node_rcount+node_wcount);//read ratio
       R_intensity = Read_cover * node_rcount;
       W_intensity = Write_cover * node_wcount;
       //if(rw_ratio>=RWRATIO)//read intensive //page striping
