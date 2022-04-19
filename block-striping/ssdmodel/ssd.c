@@ -4642,8 +4642,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       }
       if(strip_way==-2)
       {
-        outout=1;
-        break;
+        outout=1        break;
       }
       if(outout==1)
       {
