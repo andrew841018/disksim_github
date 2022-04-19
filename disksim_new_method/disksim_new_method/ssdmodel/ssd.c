@@ -823,8 +823,8 @@ void assign_page_to_different_channel(unsigned int lpn,unsigned int seq_size)
  *
  * the function will find the logical sequential page is replacement in the same channel
  * */
-{
 void find_the_locality_page(int *striping_node,unsigned int *lpn,unsigned int *seq_size)
+{
   int i = 0;
   *seq_size = 0;
   *lpn = (*striping_node)*LRUSIZE; // sh--LRUSIZE: LB page count
@@ -1638,7 +1638,6 @@ static void ssd_media_access_request_element (ioreq_event *curr)
 
    if(!(curr->flags&READ))
    {
-     //if you want to search write buffer,search ptr_buffer_cache->ptr_head
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
@@ -2917,9 +2916,9 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //   fprintf(outputfd, "%d,", global_HQ[i]);
   // }
   // fprintf(outputfd, "\n");
-  int EW = (int)(ptr_buffer_cache->total_buffer_block_num * EVICTWINDOW);//挑選某個比例的block為victim block
+  int EW = (int)(ptr_buffer_cache->total_buffer_block_num * EVICTWINDOW);
   //fprintf(myoutput, "ptr_buffer_cache->total_buffer_block_num:%d\n",ptr_buffer_cache->total_buffer_block_num);
-  if(EW<64)EW=64;//victim block at least 64 blocks
+  if(EW<64)EW=64;
   for(i=0;i<EW;i++)//from lru find 64 node
   {
     int pagecount=0,exist1=0;
@@ -2927,6 +2926,8 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
     c_node->hint_repeat = 0;
     c_node->hint_notrepeat = 0;
     int have_ev=0;
+    // unsigned long diff;
+    //gettimeofday(&start1, NULL);
     for(j=0;j<LRUSIZE;j++)//from lru node find 64 page
     {
       //=2 means already in evict area //=1 =2 means overwrite
@@ -2944,8 +2945,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
         pagecount++;
         for(k=global_HQ_size-1;k>=0;k--)
         {
-          //this page will overwrite later...
-          if(c_node->page[j].lpn == global_HQ[k])//global_HQ store the page is about to arrive.(rihgt now at host)
+          if(c_node->page[j].lpn == global_HQ[k])
           {
             //fprintf(myoutput3, "global_HQ:%d\n", global_HQ[k]);
             c_node->hint_repeat++;
@@ -2969,7 +2969,6 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       }
       else
       {
-        //means current block alredy in victim block--->ptr_buffer_cache->ptr_current_mark_node is victim block
         have_ev=1;
         break;
       }
@@ -2979,11 +2978,10 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
     //fprintf(outputssd, "state0|c_node=%d,i=%d,pagecount=%d\n",c_node->logical_node_num, i, pagecount);
     if(have_ev==1)
     {
-      //current block is in victim block move c_node
       c_node = c_node->prev;
       continue;
     }
-    //no page in hint //choose as eviction
+    //no page in hint //choose as evice
     if(c_node->hint_repeat == 0 && c_node->hint_notrepeat == 0 && c_node != ptr_buffer_cache->ptr_head) 
     {
       //fprintf(outputssd, "\t\tno page in hint|choose c_node[%d] as a victim\n", c_node->logical_node_num);
@@ -3003,7 +3001,8 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
           Write_cover++;
           //fprintf(myoutput,"Write_cover=%d,Page:%d\n",Write_cover,c_node->page[t].lpn);
         }
-      }     
+      }
+      
       R_intensity = Read_cover * node_rcount;
       W_intensity = Write_cover * node_wcount;
       // fprintf(myoutput,"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\n");
@@ -3702,7 +3701,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     flag=1;
     return flag;
   }
-  //找當下存取的page是寫入哪一個physical_block 
+
   while(1)
   {
     if(Pg_node == NULL)
@@ -3720,7 +3719,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     Pg_node = Pg_node->next;
   }
-  //in here,if Pg_node exist,it means,physical hash table have current node,and Pg_node is point at it.
   if(Pg_node == NULL)
   {
     //printf("add node\n");
@@ -4064,8 +4062,6 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
     }
     else
     {
-      //同個ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]可以存放多個physical_node_num，因此用多個node來存放
-      //當physical_node_num % HASHSIZE相同時，就移動node(h_prev or h_next)
       //printf("ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]=%d\n", ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->logical_node_num);
       ptr_node->h_next = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE];
       ptr_node->h_prev = ptr_buffer_cache->hash_Pg[logical_node_num % HASHSIZE]->h_prev;

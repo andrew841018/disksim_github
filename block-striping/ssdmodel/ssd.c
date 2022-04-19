@@ -3432,8 +3432,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       ptr_buffer_cache->ptr_current_mark_node = w_cnode;
       strip_way = 0;
     }
-    
-      }
+  }
   else if(state == 2)
   {
     State2++;
@@ -3469,15 +3468,16 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //   ptr_buffer_cache->ptr_current_mark_node = c_node;
   //   strip_way = 1;
   // }
+
   if(strip_way==0)
-  {//remove by andrew
-   // ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
+  {
+    ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
     kick_block_strip_node++;
     kick_block_strip_sumpage+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
   }
   else if(strip_way==1)
   {
-    //ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
+    ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
   }
   return strip_way;
 }
@@ -3701,7 +3701,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     flag=1;
     return flag;
   }
-
+  if(Pg_node!=NULL)
   while(1)
   {
     if(Pg_node == NULL)
@@ -4425,7 +4425,7 @@ void add_page_striping_page_to_channel(unsigned int page_offset,lru_node *ptr_lr
   current_block[channel_num][plane].offset_in_node = page_offset;
   //assert(current_block[channel_num][plane].current_mark_count == 0);
   current_block[channel_num][plane].trigger = 1;
-  if(current_block[channel_num][plane].current_mark_count <=63)
+  if(current_block[channel_num][plane].current_mark_count == 0)
   {
     current_block[channel_num][plane].current_mark_count ++;
   }
@@ -4477,7 +4477,6 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
       ptr_lru_node->page[i].ptr_self_lru_node = ptr_lru_node;
       ptr_lru_node->page[i].strip=1;//page striping
       ptr_buffer_cache->current_mark_offset =i;
-      ptr_lru_node->StripWay=1;
       //fprintf(outputssd, "***%d[%d].channel=%d,plane=%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,i,channel_num,plane);
       
       //^ set ptr_lru_node ch p
@@ -4498,15 +4497,14 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 
 void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 {
-  int i = 0,j = 0,strip;
+  int i = 0,j = 0;
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
-		  
-        mark_for_specific_current_block(ptr_buffer_cache,i,j);        
+        mark_for_specific_current_block(ptr_buffer_cache,i,j);
         //fprintf(outputssd,"after mark_for_specific_current_block\n");
       }
     }
@@ -4618,11 +4616,11 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
 			//int strip_way=0;
 			int strip_way = check_which_node_to_evict(ptr_buffer_cache);
-			/*while(strip_way==1)
-			{
-			// fprintf(lpb_ppn,"3390 while(ptr_buffer_cache->ptr_current_mark_node->group_type == 1)\n");
-			strip_way=mark_for_page_striping_node(ptr_buffer_cache);       			
-			}*/
+      /*while(strip_way==1)
+      {
+       // fprintf(lpb_ppn,"3390 while(ptr_buffer_cache->ptr_current_mark_node->group_type == 1)\n");
+        strip_way=mark_for_page_striping_node(ptr_buffer_cache);
+      }*/
       //printf("3186 current_block[%d][%d].ptr_lru_node = %d|.current_mark_count=%d;\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
 			break;
 		}
@@ -4631,14 +4629,15 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
 			ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
 			ptr_buffer_cache->current_mark_offset = 0;
-      kick_node++;
-      kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      //int strip_way=0;
-     int strip_way = check_which_node_to_evict(ptr_buffer_cache);  
-      /*while(strip_way==1)
+			kick_node++;
+			kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
+			//int strip_way=0;
+			int strip_way = check_which_node_to_evict(ptr_buffer_cache);
+			ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
+     /* while(strip_way==1)
       {
         //fprintf(lpb_ppn,"3792 while(strip_way == 1)\n");
-        strip_way=mark_for_page_striping_node(ptr_buffer_cache);     
+        strip_way=mark_for_page_striping_node(ptr_buffer_cache);
         if(strip_way == 0)outout=1;
       }
       if(strip_way==-2)
@@ -5274,9 +5273,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       {
         //fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
         //printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
-        //add and remove by andrew
-        mark_for_all_current_block(ptr_buffer_cache);
-        //continue;
+        continue;
       }
       
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5303,7 +5300,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       
         if(current_block[channel_num][plane].ptr_read_intensive_buffer_page  == NULL)
         {
-			mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
         }
         
       }
@@ -5374,18 +5371,15 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         {
           //printf("if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \n");
           current_block[channel_num][plane].current_write_offset = 0;
-          //add and remove by andrew
-		  //mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-		  mark_for_all_current_block(ptr_buffer_cache);
+          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+
         }
         else if(current_block[channel_num][plane].current_mark_count == 0)
         {
           //printf("else if(current_block[channel_num][plane].current_mark_count == 0)\n");
           unsigned long diff;
           gettimeofday(&start, NULL);
-          //add and remove by andrew
-          mark_for_all_current_block(ptr_buffer_cache);
-          //mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
           gettimeofday(&end, NULL);
           diff=1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
           //"!!!!!!KICK current_mark_count == 0 mark_for_specific_current_block TIME = %ld\n",diff);
