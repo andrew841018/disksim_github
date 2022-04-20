@@ -20,9 +20,17 @@ void a(int *b,int *c){
 int main(){	
 	int p=2,q=3;
 	a(&p,&q);
-	profit *wb=malloc(sizeof(profit)),*wb1;
-	wb1=wb;
-	wb=NULL;
-	free(wb);
+	int i,j;
+	for(i=0;i<10;i++){
+		for(j=0;j<10;j++){
+			if(j==q){
+				i=5;
+				q=11;
+				break;
+			}
+		}
+		printf("%d\n",i);
+	}
+
 	return 0;
 }

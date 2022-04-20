@@ -4617,6 +4617,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       //int strip_way=0;
       int strip_way = check_which_node_to_evict(ptr_buffer_cache);
       ptr_buffer_cache->ptr_current_mark_node->StripWay=0;   
+      break;
      /* while(strip_way==1)
       {
        // fprintf(lpb_ppn,"3390 while(ptr_buffer_cache->ptr_current_mark_node->group_type == 1)\n");
@@ -4634,6 +4635,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       //int strip_way=0;
       int strip_way = check_which_node_to_evict(ptr_buffer_cache);
       ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
+      break;
       /*
       while(strip_way==1)
       {
@@ -5274,7 +5276,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       {
         //fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
         //printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
-        continue;
+        mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+        //continue;
       }
       
     //  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);

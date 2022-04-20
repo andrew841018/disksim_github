@@ -111,7 +111,7 @@ typedef struct  _lru_node
 {
   int logical_node_num;        //logical_node_num == lpn / LRUSIZE
   int duration_label;//0->soon,1->mean,2->late
-  int duration_priority;//0~N
+  double duration_priority;//0~N
   int pass_req_count;
   int block_count,sector_index;
   unsigned int buffer_page_num;       //how many update page in this node
@@ -4146,7 +4146,7 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 //   }
 //   add_a_page_in_the_node(logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache);
 // }
-int soon_time=0,mean_time=0,late_time=0;
+double soon_time=0.001,mean_time=0.001,late_time=0.001;
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
 {
   //printf("innn add node | flag=%d \n", flag);
@@ -4163,15 +4163,15 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	switch(ptr_node->duration_label){
 		case 0:
 			ptr_node->duration_priority=soon_time;
-			soon_time++;
+			soon_time+=0.001;
 			break;
 		case 1:
 			ptr_node->duration_priority=mean_time;
-			mean_time++;
+			mean_time+=0.001;
 			break;
 		case 2:
 			ptr_node->duration_priority=late_time;
-			late_time++;
+			late_time+=0.001;
 			break;
 	}
 	//priority more bigger more higher(ex:10>9>8.....0 is lowest) 
@@ -5316,47 +5316,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   insert=calloc(1,sizeof(profit));//this is important,if you use malloc instead, then it will have some bug.
   //for example:some pointer will be 0x50,it won't be accessed but it is not NULL too.
   mark_count=0;
-/*  int min,min_i,min_j;	
-  double max=0,max1=0;
-  lru_node *curr_mark_node=ptr_buffer_cache->ptr_current_mark_node;
-  if(ptr_buffer_cache->ptr_current_mark_node!=NULL){
-	while(1){		
-		printf("%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-		switch(ptr_buffer_cache->ptr_current_mark_node->duration_label){
-			case 0://soon
-				
-				ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.0001;
-				if(max<ptr_buffer_cache->ptr_current_mark_node->benefit){
-					max=ptr_buffer_cache->ptr_current_mark_node->benefit;
-				}
-				printf("(0)benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->benefit);
-				break;
-			case 1://mean
-				ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.001;
-				if(ptr_buffer_cache->ptr_current_mark_node->benefit>max){
-					ptr_buffer_cache->ptr_current_mark_node->benefit=max+0.001;
-				}
-				if(max1<ptr_buffer_cache->ptr_current_mark_node->benefit){
-					max1=ptr_buffer_cache->ptr_current_mark_node->benefit;
-				}
-				printf("(1)benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->benefit);
-				break;
-			case 2://late
-				ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.01;
-				if(ptr_buffer_cache->ptr_current_mark_node->benefit>max1){
-					ptr_buffer_cache->ptr_current_mark_node->benefit=max1+0.01;
-				}
-				printf("(2)benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->benefit);
-				break;		
-		}		
-		assert(ptr_buffer_cache->ptr_current_mark_node->benefit!=0);
-		ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-		if(ptr_buffer_cache->ptr_current_mark_node==curr_mark_node){
-			break;
-		}
-	}
-    
- }		*/
   for(i = 0;i < CHANNEL_NUM;i++)
   {
     for(j = 0;j < PLANE_NUM;j++)
@@ -5881,10 +5840,16 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 			ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*0.1;
 			break;
 		  case 2:
-		  	ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*100000;
+		  	ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*10000;
 			break;
 	    }
 		printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->benefit);
+	}
+	for(i=0;i<global_HQ_size;i++){
+		if(ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE==global_HQ_node[i]){
+			//current kick block will be overwrite in the future,skip this block
+			ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*10000;
+		}
 	}
 	//else{		
 		/*printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
@@ -6220,7 +6185,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
-  int no_page_can_evict=0,w;
+  int no_page_can_evict=0,w,j;
   // "before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
@@ -6283,12 +6248,12 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 		}
 	}		
 }
-	printf("order count2:%d ptr_buffer_cache->count:%d\n",count2,ptr_buffer_cache->count);
+  printf("order count2:%d ptr_buffer_cache->count:%d\n",count2,ptr_buffer_cache->count);
   assert(count2==ptr_buffer_cache->count);
   ptr_buffer_cache->p=order;   
-  int k=0,remove=0; 
+  int k=0,remove=0,i; 
   kick=1; 
-  if(no_page_can_evict == 0){ 	
+  if(no_page_can_evict == 0){ 
     channel_num=order->channel_num;
     plane=order->plane;   
     printf("channel:%d plane:%d\n",channel_num,plane);
@@ -6327,7 +6292,6 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
       if(no_page_can_evict != 0)//預防機制，實際上不會進入這裡
       {
         printf("no_page_can_evict\n");
-        int i;
         printf("channel_num = %d, plane = %d\n", channel_num, plane );
         printf("%d|",ptr_lru_node->logical_node_num);
         for(i=0;i<64;i++)

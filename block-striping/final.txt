@@ -8,34 +8,34 @@ Sumcount = 367940,Hitcount = 326625 Hit = 88.77
 [CHEN] Trace File=/home/andrew/Desktop/disksim/block striping/trace/run1_Postmark_2475.txt, max_req=1, MEM Size=262144
 [CHEN] Pd_FA_count=0,Pd_R_count=73
 [CHEN] FA_count=0,R_count=0
-[CHEN] tot_Rtime=111503,prstime=0.303047
+[CHEN] tot_Rtime=114064,prstime=0.310007
 [CHEN] fa_hint_count=0
 [CHEN] ft_hint_count=473381
 [CHEN] rp_hint_count=4860
 [CHEN] total_hint_count=478241
 [CHEN] RWRATIO=0.400000, EVICTWINDOW=0.300000
 [CHEN] WB_size = 4000
-[YIFEN] write hit count = 11963 write miss count = 173699 write hit rate = 0.064434
-[YIFEN] read hit count = 114 read miss count = 3072 read hit rate = 0.035782
-[YIFEN] all hit rate = 0.063951
----[YIFEN] State0=82688, State1=1062, State2=0
----[YIFEN] kick_channel_times = 21213 
+[YIFEN] write hit count = 11738 write miss count = 173886 write hit rate = 0.063235
+[YIFEN] read hit count = 76 read miss count = 3110 read hit rate = 0.023854
+[YIFEN] all hit rate = 0.062571
+---[YIFEN] State0=39374, State1=441, State2=5
+---[YIFEN] kick_channel_times = 21236 
 
 ****Striping 資訊****
-[YIFEN] kick_page_striping_page_count=0, kick_block_striping_page_count=169704, kick_all_page_count = 169704
----[YIFEN] kick_block_strip_node = 82076 | kick_block_strip_sumpage = 332692|avg_block_strip_size =4.053463
+[YIFEN] kick_page_striping_page_count=0, kick_block_striping_page_count=169888, kick_all_page_count = 169888
+---[YIFEN] kick_block_strip_node = 38658 | kick_block_strip_sumpage = 204977|avg_block_strip_size =5.302318
 
-[Yifen] kick_count=20792
+[Yifen] kick_count=20827
 
 **** GC ****
-ytc94u total_live_page_cp_count2 = 7816,total_gc_count = 1696
-ytc94u average live page num in  victim block = 4.608491
-ytc94u GC_count_per_elem = 1696,GC_count_per_plane = 3392 ,average = 2
-ytc94u average block associate logical block = 46.835696
+ytc94u total_live_page_cp_count2 = 7946,total_gc_count = 1723
+ytc94u average live page num in  victim block = 4.611724
+ytc94u GC_count_per_elem = 1723,GC_count_per_plane = 3446 ,average = 2
+ytc94u average block associate logical block = 46.820429
 
 ****Response time****
-all req avg response time: n=62987 average=0.180179 std. deviation=1.773514
-write req avg response time: n=60212 average=0.182376 std. deviation=1.813358
-write_page avg response time: n=185548 average=0.059183 std. deviation=1.036515
-read req avgresponse time: n=2775 average=0.132513 std. deviation=0.204919
-read_page avg response time: n=3186 average=0.115419 std. deviation=0.196336
+all req avg response time: n=62987 average=0.181340 std. deviation=1.727132
+write req avg response time: n=60212 average=0.183670 std. deviation=1.766422
+write_page avg response time: n=185548 average=0.059602 std. deviation=1.009922
+read req avgresponse time: n=2775 average=0.130797 std. deviation=0.045442
+read_page avg response time: n=3186 average=0.113924 std. deviation=0.060999
