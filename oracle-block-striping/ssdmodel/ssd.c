@@ -5421,40 +5421,40 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
             plane=j;
           }
           if(current_block[i][j].current_mark_count==0){
-			assert(0);
-		  }
+			      assert(0);
+		      }
         }
       }
     }   
     if(max==-1){
-		assert(0);
-	}
+		  assert(0);
+	  }
 	for(i=0;i<LRUSIZE;i++){
 	  if(current_block[channel][plane].ptr_lru_node->page[i].exist!=0){
-		current_block[channel][plane].ptr_lru_node->page[i].channel_num=channel;
-		current_block[channel][plane].ptr_lru_node->page[i].plane=plane;
+      current_block[channel][plane].ptr_lru_node->page[i].channel_num=channel;
+      current_block[channel][plane].ptr_lru_node->page[i].plane=plane;
 	  }
 	}
 	ptr_lru_node = current_block[channel][plane].ptr_lru_node;
-    for(i=0;i<LRUSIZE;i++){
-      if(ptr_lru_node->page[i].exist!=0){          
-		if(current_block[channel][plane].current_mark_count == 0)
-		{
-		  assert(0);
-		}
-		assert(channel >=0 && channel < 8);
-		assert(plane >=0 && plane < 8);
-		current_block[channel][plane].trigger=2;
-		ptr_lru_node->page[i].strip = 0;		
-		add_to_ioqueue(curr,channel,plane,ptr_lru_node->page[i].lpn,0);
-		current_block[channel][plane].flush_w_count_in_current ++;
-        kick_block_striping_page_count++;
-        statistic.kick_write_intensive_page_count ++;
-        remove_channel=channel;
-        remove_plane=plane;
-        remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel,plane,flag);        
-      }
+  for(i=0;i<LRUSIZE;i++){
+    if(ptr_lru_node->page[i].exist!=0){          
+  if(current_block[channel][plane].current_mark_count == 0)
+  {
+    assert(0);
+  }
+  assert(channel >=0 && channel < 8);
+  assert(plane >=0 && plane < 8);
+  current_block[channel][plane].trigger=2;
+  ptr_lru_node->page[i].strip = 0;		
+  add_to_ioqueue(curr,channel,plane,ptr_lru_node->page[i].lpn,0);
+  current_block[channel][plane].flush_w_count_in_current ++;
+      kick_block_striping_page_count++;
+      statistic.kick_write_intensive_page_count ++;
+      remove_channel=channel;
+      remove_plane=plane;
+      remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel,plane,flag);        
     }
+  }
     kick_channel_times++;
   }
   kick_count+=kick;
