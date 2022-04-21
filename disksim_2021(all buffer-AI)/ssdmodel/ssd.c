@@ -113,6 +113,7 @@ typedef struct  _lru_node
   int duration_label;//0->soon,1->mean,2->late
   double duration_priority;//0~N
   int pass_req_count;
+  int select;
   int block_count,sector_index;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
@@ -2895,26 +2896,37 @@ double benefit[1000000];
 int benefit_bool[1000000]={0};
 long long unsigned int  physical_block_bool[10000000]={0};
 double benefit_value[10000000]={0};
+//find min benefit block as victim block and 使用學長的方式決定striping
 int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 {
   int my_threshod=0;
   int strip_way=-1;
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0,channel_num_Lg=0,plane_Lg=0;
   unsigned int offset_in_node,logical_add;
-  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2;
-
+  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2,*begin,*min_benefit;
   int j,k,m,flagcheck=0,tempc=0,tempp=0,state0LRU=0,state0SIZE=0;
   int seq = 0, seq_temp = 0, block_pcount=0;
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
-
+  begin=ptr_buffer_cache->ptr_head;
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
+  double min=10000;
+  while(begin!=c_node){
+    if(min>begin->benefit && begin->select==0){
+      min=begin->benefit;//record min benefit
+      min_benefit=begin;//record min benefit corresponding node position
+    }
+    begin=begin->next; 
+  }
+  if(min>begin->benefit && begin->select==0){
+    min=min_benefit->benefit;
+    min_benefit=begin;
+  }
+  min_benefit->select=1;
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
   int c=0, state=-1, locate_r = 100000, size_w=100000, locate_z=100000, zero_node_size=0, rep_size=100000, all_size=100000;
   int max_blocksize=0;
-
-
   Hint_page* p = (Hint_page *)malloc( sizeof( Hint_page ) );
   //printf("before state 0\n");
   int node_num=-1;
@@ -2929,21 +2941,20 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   if(EW<64)EW=64;
   for(i=0;i<EW;i++)//from lru find 64 node
   {
-    int pagecount=0,exist1=0;
+
+    int pagecount=0,exist1=0;//pagecount=number of page in current block which not in eviction window
     double Read_cover=0,Write_cover=0,R_intensity=0,W_intensity=0;
     c_node->hint_repeat = 0;
     c_node->hint_notrepeat = 0;
     int have_ev=0;
-    // unsigned long diff;
-    //gettimeofday(&start1, NULL);
     for(j=0;j<LRUSIZE;j++)//from lru node find 64 page
     {
       //=2 means already in evict area //=1 =2 means overwrite
       if(c_node->page[j].exist == 2 && exist1 == 1)//half in evict
       {
-        ptr_buffer_cache->ptr_current_mark_node = c_node;
+        ptr_buffer_cache->ptr_current_mark_node = min_benefit;
         //fprintf(outputssd, "2906 if(c_node->page[j].exist == 2 && exist1 == 1)\n");
-        strip_way=c_node->page[j].strip;
+        strip_way=min_benefit->page[j].strip;
         //strip_way = 0;
         return strip_way;
       }
@@ -3021,7 +3032,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       W_intensity=W_intensity+my_threshod;
       if(R_intensity > W_intensity)
       {
-        if(i<locate_z) //lru
+        if(i<locate_z) //lru....only enter once,because i is in order
         {
           locate_z = i;
           LRUzero_node = c_node;
@@ -3031,7 +3042,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       }
       else //write intensive
       {
-        if(pagecount > zero_node_size) //size
+        if(pagecount > zero_node_size) //size  
         {
           zero_node_size = pagecount;
           Szero_node = c_node;
@@ -3125,7 +3136,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
           }
           else
           {
-            have_ev=1;
+            have_ev=1;//means exist=2;
             break;
           }
         }
@@ -3465,18 +3476,8 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       // ptr_buffer_cache->ptr_current_mark_node = c_node;
       // strip_way = 0;
   }
-  //printf("endend\n");
-  // if(state=0)
-  // {
-  //   ptr_buffer_cache->ptr_current_mark_node = c_node;
-  //   strip_way = 0;
-  // }
-  // else
-  // {
-  //   ptr_buffer_cache->ptr_current_mark_node = c_node;
-  //   strip_way = 1;
-  // }
-
+  //assign min benefit node to the ptr_current_mark_node
+  ptr_buffer_cache->ptr_current_mark_node=min_benefit;
   if(strip_way==0)
   {
     ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
@@ -3669,80 +3670,80 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	fprintf(t,"%d ",physical_node_num);		
 	//ptr_buffer_cache->ptr_head is circular link list!!!!	
   if(init==1){	
-	 write_buffer=calloc(1,sizeof(buffer_cache));
-	 for(i=0;i<1000;i++){
-		 write_buffer->logical_block[i]=calloc(1,sizeof(lru_node));
-		 write_buffer->logical_block[i]->logical_node_num=-1;
-		 for(j=0;j<64;j++){
-			write_buffer->logical_block[i]->page[j].sector_count=0;
-		 }
-	 } 
-		FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
-		char buf[1024];
-		char *substr=NULL;
-		const char *const delim=" ";
-		int physical_block_num,sector_number;
-		int p=-1;
-		if(fgets(buf,1024,rnn)==NULL){
-			printf("fopen return NULL\n");
-			exit(0);
-		}
-		else{
-			substr=strtok(buf,delim);//sector number	
-			sector_number=atoi(substr);
-			substr=strtok(NULL,delim);//physical block number
-			physical_block_num=atoi(substr);
-			substr=strtok(NULL,delim);//benefit     
-			benefit_value[physical_block_num]=atof(substr);
-			substr=strtok(NULL,delim);//sector_count
-			page_count[physical_block_num][sector_number]=atoi(substr);
-		}	
-		while(fgets(buf,1024,rnn)!=NULL){
-			substr=strtok(buf,delim);//sector number	
-			sector_number=atoi(substr);
-			substr=strtok(NULL,delim);//physical block number
-			physical_block_num=atoi(substr);
-			substr=strtok(NULL,delim);//benefit     
-			benefit_value[physical_block_num]=atof(substr);
-			substr=strtok(NULL,delim);//sector_count
-			page_count[physical_block_num][sector_number]=atoi(substr);				
-		} 				    
-		fclose(rnn);
-		init=0;	
-		physical_block_num=-1;
-		FILE *dur=fopen("duration.txt","r");
-		char buf1[1024];
-		char *substr1=NULL;
-		const char *const delim1=" ";
-		int duration_label;
-		if(fgets(buf1,1024,dur)==NULL){
-			printf("fopen return NULL\n");
-			exit(0);
-		}
-		else{
-			substr1=strtok(buf1,delim1);//block number	
-			physical_block_num=atoi(substr1);
-			substr1=strtok(NULL,delim1);//duration label
-			duration_label=atoi(substr1);
-			duration_arr[physical_block_num]=duration_label;//physical_block_num=physical_node_num % HASHSIZE
-		}	
-		while(fgets(buf1,1024,dur)!=NULL){
-			substr1=strtok(buf1,delim1);//block number	
-			physical_block_num=atoi(substr1);
-			substr1=strtok(NULL,delim1);//duration label
-			duration_label=atoi(substr1);
-			duration_arr[physical_block_num]=duration_label%3;//physical_block_num=physical_node_num % HASHSIZE					
-		} 				    
-		fclose(dur);				
-	  }
+    write_buffer=calloc(1,sizeof(buffer_cache));
+    for(i=0;i<1000;i++){
+      write_buffer->logical_block[i]=calloc(1,sizeof(lru_node));
+      write_buffer->logical_block[i]->logical_node_num=-1;
+      for(j=0;j<64;j++){
+      write_buffer->logical_block[i]->page[j].sector_count=0;
+      }
+    } 
+    FILE *rnn=fopen("sector num-physical block num-benefit-sector count.txt","r");
+    char buf[1024];
+    char *substr=NULL;
+    const char *const delim=" ";
+    int physical_block_num,sector_number;
+    int p=-1;
+    if(fgets(buf,1024,rnn)==NULL){
+      printf("fopen return NULL\n");
+      exit(0);
+    }
+    else{
+      substr=strtok(buf,delim);//sector number	
+      sector_number=atoi(substr);
+      substr=strtok(NULL,delim);//physical block number
+      physical_block_num=atoi(substr);
+      substr=strtok(NULL,delim);//benefit     
+      benefit_value[physical_block_num]=atof(substr);
+      substr=strtok(NULL,delim);//sector_count
+      page_count[physical_block_num][sector_number]=atoi(substr);
+    }	
+    while(fgets(buf,1024,rnn)!=NULL){
+      substr=strtok(buf,delim);//sector number	
+      sector_number=atoi(substr);
+      substr=strtok(NULL,delim);//physical block number
+      physical_block_num=atoi(substr);
+      substr=strtok(NULL,delim);//benefit     
+      benefit_value[physical_block_num]=atof(substr);
+      substr=strtok(NULL,delim);//sector_count
+      page_count[physical_block_num][sector_number]=atoi(substr);				
+    } 				    
+    fclose(rnn);
+    init=0;	
+    physical_block_num=-1;
+    FILE *dur=fopen("duration.txt","r");
+    char buf1[1024];
+    char *substr1=NULL;
+    const char *const delim1=" ";
+    int duration_label;
+    if(fgets(buf1,1024,dur)==NULL){
+      printf("fopen return NULL\n");
+      exit(0);
+    }
+    else{
+      substr1=strtok(buf1,delim1);//block number	
+      physical_block_num=atoi(substr1);
+      substr1=strtok(NULL,delim1);//duration label
+      duration_label=atoi(substr1);
+      duration_arr[physical_block_num]=duration_label;//physical_block_num=physical_node_num % HASHSIZE
+    }	
+    while(fgets(buf1,1024,dur)!=NULL){
+      substr1=strtok(buf1,delim1);//block number	
+      physical_block_num=atoi(substr1);
+      substr1=strtok(NULL,delim1);//duration label
+      duration_label=atoi(substr1);
+      duration_arr[physical_block_num]=duration_label%3;//physical_block_num=physical_node_num % HASHSIZE					
+    } 				    
+    fclose(dur);				
+  }
   int b=0,count=0,block_hit=0,hit_block_index,enter_pointer=0,hit_sector_index;	  
 	//calculate block and sector hit count	 
 	//in the below code sector=page 
   for(i=0;i<block_index;i++){	//same sector same block overwrite  
     for(j=0;j<LRUSIZE;j++){  
       if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
-		block_hit=1;
-		hit_block_index=i;
+        block_hit=1;
+        hit_block_index=i;
         if(write_buffer->logical_block[i]->page[j].sector_count>=1 && j==phy_node_offset){//sector hit
 		 // printf("1:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,j,i);
           write_buffer->logical_block[i]->block_count++;
@@ -3755,14 +3756,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
   }
   if(b==0 && block_hit==1){//block overwrite but sector not
-	//printf("2:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,phy_node_offset,hit_block_index);
-	write_buffer->logical_block[hit_block_index]->page[phy_node_offset].sector_count++;
-	write_buffer->logical_block[hit_block_index]->block_count++;
-	enter_pointer=1;
-	hit_sector_index=phy_node_offset;
+    //printf("2:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,phy_node_offset,hit_block_index);
+    write_buffer->logical_block[hit_block_index]->page[phy_node_offset].sector_count++;
+    write_buffer->logical_block[hit_block_index]->block_count++;
+    enter_pointer=1;
+    hit_sector_index=phy_node_offset;
   }
   else if(b==0){//new block and new sector
-	write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;
+	  write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;
    // printf("3:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,phy_node_offset,block_index);    
     write_buffer->logical_block[block_index]->page[phy_node_offset].sector_count++;
     write_buffer->logical_block[block_index]->block_count++;
@@ -3848,16 +3849,15 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       add_a_node_to_buffer_cache(lpn,physical_node_num,phy_node_offset,ptr_buffer_cache,flag);
       //fprintf(myoutput,"lpn:%d,physical_node_num=%d\n",lpn,physical_node_num);
       switch(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_label){
-		  case 0:
-			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_priority+1)*0.0000001;
-			break;
-		  case 1:
-			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_priority+1)*0.1;
-			break;
-		  case 2:
-		  	ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_priority+1)*100000;
-		  break;
-	  
+        case 0:
+          ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_priority+1)*0.0000001;
+          break;
+        case 1:
+          ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_priority+1)*0.1;
+          break;
+        case 2:
+          ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->benefit=(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->duration_priority+1)*100000;
+        break;
 	  }  
   }
   else
@@ -5845,25 +5845,13 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 	    }
 		printf("inside the function:%d benefit:%f\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->benefit);
 	}
-	for(i=0;i<global_HQ_size;i++){
+
+	/*for(i=0;i<global_HQ_size;i++){
 		if(ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE==global_HQ_node[i]){
 			//current kick block will be overwrite in the future,skip this block
 			ptr_buffer_cache->ptr_current_mark_node->benefit=(ptr_buffer_cache->ptr_current_mark_node->duration_priority+1)*10000;
 		}
-	}
-	//else{		
-		/*printf("block:%d doesn't exist\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num);
-		
-	    exit(0);
-		
-		while(benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE]==0){
-		  ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;		  
-		}
-		
-		ptr_buffer_cache->ptr_current_mark_node->benefit=benefit_value[ptr_buffer_cache->ptr_current_mark_node->logical_node_num % HASHSIZE];		  					
-		check_block_exist(ptr_buffer_cache->ptr_current_mark_node);*/
-	//	ptr_buffer_cache->ptr_current_mark_node->benefit=0.019;		
-//	}
+	}*/
     ptr_buffer_cache->current_mark_offset=0;
     //mark write intensive node
 		check_block_exist(ptr_buffer_cache->ptr_current_mark_node);
@@ -5876,8 +5864,6 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 	//printf("3168 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	while(ptr_buffer_cache->current_mark_offset<LRUSIZE)
 	{			
-			//強制使用block striping(mark部分)
-		  ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
 		//mark a write intensive request 
 		//printf("block num:%d exist:%d strip_way:%d offset:%d\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num,ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist,ptr_buffer_cache->ptr_current_mark_node->StripWay,ptr_buffer_cache->current_mark_offset);
 		//if exist=1 program must enter this condition--->I tested before.(2022/3/2)
@@ -6394,6 +6380,7 @@ void A_kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_ca
 			if(ptr_lru_node->buffer_page_num==1 && mark_bool[ptr_lru_node->logical_node_num]==1){
 				printf("remove block:%d k:%d mark count:%d\n",ptr_lru_node->logical_node_num,k,current_block[channel_num][plane].current_mark_count);		
 				remove_node=1;
+        ptr_lru_node->select=0;
 				ptr_buffer_cache->count--;
 				//在這裡會出現重複的block.....if exist，然後會被ptr_buffer_cache->count和actual profit count計算進去	
 				//然後出於未知原因，重複的block都是當下要被remove的block，所以一旦被remove，原先被存在curren_block
