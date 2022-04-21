@@ -3548,9 +3548,12 @@ void write_benefit_to_txt(int g){
 	char tmp[200];
 	FILE *info=fopen("sector num-physical block num-benefit-sector count.txt","w");//sector number,block,number,benefit,sector_count
 	for(i=0;i<block_index;i++){
-		if(write_buffer->logical_block[i]->page[i].sector_count>0){
-			write_buffer->logical_block[i]->block_size++;
+		for(j=0;j<LRUSIZE;j++){
+			if(write_buffer->logical_block[i]->page[j].sector_count>0){
+				write_buffer->logical_block[i]->block_size++;
+			}
 		}
+		printf("block:%d size:%d\n",write_buffer->logical_block[i]->logical_node_num,write_buffer->logical_block[i]->block_size);
 	}
 	for(i=0;i<block_index;i++){
 		for(j=0;j<LRUSIZE;j++){
@@ -3695,8 +3698,8 @@ void simulate_all_buffer(int physical_node_num,int page_index){
   
   for(i=0;i<logical_block_number;i++){
     for(j=0;j<LRUSIZE;j++){
-      if(wb->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
-        wb->logical_block[i]->benefit=benefit_value[physical_node_num % HASHSIZE];
+      if(wb->logical_block[i]->logical_node_num==physical_node_num){//block hit
+        wb->logical_block[i]->benefit=benefit_value[physical_node_num];
         block_hit=1;
         hit_block_num=i;
         if(wb->logical_block[i]->page[j].sector_count>=1 && j==page_index){//sector hit          
@@ -3710,7 +3713,7 @@ void simulate_all_buffer(int physical_node_num,int page_index){
    wb->logical_block[i]->duration++;
   }
   if(block_hit==1 && sector_hit==0){//block overwrite but sector is not
-	printf("block overwrite:%d\n\n",physical_node_num % HASHSIZE);
+	printf("block overwrite:%d\n\n",physical_node_num);
     wb->logical_block[hit_block_num]->page[page_index].exist=1;
     wb->logical_block[hit_block_num]->page[page_index].sector_count++;
     total_page_num++; 
@@ -3724,10 +3727,10 @@ void simulate_all_buffer(int physical_node_num,int page_index){
 			break;
 		}
 	}
-	printf("new sector:%d new block:%d\n\n",page_index,physical_node_num % HASHSIZE);
-    wb->logical_block[logical_block_number]->logical_node_num=physical_node_num % HASHSIZE;
+	printf("new sector:%d new block:%d\n\n",page_index,physical_node_num );
+    wb->logical_block[logical_block_number]->logical_node_num=physical_node_num;
     wb->logical_block[logical_block_number]->page[page_index].sector_count++;
-    wb->logical_block[logical_block_number]->benefit=benefit_value[physical_node_num % HASHSIZE];
+    wb->logical_block[logical_block_number]->benefit=benefit_value[physical_node_num];
     wb->logical_block[logical_block_number]->page[page_index].exist=1;
     total_page_num++; 
   }
@@ -3735,7 +3738,7 @@ void simulate_all_buffer(int physical_node_num,int page_index){
   if(total_page_num>=max_page_num){//write buffer full...
     //evict min benefit block
     double min=10000;
-	for(i=0;i<logical_block_number;i++){
+	for(i=0;i<5000;i++){
 	  if(min>=wb->logical_block[i]->benefit && wb->logical_block[i]->logical_node_num!=-1 && wb->logical_block[i]->benefit!=0){	
 		min=wb->logical_block[i]->benefit;
 		min_block_index=i;
@@ -3745,6 +3748,7 @@ void simulate_all_buffer(int physical_node_num,int page_index){
 	if(wb->logical_block[min_block_index]->duration==0){
 		wb->logical_block[min_block_index]->duration++;
 	}
+	assert(wb->logical_block[min_block_index]->logical_node_num>-1);
 	FILE *dur=fopen("duration.txt","a+");
 	fprintf(dur,"%d %d\n",wb->logical_block[min_block_index]->logical_node_num,wb->logical_block[min_block_index]->duration);
 	fclose(dur);
@@ -3794,7 +3798,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     init1=0;
   }
-  //simulate_all_buffer(physical_node_num,phy_node_offset);
+  simulate_all_buffer(physical_node_num,phy_node_offset);
 	for(i=0;i<100;i++)
 		ignore[i]=-1;
 	tmp[0]=curr1->arrive_time;
@@ -3802,7 +3806,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	tmp1[3]=curr1->busno;
 	tmp1[5]=ptr_buffer_cache->w_miss_count;
 	tmp1[12]=ptr_buffer_cache->w_hit_count;
-	FILE *t=fopen("info(iozone2).txt","w");
+	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
 	//arrive time,page index,busno,miss count,hit count,physcial_node_num % HASHSIZE,block_write_count
 	fprintf(t,"%f ",tmp[0]);
 	ignore[0]=0;
@@ -3826,7 +3830,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			fprintf(t,"%lld ",tmp1[i]);
 	}  		
 	}    
-	fprintf(t,"%d ",physical_node_num % HASHSIZE);
+	fprintf(t,"%d ",physical_node_num);
     if(init==1){
       write_buffer=calloc(1,sizeof(buffer_cache));
       for(i=0;i<5000;i++){
@@ -3836,7 +3840,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
           write_buffer->logical_block[i]->page[j].sector_count=0;
         }
       } 	 
-      /*FILE *file=fopen("sector num-physical block num-benefit-sector count.txt","r");
+      FILE *file=fopen("sector num-physical block num-benefit-sector count.txt","r");
       char buf[1024];
       char *substr=NULL;
       const char *const delim=" ";
@@ -3861,7 +3865,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		benefit_value[physical_block_number]=atof(substr);
         substr=strtok(NULL,delim);//sector count
       }
-      fclose(file);*/
+      fclose(file);
       init=0;
 	}  
 	int b=0,count=0,block_hit=0,hit_block_index,enter_pointer=0,hit_sector_index;	  
@@ -3869,10 +3873,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	//in the below code sector=page 
   for(i=0;i<block_index;i++){	//same sector same block overwrite  
     for(j=0;j<LRUSIZE;j++){  
-      if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){//block hit
+      if(write_buffer->logical_block[i]->logical_node_num==physical_node_num){//block hit
 		    block_hit=1;
 		    hit_block_index=i;
-        if(write_buffer->logical_block[i]->page[j].sector_count>=1){//sector hit
+        if(write_buffer->logical_block[i]->page[j].sector_count>=1 && j==phy_node_offset){//sector hit
 		 // printf("1:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,j,i);
           write_buffer->logical_block[i]->block_count++;
           write_buffer->logical_block[i]->page[j].sector_count++; 
@@ -3891,7 +3895,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	hit_sector_index=phy_node_offset;
   }
   else if(b==0){//new block and new sector
-	  write_buffer->logical_block[block_index]->logical_node_num=physical_node_num % HASHSIZE;
+	  write_buffer->logical_block[block_index]->logical_node_num=physical_node_num;
    // printf("3:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,phy_node_offset,block_index);    
     write_buffer->logical_block[block_index]->page[phy_node_offset].sector_count++;
     write_buffer->logical_block[block_index]->block_count++;
@@ -3900,10 +3904,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     block_index++;
     enter_pointer=1;
     assert(write_buffer->logical_block[block_index-1]->page[phy_node_offset].sector_count>0);
-    assert(block_index<=1000);
+    assert(block_index<=5000);
   }  
 	for(i=0;i<=block_index;i++){
-		if(write_buffer->logical_block[i]->logical_node_num==physical_node_num % HASHSIZE){
+		if(write_buffer->logical_block[i]->logical_node_num==physical_node_num){
 			fprintf(t,"%d",write_buffer->logical_block[i]->block_count);
 			break;
 		}
@@ -3911,8 +3915,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	fprintf(t,"%s\n","");	
 	fclose(t);
 	assert(enter_pointer==1);
-	assert(write_buffer->logical_block[hit_block_index]->logical_node_num==physical_node_num % HASHSIZE);
-	assert(write_buffer->logical_block[hit_block_index]->page[hit_sector_index].sector_count>=1);
+	assert(write_buffer->logical_block[hit_block_index]->logical_node_num==physical_node_num);
+	assert(write_buffer->logical_block[hit_block_index]->page[hit_sector_index].sector_count>=1);		
   while(1)
   {
     if(ptr_lru_node == NULL)
@@ -6150,7 +6154,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   
-  write_benefit_to_txt(1);
+  //write_benefit_to_txt(1);
   int i;
   
   statistic_the_data_in_every_stage();
