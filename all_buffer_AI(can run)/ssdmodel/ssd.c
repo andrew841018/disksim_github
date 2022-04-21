@@ -3613,7 +3613,8 @@ double min2=100000;
 unsigned int mark_bool[100000000]={0};
 unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
-int duration_arr[10000000]={0};
+int duration_arr[10000000][2]={0};//block number,duration label
+int dur_index=0;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("begining of Y_add_Pg\n");
@@ -3724,14 +3725,18 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			physical_block_num=atoi(substr1);
 			substr1=strtok(NULL,delim1);//duration label
 			duration_label=atoi(substr1);
-			duration_arr[physical_block_num]=duration_label;//physical_block_num=physical_node_num % HASHSIZE
+			duration_arr[dur_index][0]=physical_block_num;//physical_block_num=physical_node_num % HASHSIZE
+			duration_arr[dur_index][1]=duration_label;
+			dur_index++;
 		}	
 		while(fgets(buf1,1024,dur)!=NULL){
 			substr1=strtok(buf1,delim1);//block number	
 			physical_block_num=atoi(substr1);
 			substr1=strtok(NULL,delim1);//duration label
 			duration_label=atoi(substr1);
-			duration_arr[physical_block_num]=duration_label%3;//physical_block_num=physical_node_num % HASHSIZE					
+			duration_arr[dur_index][0]=physical_block_num;//physical_block_num=physical_node_num % HASHSIZE
+			duration_arr[dur_index][1]=duration_label;
+			dur_index++;				
 		} 				    
 		fclose(dur);				
 	  }
@@ -4147,11 +4152,12 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 //   add_a_page_in_the_node(logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache);
 // }
 double soon_time=0.001,mean_time=0.001,late_time=0.001;
+int start_index=0;
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
 {
   //printf("innn add node | flag=%d \n", flag);
   //fprintf(lpb_ppn, "add_a_node_to_buffer_cache\t");
-  
+	int i;
 	lru_node *ptr_node;
 	ptr_node = malloc(sizeof(lru_node));
 	assert(ptr_node);
@@ -4159,7 +4165,13 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	ptr_node->group_type=flag;
 	ptr_node->logical_node_num = logical_node_num;
 	ptr_buffer_cache->total_buffer_block_num++;
-	ptr_node->duration_label=duration_arr[ptr_node->logical_node_num];
+	for(i=0;i<10000000;i++){
+		if(duration_arr[i][0]==logical_node_num){
+			ptr_node->duration_label=duration_arr[i][1];
+			start_index=i+1;
+			break;
+		}
+	}
 	switch(ptr_node->duration_label){
 		case 0:
 			ptr_node->duration_priority=soon_time;
