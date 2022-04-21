@@ -2903,30 +2903,19 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   int strip_way=-1;
   static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0,channel_num_Lg=0,plane_Lg=0;
   unsigned int offset_in_node,logical_add;
-  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2,*begin,*min_benefit;
+  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2;
   int j,k,m,flagcheck=0,tempc=0,tempp=0,state0LRU=0,state0SIZE=0;
   int seq = 0, seq_temp = 0, block_pcount=0;
   //fprintf(outputssdfprintf(outputssd, "lru 64 node channel&plane:\n");
   temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
-  begin=ptr_buffer_cache->ptr_head;
+
   c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
-  double min=10000;
-  while(begin!=c_node){
-    if(min>begin->benefit && begin->select==0){
-      min=begin->benefit;//record min benefit
-      min_benefit=begin;//record min benefit corresponding node position
-    }
-    begin=begin->next; 
-  }
-  if(min>begin->benefit && begin->select==0){
-    min=min_benefit->benefit;
-    min_benefit=begin;
-  }
-  min_benefit->select=1;
   //printf("chech1\n");
   //fprintf(outputssd, "chech1-cnode=%d \n", c_node->logical_node_num);
   int c=0, state=-1, locate_r = 100000, size_w=100000, locate_z=100000, zero_node_size=0, rep_size=100000, all_size=100000;
   int max_blocksize=0;
+
+
   Hint_page* p = (Hint_page *)malloc( sizeof( Hint_page ) );
   //printf("before state 0\n");
   int node_num=-1;
@@ -2936,13 +2925,12 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
   //   fprintf(outputfd, "%d,", global_HQ[i]);
   // }
   // fprintf(outputfd, "\n");
-  int EW = (int)(ptr_buffer_cache->total_buffer_block_num * EVICTWINDOW);
+  int EW = (int)(ptr_buffer_cache->total_buffer_block_num * EVICTWINDOW);//挑選某個比例的block為victim block
   //fprintf(myoutput, "ptr_buffer_cache->total_buffer_block_num:%d\n",ptr_buffer_cache->total_buffer_block_num);
-  if(EW<64)EW=64;
+  if(EW<64)EW=64;//victim block at least 64 blocks
   for(i=0;i<EW;i++)//from lru find 64 node
   {
-
-    int pagecount=0,exist1=0;//pagecount=number of page in current block which not in eviction window
+    int pagecount=0,exist1=0;
     double Read_cover=0,Write_cover=0,R_intensity=0,W_intensity=0;
     c_node->hint_repeat = 0;
     c_node->hint_notrepeat = 0;
@@ -2952,9 +2940,9 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       //=2 means already in evict area //=1 =2 means overwrite
       if(c_node->page[j].exist == 2 && exist1 == 1)//half in evict
       {
-        ptr_buffer_cache->ptr_current_mark_node = min_benefit;
+        ptr_buffer_cache->ptr_current_mark_node = c_node;
         //fprintf(outputssd, "2906 if(c_node->page[j].exist == 2 && exist1 == 1)\n");
-        strip_way=min_benefit->page[j].strip;
+        strip_way=c_node->page[j].strip;
         //strip_way = 0;
         return strip_way;
       }
@@ -2964,7 +2952,8 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
         pagecount++;
         for(k=global_HQ_size-1;k>=0;k--)
         {
-          if(c_node->page[j].lpn == global_HQ[k])
+          //this page will overwrite later...
+          if(c_node->page[j].lpn == global_HQ[k])//global_HQ store the page is about to arrive.(rihgt now at host)
           {
             //fprintf(myoutput3, "global_HQ:%d\n", global_HQ[k]);
             c_node->hint_repeat++;
@@ -2988,6 +2977,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       }
       else
       {
+        //means current block alredy in victim block--->ptr_buffer_cache->ptr_current_mark_node is victim block
         have_ev=1;
         break;
       }
@@ -2997,16 +2987,17 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
     //fprintf(outputssd, "state0|c_node=%d,i=%d,pagecount=%d\n",c_node->logical_node_num, i, pagecount);
     if(have_ev==1)
     {
+      //current block is in victim block, move c_node to next node
       c_node = c_node->prev;
       continue;
     }
-    //no page in hint //choose as evice
+    //no page in hint //choose as eviction
     if(c_node->hint_repeat == 0 && c_node->hint_notrepeat == 0 && c_node != ptr_buffer_cache->ptr_head) 
     {
       //fprintf(outputssd, "\t\tno page in hint|choose c_node[%d] as a victim\n", c_node->logical_node_num);
       double rw_ratio=0, node_rcount=LPN_RWtimes[c_node->logical_node_num][0], node_wcount=LPN_RWtimes[c_node->logical_node_num][1];
       //fprintf(myoutput,"Page:%d,node_rcount:%lf,node_wcount:%lf\n",c_node->logical_node_num,node_rcount,node_wcount);
-      rw_ratio=node_rcount/(node_rcount+node_wcount);
+      rw_ratio=node_rcount/(node_rcount+node_wcount);//read ratio
       int t=0;
       for(t=0;t<LRUSIZE;t++)
       {
@@ -3020,10 +3011,9 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
           Write_cover++;
           //fprintf(myoutput,"Write_cover=%d,Page:%d\n",Write_cover,c_node->page[t].lpn);
         }
-      }
-      
-      R_intensity = Read_cover * node_rcount;
-      W_intensity = Write_cover * node_wcount;
+      }     
+      R_intensity = Read_cover * node_rcount;//read_cover=total page-read count zero page number(read count=0的page個數)
+      W_intensity = Write_cover * node_wcount;//write_cover=total page-number of page which only read
       // fprintf(myoutput,"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\n");
       // fprintf(myoutput,"node_wcount:%lf\n",node_wcount);
       // fprintf(myoutput,"node_rcount:%lf\n",node_rcount);
@@ -3032,7 +3022,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       W_intensity=W_intensity+my_threshod;
       if(R_intensity > W_intensity)
       {
-        if(i<locate_z) //lru....only enter once,because i is in order
+        if(i<locate_z) //lru
         {
           locate_z = i;
           LRUzero_node = c_node;
@@ -3042,7 +3032,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       }
       else //write intensive
       {
-        if(pagecount > zero_node_size) //size  
+        if(pagecount > zero_node_size) //size
         {
           zero_node_size = pagecount;
           Szero_node = c_node;
@@ -3136,7 +3126,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
           }
           else
           {
-            have_ev=1;//means exist=2;
+            have_ev=1;
             break;
           }
         }
@@ -3380,7 +3370,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 
 
   if(state == 0)
-  {
+  { 
     //printf("state==0\n");
     State0++;
     block_pcount=0;
@@ -3420,7 +3410,7 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
         }
       }
       //printf("rw_ratio=\n");
-      rw_ratio=node_rcount/(node_rcount+node_wcount);
+      rw_ratio=node_rcount/(node_rcount+node_wcount);//read ratio
       R_intensity = Read_cover * node_rcount;
       W_intensity = Write_cover * node_wcount;
       //if(rw_ratio>=RWRATIO)//read intensive //page striping
@@ -3476,8 +3466,18 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
       // ptr_buffer_cache->ptr_current_mark_node = c_node;
       // strip_way = 0;
   }
-  //assign min benefit node to the ptr_current_mark_node
-  ptr_buffer_cache->ptr_current_mark_node=min_benefit;
+  //printf("endend\n");
+  // if(state=0)
+  // {
+  //   ptr_buffer_cache->ptr_current_mark_node = c_node;
+  //   strip_way = 0;
+  // }
+  // else
+  // {
+  //   ptr_buffer_cache->ptr_current_mark_node = c_node;
+  //   strip_way = 1;
+  // }
+
   if(strip_way==0)
   {
     ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
@@ -3614,7 +3614,8 @@ double min2=100000;
 unsigned int mark_bool[100000000]={0};
 unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
-int duration_arr[10000000]={0};
+int duration_arr[10000000][10000];
+int block_index[10000000]={0};
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("begining of Y_add_Pg\n");
@@ -3725,16 +3726,21 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
       physical_block_num=atoi(substr1);
       substr1=strtok(NULL,delim1);//duration label
       duration_label=atoi(substr1);
-      duration_arr[physical_block_num]=duration_label;//physical_block_num=physical_node_num % HASHSIZE
+      duration_arr[physical_block_num][block_index[physical_block_num]]=duration_label;
+      block_index[physical_block_num]++;
     }	
     while(fgets(buf1,1024,dur)!=NULL){
       substr1=strtok(buf1,delim1);//block number	
       physical_block_num=atoi(substr1);
       substr1=strtok(NULL,delim1);//duration label
       duration_label=atoi(substr1);
-      duration_arr[physical_block_num]=duration_label%3;//physical_block_num=physical_node_num % HASHSIZE					
+      duration_arr[physical_block_num][block_index[physical_block_num]]=duration_label;
+      block_index[physical_block_num]++;				
     } 				    
-    fclose(dur);				
+    fclose(dur);
+    for(i=0;i<10000;i++){
+      block_index[i]=0;
+    }				
   }
   int b=0,count=0,block_hit=0,hit_block_index,enter_pointer=0,hit_sector_index;	  
 	//calculate block and sector hit count	 
@@ -4159,7 +4165,9 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	ptr_node->group_type=flag;
 	ptr_node->logical_node_num = logical_node_num;
 	ptr_buffer_cache->total_buffer_block_num++;
-	ptr_node->duration_label=duration_arr[ptr_node->logical_node_num];
+  //根據當下的physical_block_number將對應時間點model預測的duration label傳送進去
+	ptr_node->duration_label=duration_arr[ptr_node->logical_node_num][block_index[logical_node_num]];
+  block_index[logical_node_num]++;
 	switch(ptr_node->duration_label){
 		case 0:
 			ptr_node->duration_priority=soon_time;
@@ -5920,6 +5928,7 @@ void A_mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned i
 			kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
 			//int strip_way=0;
 			break;
+      //choose the victim block assign to ptr_buffer_cache->ptr_current_mark_node
 			int strip_way = check_which_node_to_evict(ptr_buffer_cache);    
 			while(strip_way==1)
 			{
