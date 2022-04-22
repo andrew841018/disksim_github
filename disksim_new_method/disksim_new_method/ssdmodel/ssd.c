@@ -69,6 +69,7 @@ typedef struct _buffer_cache
   struct _lru_node *ptr_head;         //lru list ,point to the group node head
   unsigned int total_buffer_page_num;     //current buffer page number in the cache
   unsigned int total_buffer_block_num;
+  double soon_max,mean_max,late_max;
   unsigned int max_buffer_page_num;     //max buffer page count
   unsigned int w_hit_count;         //hit count for write (for statistics)
   unsigned int w_miss_count;          //miss count for write (for statistics)
@@ -99,6 +100,10 @@ typedef struct _buffer_page
 typedef struct  _lru_node
 {
   unsigned int logical_node_num;        //logical_node_num == lpn / LRUSIZE
+  int duration_label;//0->soon,1->mean,2->late
+  double duration_priority;//0~N
+  int pass_req_count,select_victim;
+  int block_count,sector_index;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
   buffer_page page[LRUSIZE];          //phy page in the node
@@ -3650,7 +3655,13 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
 }
-
+int duration_arr[10000000][2]={0};//block number,duration label
+int dur_index=0,init=1;
+unsigned int skip_block[10000000]={0};
+unsigned int page_count[1000][64];
+double benefit_value[10000000]={0};
+double soon_time=0.001,mean_time=0.002,late_time=0.003;
+int start_index=0;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3669,18 +3680,38 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   int i;
-  /*printf("hash_Pg:");
-  for(i=0;i<1000;i++)
-  {
-    if(ptr_buffer_cache->hash_Pg[i] == NULL)
-    {
-    }
-    else
-      printf("%d|",ptr_buffer_cache->hash_Pg[i]->logical_node_num);
+  if(init==1){	
+	int physical_block_num=-1;
+	FILE *dur=fopen("duration.txt","r");
+	char buf1[1024];
+	char *substr1=NULL;
+	const char *const delim1=" ";
+	int duration_label;
+	if(fgets(buf1,1024,dur)==NULL){
+		printf("fopen return NULL\n");
+		exit(0);
+	}
+	else{
+		substr1=strtok(buf1,delim1);//block number	
+		physical_block_num=atoi(substr1);
+		substr1=strtok(NULL,delim1);//duration label
+		duration_label=atoi(substr1);
+		duration_arr[dur_index][0]=physical_block_num;//physical_block_num=physical_node_num % HASHSIZE
+		duration_arr[dur_index][1]=duration_label;
+		dur_index++;
+	}	
+	while(fgets(buf1,1024,dur)!=NULL){
+		substr1=strtok(buf1,delim1);//block number	
+		physical_block_num=atoi(substr1);
+		substr1=strtok(NULL,delim1);//duration label
+		duration_label=atoi(substr1);
+		duration_arr[dur_index][0]=physical_block_num;//physical_block_num=physical_node_num % HASHSIZE
+		duration_arr[dur_index][1]=duration_label;
+		dur_index++;				
+	} 			    
+	fclose(dur);
+	init=0;
   }
-  printf("\n");*/
- 
-  // search Lg_hash, if have this node, flag=1, else flag = 0
   while(1)
   {
     if(ptr_lru_node == NULL)
@@ -3730,21 +3761,39 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   }
   else
   {
-    //fprintf(lpb_ppn, "if(Pg_node != NULL)\tphysical_node_num=%d\n", physical_node_num);
-    //printf("find node\n");
     //remove the mark page int the hit node
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
-    /* if(myssd.node_page_nm[logical_node_num][offset_in_node]==1)
-    {
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
-    }
-    else
-    {
-      add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,Pg_node,ptr_buffer_cache,1);
-    }*/
-    //add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
-    //add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,Pg_node,ptr_buffer_cache,0);   //bug problem
-    add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
+    for(i=0;i<10000000;i++){
+		if(duration_arr[i][0]==physical_node_num){
+			Pg_node->duration_label=duration_arr[i][1];
+			start_index=i+1;
+			break;
+		}
+	}
+	switch(Pg_node->duration_label){
+		case 0:
+			Pg_node->duration_priority=ptr_buffer_cache->soon_max+0.001;
+			if(ptr_buffer_cache->soon_max<soon_time){
+				ptr_buffer_cache->soon_max=soon_time;
+			}
+			soon_time+=0.001;
+			break;
+		case 1:
+			Pg_node->duration_priority=ptr_buffer_cache->mean_max+0.001;
+			if(ptr_buffer_cache->mean_max<mean_time){
+				ptr_buffer_cache->mean_max=mean_time;
+			}
+			mean_time+=0.001;
+			break;
+		case 2:
+			Pg_node->duration_priority=ptr_buffer_cache->late_max+0.001;
+			if(ptr_buffer_cache->late_max<late_time){
+				ptr_buffer_cache->late_max=late_time;
+			}
+			late_time+=0.001;
+			break;
+	}
   }
   return 0;
 }
@@ -4022,20 +4071,49 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 //   }
 //   add_a_page_in_the_node(logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache);
 // }
-
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
 {
   //printf("innn add node | flag=%d \n", flag);
   //fprintf(lpb_ppn, "add_a_node_to_buffer_cache\t");
 	lru_node *ptr_node;
+	int i;
 	ptr_node = malloc(sizeof(lru_node));
 	assert(ptr_node);
 	memset(ptr_node,0,sizeof(struct _lru_node));
-  ptr_node->group_type=flag;
+	ptr_node->group_type=flag;
 	ptr_node->logical_node_num = logical_node_num;
-  ptr_buffer_cache->total_buffer_block_num++;
-  ptr_node->time=curr1->time;
-  //fprintf(lpb_lpn, "add_a_node_to_buffer_cache(logical_node_num=%d)\n", logical_node_num);
+	ptr_buffer_cache->total_buffer_block_num++;
+	for(i=0;i<10000000;i++){
+		if(duration_arr[i][0]==logical_node_num){
+			ptr_node->duration_label=duration_arr[i][1];
+			start_index=i+1;
+			break;
+		}
+	}
+	switch(ptr_node->duration_label){
+		case 0:
+			ptr_node->duration_priority=soon_time;
+			if(ptr_buffer_cache->soon_max<soon_time){
+				ptr_buffer_cache->soon_max=soon_time;
+			}
+			soon_time+=0.001;
+			break;
+		case 1:
+			ptr_node->duration_priority=mean_time;
+			if(ptr_buffer_cache->mean_max<mean_time){
+				ptr_buffer_cache->mean_max=mean_time;
+			}
+			mean_time+=0.001;
+			break;
+		case 2:
+			ptr_node->duration_priority=late_time;
+			if(ptr_buffer_cache->late_max<late_time){
+				ptr_buffer_cache->late_max=late_time;
+			}
+			late_time+=0.001;
+			break;
+	}	
+	//fprintf(lpb_lpn, "add_a_node_to_buffer_cache(logical_node_num=%d)\n", logical_node_num);
   //printf("if(w_multiple == 0)\n");
 	//rw intensive
 	if(w_multiple == 0)
@@ -4163,7 +4241,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     //fprintf(lpb_ppn, "%d", ptr_lru_node->logical_node_num*LRUSIZE + offset_in_node);
     //fprintf(lpb_lpn, "w_hit\n");
 		ptr_buffer_cache->w_hit_count ++;
-
+		ptr_lru_node->pass_req_count=0;
     if(ptr_lru_node->page[offset_in_node].lpn == page_RW_count->page_num)
     {
       
@@ -4187,11 +4265,14 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     //fprintf(lpb_ppn, "w_miss_count ++\tw_miss_count=%d\t", ptr_buffer_cache->w_miss_count);
     //fprintf(lpb_lpn, "w_miss\n");
 		ptr_buffer_cache->w_miss_count ++;
+		ptr_lru_node->pass_req_count++;
 		ptr_buffer_cache->total_buffer_page_num ++;
 		ptr_lru_node->buffer_page_num++;
 		ptr_lru_node->page[offset_in_node].exist = 1;
 		ptr_lru_node->page[offset_in_node].lpn = lpn;
-
+		if(ptr_lru_node->pass_req_count>2560*5 && ptr_lru_node->duration_label>0){//demoting...
+			ptr_lru_node->duration_label--;		
+		}
     /*if(ptr_lru_node->logical_node_num == 41 && ptr_lru_node->group_type == 1)
     {
       fprintf(lpb_lpn,"ptr_lru_node->buffer_page_num=%d\n", ptr_lru_node->buffer_page_num);
@@ -4461,7 +4542,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   fprintf(outputssd, "--------mark_for_page_striping_node\n");
   int i = 0,j=0,have_channel=0;
   unsigned int channel_num = 0,plane = 0;
-  //assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
+  assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
   lru_node *ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
   for(i = 0;i < LRUSIZE;i++)
   {
@@ -4621,67 +4702,26 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       double min=10000;
 	  lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
 	  while(original!=ptr_buffer_cache->ptr_current_mark_node){
-		if(min>ptr_buffer_cache->ptr_current_mark_node->time){
-			min=ptr_buffer_cache->ptr_current_mark_node->time;
-			tmp_node=ptr_buffer_cache->ptr_current_mark_node;
+		if(ptr_buffer_cache->ptr_current_mark_node->duration_label==0){
+			if(min>ptr_buffer_cache->ptr_current_mark_node->duration_priority && ptr_buffer_cache->ptr_current_mark_node->select_victim==0){
+				min=ptr_buffer_cache->ptr_current_mark_node->duration_priority;
+				tmp_node=ptr_buffer_cache->ptr_current_mark_node;
+			}
 		}
 		ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->next;
 	  }
+	  assert(min<10000);
+	  tmp_node->select_victim=1;
 	  ptr_buffer_cache->ptr_current_mark_node=tmp_node;
 	  if(ptr_buffer_cache->ptr_current_mark_node->StripWay=0)
 		strip_way=0;
 	  else
 		strip_way=1;
-      // if(ptr_buffer_cache->ptr_current_mark_node->group_type==1)
-      // {
-      //   //strip_way=1;
-      //   //ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
-        
-         
-      //   //fprintf(lpb_ppn, "WIC++|Lg_rw_count[%d].WIC=%d\n", ptr_lru_node->logical_node_num, Lg_rw_count[ptr_lru_node->logical_node_num].WIC);
-      //   /* Lg_rw_count[ptr_buffer_cache->ptr_current_mark_node->logical_node_num].WIC++;
-      //   //fprintf(lpb_ppn, "after WIC++|Lg_rw_count[%d].WIC=%d\n", ptr_buffer_cache->ptr_current_mark_node->logical_node_num, Lg_rw_count[ptr_buffer_cache->ptr_current_mark_node->logical_node_num].WIC);
-      //  //printf("Lg_rw_count[%d].WIC=%d\n", ptr_lru_node->logical_node_num, Lg_rw_count[ptr_lru_node->logical_node_num].WIC);
-      //   if(Lg_rw_count[ptr_buffer_cache->ptr_current_mark_node->logical_node_num].WIC<WICvalue)
-      //   {
-      //     strip_way=1;
-      //     ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
-      //   }
-
-      //   else
-      //   {
-      //     strip_way=0;
-      //     ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-      //     kick_LG_block_striping++;
-      //     kick_node++;
-      //     kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      //   }*/
-
-      //   if(LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1] <= LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0])
-      //   {
-      //      strip_way=1;
-      //      ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
-      //   }
-      //   else
-      //   {
-      //     strip_way=0;
-      //     ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-      //     //kick_LG_block_striping++;
-      //     kick_node++;
-      //     kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      //   }    
-      // }
-      // else
-      // {
-      //   strip_way=0;
-      //   ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-      //   kick_node++;
-      //   kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      // }
       while(strip_way==1)
       {
        // fprintf(lpb_ppn,"3390 while(ptr_buffer_cache->ptr_current_mark_node->group_type == 1)\n");
         strip_way=mark_for_page_striping_node(ptr_buffer_cache);
+        return;
       }
       //printf("3186 current_block[%d][%d].ptr_lru_node = %d|.current_mark_count=%d;\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num,current_block[channel_num][plane].current_mark_count);
 			break;
@@ -4698,67 +4738,26 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 	  double min=10000;
 	  lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
 	  while(original!=ptr_buffer_cache->ptr_current_mark_node){
-		if(min>ptr_buffer_cache->ptr_current_mark_node->time){
-			min=ptr_buffer_cache->ptr_current_mark_node->time;
-			tmp_node=ptr_buffer_cache->ptr_current_mark_node;
+		if(ptr_buffer_cache->ptr_current_mark_node->duration_label==0){
+			if(min>ptr_buffer_cache->ptr_current_mark_node->duration_priority && ptr_buffer_cache->ptr_current_mark_node->select_victim==0){
+				min=ptr_buffer_cache->ptr_current_mark_node->duration_priority;
+				tmp_node=ptr_buffer_cache->ptr_current_mark_node;
+			}
 		}
 		ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->next;
 	  }
+	  assert(min<10000);
+	  tmp_node->select_victim=1;
 	  ptr_buffer_cache->ptr_current_mark_node=tmp_node;
 	  if(ptr_buffer_cache->ptr_current_mark_node->StripWay=0)
 		strip_way=0;
 	  else
 		strip_way=1;
-      // if(ptr_buffer_cache->ptr_current_mark_node->group_type==1)    //change point
-      // {          
-      //   //strip_way=1;
-      //   //ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
-        
-      //   /* 
-      //   //fprintf(lpb_ppn, "WIC++|Lg_rw_count[%d].WIC=%d\n", ptr_lru_node->logical_node_num, Lg_rw_count[ptr_lru_node->logical_node_num].WIC);
-      //   Lg_rw_count[ptr_buffer_cache->ptr_current_mark_node->logical_node_num].WIC++;
-      //  // fprintf(lpb_ppn, "after WIC++|Lg_rw_count[%d].WIC=%d\n", ptr_buffer_cache->ptr_current_mark_node->logical_node_num, Lg_rw_count[ptr_buffer_cache->ptr_current_mark_node->logical_node_num].WIC);
-      //  //printf("Lg_rw_count[%d].WIC=%d\n", ptr_lru_node->logical_node_num, Lg_rw_count[ptr_lru_node->logical_node_num].WIC);
-      //   if(Lg_rw_count[ptr_buffer_cache->ptr_current_mark_node->logical_node_num].WIC<WICvalue)
-      //   {
-      //     strip_way=1;
-      //     ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
-      //   }
-      //   else
-      //   {
-      //     strip_way=0;
-      //     ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-      //     kick_LG_block_striping++;
-      //     kick_node++;
-      //     kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      //   }*/
-
-      //   if(LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1] <= LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0])
-      //   {
-      //      strip_way=1;
-      //      ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
-      //   }
-      //   else
-      //   {
-      //      strip_way=0;
-      //      ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-      //      //kick_LG_block_striping++;
-      //      kick_node++;
-      //      kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      //   }
-      // }
-      // else
-      // {
-      //   strip_way=0;
-      //   ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-      //   kick_node++;
-      //   kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      //   int i;
-      // }
       while(strip_way==1)
       {
         //fprintf(lpb_ppn,"3792 while(strip_way == 1)\n");
         strip_way=mark_for_page_striping_node(ptr_buffer_cache);
+        return;      
         if(strip_way == 0)outout=1;
       }
       if(strip_way==-2)
@@ -5366,8 +5365,15 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         //  kick_channel_num=0;
         // }
         //plane = k%8;
-        plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
-        
+        //plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+        double min=10000;
+        for(i=0;i<8;i++){
+			if(min>current_block[channel_num][i].ptr_lru_node->duration_priority){
+				min=current_block[channel_num][i].ptr_lru_node->duration_priority;
+				plane=i;
+			}
+			assert(current_block[channel_num][i].ptr_lru_node->duration_label==0);
+		}
         //plane = find_min_write_count_plane(channel_num);
         //plane = find_max_free_page_in_plane(sta_die_num,currdisk,channel_num);
         //printf("inin channel=%d,plane=%d\n", channel_num,plane);
