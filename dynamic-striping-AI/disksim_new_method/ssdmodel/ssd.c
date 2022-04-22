@@ -102,7 +102,8 @@ typedef struct  _lru_node
   unsigned int logical_node_num;        //logical_node_num == lpn / LRUSIZE
   int duration_label;//0->soon,1->mean,2->late
   double duration_priority;//0~N
-  int pass_req_count,select_victim;
+  int pass_req_count,select_victim,overwrite_num;
+  double record_dur_prior;
   int block_count,sector_index;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
@@ -3567,12 +3568,13 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   //   fprintf(myoutput3, "global_HQ:%d\n", global_HQ[h]);
   // }
   // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
-  
+  int i;
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
     int ppn1=lba_table[ssd_logical_pageno(blkno,currdisk)].ppn;
     //printf("elen_num1=%d,ppn1=%d\n", elem_num1, ppn1);
+    
     lpn = ssd_logical_pageno(blkno,currdisk);
     int i;
     for(i=0;i<req_RW_count->page_count;i++)
@@ -3593,7 +3595,14 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
-  
+ /* int match_HQ=0;
+  for(i=0;i<global_HQ_size;i++){
+	if(global_HQ[i]==lpn){
+		match_HQ=1;
+	}
+  }
+  assert(match_HQ==1);*/
+		
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -4601,31 +4610,44 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 {
 	int outout=0,i,j;
 	if(assign==1){
-		  double min=10000;	  
+		  double min=10000,min_acc=10000;
+		  int min_history_index;	
+		  int acc_count=0,history_index=0;  
 		  lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
+		  lru_node *history[1000];
 		  while(original!=ptr_buffer_cache->ptr_current_mark_node){
 			up:
 				if(original->duration_label==0){
 					if(min>original->duration_priority && original->select_victim==0){
+						acc_count=0;//how many time curr block will be overwrite
+						history[history_index]=original;
 						for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not
-							for(j=0;j<global_HQ_node_size;j++){
-								if(original->page[i].exist!=0){//exist
-									if(original->page[i].lpn==global_HQ[j]){
-										original=original->prev;
-										goto up;
-									}
+							for(j=0;j<global_HQ_size;j++){
+								if(original->page[i].lpn==global_HQ[j]){
+									acc_count++;
 								}
 							}					
 						}
+						history[history_index]->overwrite_num=acc_count;
+						history[history_index]->record_dur_prior=original->duration_priority;
+						history_index++;
 						min=original->duration_priority;
-						tmp_node=original;
 					}
 				}
 			original=original->prev;
 		  }
 		  assert(min<10000);
-		  tmp_node->select_victim=1;
-		  ptr_buffer_cache->ptr_current_mark_node=tmp_node;
+		  //we are looking for min duration_priority and we also want to kick min number overwrite
+		  //so combine it, we search for min "duration_priority*acc_count" block as victim block
+		  for(i=0;i<history_index;i++){
+			if(min_acc>(double)history[i]->overwrite_num*history[i]->record_dur_prior){
+				min_acc=history[i]->overwrite_num*history[i]->record_dur_prior;
+				min_history_index=i;
+			}
+		  }
+		  //tmp_node->select_victim=1;
+		  history[min_history_index]->select_victim=1;
+		  ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
 		  assign=0;
 	}
      //trigger_mark_count++; //sinhome

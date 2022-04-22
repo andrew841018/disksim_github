@@ -20,17 +20,12 @@ void a(int *b,int *c){
 int main(){	
 	int p=2,q=3;
 	a(&p,&q);
-	int i,j;
-	for(i=0;i<10;i++){
-		for(j=0;j<10;j++){
-			if(j==q){
-				i=5;
-				q=11;
-				break;
-			}
-		}
-		printf("%d\n",i);
-	}
+	int i=5,k;
+	double h=5.5;
+	if(h*i>27)
+		printf("aa\n");
+	else
+		printf("bb\n");
 
 	return 0;
 }
