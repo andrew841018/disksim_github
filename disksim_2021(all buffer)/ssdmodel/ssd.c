@@ -3895,16 +3895,16 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	hit_sector_index=phy_node_offset;
   }
   else if(b==0){//new block and new sector
-	  write_buffer->logical_block[block_index]->logical_node_num=physical_node_num;
+	write_buffer->logical_block[block_index]->logical_node_num=physical_node_num;
    // printf("3:block num:%d sector num:%d block_index:%d\n",physical_node_num % HASHSIZE,phy_node_offset,block_index);    
-    write_buffer->logical_block[block_index]->page[phy_node_offset].sector_count++;
-    write_buffer->logical_block[block_index]->block_count++;
-    hit_block_index=block_index;
-    hit_sector_index=phy_node_offset;
-    block_index++;
-    enter_pointer=1;
-    assert(write_buffer->logical_block[block_index-1]->page[phy_node_offset].sector_count>0);
-    assert(block_index<=5000);
+	write_buffer->logical_block[block_index]->page[phy_node_offset].sector_count++;
+	write_buffer->logical_block[block_index]->block_count++;
+	hit_block_index=block_index;
+	hit_sector_index=phy_node_offset;
+	block_index++;
+	enter_pointer=1;
+	assert(write_buffer->logical_block[block_index-1]->page[phy_node_offset].sector_count>0);
+	assert(block_index<=5000);
   }  
 	for(i=0;i<=block_index;i++){
 		if(write_buffer->logical_block[i]->logical_node_num==physical_node_num){
