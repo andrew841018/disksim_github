@@ -4281,6 +4281,8 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		ptr_lru_node->page[offset_in_node].lpn = lpn;
 		if(ptr_lru_node->pass_req_count>2560*5 && ptr_lru_node->duration_label>0){//demoting...
 			ptr_lru_node->duration_label--;		
+			ptr_lru_node->pass_req_count=0;
+			ptr_lru_node->duration_priority=0.001;
 		}
     /*if(ptr_lru_node->logical_node_num == 41 && ptr_lru_node->group_type == 1)
     {
@@ -4628,6 +4630,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 								}
 							}					
 						}
+						printf("acc count:%d\n",acc_count);
 						history[history_index]->overwrite_num=acc_count;
 						history[history_index]->record_dur_prior=original->duration_priority;
 						history_index++;
@@ -4640,8 +4643,9 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		  //we are looking for min duration_priority and we also want to kick min number overwrite
 		  //so combine it, we search for min "duration_priority*acc_count" block as victim block
 		  for(i=0;i<history_index;i++){
-			if(min_acc>(double)history[i]->overwrite_num*history[i]->record_dur_prior){
-				min_acc=history[i]->overwrite_num*history[i]->record_dur_prior;
+			if(min_acc>(float)(history[i]->overwrite_num+1)*history[i]->record_dur_prior){
+				printf("overwrite:%d priority:%f combine:%f\n",history[i]->overwrite_num+1,(float)history[i]->record_dur_prior,(history[i]->overwrite_num+1)*history[i]->record_dur_prior);
+				min_acc=(history[i]->overwrite_num+1)*history[i]->record_dur_prior;
 				min_history_index=i;
 			}
 		  }

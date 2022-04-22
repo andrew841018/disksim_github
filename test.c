@@ -21,11 +21,8 @@ int main(){
 	int p=2,q=3;
 	a(&p,&q);
 	int i=5,k;
-	double h=5.5;
-	if(h*i>27)
-		printf("aa\n");
-	else
-		printf("bb\n");
+	double h=0.33333;
+	printf("%f\n",(i+1)*h);
 
 	return 0;
 }
