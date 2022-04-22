@@ -4247,7 +4247,8 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
 			start->pass_req_count++;
-			if(start->pass_req_count>2560*5 && start->duration_label>0){//demoting...
+			printf("pass req count:%d\n",start->pass_req_count);
+			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;		
 				start->pass_req_count=0;
 				start->duration_priority=0.001;
@@ -4648,9 +4649,9 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		  //we are looking for min duration_priority and we also want to kick min number overwrite
 		  //so combine it, we search for min "duration_priority*acc_count" block as victim block
 		  for(i=0;i<history_index;i++){
-			if(min_acc>(float)(history[i]->overwrite_num+1)*history[i]->record_dur_prior){
-				printf("overwrite:%d priority:%f combine:%f\n",history[i]->overwrite_num+1,(float)history[i]->record_dur_prior,(history[i]->overwrite_num+1)*history[i]->record_dur_prior);
-				min_acc=(history[i]->overwrite_num+1)*history[i]->record_dur_prior;
+			if(min_acc>(float)(history[i]->overwrite_num+1)*history[i]->record_dur_prior*-history[i]->pass_req_count){
+				printf("overwrite:%d priority:%f pass_req:%d combine:%f\n",history[i]->overwrite_num+1,(float)history[i]->record_dur_prior,history[i]->pass_req_count,(history[i]->overwrite_num+1)*history[i]->record_dur_prior*-history[i]->pass_req_count);
+				min_acc=(history[i]->overwrite_num+1)*history[i]->record_dur_prior*-history[i]->pass_req_count;
 				min_history_index=i;
 			}
 		  }

@@ -20,9 +20,9 @@ void a(int *b,int *c){
 int main(){	
 	int p=2,q=3;
 	a(&p,&q);
-	int i=5,k;
+	int i=5,k=333;
 	double h=0.33333;
-	printf("%f\n",(i+1)*h);
+	printf("%f\n",(i+1)*h*1/k);
 
 	return 0;
 }
