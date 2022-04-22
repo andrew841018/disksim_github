@@ -5368,17 +5368,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         // {
         //   k=0;
         // }      
-        channel_num = k%8;
-        //channel_num = min_response_elem(currdisk);
-        // channel_num = kick_channel_num;
-        // kick_channel_num++;
-        // if(kick_channel_num > 4)
-        // {
-        //  kick_channel_num=0;
-        // }
-        //plane = k%8;
-        plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+        
         if(enter==1){
+			channel_num = k%8;
+			plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
 			assign=1;
 			mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 			enter=0;
@@ -5446,7 +5439,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       
         if(current_block[channel_num][plane].ptr_read_intensive_buffer_page  == NULL)
         {
-          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+			//EDIT by andrew
+          //mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
         }
         
       }
@@ -5516,7 +5510,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         {
           //printf("if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \n");
           current_block[channel_num][plane].current_write_offset = 0;
-          mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+          //ENDIT by andrew
+          //mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 
         }
         else if(current_block[channel_num][plane].current_mark_count == 0)
