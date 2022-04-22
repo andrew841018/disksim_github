@@ -3783,22 +3783,22 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	switch(Pg_node->duration_label){
 		case 0:
 			Pg_node->duration_priority=ptr_buffer_cache->soon_max+0.001;
-			if(ptr_buffer_cache->soon_max<soon_time){
-				ptr_buffer_cache->soon_max=soon_time;
+			if(ptr_buffer_cache->soon_max<Pg_node->duration_priority){
+				ptr_buffer_cache->soon_max=Pg_node->duration_priority;
 			}
 			soon_time+=0.001;
 			break;
 		case 1:
 			Pg_node->duration_priority=ptr_buffer_cache->mean_max+0.001;
-			if(ptr_buffer_cache->mean_max<mean_time){
-				ptr_buffer_cache->mean_max=mean_time;
+			if(ptr_buffer_cache->mean_max<Pg_node->duration_priority){
+				ptr_buffer_cache->mean_max=Pg_node->duration_priority;
 			}
 			mean_time+=0.001;
 			break;
 		case 2:
 			Pg_node->duration_priority=ptr_buffer_cache->late_max+0.001;
-			if(ptr_buffer_cache->late_max<late_time){
-				ptr_buffer_cache->late_max=late_time;
+			if(ptr_buffer_cache->late_max<Pg_node->duration_priority){
+				ptr_buffer_cache->late_max=Pg_node->duration_priority;
 			}
 			late_time+=0.001;
 			break;
@@ -4240,10 +4240,21 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
-  //fprintf(lpb_ppn, "add_a_page_in_the_node\t");
-	//printf("innn|flag=%d\n",flag);
-  //fprintf(lpb_ppn, "%d\n", ptr_lru_node->logical_node_num*LRUSIZE + offset_in_node);
-  //fprintf(lpb_ppn, "node=%d\toff=%d\n", ptr_lru_node->logical_node_num, offset_in_node);
+	lru_node *start,*end;
+	if(ptr_buffer_cache->ptr_current_mark_node!=NULL){
+		start=ptr_buffer_cache->ptr_current_mark_node->prev;
+		end=ptr_buffer_cache->ptr_current_mark_node;
+		//accumulate the pass_req_count for every block in write buffer
+		while(start!=end){
+			start->pass_req_count++;
+			if(start->pass_req_count>2560*5 && start->duration_label>0){//demoting...
+				start->duration_label--;		
+				start->pass_req_count=0;
+				start->duration_priority=0.001;
+			}
+			start=start->prev;
+		}
+	}
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
 	{
     //fprintf(lpb_ppn, "w_hit_count ++\tw_hit_count=%d\t", ptr_buffer_cache->w_hit_count);
@@ -4274,16 +4285,10 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     //fprintf(lpb_ppn, "w_miss_count ++\tw_miss_count=%d\t", ptr_buffer_cache->w_miss_count);
     //fprintf(lpb_lpn, "w_miss\n");
 		ptr_buffer_cache->w_miss_count ++;
-		ptr_lru_node->pass_req_count++;
 		ptr_buffer_cache->total_buffer_page_num ++;
 		ptr_lru_node->buffer_page_num++;
 		ptr_lru_node->page[offset_in_node].exist = 1;
-		ptr_lru_node->page[offset_in_node].lpn = lpn;
-		if(ptr_lru_node->pass_req_count>2560*5 && ptr_lru_node->duration_label>0){//demoting...
-			ptr_lru_node->duration_label--;		
-			ptr_lru_node->pass_req_count=0;
-			ptr_lru_node->duration_priority=0.001;
-		}
+		ptr_lru_node->page[offset_in_node].lpn = lpn;			
     /*if(ptr_lru_node->logical_node_num == 41 && ptr_lru_node->group_type == 1)
     {
       fprintf(lpb_lpn,"ptr_lru_node->buffer_page_num=%d\n", ptr_lru_node->buffer_page_num);
