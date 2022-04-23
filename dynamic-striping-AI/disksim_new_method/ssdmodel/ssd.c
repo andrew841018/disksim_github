@@ -4246,13 +4246,13 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		end=ptr_buffer_cache->ptr_current_mark_node;
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
-			start->pass_req_count++;
-			printf("pass req count:%d\n",start->pass_req_count);
+			start->pass_req_count++;		
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;		
 				start->pass_req_count=0;
 				start->duration_priority=0.001;
 			}
+			printf("pass req count:%d\n",start->pass_req_count);
 			start=start->prev;
 		}
 	}
@@ -4559,7 +4559,7 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
   fprintf(outputssd, "--------mark_for_page_striping_node\n");
   int i = 0,j=0,have_channel=0;
   unsigned int channel_num = 0,plane = 0;
- assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
+  //assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
   lru_node *ptr_lru_node = ptr_buffer_cache->ptr_current_mark_node;
   for(i = 0;i < LRUSIZE;i++)
   {
@@ -4636,7 +4636,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 								}
 							}					
 						}
-						printf("acc count:%d\n",acc_count);
 						history[history_index]->overwrite_num=acc_count;
 						history[history_index]->record_dur_prior=original->duration_priority;
 						history_index++;
@@ -4649,9 +4648,9 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		  //we are looking for min duration_priority and we also want to kick min number overwrite
 		  //so combine it, we search for min "duration_priority*acc_count" block as victim block
 		  for(i=0;i<history_index;i++){
-			if(min_acc>(float)(history[i]->overwrite_num+1)*history[i]->record_dur_prior*-history[i]->pass_req_count){
-				printf("overwrite:%d priority:%f pass_req:%d combine:%f\n",history[i]->overwrite_num+1,(float)history[i]->record_dur_prior,history[i]->pass_req_count,(history[i]->overwrite_num+1)*history[i]->record_dur_prior*-history[i]->pass_req_count);
-				min_acc=(history[i]->overwrite_num+1)*history[i]->record_dur_prior*-history[i]->pass_req_count;
+			if(min_acc>(float)history[i]->record_dur_prior*-history[i]->pass_req_count*history[i]->overwrite_num){
+				printf("overwrite:%d priority:%f pass_req:%d combine:%f\n",history[i]->overwrite_num,(float)history[i]->record_dur_prior,history[i]->pass_req_count,(history[i]->overwrite_num+1)*history[i]->record_dur_prior*-history[i]->pass_req_count);
+				min_acc=history[i]->record_dur_prior*-history[i]->pass_req_count*history[i]->overwrite_num;
 				min_history_index=i;
 			}
 		  }
@@ -4659,6 +4658,10 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		  history[min_history_index]->select_victim=1;
 		  ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
 		  assign=0;
+		  if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1){
+			mark_for_page_striping_node(ptr_buffer_cache);
+			return;
+		  }
 	}
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");
