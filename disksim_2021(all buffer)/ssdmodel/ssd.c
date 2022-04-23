@@ -3770,7 +3770,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   //printf("Y_add_Pg_page_to_cache_buffer\n");
   //fprintf(lpb_ppn, "Y_add_Pg_page\t");
   double tmp[2];
-  int i,j,ig=0,ignore[100],flag=0;
+  int i,j,flag=0;
   unsigned long long tmp1[13];
   char tmp2[100];
   lru_node *ptr_lru_node = NULL, *Pg_node = NULL;
@@ -3782,7 +3782,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]; 
   FILE *oracle=fopen("oracle_info.txt","a+");
-  fprintf(oracle,"%f %d %d\n",curr1->time,physical_node_num % HASHSIZE,phy_node_offset);
+  fprintf(oracle,"%f %d %d\n",curr1->time,physical_node_num,phy_node_offset);
   fclose(oracle);
   if(init1==1){	
 	wb=calloc(1,sizeof(buffer_cache));
@@ -3799,38 +3799,17 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     init1=0;
   }
   simulate_all_buffer(physical_node_num,phy_node_offset);
-	for(i=0;i<100;i++)
-		ignore[i]=-1;
 	tmp[0]=curr1->arrive_time;
-	tmp1[2]=phy_node_offset;
-	tmp1[3]=curr1->busno;
-	tmp1[5]=ptr_buffer_cache->w_miss_count;
-	tmp1[12]=ptr_buffer_cache->w_hit_count;
+	if(ptr_buffer_cache->w_miss_count>0)
+		tmp[1]=(ptr_buffer_cache->w_hit_count)/(ptr_buffer_cache->w_miss_count+ptr_buffer_cache->w_hit_count);
+	else
+		tmp[1]=0;
+	tmp1[0]=curr1->busno;
+	tmp1[1]=ptr_buffer_cache->w_miss_count;
+	tmp1[2]=ptr_buffer_cache->w_hit_count;
 	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
-	//arrive time,page index,busno,miss count,hit count,physcial_node_num % HASHSIZE,block_write_count
-	fprintf(t,"%f ",tmp[0]);
-	ignore[0]=0;
-	ignore[1]=1;
-	ignore[2]=4;
-	ignore[3]=6;
-	ignore[4]=7;
-	ignore[5]=8;
-	ignore[6]=9;
-	ignore[7]=10;
-	ignore[8]=11;
-	ignore[9]=13;
-	for(i=0;i<13;i++){
-		ig=0;
-		for(j=0;j<100;j++){
-			if(i==ignore[j]){
-				ig=1;
-			}
-		}
-		if(ig==0){	
-			fprintf(t,"%lld ",tmp1[i]);
-	}  		
-	}    
-	fprintf(t,"%d ",physical_node_num);
+	//arrive time,hit ratio,busno,miss count,hit count,block_write_count,page_write_count
+	fprintf(t,"%f %f %d %d %d ",tmp[0],tmp[1],tmp1[0],tmp1[1],tmp1[2]);   
     if(init==1){
       write_buffer=calloc(1,sizeof(buffer_cache));
       for(i=0;i<5000;i++){
@@ -3906,9 +3885,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	assert(write_buffer->logical_block[block_index-1]->page[phy_node_offset].sector_count>0);
 	assert(block_index<=5000);
   }  
-	for(i=0;i<=block_index;i++){
+	for(i=0;i<block_index;i++){
 		if(write_buffer->logical_block[i]->logical_node_num==physical_node_num){
-			fprintf(t,"%d",write_buffer->logical_block[i]->block_count);
+			fprintf(t,"%d ",write_buffer->logical_block[i]->block_count);
+			fprintf(t,"%d",write_buffer->logical_block[i]->page[phy_node_offset]);
 			break;
 		}
 	}
