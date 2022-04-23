@@ -58,7 +58,7 @@ x_test=[]
 y_test=[]
 for i in req:
     x.append(i)
-    y.append(duration_label[int(i[5])])
+    y.append(duration_label[int(i[2])])
 x=np.array(x)
 y=np.array(y)
 x_train=np.array(x_train)
