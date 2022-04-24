@@ -6,7 +6,9 @@
 #include "ssd_timing.h"
 #include "ssd_clean.h"
 #include "ssd_gang.h"
+#include "math.h"
 #include "ssd_init.h"
+#include "float.h"
 #include "syssim_driver.h"
 #include "modules/ssdmodel_ssd_param.h"
 #include <stdio.h>
@@ -3675,26 +3677,36 @@ double benefit_value[10000000]={0};
 int init1=1;
 int logical_block_number=0,total_page_num=0,max_page_num=4000;
 int min_block_index=-1;
-int duration[5000]={0};
+int duration[5000]={0},dur_block[1000000]={0};
+int eviction=0;
 void simulate_all_buffer(int physical_node_num,int page_index){
 	int i,j;
 	int block_hit=0,sector_hit=0,prev_block_index,hit_block_num;
 	//***** ignore code, keep it until need it ******//
-	double min=10000;
-	for(i=0;i<logical_block_number;i++){
-		if(total_page_num==4000)
-			if(wb->logical_block[i]->logical_node_num!=-1)
+	double min=10000,min_1=10000;
+	int min_block_index_1=-1;
+	for(i=0;i<5000;i++){		
+		if(eviction==1){
+			if(wb->logical_block[i]->logical_node_num==-1){
 				continue;
-		else
-			assert(wb->logical_block[i]->logical_node_num!=-1);
-		assert(wb->logical_block[i]->benefit!=0);
-	  if(min>=wb->logical_block[i]->benefit){	
-		min=wb->logical_block[i]->benefit;
-		min_block_index=i;
+			}
+			else{
+				assert(wb->logical_block[i]->benefit>0);
+			}
+		}
+		else{
+			if(wb->logical_block[i]->logical_node_num==-1){
+				break;
+			}
+		}
+	  if(min_1>wb->logical_block[i]->benefit){
+		min_1=wb->logical_block[i]->benefit;
+		min_block_index_1=i;
 	  }
     }
-  printf("min:%f curr:%f\n",min,benefit_value[physical_node_num]);
-  if(min>benefit_value[physical_node_num] && logical_block_number>0){
+    assert((min_1<10000 && min_1>0) || total_page_num==0);
+  printf("min:%f curr:%f\n",min_1,benefit_value[physical_node_num]);
+  if((min_1-benefit_value[physical_node_num]==0|| min_1>benefit_value[physical_node_num])&& logical_block_number>0){//EPSILON
 	//ignore current request
 	FILE *buffer=fopen("buffer_or_not.txt","a+");
 	fprintf(buffer,"%d %d\n",physical_node_num,0);
@@ -3704,7 +3716,9 @@ void simulate_all_buffer(int physical_node_num,int page_index){
   FILE *buffer=fopen("buffer_or_not.txt","a+");
   fprintf(buffer,"%d %d\n",physical_node_num,1);
   fclose(buffer);
-  for(i=0;i<logical_block_number;i++){
+  for(i=0;i<5000;i++){
+	if(wb->logical_block[i]->logical_node_num==-1)
+		continue;
     for(j=0;j<LRUSIZE;j++){
       if(wb->logical_block[i]->logical_node_num==physical_node_num){//block hit
         wb->logical_block[i]->benefit=benefit_value[physical_node_num];
@@ -3744,8 +3758,9 @@ void simulate_all_buffer(int physical_node_num,int page_index){
     total_page_num++; 
   }
   printf("total page:%d max page:%d\n\n",total_page_num,max_page_num);
-  if(total_page_num>=max_page_num){//write buffer full...
+  if(total_page_num>max_page_num){//write buffer full...
     //evict min benefit block
+    eviction=1;
     double min=10000;
 	for(i=0;i<5000;i++){
 	  if(min>=wb->logical_block[i]->benefit && wb->logical_block[i]->logical_node_num!=-1 && wb->logical_block[i]->benefit!=0){	
@@ -3758,9 +3773,11 @@ void simulate_all_buffer(int physical_node_num,int page_index){
 		wb->logical_block[min_block_index]->duration=1;
 	}
 	assert(wb->logical_block[min_block_index]->duration!=-1);
+	assert(dur_block[wb->logical_block[min_block_index]->logical_node_num]==0);
 	FILE *dur=fopen("duration.txt","a+");
 	fprintf(dur,"%d %d\n",wb->logical_block[min_block_index]->logical_node_num,wb->logical_block[min_block_index]->duration);
 	fclose(dur);
+	dur_block[wb->logical_block[min_block_index]->logical_node_num]=1;
     wb->logical_block[min_block_index]->benefit=10;
     wb->logical_block[min_block_index]->duration=0;
     wb->logical_block[min_block_index]->logical_node_num=-1;
