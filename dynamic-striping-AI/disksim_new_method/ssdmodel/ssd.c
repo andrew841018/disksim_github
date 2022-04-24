@@ -103,8 +103,8 @@ typedef struct  _lru_node
   int duration_label;//0->soon,1->mean,2->late
   double duration_priority;//0~N
   int pass_req_count,select_victim,overwrite_num;
-  double record_dur_prior;
-  int block_count,sector_index;
+  double record_dur_prior,rw_ratio;
+  int block_count,sector_index,start_index;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
   buffer_page page[LRUSIZE];          //phy page in the node
@@ -3670,7 +3670,6 @@ unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
 double benefit_value[10000000]={0};
 double soon_time=0.001,mean_time=0.002,late_time=0.003;
-int start_index=0;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -3771,12 +3770,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   else
   {
     //remove the mark page int the hit node
-    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
-    add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
     for(i=0;i<10000000;i++){
 		if(duration_arr[i][0]==physical_node_num){
 			Pg_node->duration_label=duration_arr[i][1];
-			start_index=i+1;
+			Pg_node->start_index=i+1;
 			break;
 		}
 	}
@@ -3803,6 +3800,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			late_time+=0.001;
 			break;
 	}
+    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+    add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
   return 0;
 }
@@ -4095,7 +4094,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	for(i=0;i<10000000;i++){
 		if(duration_arr[i][0]==logical_node_num){
 			ptr_node->duration_label=duration_arr[i][1];
-			start_index=i+1;
+			ptr_node->start_index=i+1;
 			break;
 		}
 	}
@@ -4246,23 +4245,23 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		end=ptr_buffer_cache->ptr_current_mark_node;
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
-			start->pass_req_count++;		
+			start->pass_req_count++;
+			printf("pass_req_count:%d\n",start->pass_req_count);
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;		
 				start->pass_req_count=0;
 				start->duration_priority=0.001;
 			}
-			printf("pass req count:%d\n",start->pass_req_count);
 			start=start->prev;
 		}
 	}
+	ptr_lru_node->pass_req_count=0;
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
 	{
     //fprintf(lpb_ppn, "w_hit_count ++\tw_hit_count=%d\t", ptr_buffer_cache->w_hit_count);
     //fprintf(lpb_ppn, "%d", ptr_lru_node->logical_node_num*LRUSIZE + offset_in_node);
     //fprintf(lpb_lpn, "w_hit\n");
-		ptr_buffer_cache->w_hit_count ++;
-		ptr_lru_node->pass_req_count=0;
+		ptr_buffer_cache->w_hit_count ++;		
     if(ptr_lru_node->page[offset_in_node].lpn == page_RW_count->page_num)
     {
       
@@ -4619,13 +4618,13 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 	int outout=0,i,j;
 	if(assign==1){
 		  double min=10000,min_acc=10000;
-		  int min_history_index;	
+		  int min_history_index,label=0;	
 		  int acc_count=0,history_index=0;  
 		  lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
-		  lru_node *history[1000];
+		  lru_node *history[1000],*history_mean[1000],*history_late[1000];
 		  while(original!=ptr_buffer_cache->ptr_current_mark_node){
 			up:
-				if(original->duration_label==0){
+				if(original->duration_label==label){
 					if(min>original->duration_priority && original->select_victim==0){
 						acc_count=0;//how many time curr block will be overwrite
 						history[history_index]=original;
@@ -4634,23 +4633,38 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 								if(original->page[i].lpn==global_HQ[j]){
 									acc_count++;
 								}
-							}					
-						}
+							}
+						}						
+						//this value,smaller is better...
+						if(LPN_RWtimes[original->logical_node_num][0]==0 || LPN_RWtimes[original->logical_node_num][1]==0)
+							history[history_index]->rw_ratio=0;
+						else
+							history[history_index]->rw_ratio=(double)LPN_RWtimes[original->logical_node_num][0]/LPN_RWtimes[original->logical_node_num][1];
 						history[history_index]->overwrite_num=acc_count;
 						history[history_index]->record_dur_prior=original->duration_priority;
 						history_index++;
 						min=original->duration_priority;
 					}
-				}
+				}				
 			original=original->prev;
+			if(original==ptr_buffer_cache->ptr_current_mark_node && min==10000){
+				original=ptr_buffer_cache->ptr_current_mark_node->prev;
+				label++;	
+				goto up;
+			}
 		  }
 		  assert(min<10000);
+		  min=10000;
 		  //we are looking for min duration_priority and we also want to kick min number overwrite
 		  //so combine it, we search for min "duration_priority*acc_count" block as victim block
 		  for(i=0;i<history_index;i++){
-			if(min_acc>(float)history[i]->record_dur_prior*-history[i]->pass_req_count*history[i]->overwrite_num){
+			/*if(min_acc>(float)history[i]->record_dur_prior*-history[i]->pass_req_count*history[i]->overwrite_num){
 				printf("overwrite:%d priority:%f pass_req:%d combine:%f\n",history[i]->overwrite_num,(float)history[i]->record_dur_prior,history[i]->pass_req_count,(history[i]->overwrite_num+1)*history[i]->record_dur_prior*-history[i]->pass_req_count);
 				min_acc=history[i]->record_dur_prior*-history[i]->pass_req_count*history[i]->overwrite_num;
+				min_history_index=i;
+			}*/
+			if(min_acc>(float)(history[i]->overwrite_num+1)*1/history[i]->pass_req_count*(history[i]->rw_ratio+1)){
+				min_acc=(double)(history[i]->overwrite_num+1)*1/history[i]->pass_req_count*(history[i]->rw_ratio+1);
 				min_history_index=i;
 			}
 		  }
@@ -4658,10 +4672,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		  history[min_history_index]->select_victim=1;
 		  ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
 		  assign=0;
-		  if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1){
-			mark_for_page_striping_node(ptr_buffer_cache);
-			return;
-		  }
 	}
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");

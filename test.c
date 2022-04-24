@@ -18,11 +18,13 @@ void a(int *b,int *c){
 	*c=k;
 }
 int main(){	
-	int p=2,q=3;
-	a(&p,&q);
-	int i=5,k=333;
-	double h=0.33333;
-	printf("%f\n",(i+1)*h*1/k);
+	int i;
+	FILE *f1=fopen("a.txt","w");
+	/*for(i=0;i<10;i++){
+		FILE *f=fopen("a.txt","a+");
+		fprintf(f,"%d\n",i);
+		fclose(f);
+	}*/
 
 	return 0;
 }
