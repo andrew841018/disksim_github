@@ -1908,6 +1908,9 @@ int main(int argc, char *argv[])
       ReqCount++;
       test_RQ++;
       printf("----接收新的request----|ReqCount=%d\n", ReqCount);
+      FILE *wb=fopen("wb.txt","w");      
+      fprintf(wb,"request:%d\n",ReqCount);
+      fclose(wb);
       if(blnum > 56000000 && R_W == 0)
         continue;
       //fprintf(outputfd, "----接收新的request----|ReqCount=%d\n", ReqCount);
