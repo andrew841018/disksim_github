@@ -27,7 +27,8 @@ addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected da
 duration=np.loadtxt(addr+'all buffer\\duration.txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'trace(used to build RNN)\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
-duration_label=np.array([])
+req_for_predict=req
+req_for_predict=np.delete(req_for_predict,2,axis=1)#delete physical_block_number
 for i in range(200000):##for logical:1000 for physical:1 million
     duration_label=np.append(duration_label,0)   
 count=0
@@ -56,8 +57,9 @@ x_train=[]
 y_train=[]
 x_test=[]
 y_test=[]
-for i in req:
+for i in req_for_predict:
     x.append(i)
+for i in req:
     y.append(duration_label[int(i[2])])
 x=np.array(x)
 y=np.array(y)
