@@ -3754,10 +3754,9 @@ void simulate_all_buffer(int physical_node_num,int page_index){
 	  }
    }
     //evict block
-	if(wb->logical_block[min_block_index]->duration==0){
-		wb->logical_block[min_block_index]->duration++;
+	if(wb->logical_block[min_block_index]->duration<=0){
+		wb->logical_block[min_block_index]->duration=1;
 	}
-	assert(wb->logical_block[min_block_index]->logical_node_num>-1);
 	assert(wb->logical_block[min_block_index]->duration!=-1);
 	FILE *dur=fopen("duration.txt","a+");
 	fprintf(dur,"%d %d\n",wb->logical_block[min_block_index]->logical_node_num,wb->logical_block[min_block_index]->duration);
