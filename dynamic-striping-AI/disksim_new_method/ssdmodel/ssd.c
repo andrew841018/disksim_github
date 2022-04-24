@@ -4248,9 +4248,11 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start->pass_req_count++;
 			printf("pass_req_count:%d\n",start->pass_req_count);
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
-				start->duration_label--;		
-				start->pass_req_count=0;
-				start->duration_priority=0.001;
+				start->duration_label--;
+				if(start->duration_label==1){	
+					start->pass_req_count=0;
+					start->duration_priority=0.001;
+				}
 			}
 			start=start->prev;
 		}
