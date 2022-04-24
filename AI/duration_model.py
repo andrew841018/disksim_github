@@ -83,6 +83,8 @@ for i in predict:
         f.write(str(req[req_count][2])+" "+str(i)+"\n")
     req_count+=1
 
+
+
 for i in range(6):
     x_train = np.delete(x_train,0, axis = 0)
     y_train = np.delete(y_train,0, axis = 0)
