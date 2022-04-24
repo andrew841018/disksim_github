@@ -124,7 +124,7 @@ model.add(Dropout(0.2))
 #false.....只輸出最後一個time step output
 model.add(LSTM(128,activation='relu'))
 model.add(Dropout(0.2))
-model.add(Dense(3,activation='softmax'))#classify into 1 class
+model.add(Dense(2,activation='softmax'))#classify into 1 class
 
 #print(model.summary())
 
