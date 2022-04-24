@@ -139,6 +139,6 @@ plt.plot(history.history['accuracy'])
 plt.xlabel('Epoch')
 plt.ylabel('accuracy')
 plt.show() 
-model.save('duration_model.h5')             
+model.save('buffer_or_not.h5')             
         
     
