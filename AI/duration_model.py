@@ -23,14 +23,12 @@ import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
-
 duration=np.loadtxt(addr+'all buffer\\duration.txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'trace(used to build RNN)\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
 req_for_predict=np.delete(req_for_predict,2,axis=1)#delete physical_block_number
-for i in range(200000):##for logical:1000 for physical:1 million
-    duration_label=np.append(duration_label,0)   
+duration_label=np.zeros(shape=(200000,1)) 
 count=0
 x=[]##cached request
 zero=0
@@ -70,15 +68,20 @@ y_test=np.array(y_test)
 x_train,x_test=train_test_split(x,random_state=777,train_size=0.8)
 #y_train=np_utils.to_categorical(y_train,3)
 y_train,y_test=train_test_split(y,random_state=777,train_size=0.8)
-''' 使用XGBoost來預測
+
+'''*** 使用XGBoost來預測***'''
 model=XGBClassifier(n_estimators=100, learning_rate= 0.3)
 model.fit(x_train,y_train)
 model.score(x_train,y_train)
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(for testing)\\"
-data=np.loadtxt(addr+'info(iozone2).txt',delimiter=' ',usecols=range(7))
+data=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
+data=np.delete(data,2,axis=1)
 predict=model.predict(data)
-'''        
-
+req_count=0
+for i in predict:
+    with open('online(duration).txt','a') as f:
+        f.write(str(req[req_count][2])+" "+str(i)+"\n")
+    req_count+=1
 
 for i in range(6):
     x_train = np.delete(x_train,0, axis = 0)
@@ -100,8 +103,8 @@ for i in range(len(x_test)):
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
-x_train=x_train.reshape(9277,16,7)
-x_test=x_test.reshape(2319,16,7)
+x_train=x_train.reshape(9277,16,6)
+x_test=x_test.reshape(2319,16,6)
 y_test=np_utils.to_categorical(y_test,3)
 y_train=np_utils.to_categorical(y_train,3)
 
@@ -116,7 +119,7 @@ metric=[
         ]
 model=Sequential()
 ##128=LSTM output size
-model.add(LSTM(128,input_shape=(16,7),activation='relu',return_sequences=True))
+model.add(LSTM(128,input_shape=(16,6),activation='relu',return_sequences=True))
 model.add(Dropout(0.2))
 model.add(LSTM(128,activation='relu',return_sequences=True))
 model.add(Dropout(0.2))
