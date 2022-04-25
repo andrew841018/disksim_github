@@ -83,6 +83,7 @@ for i in range(6):
     x_test=np.delete(x_test,0,axis=0)
     y_test=np.delete(y_test,0, axis = 0)
 index=0
+c=0
 for i in range(len(x_train)):
     if (c+1) % 16!=0:
         y_train=np.delete(y_train,index,axis=0)
@@ -97,6 +98,7 @@ for i in range(len(x_test)):
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
+
 x_train=x_train.reshape(9277,16,6)
 x_test=x_test.reshape(2319,16,6)
 y_test=np_utils.to_categorical(y_test,2)
@@ -131,7 +133,7 @@ model.add(Dense(2,activation='softmax'))#classify into 1 class
 #opt=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
 model.compile(optimizer='rmsprop',loss='categorical_crossentropy',metrics=metric)
 weight={0:1.349489072329903,1:3.861319792728862}
-history=model.fit(x_train,y_train,epochs=1000,validation_data=(x_test,y_test),class_weight=weight)
+history=model.fit(x_train,y_train,epochs=800,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 plt.figure(dpi=250)
 plt.title('model accuracy')
