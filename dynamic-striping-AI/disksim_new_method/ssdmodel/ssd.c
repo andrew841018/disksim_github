@@ -104,7 +104,7 @@ typedef struct  _lru_node
   double duration_priority;//0~N
   int pass_req_count,select_victim,overwrite_num;
   double record_dur_prior,rw_ratio;
-  int block_count,sector_index,start_index;
+  int block_count,sector_index,start_index,block_size;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
   buffer_page page[LRUSIZE];          //phy page in the node
@@ -4634,6 +4634,9 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 							for(j=0;j<global_HQ_size;j++){
 								if(original->page[i].lpn==global_HQ[j]){
 									acc_count++;
+								}
+								if(original->page[i].exist!=0){
+									original->block_size++;
 								}
 							}
 						}						
