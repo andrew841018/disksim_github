@@ -2891,8 +2891,422 @@ void record_read_and_write_count(unsigned int lpn,unsigned int cnt,char w)
 
 
 
+ int A_check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
+{
+  int my_threshod=0;
+  int strip_way=-1;
+  int label_AI=0;
+  double min=10000,min_acc=10000;
+	int min_history_index,i,j;	
+	int acc_count=0,history_index=0;  
+	lru_node *original=ptr_buffer_cache->ptr_head->prev,*tmp_node;
+	lru_node *history[1000],*history_mean[1000],*history_late[1000];
+  static unsigned int channel_num = 0,plane = 0,sta_die_num = 0,i = 0,channel_num_Lg=0,plane_Lg=0;
+  unsigned int offset_in_node,logical_add;
+  lru_node *c_node, *r_cnode, *w_cnode, *Szero_node, *LRUzero_node, *temp, *temp2;
+  int j,k,m,flagcheck=0,tempc=0,tempp=0,state0LRU=0,state0SIZE=0;
+  int seq = 0, seq_temp = 0, block_pcount=0;
+  temp2 = ptr_buffer_cache->ptr_head->prev;//lru's node
+  c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
+  int c=0, state=-1, locate_r = 100000, size_w=100000, locate_z=100000, zero_node_size=0, rep_size=100000, all_size=100000;
+  int max_blocksize=0;
+  Hint_page* p = (Hint_page *)malloc( sizeof( Hint_page ) );
+  //printf("before state 0\n");
+  int node_num=-1;
+  int EW = (int)(ptr_buffer_cache->total_buffer_block_num * EVICTWINDOW);
+  //fprintf(myoutput, "ptr_buffer_cache->total_buffer_block_num:%d\n",ptr_buffer_cache->total_buffer_block_num);
+  if(EW<64)EW=64;
+  for(i=0;i<EW;i++)//from lru find 64 node
+  {
+    up:
+      int pagecount=0,exist1=0;
+      double Read_cover=0,Write_cover=0,R_intensity=0,W_intensity=0;
+      c_node->hint_repeat = 0;
+      c_node->hint_notrepeat = 0;
+      int have_ev=0;
+      for(j=0;j<LRUSIZE;j++)//from lru node find 64 page
+      {
+        if(c_node->page[j].exist == 1)
+        {
+          c_node->block_size++;
+          if(c_node->duration_label==label_AI){
+              if(min>c_node->duration_priority && c_node->select_victim==0){
+                min=c_node->duration_priority;
+              }
+          }
+        }
+        else if(c_node->page[j].exist == 0)
+        {      
+        }
+        else if(c_node->page[j].exist == 2){
+          assert(0);
+        }
+        else
+        {
+          have_ev=1;
+          break;
+        }
 
- 
+      }//end of from lru node find 64 page
+      //printf("state0|c_node=%d,i=%d,pagecount=%d\n",c_node->logical_node_num, i, pagecount);
+      //fprintf(outputssd, "state0|c_node=%d,i=%d,pagecount=%d\n",c_node->logical_node_num, i, pagecount);
+      if(have_ev==1)
+      {
+        c_node = c_node->prev;
+        continue;
+      }
+      //no page in hint //choose as evice
+      if(c_node->hint_repeat == 0 && c_node->hint_notrepeat == 0 && c_node != ptr_buffer_cache->ptr_head) 
+      {
+        //fprintf(outputssd, "\t\tno page in hint|choose c_node[%d] as a victim\n", c_node->logical_node_num);
+        double rw_ratio=0, node_rcount=LPN_RWtimes[c_node->logical_node_num][0], node_wcount=LPN_RWtimes[c_node->logical_node_num][1];
+        //fprintf(myoutput,"Page:%d,node_rcount:%lf,node_wcount:%lf\n",c_node->logical_node_num,node_rcount,node_wcount);
+        rw_ratio=node_rcount/(node_rcount+node_wcount);
+        int t=0;
+        for(t=0;t<LRUSIZE;t++)
+        {
+          if(c_node->page[t].rcover==1)
+          {
+            Read_cover++;
+            //fprintf(myoutput,"Read_cover=%d,Page:%d\n",Read_cover,c_node->page[t].lpn);
+          }
+          if(c_node->page[t].wcover==1)
+          {
+            Write_cover++;
+            //fprintf(myoutput,"Write_cover=%d,Page:%d\n",Write_cover,c_node->page[t].lpn);
+          }
+        }
+        
+        R_intensity = Read_cover * node_rcount;
+        W_intensity = Write_cover * node_wcount;
+        // fprintf(myoutput,"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\n");
+        // fprintf(myoutput,"node_wcount:%lf\n",node_wcount);
+        // fprintf(myoutput,"node_rcount:%lf\n",node_rcount);
+        //fprintf(myoutput2,"state 0 R_inten=%lf,W_inten=%lf\n",R_intensity,W_intensity);
+        //if(rw_ratio>=RWRATIO)//read intensive //page striping
+        W_intensity=W_intensity+my_threshod;
+        if(R_intensity > W_intensity)
+        {
+          if(i<locate_z) //lru
+          {
+            locate_z = i;
+            LRUzero_node = c_node;
+            state0LRU=1;
+            state = 0;
+          }
+        }
+        else //write intensive
+        {
+          if(pagecount > zero_node_size) //size
+          {
+            zero_node_size = pagecount;
+            Szero_node = c_node;
+            state0SIZE=1;
+            state = 0;
+          }
+        }
+      }
+      else
+      {
+        have_hinted_node++;
+      //fprintf(outputssd, "c_node[%d]:re=%d|nre=%d\n", c_node->logical_node_num, c_node->hint_repeat, c_node->hint_notrepeat);
+      }
+      if(c_node == ptr_buffer_cache->ptr_head)
+      {
+        node_num=i;
+        //printf(outputssd, "2967 if(c_node == ptr_buffer_cache->ptr_head)|node_num=%d\n",node_num);
+        // printf( "2967 if(c_node == ptr_buffer_cache->ptr_head)|node_num=%d\n",node_num);
+        //strip_way = 0;
+        
+        break;
+      }
+      else
+      {
+        //fprintf(myoutput, "fuck here bug:%d\n",c_node->next);
+        c_node = c_node->prev;
+      }
+  }
+  if(min==10000){
+    label_AI++;
+    goto up;
+  }
+//6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
+    if(state == -1)//repeat>0 //state 2
+    {
+      max_blocksize=0;
+      //printf("//repeat>0 \n");
+      int evictwin=0;
+      c_node = ptr_buffer_cache->ptr_head->prev;//lru's node
+      if(node_num==-1)
+      {
+        evictwin = EW;
+      }
+      else
+      {
+        evictwin = node_num;
+      }
+      int max_pagecount=0;
+      assert(c_node!=NULL);
+      for(i=0;i<evictwin;i++)//from lru find 64 node
+      {
+        int pagecount=0,have_ev=0;
+        double Read_cover=0,Write_cover=0,R_intensity=0,W_intensity=0;
+        c_node->hint_repeat = 0;
+        c_node->hint_notrepeat = 0;
+        
+        for(j=0;j<LRUSIZE;j++)//from lru node find 64 page
+        {
+          if(c_node->page[j].exist == 1)
+          {
+            pagecount++;
+            int hintk=0;
+            for(k=global_HQ_size-1;k>=0;k--)
+            {
+              hintk++;
+              if(c_node->page[j].lpn == global_HQ[k])
+              {
+                c_node->hint_located=hintk;
+                c_node->hint_repeat++;
+                all_repeat++;
+                break;
+              }
+            }
+          }
+          else if(c_node->page[j].exist == 0)
+          {
+            int hintk=0;
+            for(k=global_HQ_size-1;k>=0;k--)
+            {
+              hintk++;
+              if(c_node->page[j].lpn == global_HQ[k])
+              {
+                if(hintk>c_node->hint_located)
+                {
+                  c_node->hint_located=hintk;
+                }
+                c_node->hint_notrepeat++;
+                all_repeat++;
+                break;
+              }
+            }
+          }
+          else
+          {
+            have_ev=1;
+            break;
+          }
+        }
+        //printf("state2|c_node=%d,i=%d,pagecount=%d\n",c_node->logical_node_num, i, pagecount);
+        //fprintf(outputssd, "state2|c_node=%d,i=%d,pagecount=%d\n",c_node->logical_node_num, i, pagecount);
+        if(have_ev==1)
+        {
+          c_node = c_node->prev;
+          continue;
+        }
+        if(c_node->hint_repeat != 0)
+        {
+          state = 2;
+          double rw_ratio=0, node_rcount=LPN_RWtimes[c_node->logical_node_num][0], node_wcount=LPN_RWtimes[c_node->logical_node_num][1];
+          //fprintf(myoutput,"Page:%d,node_rcount:%lf,node_wcount:%lf\n",c_node->logical_node_num,node_rcount,node_wcount);
+          block_pcount=0;
+          for(j=0;j<LRUSIZE;j++)
+          {
+
+            if(c_node->page[j].rcover==1)
+            {
+              Read_cover++;
+            }
+            if(c_node->page[j].wcover==1)
+            {
+              Write_cover++;
+            }
+
+            if(c_node->page[j].exist != 0)
+            {
+              block_pcount++;
+              seq_temp++;
+              if(seq_temp>seq)
+                seq = seq_temp;
+            }
+            else
+            {
+              seq_temp = 0;
+            }
+          }
+          rw_ratio=node_rcount/(node_rcount+node_wcount);
+          R_intensity = Read_cover * node_rcount;
+          W_intensity = Write_cover * node_wcount;
+          //fprintf(myoutput,"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\n");
+          //fprintf(myoutput2,"state 2 R_inten=%lf,W_inten=%lf\n",R_intensity,W_intensity);
+          //if(rw_ratio>=RWRATIO)//read intensive//page striping
+          W_intensity=W_intensity+my_threshod;
+          if(R_intensity>W_intensity)
+          {
+            if(c_node->hint_repeat < rep_size)
+            {
+              rep_size = c_node->hint_repeat;
+              r_cnode = c_node;
+            }
+            else if(c_node->hint_repeat == rep_size)//if notrepeat same find location most prev in hint queue
+            {
+              if(c_node->hint_located < r_cnode->hint_located)
+              {
+                r_cnode = c_node;
+              }
+            } 
+          }
+          else//write intensive
+          {
+            if(c_node->hint_notrepeat + c_node->hint_repeat < all_size)//find min notrepeat
+            {
+              all_size = c_node->hint_notrepeat + c_node->hint_repeat;
+              //fprintf(outputssd, "cnode=%d, all_size=%d\n", c_node->logical_node_num, all_size);
+              w_cnode = c_node;
+            }
+            else if(c_node->hint_notrepeat + c_node->hint_repeat == all_size)
+            {
+              if(c_node->buffer_page_num > max_blocksize)
+              {
+                max_blocksize = c_node->buffer_page_num;
+                w_cnode = c_node;
+              }
+              else if(c_node->buffer_page_num == max_blocksize)
+              {
+                if(c_node->hint_located <= w_cnode->hint_located)
+                {
+                  w_cnode = c_node;
+                }
+              }
+            }
+          }
+        }
+        c_node = c_node->prev;
+      }
+      //fprintf(outputssd, "state 2 c_node[%d]:re=%d|nre=%d\n", c_node->logical_node_num, c_node->hint_repeat, c_node->hint_notrepeat);
+    }
+
+
+  if(state == 0)
+  {
+    //printf("state==0\n");
+    State0++;
+    block_pcount=0;
+    double Read_cover=0,Write_cover=0,R_intensity=0,W_intensity=0;
+      if(state0LRU == 1)
+        ptr_buffer_cache->ptr_current_mark_node = LRUzero_node;
+      else if(state0LRU == 0 && state0SIZE == 1)
+        ptr_buffer_cache->ptr_current_mark_node = Szero_node;
+      //ptr_lru_node = Szero_node;
+      double rw_ratio=0, node_rcount=LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0], node_wcount=LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1];
+      //fprintf(myoutput,"Page:%d,node_rcount:%lf,node_wcount:%lf\n",c_node->logical_node_num,node_rcount,node_wcount);
+      for(j=0;j<LRUSIZE;j++)
+      {
+        if(c_node->page[j].rcover==1)
+        {
+          Read_cover++;
+        }
+        if(c_node->page[j].wcover==1)
+        {
+          Write_cover++;
+        }
+
+        if(ptr_buffer_cache->ptr_current_mark_node->page[j].exist != 0)
+        {
+          block_pcount++;
+          seq_temp++;
+          if(seq_temp>seq)
+            seq = seq_temp;
+          if(node_wcount == 0)
+          {
+            fprintf(outputssd,"node_wcount error\n");
+          }
+        }
+        else
+        {
+          seq_temp = 0;
+        }
+      }
+      //printf("rw_ratio=\n");
+      rw_ratio=node_rcount/(node_rcount+node_wcount);
+      R_intensity = Read_cover * node_rcount;
+      W_intensity = Write_cover * node_wcount;
+      //if(rw_ratio>=RWRATIO)//read intensive //page striping
+      W_intensity=W_intensity+my_threshod;
+      if(R_intensity>W_intensity)
+      {
+        //fprintf(outputssd, "ptr_buffer_cache->ptr_current_mark_node= %d, rw_ratio=%lf, node_rcount=%lf, node_wcount=%lf |strip_way=1\n",ptr_buffer_cache->ptr_current_mark_node->logical_node_num, rw_ratio, node_rcount, node_wcount);
+        strip_way = 1;
+        //fprintf(outputssd, "%d:read=%d,write=%d\n", ptr_buffer_cache->ptr_current_mark_node->logical_node_num, LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0] , LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1]);
+        //strip_way = 0;
+      }
+      else //write intensive
+      {
+        strip_way = 0;
+      }
+  }
+  else if(state == 1) 
+  {
+    State1++;
+    if(locate_r < 100000)//have read intensive
+    {
+      ptr_buffer_cache->ptr_current_mark_node = r_cnode;
+      strip_way = 1;
+      //strip_way = 0;
+    }
+    else if(locate_r == 100000 && size_w < 100000)//write intensive //block striping
+    {
+      ptr_buffer_cache->ptr_current_mark_node = w_cnode;
+      strip_way = 0;
+    }
+  }
+  else if(state == 2)
+  {
+    State2++;
+    if(rep_size < 100000)//have read intensive
+    {
+      ptr_buffer_cache->ptr_current_mark_node = r_cnode;
+      strip_way = 1;
+      //strip_way = 0;
+    }
+    else if(rep_size == 100000 && all_size < 100000)//write intensive //block striping
+    {
+      ptr_buffer_cache->ptr_current_mark_node = w_cnode;
+      strip_way = 0;
+    } 
+  }
+  else
+  {
+    // printf("state error!!\n");
+    // printf("state = %d\n", state);
+    ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev;
+    strip_way = 0;
+      // ptr_buffer_cache->ptr_current_mark_node = c_node;
+      // strip_way = 0;
+  }
+  //printf("endend\n");
+  // if(state=0)
+  // {
+  //   ptr_buffer_cache->ptr_current_mark_node = c_node;
+  //   strip_way = 0;
+  // }
+  // else
+  // {
+  //   ptr_buffer_cache->ptr_current_mark_node = c_node;
+  //   strip_way = 1;
+  // }
+
+  if(strip_way==0)
+  {
+    ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
+    kick_block_strip_node++;
+    kick_block_strip_sumpage+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
+  }
+  else if(strip_way==1)
+  {
+    ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
+  }
+  return strip_way;
+}
 
 int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
 {
@@ -4617,14 +5031,13 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   }
 }
 
-int label_AI=0;
 void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	double min=10000,min_acc=10000;
 	int min_history_index,i,j;	
 	int acc_count=0,history_index=0;  
 	lru_node *original=ptr_buffer_cache->ptr_head->prev,*tmp_node;
 	lru_node *history[1000],*history_mean[1000],*history_late[1000];
-	label_AI=0;
+	int label_AI=0;
 	while(original!=ptr_buffer_cache->ptr_head){
 		up:			
 			if(original->duration_label==label_AI){
