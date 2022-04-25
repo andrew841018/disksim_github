@@ -83,6 +83,7 @@ for i in range(6):
     x_test=np.delete(x_test,0,axis=0)
     y_test=np.delete(y_test,0, axis = 0)
 index=0
+c=0
 for i in range(len(x_train)):
     if (c+1) % 16!=0:
         y_train=np.delete(y_train,index,axis=0)
@@ -97,6 +98,7 @@ for i in range(len(x_test)):
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
+
 x_train=x_train.reshape(9277,16,6)
 x_test=x_test.reshape(2319,16,6)
 y_test=np_utils.to_categorical(y_test,2)
