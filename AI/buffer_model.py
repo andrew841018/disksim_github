@@ -42,10 +42,6 @@ for i in range(200000):
     buffer_label=np.append(buffer_label,0)
 for i in buffer:
     buffer_label[int(i[0])]=int(i[1])#used block number as index, store buffer_or_not into buffer_label
-    if i[1]==0:
-        buffer_zero+=1
-    if i[1]==1:
-        buffer_one+=1
 count=0
 x=[]##cached request
 c=0
@@ -98,7 +94,20 @@ for i in range(len(x_test)):
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
-
+buffer_zero=0
+buffer_one=0
+for i in y_test:
+    if i==0:
+        buffer_zero+=1
+    if i==1:
+        buffer_one+=1
+buffer_1=0
+buffer_0=0
+for i in y_train:
+    if i==0:
+        buffer_0+=1
+    if i==1:
+        buffer_1+=1
 x_train=x_train.reshape(9277,16,6)
 x_test=x_test.reshape(2319,16,6)
 y_test=np_utils.to_categorical(y_test,2)
@@ -132,7 +141,7 @@ model.add(Dense(2,activation='softmax'))#classify into 1 class
 
 #opt=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
 model.compile(optimizer='rmsprop',loss='categorical_crossentropy',metrics=metric)
-weight={0:1.349489072329903,1:3.861319792728862}
+weight={0:1.000690369347601,1:1449.5}
 history=model.fit(x_train,y_train,epochs=800,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 plt.figure(dpi=250)

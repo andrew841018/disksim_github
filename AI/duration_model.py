@@ -23,7 +23,7 @@ import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
-duration=np.loadtxt(addr+'all buffer\\duration.txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'with ignore(RNN paper method)\\duration.txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'trace(used to build RNN)\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
@@ -31,22 +31,16 @@ req_for_predict=np.delete(req_for_predict,2,axis=1)#delete physical_block_number
 duration_label=np.zeros(shape=(200000,1)) 
 count=0
 x=[]##cached request
-zero=0
-one=0
-two=0
 special_use=[]
 for i in range(len(duration)):
     if duration[i][1]<2560 and duration[i][0] not in special_use:#duration<write buffer size=40 block
         duration_label[int(duration[i][0])]=0#class 0=soon label
-        zero+=1
     if 2560<duration[i][1] and duration[i][1]<5*2560 and duration[i][0] not in special_use:
         duration_label[int(duration[i][0])]=1#class 1=mean label
         special_use.append(duration[i][0])
-        one+=1
     if 5*2560<duration[i][1] and duration[i][0] not in special_use: 
         duration_label[int(duration[i][0])]=2#class 2=late label
         special_use.append(duration[i][0])
-        two+=1
         
 duration_label=np.array(duration_label)
 c=0
@@ -69,7 +63,7 @@ x_train,x_test=train_test_split(x,random_state=777,train_size=0.8)
 #y_train=np_utils.to_categorical(y_train,3)
 y_train,y_test=train_test_split(y,random_state=777,train_size=0.8)
 
-'''*** 使用XGBoost來預測***'''
+'''*** 使用XGBoost來預測***
 model=XGBClassifier(n_estimators=100, learning_rate= 0.3)
 model.fit(x_train,y_train)
 model.score(x_train,y_train)
@@ -82,7 +76,7 @@ for i in predict:
     with open('online(duration).txt','a') as f:
         f.write(str(req[req_count][2])+" "+str(i)+"\n")
     req_count+=1
-
+'''
 
 
 for i in range(6):
@@ -109,7 +103,26 @@ x_train=x_train.reshape(9277,16,6)
 x_test=x_test.reshape(2319,16,6)
 y_test=np_utils.to_categorical(y_test,3)
 y_train=np_utils.to_categorical(y_train,3)
-
+zero=0
+one=0
+two=0
+for i in y_test:
+    if int(i[0])==1:
+        zero+=1
+    if int(i[1])==1:
+        one+=1
+    if int(i[2])==1:
+        two+=1
+zero_=0
+one_=0
+two_=0
+for i in y_train:
+    if int(i[0])==1:
+        zero_+=1
+    if int(i[1])==1:
+        one_+=1
+    if int(i[2])==1:
+        two_+=1
 
 
 ########################### build model 
@@ -141,7 +154,7 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.1867805421463051,1: 8.279792746113989,2:27.316239316239315}
+weight={0:1.3828264758497317,1:3.8974789915966386,2: 49.340425531914896}
 history=model.fit(x_train,y_train,epochs=800,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
