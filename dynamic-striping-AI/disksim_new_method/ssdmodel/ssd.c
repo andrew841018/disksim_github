@@ -5175,7 +5175,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		if(ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head||ptr_buffer_cache->ptr_current_mark_node == ptr_buffer_cache->ptr_head->next)
 		{
       //printf("3174 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
-			assert(0);
+			//assert(0);
     }
 
 		if(ptr_buffer_cache->ptr_current_mark_node->page[ptr_buffer_cache->current_mark_offset].exist >= 2)
@@ -5687,6 +5687,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
   int kick=0;
   int k=0;
+  enter=1;
   while(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num)
   {
     //printf(" > max_buffer_page_num|");
@@ -5702,7 +5703,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			// {
 			//   k=0;
 			// }      
-			
+			lru_node *target;
 			if(enter==1){
 				channel_num = k%8;
 				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5710,23 +5711,14 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				enter=0;
-			}
-			lru_node *target=current_block[channel_num][plane].ptr_lru_node;
+				target=current_block[channel_num][plane].ptr_lru_node;
+			}		
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
 					channel_num=target->page[i].channel_num;
 					plane=target->page[i].plane;
 					break;
-				}
-				if(i==63){
-					remove_one_block=1;
-					if(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num){
-						k++;
-						assert(k<8);
-						enter=1;
-						remove_one_block=0;
-					}
-				}
+				}						
 			}
 			assert(channel_num >=0 && channel_num < 8);
 			assert(plane >=0 && plane < 8);
@@ -5840,8 +5832,17 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			  //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
 
 			}
-
-			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);			
+			if(ptr_lru_node->buffer_page_num==1){
+				remove_one_block=1;
+				if(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num){
+					k++;
+					assert(k<8);
+					enter=1;
+					remove_one_block=0;
+				}
+			}
+			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);	
+					
 			current_block[channel_num][plane].flush_w_count_in_current ++;
 			//fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
 			//printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
