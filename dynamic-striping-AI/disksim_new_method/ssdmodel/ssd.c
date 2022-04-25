@@ -3377,7 +3377,6 @@ int check_which_node_to_evict(buffer_cache *ptr_buffer_cache)
         ptr_buffer_cache->ptr_current_mark_node = LRUzero_node;
       else if(state0LRU == 0 && state0SIZE == 1)
         ptr_buffer_cache->ptr_current_mark_node = Szero_node;
-      AI_predict_victim(ptr_buffer_cache);    
       //ptr_lru_node = Szero_node;
       double rw_ratio=0, node_rcount=LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0], node_wcount=LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1];
       //fprintf(myoutput,"Page:%d,node_rcount:%lf,node_wcount:%lf\n",c_node->logical_node_num,node_rcount,node_wcount);
@@ -4618,46 +4617,47 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   }
 }
 
-
+int label_AI=0;
 void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	double min=10000,min_acc=10000;
-	int min_history_index,label=0;	
+	int min_history_index,i,j;	
 	int acc_count=0,history_index=0;  
-	lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
+	lru_node *original=ptr_buffer_cache->ptr_head->prev,*tmp_node;
 	lru_node *history[1000],*history_mean[1000],*history_late[1000];
-	while(original!=ptr_buffer_cache->ptr_current_mark_node){
-	up:			
-		if(original->duration_label==label){
-			if(min>original->duration_priority && original->select_victim==0){
-				acc_count=0;//how many time curr block will be overwrite
-				history[history_index]=original;
-				for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-					for(j=0;j<global_HQ_size;j++){
-						if(original->page[i].lpn==global_HQ[j]){
-							acc_count++;
+	label_AI=0;
+	while(original!=ptr_buffer_cache->ptr_head){
+		up:			
+			if(original->duration_label==label_AI){
+				if(min>original->duration_priority && original->select_victim==0){
+					acc_count=0;//how many time curr block will be overwrite
+					history[history_index]=original;
+					for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
+						for(j=0;j<global_HQ_size;j++){
+							if(original->page[i].lpn==global_HQ[j]){
+								acc_count++;
+							}
+							if(original->page[i].exist==1 || original->page[i].exist==2){
+								original->block_size++;
+							}
 						}
-						if(original->page[i].exist==1 || original->page[i].exist==2){
-							original->block_size++;
-						}
-					}
-				}						
-				//this value,smaller is better...
-				if(LPN_RWtimes[original->logical_node_num][0]==0 || LPN_RWtimes[original->logical_node_num][1]==0)
-					history[history_index]->rw_ratio=0;
-				else
-					history[history_index]->rw_ratio=(double)LPN_RWtimes[original->logical_node_num][0]/LPN_RWtimes[original->logical_node_num][1];
-				history[history_index]->overwrite_num=acc_count;
-				history[history_index]->record_dur_prior=original->duration_priority;
-				history_index++;
-				min=original->duration_priority;
-			}
-		}				
-	original=original->prev;
-	if(original==ptr_buffer_cache->ptr_current_mark_node && min==10000){
-		original=ptr_buffer_cache->ptr_current_mark_node->prev;
-		label++;	
-		goto up;
-	}
+					}						
+					//this value,smaller is better...
+					if(LPN_RWtimes[original->logical_node_num][0]==0 || LPN_RWtimes[original->logical_node_num][1]==0)
+						history[history_index]->rw_ratio=0;
+					else
+						history[history_index]->rw_ratio=(double)LPN_RWtimes[original->logical_node_num][0]/LPN_RWtimes[original->logical_node_num][1];
+					history[history_index]->overwrite_num=acc_count;
+					history[history_index]->record_dur_prior=original->duration_priority;
+					history_index++;
+					min=original->duration_priority;
+				}
+			}				
+		original=original->prev;
+		if(original==ptr_buffer_cache->ptr_head && min==10000){
+			original=ptr_buffer_cache->ptr_head->prev;
+			label_AI++;	
+			goto up;
+		}
 	}
 	assert(min<10000);
 	min=10000;
@@ -4676,13 +4676,18 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		}
 	}
 	}
-
 	//tmp_node->select_victim=1;
 	history[min_history_index]->select_victim=1;
 	ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
+	
 }
+int assign=0;
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
 {
+	if(assign==1){
+		AI_predict_victim(ptr_buffer_cache);
+		assign=0;
+	}
 	int outout=0,i,j;	
      //trigger_mark_count++; //sinhome
   //printf("mark_for_specific_current_block\n");
