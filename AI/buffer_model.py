@@ -53,7 +53,7 @@ y_test=[]
 for i in req1:
     x.append(i)
 for i in req:
-    y.append(buffer_label[int(i[5])])
+    y.append(buffer_label[int(i[2])])
 x=np.array(x)
 y=np.array(y)
 x_train=np.array(x_train)
@@ -73,7 +73,7 @@ buffer_or_not=model.predict(req1)
 
 '''***LSTM***'''
 
-for i in range(6):
+for i in range(22):
     x_train = np.delete(x_train,0, axis = 0)
     y_train = np.delete(y_train,0, axis = 0)
     x_test=np.delete(x_test,0,axis=0)
@@ -81,7 +81,7 @@ for i in range(6):
 index=0
 c=0
 for i in range(len(x_train)):
-    if (c+1) % 16!=0:
+    if (c+1) % 32!=0:
         y_train=np.delete(y_train,index,axis=0)
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
@@ -89,7 +89,7 @@ for i in range(len(x_train)):
 c=0
 index=0
 for i in range(len(x_test)):
-    if (c+1) % 16!=0:
+    if (c+1) % 32!=0:
         y_test=np.delete(y_test,index,axis=0)
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
@@ -108,8 +108,8 @@ for i in y_train:
         buffer_0+=1
     if i==1:
         buffer_1+=1
-x_train=x_train.reshape(9277,16,6)
-x_test=x_test.reshape(2319,16,6)
+x_train=x_train.reshape(4638,32,6)
+x_test=x_test.reshape(1159,32,6)
 y_test=np_utils.to_categorical(y_test,2)
 y_train=np_utils.to_categorical(y_train,2)
 
@@ -126,7 +126,7 @@ metric=[
         ]
 model=Sequential()
 ##128=LSTM output size
-model.add(LSTM(128,input_shape=(16,6),activation='relu',return_sequences=True))
+model.add(LSTM(128,input_shape=(32,6),activation='relu',return_sequences=True))
 model.add(Dropout(0.2))
 model.add(LSTM(128,activation='relu',return_sequences=True))
 model.add(Dropout(0.2))
@@ -141,7 +141,7 @@ model.add(Dense(2,activation='softmax'))#classify into 1 class
 
 #opt=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
 model.compile(optimizer='rmsprop',loss='categorical_crossentropy',metrics=metric)
-weight={0:1.000690369347601,1:1449.5}
+weight={0: 1.0460081190798376,1:22.735294117647058}
 history=model.fit(x_train,y_train,epochs=800,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 plt.figure(dpi=250)

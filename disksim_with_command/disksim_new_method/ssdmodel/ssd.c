@@ -93,8 +93,8 @@ typedef struct _buffer_page
   unsigned int r_count;
   unsigned int w_count;
   unsigned int strip;
-  unsigned int rcover;//total page num-number of page which only write
-  unsigned int wcover;//total page num-只寫不讀的page數量
+  unsigned int rcover;//total page num-number of page which only write=only read page count
+  unsigned int wcover;//total page num-只寫不讀的page數量=only write page count
 }buffer_page;
 typedef struct  _lru_node
 {
