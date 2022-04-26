@@ -10,3 +10,9 @@ for Linux:
  ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/jen/Desktop/disksim/block striping/trace/run1_Postmark_2475.txt' 1 262144
 
 
+
+
+
+reqcount(error):336640
+
+

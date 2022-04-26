@@ -4034,7 +4034,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       //strip_way=check_which_node_to_evict(ptr_buffer_cache);
       ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev;
       ptr_buffer_cache->current_mark_offset = 0;
-      mark_for_all_current_block (ptr_buffer_cache);
+      //mark_for_all_current_block (ptr_buffer_cache);
       full_cache = 1;
     }
     else if( full_cache == 1)
@@ -5010,7 +5010,8 @@ int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
       //^ set ptr_lru_node ch p
       add_page_striping_page_to_channel(i,ptr_lru_node);  
     } 
-  } 
+  }
+  return 0; 
   //int strip_way = check_which_node_to_evict(ptr_buffer_cache);
   int strip_way = 1;
   ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
@@ -5118,7 +5119,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 	if(assign==1){
 		AI_predict_victim(ptr_buffer_cache);
 		assign=0;
-		int i,count=0;
+		int i,count=0,only_read=0,only_write=0,P_intensive,B_intensive,strip_way;
 		for(i=0;i<LRUSIZE;i++){
 			if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==2 || ptr_buffer_cache->ptr_current_mark_node->page[i].exist==1){
 				ptr_buffer_cache->ptr_current_mark_node->page[i].exist=1;
@@ -5130,6 +5131,30 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		p=ptr_buffer_cache->ptr_current_mark_node;
 		if(ptr_buffer_cache->current_mark_offset!=0)
 			ptr_buffer_cache->current_mark_offset=0;
+		for(i=0;i<LRUSIZE;i++){
+			if(ptr_buffer_cache->ptr_current_mark_node->page[i].r_count==1){
+				only_read++;
+			}
+			if(ptr_buffer_cache->ptr_current_mark_node->page[i].w_count==1){
+				only_write++;
+			}
+		}
+		P_intensive=only_read*LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0];
+		B_intensive=only_write*LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1];
+		if(P_intensive>B_intensive){
+			ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
+		}
+		else{
+			ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
+		}
+		strip_way=ptr_buffer_cache->ptr_current_mark_node->StripWay;
+		if(strip_way==1){
+			strip_way=mark_for_page_striping_node(ptr_buffer_cache);
+			if(strip_way==-2){
+				assert(0);
+			}
+			return;
+		}
 	}
 	int outout=0,i,j;	
      //trigger_mark_count++; //sinhome
@@ -5233,6 +5258,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       kick_node++;
       kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
       //int strip_way=0;
+      break;
       int strip_way = check_which_node_to_evict(ptr_buffer_cache);
       while(strip_way==1)
       {
@@ -5251,6 +5277,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       kick_node++;
       kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
       //int strip_way=0;
+      break;
       int strip_way = check_which_node_to_evict(ptr_buffer_cache);
       while(strip_way==1)
       {
@@ -5696,14 +5723,14 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);     
       kick=1;
       int remove_one_block=0;
+      lru_node *target;
       while(remove_one_block==0){
 		  if(no_page_can_evict == 0)
 		  {
 			// if(k>8)
 			// {
 			//   k=0;
-			// }      
-			lru_node *target;
+			// }      			
 			if(enter==1){
 				channel_num = k%8;
 				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5711,7 +5738,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				enter=0;
-				target=current_block[channel_num][plane].ptr_lru_node;
+				if(ptr_buffer_cache->ptr_current_mark_node->StripWay==0)
+					target=current_block[channel_num][plane].ptr_lru_node;
+				else
+					target=ptr_buffer_cache->ptr_current_mark_node;
 			}		
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
@@ -5753,10 +5783,14 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 		  
 		//  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
 		  //printf("ytc94u channel_num = %d plane = %d\n",channel_num,plane);
-
-		  ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
+		  if(target->StripWay==0){
+			ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
+			assert(ptr_lru_node->buffer_page_num==current_block[channel_num][plane].current_mark_count);
+		  }
+		  else{
+			ptr_lru_node=target;
+		  }
 		  offset_in_node = current_block[channel_num][plane].offset_in_node;
-		  assert(ptr_lru_node->buffer_page_num==current_block[channel_num][plane].current_mark_count);
 		  printf("kick block:%d total_buffer:%d\n",ptr_lru_node->logical_node_num,ptr_buffer_cache->total_buffer_page_num);
 		  //glob_bc=current_block[channel_num][plane].ptr_lru_node;
 
@@ -5847,6 +5881,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				if(ptr_buffer_cache->total_buffer_page_num > ptr_buffer_cache->max_buffer_page_num){
 					enter=1;
 					remove_one_block=0;
+				}
+				if(ptr_lru_node->StripWay==0){//block striping
+					assert(current_block[channel_num][plane].current_mark_count==1);
 				}
 			}
 			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);		
