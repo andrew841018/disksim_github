@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\"
-duration_model = tf.keras.models.load_model(addr+'duration_model.h5')
+duration_model = tf.keras.models.load_model(addr+'duration_model(with ignore).h5')
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\trace(used to build RNN)\\"
 data=np.loadtxt(addr+'info(run1_Postmark_2475).txt',delimiter=' ',usecols=range(7))
 data_for_predict=data
@@ -34,7 +34,7 @@ while(finish!=len(data)):
         output=1
     if duration_model.predict(tmp)[0][2]==np.max(duration_model.predict(tmp)):
         output=2   
-    with open('online(run1_Postmark_2475)_duration.txt','a') as f:
+    with open('online(run1_Postmark_2475)_duration_with_ignore.txt','a') as f:
         f.write(str(data[finish][2])+" "+str(output)+"\n")
     #print(output)
     tmp=tmp.reshape(16,6)
