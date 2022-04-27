@@ -4674,16 +4674,13 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start->pass_req_count++;
 			printf("pass_req_count:%d\n",start->pass_req_count);
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
-				start->duration_label--;
-				if(start->duration_label==1){	
-					start->pass_req_count=0;
-					start->duration_priority=0.001;
-				}
+				start->duration_label--;				
+				start->pass_req_count=0;
+				start->duration_priority=0.001;
 			}
 			start=start->prev;
 		}
 	}
-	ptr_lru_node->pass_req_count=0;
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
 	{
     //fprintf(lpb_ppn, "w_hit_count ++\tw_hit_count=%d\t", ptr_buffer_cache->w_hit_count);
@@ -5069,7 +5066,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					else
 						history[history_index]->rw_ratio=(double)LPN_RWtimes[original->logical_node_num][0]/LPN_RWtimes[original->logical_node_num][1];
 					history[history_index]->overwrite_num=acc_count;
-					history[history_index]->record_dur_prior=original->duration_priority;
 					history_index++;
 					min=original->duration_priority;
 				}
@@ -5085,7 +5081,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		printf("select victim:%d\n",original->select_victim);
 	}
 	assert(min<10000);
-	min=10000;
+	int max=0,max_history_index;
 	//we are looking for min duration_priority and we also want to kick min number overwrite
 	//so combine it, we search for min "duration_priority*acc_count" block as victim block
 	for(i=0;i<history_index;i++){
@@ -5094,6 +5090,10 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		min_acc=history[i]->record_dur_prior*-history[i]->pass_req_count*history[i]->overwrite_num;
 		min_history_index=i;
 	}*/
+		/*if(min_acc>(float)history[i]->duration_priority){
+				min_acc=(float)history[i]->duration_priority;
+				min_history_index=i;
+		}*/
 		if(history[i]->overwrite_num==0){
 			if(min_acc>(float)history[i]->duration_priority){
 				min_acc=(float)history[i]->duration_priority;
@@ -5101,11 +5101,16 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 		}
 		else{
-			if(min_acc>(float)history[i]->duration_priority){
-				min_acc=(float)history[i]->duration_priority;
-				min_history_index=i;
+			if(max<history[i]->block_size){
+				max=history[i]->block_size;
+				max_history_index=i;
 			}
 		}
+	}
+	if(min_acc==10000){
+		history[max_history_index]->select_victim=1;
+		ptr_buffer_cache->ptr_current_mark_node=history[max_history_index];
+		return;
 	}
 	//tmp_node->select_victim=1;
 	history[min_history_index]->select_victim=1;
@@ -5146,6 +5151,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		}
 		else{
 			ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
+			kick_block_strip_node++;
+			kick_block_strip_sumpage+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
 		}
 		strip_way=ptr_buffer_cache->ptr_current_mark_node->StripWay;
 		if(strip_way==1){
@@ -5791,12 +5798,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			ptr_lru_node=target;
 		  }
 		  offset_in_node = current_block[channel_num][plane].offset_in_node;
-		  printf("kick block:%d total_buffer:%d\n",ptr_lru_node->logical_node_num,ptr_buffer_cache->total_buffer_page_num);
-		  //glob_bc=current_block[channel_num][plane].ptr_lru_node;
-
-		  //offset_in_node = 0;
-
-		  //printf("ptr_lru_node = %d\n", ptr_lru_node->logical_node_num);
+		  //printf("kick block:%d total_buffer:%d\n",ptr_lru_node->logical_node_num,ptr_buffer_cache->total_buffer_page_num);
+		 
 		  /*
 		   * if the plane is not any mark page ,we help mark the new node 
 		   * */
@@ -5855,20 +5858,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			{
 			  kick_page_striping_page_count++;
 			  ptr_lru_node->page[offset_in_node].strip = 0;
-			 /*  node_count++;
-			  if(node_count<128)
-			  {
-				 myssd.node_page_nm[ptr_lru_node->logical_node_num][offset_in_node]=1;
-			  }
-			  else
-			  {
-				node_count=0;
-			  } */
-
-			  //glob_bc->page[offset_in_node].his_strip=ptr_lru_node->StripWay;
-			  //ptr_lru_node->page[offset_in_node].strip = 0;
-			  //h_data[ptr_lru_node->logical_node_num][offset_in_node]=2;
-
 			}
 			if(ptr_lru_node->buffer_page_num==1){
 				kick++;
