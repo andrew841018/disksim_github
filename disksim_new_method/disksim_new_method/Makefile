@@ -34,6 +34,7 @@ include .paths
 SUBDIRS=libddbg libparam diskmodel memsmodel ssdmodel src
 
 all: 	
+	rm -f src/syssim_driver.o ssdmodel/ssd.o
 	$(MAKE) -C libddbg
 	$(MAKE) -C libparam
 	$(MAKE) -C diskmodel
@@ -43,7 +44,8 @@ all:
 	$(MAKE) -C diskmodel/layout_g4_tools
         # If dixtrac is included, build it with the distribution
 	if [ -d dixtrac ]; then $(MAKE) -C dixtrac ; fi
-
+andrew_clean:
+	rm -f src/syssim_driver.o ssdmodel/ssd.o
 clean:
 	for d in $(SUBDIRS); do \
 		$(MAKE) -C $$d $@; \
