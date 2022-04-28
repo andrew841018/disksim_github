@@ -23,7 +23,7 @@ import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
-duration=np.loadtxt(addr+'with ignore(RNN paper method)\\duration.txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'all buffer\\duration.txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'trace(used to build RNN)\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
@@ -134,14 +134,14 @@ metric=[
         ]
 model=Sequential()
 ##128=LSTM output size
-model.add(LSTM(128,input_shape=(16,6),activation='relu',return_sequences=True))
+model.add(LSTM(128,input_shape=(16,6),activation='sigmoid',return_sequences=True,unit_forget_bias=(True)))
 model.add(Dropout(0.2))
-model.add(LSTM(128,activation='relu',return_sequences=True))
+model.add(LSTM(128,activation='sigmoid',return_sequences=True,unit_forget_bias=(True)))
 model.add(Dropout(0.2))
 
 #return_sequences=True.....將所有time step output 輸出
 #false.....只輸出最後一個time step output
-model.add(LSTM(128,activation='relu'))
+model.add(LSTM(128,activation='sigmoid',unit_forget_bias=(True)))
 model.add(Dropout(0.2))
 model.add(Dense(3,activation='softmax'))#classify into 1 class
 
