@@ -5766,10 +5766,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					plane=target->page[i].plane;
 					current_block[channel_num][plane].offset_in_node=i;
 					break;
-				}
-				else if(target->page[i].exist==1){
-					assert(0);
-				}						
+				}				
 			}
 			assert(channel_num >=0 && channel_num < 8);
 			assert(plane >=0 && plane < 8);
