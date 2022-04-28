@@ -5745,7 +5745,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
 				assert(plane >=0 && plane < 8);
 				assign=1;
-				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+				//mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				enter=0;
 				if(ptr_buffer_cache->ptr_current_mark_node->StripWay==0)
 					target=current_block[channel_num][plane].ptr_lru_node;
