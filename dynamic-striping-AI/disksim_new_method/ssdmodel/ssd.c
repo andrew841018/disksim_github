@@ -5931,7 +5931,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
   my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
   //printf("end\n"); 
   FILE *gc=fopen("gc.txt","w");
-  fprintf(gc,"gc count%d\n",total_gc_count);
+  fprintf(gc,"gc count:%d\n",total_gc_count);
   fclose(gc);
   
 }
