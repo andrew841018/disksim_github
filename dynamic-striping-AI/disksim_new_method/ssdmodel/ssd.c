@@ -91,8 +91,8 @@ typedef struct _buffer_page
   struct _buffer_page *prev;          //the same as above
   struct _lru_node *ptr_self_lru_node;    //pointer to self lru node
   unsigned char exist;
-  int pass_req_count;
   unsigned int r_count;
+  unsigned int pass_req_count;
   unsigned int w_count;
   unsigned int strip;
   unsigned int rcover;
@@ -5773,15 +5773,16 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				target->select_victim=0;
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-			}		
-			int max_pass_req_count=-1;				
+			}						
+			int max=-1;
 			for(i=0;i<LRUSIZE;i++){
-				if(target->page[i].exist==2 && max_pass_req_count<target->page[i].pass_req_count){
-					max_pass_req_count==target->page[i].pass_req_count;
-					channel_num=target->page[i].channel_num;
-					plane=target->page[i].plane;
-					current_block[channel_num][plane].offset_in_node=i;
-					break;
+				if(target->page[i].exist==2){
+					if(max<target->page[i].pass_req_count){
+						max=target->page[i].pass_req_count;
+						channel_num=target->page[i].channel_num;
+						plane=target->page[i].plane;
+						current_block[channel_num][plane].offset_in_node=i;
+					}
 				}				
 			}
 			assert(channel_num >=0 && channel_num < 8);
