@@ -5175,14 +5175,14 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		}
 		strip_way=ptr_buffer_cache->ptr_current_mark_node->StripWay;
 		int error=0;
-		while(strip_way==1){
+		while(strip_way==1){//read-intensive block
 			strip_way=mark_for_page_striping_node(ptr_buffer_cache);		
-			if(strip_way==-2){	
+			if(strip_way==-2){//plane is full,can't mark	
 				ptr_buffer_cache->ptr_current_mark_node=p;	
 				printf("full...\n");
 				return;
 			}
-			else if(strip_way==1){
+			else if(strip_way==1){//mark successfully
 				ptr_buffer_cache->ptr_current_mark_node=p;	
 				return;
 			}
@@ -5191,8 +5191,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 				break;
 			}
 		}			
-		if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1)
-			return;
 	}
 	int outout=0,i,j;	
      //trigger_mark_count++; //sinhome
@@ -5769,40 +5767,32 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			// {
 			//   k=0;
 			// }    
-			int i,c1,p1;
-			double min=10000;
 			up:  	
-				min=10000;
-				for(i=0;i<8;i++){
-					channel_num = k%8;
-					plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
-					if(min>current_block[channel_num][plane].ptr_lru_node->duration_priority){
-						c1=channel_num;
-						p1=plane;
-						min=current_block[channel_num][plane].ptr_lru_node->duration_priority;
-					}
-				}
-				channel_num=c1;
-				plane=p1;							
+				channel_num = k%8;
+				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);		
 			if(current_block[channel_num][plane].ptr_lru_node==NULL || current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-				if(no_block_can_kick==1)
-					goto up;
+				if(no_block_can_kick==1){
+          k++;
+          goto up;
+        }
 			}
 			target=current_block[channel_num][plane].ptr_lru_node;	
 			int strip_way=target->StripWay;
 			while(strip_way==1){
 				ptr_buffer_cache->ptr_current_mark_node=target;
 				mark_for_page_striping_node(ptr_buffer_cache);
-				if(strip_way==1)
+				if(strip_way==1)//mark page striping node successfully
 					break;			
 			}
 			if(current_block[channel_num][plane].current_mark_count==0){
 				target->select_victim=0;
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-			}						
+        target=current_block[channel_num][plane].ptr_lru_node;
+			}
+    Top:						
 			int max=-1;
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
@@ -5819,7 +5809,11 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				printf("page:%d exist:%d\n",i,target->page[i].exist);
 			}
 			if(max==-1){
-				
+				assign=1;
+        mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+        target=current_block[channel_num][plane].ptr_lru_node;
+        assert(no_block_can_kick==0);
+        goto Top;
 			}
 			assert(max>-1);
 			assert(channel_num >=0 && channel_num < 8);
