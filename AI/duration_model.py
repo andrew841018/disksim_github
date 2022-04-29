@@ -134,14 +134,14 @@ metric=[
         ]
 model=Sequential()
 ##128=LSTM output size
-model.add(LSTM(128,input_shape=(16,6),activation='sigmoid',return_sequences=True,unit_forget_bias=(True)))
+model.add(LSTM(128,input_shape=(16,6),activation='relu',return_sequences=True))
 model.add(Dropout(0.2))
-model.add(LSTM(128,activation='sigmoid',return_sequences=True,unit_forget_bias=(True)))
+model.add(LSTM(128,activation='relu',return_sequences=True))
 model.add(Dropout(0.2))
 
 #return_sequences=True.....將所有time step output 輸出
 #false.....只輸出最後一個time step output
-model.add(LSTM(128,activation='sigmoid',unit_forget_bias=(True)))
+model.add(LSTM(128,activation='relu'))
 model.add(Dropout(0.2))
 model.add(Dense(3,activation='softmax'))#classify into 1 class
 
@@ -154,8 +154,8 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.3828264758497317,1:3.8974789915966386,2: 49.340425531914896}
-history=model.fit(x_train,y_train,epochs=800,validation_data=(x_test,y_test),class_weight=weight)
+weight={0:1.5408637873754152,1:4.155913978494624,2: 9.05859375}
+history=model.fit(x_train,y_train,epochs=100,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
 plt.figure(dpi=250)#dpi越高，像素越高

@@ -4620,52 +4620,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
       kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
       //int strip_way=0;
       int strip_way = check_which_node_to_evict(ptr_buffer_cache);
-      // if(ptr_buffer_cache->ptr_current_mark_node->group_type==1)
-      // {
-      //   //strip_way=1;
-      //   //ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
-        
-         
-      //   //fprintf(lpb_ppn, "WIC++|Lg_rw_count[%d].WIC=%d\n", ptr_lru_node->logical_node_num, Lg_rw_count[ptr_lru_node->logical_node_num].WIC);
-      //   /* Lg_rw_count[ptr_buffer_cache->ptr_current_mark_node->logical_node_num].WIC++;
-      //   //fprintf(lpb_ppn, "after WIC++|Lg_rw_count[%d].WIC=%d\n", ptr_buffer_cache->ptr_current_mark_node->logical_node_num, Lg_rw_count[ptr_buffer_cache->ptr_current_mark_node->logical_node_num].WIC);
-      //  //printf("Lg_rw_count[%d].WIC=%d\n", ptr_lru_node->logical_node_num, Lg_rw_count[ptr_lru_node->logical_node_num].WIC);
-      //   if(Lg_rw_count[ptr_buffer_cache->ptr_current_mark_node->logical_node_num].WIC<WICvalue)
-      //   {
-      //     strip_way=1;
-      //     ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
-      //   }
-
-      //   else
-      //   {
-      //     strip_way=0;
-      //     ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-      //     kick_LG_block_striping++;
-      //     kick_node++;
-      //     kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      //   }*/
-
-      //   if(LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1] <= LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0])
-      //   {
-      //      strip_way=1;
-      //      ptr_buffer_cache->ptr_current_mark_node->StripWay=1;
-      //   }
-      //   else
-      //   {
-      //     strip_way=0;
-      //     ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-      //     //kick_LG_block_striping++;
-      //     kick_node++;
-      //     kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      //   }    
-      // }
-      // else
-      // {
-      //   strip_way=0;
-      //   ptr_buffer_cache->ptr_current_mark_node->StripWay=0;
-      //   kick_node++;
-      //   kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
-      // }
+      //之所以要進入迴圈不是為了將所有block都以page striping方式mark，而是為了將之前應該mark而沒有mark(當時plane滿了)
+      //的page striping block，重新mark，因此要掃過每一個block，將漏掉的mark回來
       while(strip_way==1)
       {
        // fprintf(lpb_ppn,"3390 while(ptr_buffer_cache->ptr_current_mark_node->group_type == 1)\n");
