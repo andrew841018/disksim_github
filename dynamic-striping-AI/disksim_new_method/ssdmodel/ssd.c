@@ -92,7 +92,7 @@ typedef struct _buffer_page
   struct _lru_node *ptr_self_lru_node;    //pointer to self lru node
   unsigned char exist;
   unsigned int r_count;
-  unsigned int pass_req_count;
+  int pass_req_count;
   unsigned int w_count;
   unsigned int strip;
   unsigned int rcover;
@@ -5783,8 +5783,12 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 						plane=target->page[i].plane;
 						current_block[channel_num][plane].offset_in_node=i;
 					}
+					else{
+						printf("max:%d pass_req_count:%d page:%d\n",max,target->page[i].pass_req_count,i);
+					}
 				}				
 			}
+			assert(max>-1);
 			assert(channel_num >=0 && channel_num < 8);
 			assert(plane >=0 && plane < 8);
 		  }
