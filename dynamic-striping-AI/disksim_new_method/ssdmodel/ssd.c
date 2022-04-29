@@ -5792,8 +5792,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
         target=current_block[channel_num][plane].ptr_lru_node;
 			}
-    Top:						
+  						
 			int max=-1;
+		  Top:
+			max=-1;
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
 					if(max<target->page[i].pass_req_count){
