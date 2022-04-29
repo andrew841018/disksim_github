@@ -4991,7 +4991,7 @@ int find_idle_channel(unsigned int *channel_num,unsigned int *plane)
 int mark_for_page_striping_node(buffer_cache *ptr_buffer_cache)
 {
 	if(ptr_buffer_cache->ptr_current_mark_node->StripWay==0)
-		return 1;
+		return 0;
   fprintf(outputssd, "--------mark_for_page_striping_node\n");
   int i = 0,j=0,have_channel=0;
   unsigned int channel_num = 0,plane = 0;
@@ -5173,16 +5173,23 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			kick_block_strip_node++;
 			kick_block_strip_sumpage+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
 		}
-		strip_way=ptr_buffer_cache->ptr_current_mark_node->StripWay;
-		while(strip_way==1){
+		int error=0;
+		do{
 			strip_way=mark_for_page_striping_node(ptr_buffer_cache);		
-			if(strip_way==-2)
+			if(strip_way==-2){	
+				ptr_buffer_cache->ptr_current_mark_node=p;
+				break;
+				error=1;		
+				printf("full...\n");
+			}
+			else if(strip_way==1){
+				ptr_buffer_cache->ptr_current_mark_node=p;
 				return;
-			else
-				ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;	
-			if(ptr_buffer_cache->ptr_current_mark_node==p)
-				return;
-		}
+			}
+			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
+		}while(p!=ptr_buffer_cache->ptr_current_mark_node);			
+		if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1)
+			return;
 	}
 	int outout=0,i,j;	
      //trigger_mark_count++; //sinhome
@@ -5281,7 +5288,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			mark_all_block=1;
 			//assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
       //int strip_way = check_which_node_to_evict(ptr_buffer_cache); problem
-			ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
+			//ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
 			ptr_buffer_cache->current_mark_offset = 0;
       kick_node++;
       kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
@@ -5300,7 +5307,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		{
 			mark_all_block=1;
 			//assert(ptr_buffer_cache->ptr_current_mark_node != ptr_buffer_cache->ptr_head);
-			ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
+			//ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_current_mark_node->prev;
 			ptr_buffer_cache->current_mark_offset = 0;
       kick_node++;
       kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
@@ -5786,7 +5793,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					else{
 						printf("max:%d pass_req_count:%d page:%d\n",max,target->page[i].pass_req_count,i);
 					}
-				}				
+				}
+				printf("page:%d exist:%d\n",i,target->page[i].exist);
 			}
 			assert(max>-1);
 			assert(channel_num >=0 && channel_num < 8);
