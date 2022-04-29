@@ -91,6 +91,7 @@ typedef struct _buffer_page
   struct _buffer_page *prev;          //the same as above
   struct _lru_node *ptr_self_lru_node;    //pointer to self lru node
   unsigned char exist;
+  int pass_req_count;
   unsigned int r_count;
   unsigned int w_count;
   unsigned int strip;
@@ -4227,6 +4228,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			break;
 	}
 	Pg_node->select_victim=0;
+	Pg_node->pass_req_count=0;
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
@@ -4667,12 +4669,18 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	lru_node *start,*end;
+	int i;
 	if(ptr_buffer_cache->ptr_current_mark_node!=NULL){
 		start=ptr_buffer_cache->ptr_current_mark_node->prev;
 		end=ptr_buffer_cache->ptr_current_mark_node;
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
 			start->pass_req_count++;
+			for(i=0;i<LRUSIZE;i++){
+				if(start->page[i].exist==1 || start->page[i].exist==2){
+					start->page[i].pass_req_count++;
+				}
+			}
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;				
 				start->pass_req_count=0;
@@ -4681,6 +4689,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start=start->prev;
 		}
 	}
+	ptr_lru_node->page[offset_in_node].pass_req_count=0;
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
 	{
     //fprintf(lpb_ppn, "w_hit_count ++\tw_hit_count=%d\t", ptr_buffer_cache->w_hit_count);
@@ -5741,9 +5750,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       /*sh-- our dynamic allocation policy*/
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);     
       kick=1;
-      int remove_one_block=0;
       lru_node *target;
-      while(remove_one_block==0){
+      k=0;
+      while(k<8){
 		  if(no_page_can_evict == 0)
 		  {
 			// if(k>8)
@@ -5764,9 +5773,11 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				target->select_victim=0;
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-			}						
+			}		
+			int max_pass_req_count=-1;				
 			for(i=0;i<LRUSIZE;i++){
-				if(target->page[i].exist==2){
+				if(target->page[i].exist==2 && max_pass_req_count<target->page[i].pass_req_count){
+					max_pass_req_count==target->page[i].pass_req_count;
 					channel_num=target->page[i].channel_num;
 					plane=target->page[i].plane;
 					current_block[channel_num][plane].offset_in_node=i;
@@ -5868,8 +5879,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);		
 			current_block[channel_num][plane].flush_w_count_in_current ++;
 			k++;
-			if(ptr_buffer_cache->total_buffer_page_num<=ptr_buffer_cache->max_buffer_page_num)
-				remove_one_block=1;
 			//fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
 			//printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
 			if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \
