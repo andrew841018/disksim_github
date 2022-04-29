@@ -5108,11 +5108,11 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		min_acc=history[i]->record_dur_prior*-history[i]->pass_req_count*history[i]->overwrite_num;
 		min_history_index=i;
 	}*/
-		/*if(min_acc>(float)history[i]->duration_priority){
+		if(min_acc>(float)history[i]->duration_priority){
 				min_acc=(float)history[i]->duration_priority;
 				min_history_index=i;
-		}*/
-		if(history[i]->overwrite_num==0){
+		}
+		/*if(history[i]->overwrite_num==0){
 			if(min_acc>(float)history[i]->duration_priority){
 				min_acc=(float)history[i]->duration_priority;
 				min_history_index=i;
@@ -5123,7 +5123,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				max=history[i]->block_size;
 				max_history_index=i;
 			}
-		}
+		}*/
 	}
 	if(min_acc==10000){
 		history[max_history_index]->select_victim=1;
@@ -5769,9 +5769,21 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			// {
 			//   k=0;
 			// }    
-			up:  			
-				channel_num = k%8;
-				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);			
+			int i,c1,p1;
+			double min=10000;
+			up:  	
+				min=10000;
+				for(i=0;i<8;i++){
+					channel_num = k%8;
+					plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+					if(min>current_block[channel_num][plane].ptr_lru_node->duration_priority){
+						c1=channel_num;
+						p1=plane;
+						min=current_block[channel_num][plane].ptr_lru_node->duration_priority;
+					}
+				}
+				channel_num=c1;
+				plane=p1;							
 			if(current_block[channel_num][plane].ptr_lru_node==NULL || current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
