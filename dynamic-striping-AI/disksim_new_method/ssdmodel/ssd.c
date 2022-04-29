@@ -5173,21 +5173,24 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			kick_block_strip_node++;
 			kick_block_strip_sumpage+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
 		}
+		strip_way=ptr_buffer_cache->ptr_current_mark_node->StripWay;
 		int error=0;
-		do{
+		while(strip_way==1){
 			strip_way=mark_for_page_striping_node(ptr_buffer_cache);		
 			if(strip_way==-2){	
-				ptr_buffer_cache->ptr_current_mark_node=p;
-				break;
-				error=1;		
+				ptr_buffer_cache->ptr_current_mark_node=p;	
 				printf("full...\n");
+				return;
 			}
 			else if(strip_way==1){
-				ptr_buffer_cache->ptr_current_mark_node=p;
+				ptr_buffer_cache->ptr_current_mark_node=p;	
 				return;
 			}
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
-		}while(p!=ptr_buffer_cache->ptr_current_mark_node);			
+			if(p==ptr_buffer_cache->ptr_current_mark_node){
+				break;
+			}
+		}			
 		if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1)
 			return;
 	}
@@ -5776,6 +5779,13 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					goto up;
 			}
 			target=current_block[channel_num][plane].ptr_lru_node;	
+			int strip_way=target->StripWay;
+			while(strip_way==1){
+				ptr_buffer_cache->ptr_current_mark_node=target;
+				mark_for_page_striping_node(ptr_buffer_cache);
+				if(strip_way==1)
+					break;			
+			}
 			if(current_block[channel_num][plane].current_mark_count==0){
 				target->select_victim=0;
 				assign=1;
@@ -5795,6 +5805,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					}
 				}
 				printf("page:%d exist:%d\n",i,target->page[i].exist);
+			}
+			if(max==-1){
+				
 			}
 			assert(max>-1);
 			assert(channel_num >=0 && channel_num < 8);
