@@ -5152,7 +5152,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				}
 			}
 			//  *****with hint information--->AI + hint******************
-			if(enter_loop==0){
+			/*if(enter_loop==0){
 				target_label++;
 				goto Top1;
 			}
@@ -5161,7 +5161,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				original=ptr_buffer_cache->ptr_current_mark_node->prev;
 				min=10000;
 				goto up;
-			}
+			}*/
 			history[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
 			break;
@@ -5175,7 +5175,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					enter_loop=1;
 				}
 			}
-			if(enter_loop==0){
+			/*if(enter_loop==0){
 				target_label++;
 				goto Top1;
 			}
@@ -5185,7 +5185,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				original=ptr_buffer_cache->ptr_current_mark_node->prev;
 				min_1=10000;
 				goto up;
-			}
+			}*/
 			history_mean[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
 			break;
@@ -5199,7 +5199,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					enter_loop=1;
 				}
 			}
-			if(enter_loop==0){
+			/*if(enter_loop==0){
 				no_block_can_kick=1;
 				return;
 			}
@@ -5209,7 +5209,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				original=ptr_buffer_cache->ptr_current_mark_node->prev;
 				min_2=10000;
 				goto up;
-			}
+			}*/
 			history_late[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_late[min_history_index];
 			break;
