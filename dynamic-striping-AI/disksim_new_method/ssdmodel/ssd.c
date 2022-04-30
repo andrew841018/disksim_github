@@ -4527,6 +4527,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 			break;
 		}
 	}
+	ptr_node->select_victim=0;
 	switch(ptr_node->duration_label){
 		case 0:
 			ptr_node->duration_priority=soon_time;
@@ -5062,6 +5063,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		up:			
 			switch(original->duration_label){
 				case 0:
+					printf("min:%f priority:%f victim:%d\n",min,original->duration_priority,original->select_victim);
 					if(min>original->duration_priority && original->select_victim==0){
 						acc_count=0;//how many time curr block will be overwrite
 						history[history_index]=original;
@@ -5081,6 +5083,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					}
 					break;
 				case 1:
+				printf("min_1:%f priority:%f victim:%d\n",min_1,original->duration_priority,original->select_victim);
 					if(min_1>original->duration_priority && original->select_victim==0){
 						acc_count=0;//how many time curr block will be overwrite
 						history_mean[history_index_1]=original;
@@ -5100,6 +5103,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					}
 					break;
 				case 2:
+					printf("min_2:%f priority:%f victim:%d\n",min_2,original->duration_priority,original->select_victim);
 					if(min_2>original->duration_priority && original->select_victim==0){
 							acc_count=0;//how many time curr block will be overwrite
 							history_late[history_index_2]=original;
@@ -5136,23 +5140,29 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	else if(min_2<10000){
 		target_label=2;
 	}
-	int search_index;
+	int search_index,enter_loop=0;
   Top:
 	min_acc=10000;
+	enter_loop=0;
 	switch(target_label){
 		case 0:
 			search_index=history_index;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history[i]->duration_priority){
+				if(min_acc>(float)history[i]->duration_priority && history[i]->select_victim==0){
 						min_acc=(float)history[i]->duration_priority;
 						min_history_index=i;
+						enter_loop=1;
 				}
 			}
 			//  *****with hint information--->AI + hint******************
+			if(enter_loop==0){
+				target_label++;
+				goto Top;
+			}
 			if(history[min_history_index]->overwrite_num>0){//overwrite
 				if(history[min_history_index]->pass_req_count<=4000){//no in LRU,pick the next victim
-					history_late[min_history_index]->select_victim=1;
+					history[min_history_index]->select_victim=1;
 					printf("victim pass count:%d\n",history[min_history_index]->pass_req_count);
 					goto Top;
 				}
@@ -5164,10 +5174,15 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index_1;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_mean[i]->duration_priority){
+				if(min_acc>(float)history_mean[i]->duration_priority && history_mean[i]->select_victim==0){
 					min_acc=(float)history_mean[i]->duration_priority;
 					min_history_index=i;
+					enter_loop=1;
 				}
+			}
+			if(enter_loop==0){
+				target_label++;
+				goto Top;
 			}
 			//  *****with hint information--->AI + hint******************
 			if(history_mean[min_history_index]->overwrite_num>0){//overwrite
@@ -5184,10 +5199,15 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index_2;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_late[i]->duration_priority){
+				if(min_acc>(float)history_late[i]->duration_priority && history_late[i]->select_victim==0){
 					min_acc=(float)history_late[i]->duration_priority;
 					min_history_index=i;
+					enter_loop=1;
 				}
+			}
+			if(enter_loop==0){
+				no_block_can_kick=1;
+				return;
 			}
 			//  *****with hint information--->AI + hint******************
 			if(history_late[min_history_index]->overwrite_num>0){//overwrite
