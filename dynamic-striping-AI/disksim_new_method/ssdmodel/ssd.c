@@ -5103,11 +5103,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//we are looking for min duration_priority and we also want to kick min number overwrite
 	//so combine it, we search for min "duration_priority*acc_count" block as victim block
 	for(i=0;i<history_index;i++){
-	/*if(min_acc>(float)history[i]->record_dur_prior*-history[i]->pass_req_count*history[i]->overwrite_num){
-		printf("overwrite:%d priority:%f pass_req:%d combine:%f\n",history[i]->overwrite_num,(float)history[i]->record_dur_prior,history[i]->pass_req_count,(history[i]->overwrite_num+1)*history[i]->record_dur_prior*-history[i]->pass_req_count);
-		min_acc=history[i]->record_dur_prior*-history[i]->pass_req_count*history[i]->overwrite_num;
-		min_history_index=i;
-	}*/
 		if(min_acc>(float)history[i]->duration_priority){
 				min_acc=(float)history[i]->duration_priority;
 				min_history_index=i;
@@ -5130,7 +5125,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		ptr_buffer_cache->ptr_current_mark_node=history[max_history_index];
 		return;
 	}
-	//tmp_node->select_victim=1;
 	history[min_history_index]->select_victim=1;
 	ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
 }
