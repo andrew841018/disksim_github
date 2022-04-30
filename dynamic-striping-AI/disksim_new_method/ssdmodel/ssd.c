@@ -5063,7 +5063,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		up:			
 			switch(original->duration_label){
 				case 0:
-					printf("min:%f priority:%f victim:%d\n",min,original->duration_priority,original->select_victim);
 					if(min>original->duration_priority && original->select_victim==0){
 						acc_count=0;//how many time curr block will be overwrite
 						history[history_index]=original;
@@ -5083,7 +5082,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					}
 					break;
 				case 1:
-				printf("min_1:%f priority:%f victim:%d\n",min_1,original->duration_priority,original->select_victim);
 					if(min_1>original->duration_priority && original->select_victim==0){
 						acc_count=0;//how many time curr block will be overwrite
 						history_mean[history_index_1]=original;
@@ -5103,7 +5101,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					}
 					break;
 				case 2:
-					printf("min_2:%f priority:%f victim:%d\n",min_2,original->duration_priority,original->select_victim);
 					if(min_2>original->duration_priority && original->select_victim==0){
 							acc_count=0;//how many time curr block will be overwrite
 							history_late[history_index_2]=original;
@@ -5124,7 +5121,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					break;
 			}	
 		original=original->prev;		
-		printf("mark node pass count:%d\n",original->pass_req_count);
 	}
 	int target_label;
 	if(min==10000 && min_1==10000 && min_2==10000){		
@@ -5141,7 +5137,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		target_label=2;
 	}
 	int search_index,enter_loop=0;
-  Top:
+  Top1:
 	min_acc=10000;
 	enter_loop=0;
 	switch(target_label){
@@ -5158,14 +5154,13 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			//  *****with hint information--->AI + hint******************
 			if(enter_loop==0){
 				target_label++;
-				goto Top;
+				goto Top1;
 			}
 			if(history[min_history_index]->overwrite_num>0){//overwrite
-				if(history[min_history_index]->pass_req_count<=4000){//no in LRU,pick the next victim
-					history[min_history_index]->select_victim=1;
-					printf("victim pass count:%d\n",history[min_history_index]->pass_req_count);
-					goto Top;
-				}
+				history[min_history_index]->select_victim=1;
+				original=ptr_buffer_cache->ptr_current_mark_node->prev;
+				min=10000;
+				goto up;
 			}
 			history[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
@@ -5182,14 +5177,15 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 			if(enter_loop==0){
 				target_label++;
-				goto Top;
+				goto Top1;
 			}
 			//  *****with hint information--->AI + hint******************
 			if(history_mean[min_history_index]->overwrite_num>0){//overwrite
-				if(history_mean[min_history_index]->pass_req_count<=4000){//no in LRU,pick the next victim
-					history_mean[min_history_index]->select_victim=1;
-					printf("victim pass count:%d\n",history_mean[min_history_index]->pass_req_count);
-					goto Top;
+				if(history[min_history_index]->overwrite_num>0){//overwrite
+					history[min_history_index]->select_victim=1;
+					original=ptr_buffer_cache->ptr_current_mark_node->prev;
+					min=10000;
+					goto up;
 				}
 			}
 			history_mean[min_history_index]->select_victim=1;
@@ -5211,10 +5207,11 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 			//  *****with hint information--->AI + hint******************
 			if(history_late[min_history_index]->overwrite_num>0){//overwrite
-				if(history_late[min_history_index]->pass_req_count<=4000){//no in LRU,pick the next victim
-					history_late[min_history_index]->select_victim=1;
-					printf("victim pass count:%d\n",history_late[min_history_index]->pass_req_count);
-					goto Top;
+				if(history[min_history_index]->overwrite_num>0){//overwrite
+					history[min_history_index]->select_victim=1;
+					original=ptr_buffer_cache->ptr_current_mark_node->prev;
+					min=10000;
+					goto up;
 				}
 			}
 			history_late[min_history_index]->select_victim=1;
@@ -5900,10 +5897,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			}
 			if(max==-1){
 				assign=1;
-        mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-        target=current_block[channel_num][plane].ptr_lru_node;
-        assert(no_block_can_kick==0);
-        goto Top;
+				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+				target=current_block[channel_num][plane].ptr_lru_node;
+				assert(no_block_can_kick==0);
+				goto Top;
 			}
 			assert(max>-1);
 			assert(channel_num >=0 && channel_num < 8);
