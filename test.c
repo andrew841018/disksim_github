@@ -19,7 +19,9 @@ void a(int *b,int *c){
 }
 int main(){	
 	int i;
-	FILE *f1=fopen("a.txt","w");
+	int a[5]={0,2,4,3,3};
+	int b[5];
+	b=a;
 	/*for(i=0;i<10;i++){
 		FILE *f=fopen("a.txt","a+");
 		fprintf(f,"%d\n",i);

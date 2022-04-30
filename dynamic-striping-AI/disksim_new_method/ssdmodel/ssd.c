@@ -4683,7 +4683,6 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			}
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;				
-				start->pass_req_count=0;
 				start->duration_priority=0.001;
 			}
 			start=start->prev;
@@ -5054,79 +5053,154 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 
 void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	double min=10000,min_acc=10000;
+	double min_1=10000,min_2=10000;
 	int min_history_index,i,j;	
-	int acc_count=0,history_index=0;  
+	int acc_count=0,history_index=0,history_index_1=0,history_index_2=0;  
 	lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
 	lru_node *history[1000],*history_mean[1000],*history_late[1000];
-	int label_AI=0;
 	while(original!=ptr_buffer_cache->ptr_current_mark_node){
 		up:			
-			if(original->duration_label==label_AI){
-				if(min>original->duration_priority && original->select_victim==0){
-					acc_count=0;//how many time curr block will be overwrite
-					history[history_index]=original;
-					for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-						for(j=0;j<global_HQ_size;j++){
-							if(original->page[i].lpn==global_HQ[j]){
-								acc_count++;
+			switch(original->duration_label){
+				case 0:
+					if(min>original->duration_priority && original->select_victim==0){
+						acc_count=0;//how many time curr block will be overwrite
+						history[history_index]=original;
+						for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
+							for(j=0;j<global_HQ_size;j++){
+								if(original->page[i].lpn==global_HQ[j]){
+									acc_count++;
+								}
+								if(original->page[i].exist==1 || original->page[i].exist==2){
+									original->block_size++;
+								}
 							}
-							if(original->page[i].exist==1 || original->page[i].exist==2){
-								original->block_size++;
+						}						
+						history[history_index]->overwrite_num=acc_count;
+						history_index++;
+						min=original->duration_priority;
+					}
+					break;
+				case 1:
+					if(min_1>original->duration_priority && original->select_victim==0){
+						acc_count=0;//how many time curr block will be overwrite
+						history_mean[history_index_1]=original;
+						for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
+							for(j=0;j<global_HQ_size;j++){
+								if(original->page[i].lpn==global_HQ[j]){
+									acc_count++;
+								}
+								if(original->page[i].exist==1 || original->page[i].exist==2){
+									original->block_size++;
+								}
 							}
+						}						
+						history_mean[history_index_1]->overwrite_num=acc_count;
+						history_index_1++;
+						min_1=original->duration_priority;
+					}
+					break;
+				case 2:
+					if(min_2>original->duration_priority && original->select_victim==0){
+							acc_count=0;//how many time curr block will be overwrite
+							history_late[history_index_2]=original;
+							for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
+								for(j=0;j<global_HQ_size;j++){
+									if(original->page[i].lpn==global_HQ[j]){
+										acc_count++;
+									}
+									if(original->page[i].exist==1 || original->page[i].exist==2){
+										original->block_size++;
+									}
+								}
+							}						
+							history_late[history_index_2]->overwrite_num=acc_count;
+							history_index_2++;
+							min_2=original->duration_priority;						
 						}
-					}						
-					//this value,smaller is better...
-					if(LPN_RWtimes[original->logical_node_num][0]==0 || LPN_RWtimes[original->logical_node_num][1]==0)
-						history[history_index]->rw_ratio=0;
-					else
-						history[history_index]->rw_ratio=(double)LPN_RWtimes[original->logical_node_num][0]/LPN_RWtimes[original->logical_node_num][1];
-					history[history_index]->overwrite_num=acc_count;
-					history_index++;
-					min=original->duration_priority;
-				}
-			}				
-		original=original->prev;
-		if(original==ptr_buffer_cache->ptr_current_mark_node && min==10000){		
-			if(label_AI==2){
-				no_block_can_kick=1;
-				return;
-			}
-			original=ptr_buffer_cache->ptr_current_mark_node->prev;
-			label_AI++;	
-			assert(label_AI<3);
-			goto up;
-		}
-		printf("select victim:%d\n",original->select_victim);
+					break;
+			}	
+		original=original->prev;		
+		printf("mark node pass count:%d\n",original->pass_req_count);
 	}
-	assert(min<10000);
-	int max=0,max_history_index;
-	//we are looking for min duration_priority and we also want to kick min number overwrite
-	//so combine it, we search for min "duration_priority*acc_count" block as victim block
-	for(i=0;i<history_index;i++){
-		if(min_acc>(float)history[i]->duration_priority){
-				min_acc=(float)history[i]->duration_priority;
-				min_history_index=i;
-		}
-		/*if(history[i]->overwrite_num==0){
-			if(min_acc>(float)history[i]->duration_priority){
-				min_acc=(float)history[i]->duration_priority;
-				min_history_index=i;
-			}
-		}
-		else{
-			if(max<history[i]->block_size){
-				max=history[i]->block_size;
-				max_history_index=i;
-			}
-		}*/
-	}
-	if(min_acc==10000){
-		history[max_history_index]->select_victim=1;
-		ptr_buffer_cache->ptr_current_mark_node=history[max_history_index];
+	int target_label;
+	if(min==10000 && min_1==10000 && min_2==10000){		
+		no_block_can_kick=1;
 		return;
 	}
-	history[min_history_index]->select_victim=1;
-	ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
+	if(min<10000){
+		target_label=0;
+	}
+	else if(min_1<10000){
+		target_label=1;
+	}
+	else if(min_2<10000){
+		target_label=2;
+	}
+	int search_index;
+  Top:
+	min_acc=10000;
+	switch(target_label){
+		case 0:
+			search_index=history_index;
+			for(i=0;i<search_index;i++){
+				//*****original version--->AI prediction only********
+				if(min_acc>(float)history[i]->duration_priority){
+						min_acc=(float)history[i]->duration_priority;
+						min_history_index=i;
+				}
+			}
+			//  *****with hint information--->AI + hint******************
+			if(history[min_history_index]->overwrite_num>0){//overwrite
+				if(history[min_history_index]->pass_req_count<=4000){//no in LRU,pick the next victim
+					history_late[min_history_index]->select_victim=1;
+					printf("victim pass count:%d\n",history[min_history_index]->pass_req_count);
+					goto Top;
+				}
+			}
+			history[min_history_index]->select_victim=1;
+			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
+			break;
+		case 1:
+			search_index=history_index_1;
+			for(i=0;i<search_index;i++){
+				//*****original version--->AI prediction only********
+				if(min_acc>(float)history_mean[i]->duration_priority){
+					min_acc=(float)history_mean[i]->duration_priority;
+					min_history_index=i;
+				}
+			}
+			//  *****with hint information--->AI + hint******************
+			if(history_mean[min_history_index]->overwrite_num>0){//overwrite
+				if(history_mean[min_history_index]->pass_req_count<=4000){//no in LRU,pick the next victim
+					history_mean[min_history_index]->select_victim=1;
+					printf("victim pass count:%d\n",history_mean[min_history_index]->pass_req_count);
+					goto Top;
+				}
+			}
+			history_mean[min_history_index]->select_victim=1;
+			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
+			break;
+		case 2:
+			search_index=history_index_2;
+			for(i=0;i<search_index;i++){
+				//*****original version--->AI prediction only********
+				if(min_acc>(float)history_late[i]->duration_priority){
+					min_acc=(float)history_late[i]->duration_priority;
+					min_history_index=i;
+				}
+			}
+			//  *****with hint information--->AI + hint******************
+			if(history_late[min_history_index]->overwrite_num>0){//overwrite
+				if(history_late[min_history_index]->pass_req_count<=4000){//no in LRU,pick the next victim
+					history_late[min_history_index]->select_victim=1;
+					printf("victim pass count:%d\n",history_late[min_history_index]->pass_req_count);
+					goto Top;
+				}
+			}
+			history_late[min_history_index]->select_victim=1;
+			ptr_buffer_cache->ptr_current_mark_node=history_late[min_history_index];
+			break;
+	}	
 }
 lru_node *p;
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
