@@ -5181,12 +5181,10 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 			//  *****with hint information--->AI + hint******************
 			if(history_mean[min_history_index]->overwrite_num>0){//overwrite
-				if(history[min_history_index]->overwrite_num>0){//overwrite
-					history[min_history_index]->select_victim=1;
-					original=ptr_buffer_cache->ptr_current_mark_node->prev;
-					min=10000;
-					goto up;
-				}
+				history_mean[min_history_index]->select_victim=1;
+				original=ptr_buffer_cache->ptr_current_mark_node->prev;
+				min_1=10000;
+				goto up;
 			}
 			history_mean[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
@@ -5207,12 +5205,10 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 			//  *****with hint information--->AI + hint******************
 			if(history_late[min_history_index]->overwrite_num>0){//overwrite
-				if(history[min_history_index]->overwrite_num>0){//overwrite
-					history[min_history_index]->select_victim=1;
-					original=ptr_buffer_cache->ptr_current_mark_node->prev;
-					min=10000;
-					goto up;
-				}
+				history_late[min_history_index]->select_victim=1;
+				original=ptr_buffer_cache->ptr_current_mark_node->prev;
+				min_2=10000;
+				goto up;
 			}
 			history_late[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_late[min_history_index];
