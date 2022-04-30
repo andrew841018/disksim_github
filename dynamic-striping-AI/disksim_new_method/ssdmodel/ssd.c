@@ -91,6 +91,7 @@ typedef struct _buffer_page
   struct _buffer_page *prev;          //the same as above
   struct _lru_node *ptr_self_lru_node;    //pointer to self lru node
   unsigned char exist;
+  int overwrite;
   unsigned int r_count;
   int pass_req_count;
   unsigned int w_count;
@@ -5120,7 +5121,8 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 						}
 					break;
 			}	
-		original=original->prev;		
+		original=original->prev;	
+		printf("victim:%d\n",original->select_victim);	
 	}
 	int target_label;
 	if(min==10000 && min_1==10000 && min_2==10000){		
@@ -5749,6 +5751,7 @@ void kick_read_intensive_page_from_buffer_cache(ioreq_event *curr,unsigned int c
 }
 
 int enter=1;
+int change_block_count=0;
 /*sh-- (1.if cache hit. 2.which to kick?  3.where to kick?)*/
 void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache,int flag)
 {
@@ -5840,6 +5843,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);     
       kick=1;
       lru_node *target;
+      int j;
       k=0;
       while(k<8){
 		  if(no_page_can_evict == 0)
@@ -5850,16 +5854,16 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			// }    
 			up:  	
 				channel_num = k%8;
-				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);		
+				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);						
 			if(current_block[channel_num][plane].ptr_lru_node==NULL || current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
-          k++;
-          goto up;
-        }
+				  k++;
+				  goto up;
+				}
 			}
-			target=current_block[channel_num][plane].ptr_lru_node;	
+			target=current_block[channel_num][plane].ptr_lru_node;					
 			int strip_way=target->StripWay;
 			while(strip_way==1){
 				ptr_buffer_cache->ptr_current_mark_node=target;
@@ -5871,32 +5875,53 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				target->select_victim=0;
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-        target=current_block[channel_num][plane].ptr_lru_node;
-			}
-  						
-			int max=-1;
+				target=current_block[channel_num][plane].ptr_lru_node;
+			}			
+			int max=-1,mark=0;
 		  Top:
 			max=-1;
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
-					if(max<target->page[i].pass_req_count){
-						max=target->page[i].pass_req_count;
+					mark=1;
+					for(j=0;j<global_HQ_size;j++){
+						if(target->page[i].lpn!=global_HQ[j]){
+							/*if(max<target->page[i].pass_req_count){
+								max=target->page[i].pass_req_count;
+								channel_num=target->page[i].channel_num;
+								plane=target->page[i].plane;
+								current_block[channel_num][plane].offset_in_node=i;
+							}*/
+							max=0;
+							channel_num=target->page[i].channel_num;
+							plane=target->page[i].plane;
+							current_block[channel_num][plane].offset_in_node=i;
+						}
+						else if(change_block_count==8){
+							change_block_count=0;
+							max=0;
+							channel_num=target->page[i].channel_num;
+							plane=target->page[i].plane;
+							current_block[channel_num][plane].offset_in_node=i;
+						}
+					}
+					if(global_HQ_size==0){
+						max=0;
 						channel_num=target->page[i].channel_num;
 						plane=target->page[i].plane;
 						current_block[channel_num][plane].offset_in_node=i;
 					}
-					else{
-						printf("max:%d pass_req_count:%d page:%d\n",max,target->page[i].pass_req_count,i);
-					}
 				}
-				printf("page:%d exist:%d\n",i,target->page[i].exist);
-			}
-			if(max==-1){
+			}				
+			if(max==-1 && mark==0){//reason:not mark
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-				target=current_block[channel_num][plane].ptr_lru_node;
-				assert(no_block_can_kick==0);
+				target=current_block[channel_num][plane].ptr_lru_node;				
 				goto Top;
+			}
+			else if(max==-1 && mark==1){//reason:overwrite
+				k++;
+				change_block_count++;
+				goto up;
 			}
 			assert(max>-1);
 			assert(channel_num >=0 && channel_num < 8);
