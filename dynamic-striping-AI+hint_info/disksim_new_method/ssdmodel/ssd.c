@@ -4127,7 +4127,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		physical_block_num=atoi(substr1);
 		substr1=strtok(NULL,delim1);//duration label
 		duration_label=atoi(substr1);
-		duration_arr[dur_index][0]=physical_block_num;//physical_block_num=physical_node_num % HASHSIZE
+		duration_arr[dur_index][0]=physical_block_num;
 		duration_arr[dur_index][1]=duration_label;
 		dur_index++;
 	}	
@@ -4136,7 +4136,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		physical_block_num=atoi(substr1);
 		substr1=strtok(NULL,delim1);//duration label
 		duration_label=atoi(substr1);
-		duration_arr[dur_index][0]=physical_block_num;//physical_block_num=physical_node_num % HASHSIZE
+		duration_arr[dur_index][0]=physical_block_num;
 		duration_arr[dur_index][1]=duration_label;
 		dur_index++;				
 	} 			    
