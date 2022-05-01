@@ -5062,6 +5062,11 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *history[1000],*history_mean[1000],*history_late[1000];
 	while(original!=ptr_buffer_cache->ptr_current_mark_node){
 		up:			
+      for(i=0;i<global_HQ_node_size;i++){
+        if(global_HQ_node[i]==original->logical_node_num){//this block will be overwritten in the future.
+          original=original->prev;
+        }
+      }
 			switch(original->duration_label){
 				case 0:
 					if(min>original->duration_priority && original->select_victim==0){
@@ -5153,17 +5158,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 						enter_loop=1;
 				}
 			}
-			//  *****with hint information--->AI + hint******************
-			/*if(enter_loop==0){
-				target_label++;
-				goto Top1;
-			}
-			if(history[min_history_index]->overwrite_num>0){//overwrite
-				history[min_history_index]->select_victim=1;
-				original=ptr_buffer_cache->ptr_current_mark_node->prev;
-				min=10000;
-				goto up;
-			}*/
 			history[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
 			break;
@@ -5177,17 +5171,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					enter_loop=1;
 				}
 			}
-			/*if(enter_loop==0){
-				target_label++;
-				goto Top1;
-			}
-			//  *****with hint information--->AI + hint******************
-			if(history_mean[min_history_index]->overwrite_num>0){//overwrite
-				history_mean[min_history_index]->select_victim=1;
-				original=ptr_buffer_cache->ptr_current_mark_node->prev;
-				min_1=10000;
-				goto up;
-			}*/
 			history_mean[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
 			break;
@@ -5201,17 +5184,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					enter_loop=1;
 				}
 			}
-			/*if(enter_loop==0){
-				no_block_can_kick=1;
-				return;
-			}
-			//  *****with hint information--->AI + hint******************
-			if(history_late[min_history_index]->overwrite_num>0){//overwrite
-				history_late[min_history_index]->select_victim=1;
-				original=ptr_buffer_cache->ptr_current_mark_node->prev;
-				min_2=10000;
-				goto up;
-			}*/
 			history_late[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_late[min_history_index];
 			break;
