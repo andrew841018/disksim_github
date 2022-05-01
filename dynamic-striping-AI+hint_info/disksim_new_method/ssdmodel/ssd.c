@@ -4678,11 +4678,6 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
 			start->pass_req_count++;
-			for(i=0;i<LRUSIZE;i++){
-				if(start->page[i].exist==1 || start->page[i].exist==2){
-					start->page[i].pass_req_count++;
-				}
-			}
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;				
 				start->duration_priority=0.001;
@@ -4690,7 +4685,6 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start=start->prev;
 		}
 	}
-	ptr_lru_node->page[offset_in_node].pass_req_count=0;
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
 	{
     //fprintf(lpb_ppn, "w_hit_count ++\tw_hit_count=%d\t", ptr_buffer_cache->w_hit_count);
@@ -5846,15 +5840,21 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
 					mark=1;
-					for(j=0;j<global_HQ_size;j++){
-						if(target->page[i].lpn!=global_HQ[j]){
+					change_block_count=0;
+					max=0;
+					channel_num=target->page[i].channel_num;
+					plane=target->page[i].plane;
+					current_block[channel_num][plane].offset_in_node=i;
+					break;
+					//for(j=0;j<global_HQ_size;j++){
+					//	if(target->page[i].lpn!=global_HQ[j]){
 							/*if(max<target->page[i].pass_req_count){
 								max=target->page[i].pass_req_count;
 								channel_num=target->page[i].channel_num;
 								plane=target->page[i].plane;
 								current_block[channel_num][plane].offset_in_node=i;
 							}*/
-							max=0;
+							/*max=0;
 							channel_num=target->page[i].channel_num;
 							plane=target->page[i].plane;
 							current_block[channel_num][plane].offset_in_node=i;
@@ -5865,14 +5865,14 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 							channel_num=target->page[i].channel_num;
 							plane=target->page[i].plane;
 							current_block[channel_num][plane].offset_in_node=i;
-						}
-					}
-					if(global_HQ_size==0){
+						}*/
+					//}
+					/*if(global_HQ_size==0){
 						max=0;
 						channel_num=target->page[i].channel_num;
 						plane=target->page[i].plane;
 						current_block[channel_num][plane].offset_in_node=i;
-					}
+					}*/
 				}
 			}				
 			if(max==-1 && mark==0){//reason:not mark
