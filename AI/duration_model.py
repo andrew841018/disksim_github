@@ -25,7 +25,7 @@ from collections import OrderedDict
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
 duration=np.loadtxt(addr+'all buffer\\duration.txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'trace(used to build RNN)\\'
-req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
+req=np.loadtxt(addr+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
 req_for_predict=np.delete(req_for_predict,2,axis=1)#delete physical_block_number
 duration_label=np.zeros(shape=(200000,1)) 
