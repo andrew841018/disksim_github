@@ -5061,73 +5061,53 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
 	lru_node *history[1000],*history_mean[1000],*history_late[1000];
 	while(original!=ptr_buffer_cache->ptr_current_mark_node){
-		up:			
-      for(i=0;i<global_HQ_node_size;i++){
-        if(global_HQ_node[i]==original->logical_node_num){//this block will be overwritten in the future.
-          original=original->prev;
-        }
-      }
+		int overwrite_block_num;
+		up:		
+		  for(i=0;i<global_HQ_size;i++){
+			overwrite_block_num=(lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
+			if(overwrite_block_num==original->logical_node_num){//this block will be overwritten in the future.
+				original->overwrite_num++;
+			}
+		  }		  
 			switch(original->duration_label){
 				case 0:
 					if(min>original->duration_priority && original->select_victim==0){
-						acc_count=0;//how many time curr block will be overwrite
 						history[history_index]=original;
 						for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-							for(j=0;j<global_HQ_size;j++){
-								if(original->page[i].lpn==global_HQ[j]){
-									acc_count++;
-								}
-								if(original->page[i].exist==1 || original->page[i].exist==2){
-									original->block_size++;
-								}
+							if(original->page[i].exist==1 || original->page[i].exist==2){
+								original->block_size++;
 							}
 						}						
-						history[history_index]->overwrite_num=acc_count;
 						history_index++;
 						min=original->duration_priority;
 					}
 					break;
 				case 1:
 					if(min_1>original->duration_priority && original->select_victim==0){
-						acc_count=0;//how many time curr block will be overwrite
 						history_mean[history_index_1]=original;
 						for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-							for(j=0;j<global_HQ_size;j++){
-								if(original->page[i].lpn==global_HQ[j]){
-									acc_count++;
-								}
-								if(original->page[i].exist==1 || original->page[i].exist==2){
-									original->block_size++;
-								}
+							if(original->page[i].exist==1 || original->page[i].exist==2){
+								original->block_size++;
 							}
 						}						
-						history_mean[history_index_1]->overwrite_num=acc_count;
 						history_index_1++;
 						min_1=original->duration_priority;
 					}
 					break;
 				case 2:
 					if(min_2>original->duration_priority && original->select_victim==0){
-							acc_count=0;//how many time curr block will be overwrite
 							history_late[history_index_2]=original;
 							for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-								for(j=0;j<global_HQ_size;j++){
-									if(original->page[i].lpn==global_HQ[j]){
-										acc_count++;
-									}
-									if(original->page[i].exist==1 || original->page[i].exist==2){
-										original->block_size++;
-									}
+								if(original->page[i].exist==1 || original->page[i].exist==2){
+									original->block_size++;
 								}
 							}						
-							history_late[history_index_2]->overwrite_num=acc_count;
 							history_index_2++;
 							min_2=original->duration_priority;						
 						}
 					break;
 			}	
-		original=original->prev;	
-		printf("victim:%d\n",original->select_victim);	
+		original=original->prev;
 	}
 	int target_label;
 	if(min==10000 && min_1==10000 && min_2==10000){		
@@ -5152,11 +5132,15 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history[i]->duration_priority && history[i]->select_victim==0){
-						min_acc=(float)history[i]->duration_priority;
+				if(min_acc>(float)history[i]->duration_priority*(history[i]->overwrite_num/HASHSIZE)){
+						min_acc=(float)history[i]->duration_priority*(history[i]->overwrite_num/HASHSIZE);
 						min_history_index=i;
 						enter_loop=1;
 				}
+			}
+			if(min_acc==10000 || search_index==0){
+				target_label++;
+				goto Top1;
 			}
 			history[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
@@ -5165,11 +5149,15 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index_1;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_mean[i]->duration_priority && history_mean[i]->select_victim==0){
-					min_acc=(float)history_mean[i]->duration_priority;
+				if(min_acc>(float)history_mean[i]->duration_priority*(history_mean[i]->overwrite_num/HASHSIZE)){
+					min_acc=(float)history_mean[i]->duration_priority*(history_mean[i]->overwrite_num/HASHSIZE);
 					min_history_index=i;
 					enter_loop=1;
 				}
+			}
+			if(min_acc==10000 || search_index==0){
+				target_label++;
+				goto Top1;
 			}
 			history_mean[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
@@ -5178,14 +5166,17 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index_2;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_late[i]->duration_priority && history_late[i]->select_victim==0){
-					min_acc=(float)history_late[i]->duration_priority;
+				if(min_acc>(float)history_late[i]->duration_priority*(history_late[i]->overwrite_num/HASHSIZE)){
+					min_acc=(float)history_late[i]->duration_priority*(history_late[i]->overwrite_num/HASHSIZE);
 					min_history_index=i;
 					enter_loop=1;
 				}
 			}
+			assert(search_index>0);
+			assert(min_acc<10000);
 			history_late[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_late[min_history_index];
+			assert(ptr_buffer_cache->ptr_current_mark_node->logical_node_num<1000000);
 			break;
 	}	
 }
