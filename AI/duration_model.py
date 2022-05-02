@@ -154,7 +154,7 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.5408637873754152,1:4.155913978494624,2: 9.05859375}
+weight={0:1.5464244040673445,1:5.680955296999388,2: 5.63951367781155}
 history=model.fit(x_train,y_train,epochs=100,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
