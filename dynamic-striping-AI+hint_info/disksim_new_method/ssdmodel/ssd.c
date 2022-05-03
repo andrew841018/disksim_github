@@ -5120,22 +5120,28 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	int search_index,enter_loop=0;
   Top1:
 	min_acc=10000;
-	enter_loop=0;
+  int min_overwrite=10000,hint_index;
 	switch(target_label){
 		case 0:
 			search_index=history_index;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history[i]->duration_priority*(history[i]->overwrite_num/HASHSIZE)){
-						min_acc=(float)history[i]->duration_priority*(history[i]->overwrite_num/HASHSIZE);
+				if(min_acc>(float)history[i]->duration_priority){
+						min_acc=(float)history[i]->duration_priority;
 						min_history_index=i;
-						enter_loop=1;
 				}
+        if(history[i]->overwrite_num>0 && min_overwrite>history[i]->overwrite_num){//record min overwrite number & block index
+          min_overwrite=history[i]->overwrite_num;
+          hint_index=i;
+        }
 			}
 			if(min_acc==10000 || search_index==0){
 				target_label++;
 				goto Top1;
 			}
+      if(history[min_history_index]->overwrite_num>0){
+        min_history_index=hint_index;
+      }
 			history[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
 			break;
@@ -5143,16 +5149,22 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index_1;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_mean[i]->duration_priority*(history_mean[i]->overwrite_num/HASHSIZE)){
-					min_acc=(float)history_mean[i]->duration_priority*(history_mean[i]->overwrite_num/HASHSIZE);
+				if(min_acc>(float)history_mean[i]->duration_priority){
+					min_acc=(float)history_mean[i]->duration_priority;
 					min_history_index=i;
-					enter_loop=1;
 				}
+        if(history_mean[i]->overwrite_num>0 && min_overwrite>history_mean[i]->overwrite_num){//record min overwrite number & block index
+          min_overwrite=history_mean[i]->overwrite_num;
+          hint_index=i;
+        }
 			}
 			if(min_acc==10000 || search_index==0){
 				target_label++;
 				goto Top1;
 			}
+      if(history_mean[min_history_index]->overwrite_num>0){
+        min_history_index=hint_index;
+      }
 			history_mean[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
 			break;
@@ -5160,14 +5172,20 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index_2;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_late[i]->duration_priority*(history_late[i]->overwrite_num/HASHSIZE)){
-					min_acc=(float)history_late[i]->duration_priority*(history_late[i]->overwrite_num/HASHSIZE);
+				if(min_acc>(float)history_late[i]->duration_priority){
+					min_acc=(float)history_late[i]->duration_priority;
 					min_history_index=i;
-					enter_loop=1;
 				}
+        if(history_late[i]->overwrite_num>0 && min_overwrite>history_late[i]->overwrite_num){//record min overwrite number & block index
+          min_overwrite=history_late[i]->overwrite_num;
+          hint_index=i;
+        }
 			}
 			assert(search_index>0);
 			assert(min_acc<10000);
+      if(history_late[min_history_index]->overwrite_num>0){
+        min_history_index=hint_index;
+      }
 			history_late[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_late[min_history_index];
 			assert(ptr_buffer_cache->ptr_current_mark_node->logical_node_num<1000000);
