@@ -4,9 +4,9 @@ from pandas import DataFrame
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\"
+addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\"
 duration_model = tf.keras.models.load_model(addr+'duration_model.h5')
-addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\"
+addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\AI input feature\\"
 data=np.loadtxt(addr+'info(run1_Postmark_2475).txt',delimiter=' ',usecols=range(7))
 data_for_predict=data
 data_for_predict=np.delete(data_for_predict,2,axis=1)#delete physical_block_number
