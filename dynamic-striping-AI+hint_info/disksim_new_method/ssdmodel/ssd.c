@@ -5050,6 +5050,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	double min_acc=10000;
 	int min_history_index,i,j;	
+  double overwrite_priority[1000000];//overwrite_priority[當下block的overwrite count]=當下block的duration_priority
 	int acc_count=0,history_index=0,history_index_1=0,history_index_2=0;  
 	lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
 	lru_node *history[1000],*history_mean[1000],*history_late[1000];
@@ -5058,11 +5059,12 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		int overwrite_block_num;
 		up:		
 		  for(i=0;i<global_HQ_size;i++){
-			overwrite_block_num=(lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
-			if(overwrite_block_num==original->logical_node_num){//this block will be overwritten in the future.
-				original->overwrite_num++;
-			}
-		  }		  
+        overwrite_block_num=(lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
+        if(overwrite_block_num==original->logical_node_num){//this block will be overwritten in the future.
+          original->overwrite_num++;
+        }
+		  }
+      overwrite_priority[original->overwrite_num]=10000;		  
 			switch(original->duration_label){
 				case 0:
 					if(original->select_victim==0){
@@ -5119,13 +5121,11 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	min_acc=10000;
   int min_overwrite=100000,hint_index=-1,hint_zero_index=-1;
   double min_priority=10000;
-  double overwrite_priority[1000000];//index=overwrite count
   min_history_index=-1;
 	switch(target_label){
 		case 0:
 			search_index=history_index;
 			for(i=0;i<search_index;i++){
-				overwrite_priority[history[i]->overwrite_num]=10000;
 				//*****original version--->AI prediction only********
 				if(min_acc>(float)history[i]->duration_priority){
 						min_acc=(float)history[i]->duration_priority;
@@ -5162,19 +5162,18 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		case 1:
 			search_index=history_index_1;
 			for(i=0;i<search_index;i++){
-				overwrite_priority[history_mean[i]->overwrite_num]=10000;
 				//*****original version--->AI prediction only********
 				if(min_acc>(float)history_mean[i]->duration_priority){
 					min_acc=(float)history_mean[i]->duration_priority;
 					min_history_index=i;
 				}
-				if(history_mean[i]->overwrite_num==0){
+				if(history_mean[i]->overwrite_num==0){//choose LRU block as victim
 					if(min_priority>(float)history_mean[i]->duration_priority){
-						min_priority=(float)history_mean[i]->duration_priority;//only when overwrite_num=0
+						min_priority=(float)history_mean[i]->duration_priority;
 						hint_zero_index=i;
 					}
 				}
-				else if(min_overwrite>=history_mean[i]->overwrite_num){//record min overwrite number & block index
+				else if(min_overwrite>=history_mean[i]->overwrite_num){
 				  if(overwrite_priority[history_mean[i]->overwrite_num]>history_mean[i]->duration_priority){
 					  min_overwrite=history_mean[i]->overwrite_num;
 					  hint_index=i;	
@@ -5187,10 +5186,10 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				goto Top1;
 			}
 		  if(history_mean[min_history_index]->overwrite_num>0){
-			if(hint_zero_index==-1)
-					min_history_index=hint_index;
-			else
-				min_history_index=hint_zero_index;
+        if(hint_zero_index==-1)
+            min_history_index=hint_index;
+        else
+          min_history_index=hint_zero_index;
 		  }
 			history_mean[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
@@ -5198,27 +5197,28 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		case 2:
 			search_index=history_index_2;
 			for(i=0;i<search_index;i++){
-				overwrite_priority[history_late[i]->overwrite_num]=10000;
-				//*****original version--->AI prediction only********
+				//find current queue LRU as victim block--->original AI predict
 				if(min_acc>(float)history_late[i]->duration_priority){
 					min_acc=(float)history_late[i]->duration_priority;
 					min_history_index=i;
 				}
 				//using hint info
+        //if curr block won't be overwrite in the future,choose LRU block as victim
 				if(history_late[i]->overwrite_num==0){
 					if(min_priority>(float)history_late[i]->duration_priority){
 						min_priority=(float)history_late[i]->duration_priority;//only when overwrite_num=0
 						hint_zero_index=i;
 					}
 				}
-				else if(min_overwrite>=history_late[i]->overwrite_num){//record min overwrite number & block index
+        //if curr block will be overwrite in the future,first,choose block with min overwrite count
+        //second,choose LRU block as victim
+				else if(min_overwrite>=history_late[i]->overwrite_num){
 				  if(overwrite_priority[history_late[i]->overwrite_num]>history_late[i]->duration_priority){
 					  min_overwrite=history_late[i]->overwrite_num;
 					  hint_index=i;	
 					  overwrite_priority[history_late[i]->overwrite_num]=history_late[i]->duration_priority;		  
 				  }
 				}
-
 			}
 			assert(search_index>0);
 			assert(min_acc<10000);
