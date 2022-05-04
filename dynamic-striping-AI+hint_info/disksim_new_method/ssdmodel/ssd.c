@@ -4680,7 +4680,6 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start->pass_req_count++;
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;				
-				start->duration_priority=0.001;
 			}
 			start=start->prev;
 		}
@@ -5059,12 +5058,12 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		int overwrite_block_num;
 		up:		
 		  for(i=0;i<global_HQ_size;i++){
-        overwrite_block_num=(lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
-        if(overwrite_block_num==original->logical_node_num){//this block will be overwritten in the future.
-          original->overwrite_num++;
-        }
+			overwrite_block_num=(lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
+			if(overwrite_block_num==original->logical_node_num){//this block will be overwritten in the future.
+			  original->overwrite_num++;
+			}
 		  }
-      overwrite_priority[original->overwrite_num]=10000;		  
+		overwrite_priority[original->overwrite_num]=10000;		  
 			switch(original->duration_label){
 				case 0:
 					if(original->select_victim==0){
@@ -5186,10 +5185,10 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				goto Top1;
 			}
 		  if(history_mean[min_history_index]->overwrite_num>0){
-        if(hint_zero_index==-1)
-            min_history_index=hint_index;
-        else
-          min_history_index=hint_zero_index;
+			if(hint_zero_index==-1)
+				min_history_index=hint_index;
+			else
+			  min_history_index=hint_zero_index;
 		  }
 			history_mean[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
@@ -5203,15 +5202,15 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					min_history_index=i;
 				}
 				//using hint info
-        //if curr block won't be overwrite in the future,choose LRU block as victim
+				//if curr block won't be overwrite in the future,choose LRU block as victim
 				if(history_late[i]->overwrite_num==0){
 					if(min_priority>(float)history_late[i]->duration_priority){
 						min_priority=(float)history_late[i]->duration_priority;//only when overwrite_num=0
 						hint_zero_index=i;
 					}
 				}
-        //if curr block will be overwrite in the future,first,choose block with min overwrite count
-        //second,choose LRU block as victim
+				//if curr block will be overwrite in the future,first,choose block with min overwrite count
+				//second,choose LRU block as victim
 				else if(min_overwrite>=history_late[i]->overwrite_num){
 				  if(overwrite_priority[history_late[i]->overwrite_num]>history_late[i]->duration_priority){
 					  min_overwrite=history_late[i]->overwrite_num;
