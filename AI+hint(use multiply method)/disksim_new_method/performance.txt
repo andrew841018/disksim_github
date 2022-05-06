@@ -1,0 +1,18 @@
+
+weight:0.420000 hit ratio:0.067472 gc count:1695
+weight:0.422000 hit ratio:0.067158 gc count:1703
+weight:0.424000 hit ratio:0.066414 gc count:1708
+weight:0.426000 hit ratio:0.066733 gc count:1685
+weight:0.428000 hit ratio:0.066709 gc count:1670
+weight:0.430000 hit ratio:0.067288 gc count:1689
+
+
+
+
+
+
+weight:0.421000 hit ratio:0.067158 gc count:1703
+weight:0.420200 hit ratio:0.067472 gc count:1695
+weight:0.420400 hit ratio:0.067158 gc count:1703
+weight:0.420600 hit ratio:0.067158 gc count:1703
+weight:0.420800 hit ratio:0.067158 gc count:1703
