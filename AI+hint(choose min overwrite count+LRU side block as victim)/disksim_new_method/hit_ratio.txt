@@ -1,0 +1,1 @@
+hit count:12498 miss count:173195 hit ratio:0.067305
