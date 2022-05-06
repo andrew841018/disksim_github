@@ -21,7 +21,9 @@ int main(){
 	int i;
 	int a[5]={0,2,4,3,3};
 	int b[5];
-	b=a;
+	double p=0.1,w;
+	w=p*0.078+(1-p)*87;
+	printf("%f\n",w);
 	/*for(i=0;i<10;i++){
 		FILE *f=fopen("a.txt","a+");
 		fprintf(f,"%d\n",i);
