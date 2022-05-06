@@ -1,1 +1,0 @@
-write_hit:29837 miss_hit:155878 write_ratio:0.160660
