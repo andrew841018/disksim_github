@@ -23,7 +23,7 @@ import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
-duration=np.loadtxt(addr+'duration_value\\duration.txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'duration_value\\duration(run1_Postmark_2475).txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'AI input feature\\'
 req=np.loadtxt(addr1+"info(run1_Postmark_2475).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
@@ -154,7 +154,7 @@ input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
 weight={0:1.5464244040673445,1:5.680955296999388,2: 5.63951367781155}
-history=model.fit(x_train,y_train,epochs=780,validation_data=(x_test,y_test),class_weight=weight)
+history=model.fit(x_train,y_train,epochs=100,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
 plt.figure(dpi=250)#dpi越高，像素越高
