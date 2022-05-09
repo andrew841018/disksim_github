@@ -16,3 +16,6 @@ weight:0.420200 hit ratio:0.067472 gc count:1695
 weight:0.420400 hit ratio:0.067158 gc count:1703
 weight:0.420600 hit ratio:0.067158 gc count:1703
 weight:0.420800 hit ratio:0.067158 gc count:1703
+weight:0.420000 hit ratio:0.067118 gc count:1726
+weight:0.420000 hit ratio:0.067118 gc count:1726
+weight:0.420000 hit ratio:0.067118 gc count:1726

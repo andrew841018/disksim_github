@@ -6459,10 +6459,10 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   statistic_the_data_in_every_stage();
-  FILE *result=fopen("performance.txt","a+");
+  /*FILE *result=fopen("performance.txt","a+");
   fprintf(result,"weight:%f hit ratio:%f ",p_weight,(double)ptr_buffer_cache->w_hit_count/(double)(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
   fprintf(result,"gc count:%d\n",total_gc_count);
-  fclose(result);
+  fclose(result);*/
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
