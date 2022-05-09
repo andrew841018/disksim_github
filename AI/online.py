@@ -30,7 +30,7 @@ while(finish!=len(data)):
         output=1
     if duration_model.predict(tmp)[0][2]==np.max(duration_model.predict(tmp)):
         output=2   
-    with open('online(run1_Postmark_2475)_duraton.txt','a') as f:
+    with open('online(run1_Postmark_2475)_duration.txt','a') as f:
         f.write(str(data[finish][2])+" "+str(output)+"\n")
     #print(output)
     tmp=tmp.reshape(16,6)
