@@ -4680,7 +4680,6 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start->pass_req_count++;
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;				
-				start->duration_priority=0.001;
 			}
 			start=start->prev;
 		}
@@ -5811,11 +5810,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       k=0;
       while(k<8){
 		  if(no_page_can_evict == 0)
-		  {
-			// if(k>8)
-			// {
-			//   k=0;
-			// }    
+		  {    
 			up:  	
 				channel_num = k%8;
 				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);						
@@ -5852,34 +5847,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					channel_num=target->page[i].channel_num;
 					plane=target->page[i].plane;
 					current_block[channel_num][plane].offset_in_node=i;
-					break;
-					//for(j=0;j<global_HQ_size;j++){
-					//	if(target->page[i].lpn!=global_HQ[j]){
-							/*if(max<target->page[i].pass_req_count){
-								max=target->page[i].pass_req_count;
-								channel_num=target->page[i].channel_num;
-								plane=target->page[i].plane;
-								current_block[channel_num][plane].offset_in_node=i;
-							}*/
-							/*max=0;
-							channel_num=target->page[i].channel_num;
-							plane=target->page[i].plane;
-							current_block[channel_num][plane].offset_in_node=i;
-						}
-						else if(change_block_count==8){
-							change_block_count=0;
-							max=0;
-							channel_num=target->page[i].channel_num;
-							plane=target->page[i].plane;
-							current_block[channel_num][plane].offset_in_node=i;
-						}*/
-					//}
-					/*if(global_HQ_size==0){
-						max=0;
-						channel_num=target->page[i].channel_num;
-						plane=target->page[i].plane;
-						current_block[channel_num][plane].offset_in_node=i;
-					}*/
+					break;					
 				}
 			}				
 			if(max==-1 && mark==0){//reason:not mark
