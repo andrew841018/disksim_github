@@ -18,17 +18,13 @@ void a(int *b,int *c){
 	*c=k;
 }
 int main(){	
-	int i;
-	int a[5]={0,2,4,3,3};
-	int b[5];
-	double p=0.1,w;
-	w=p*0.078+(1-p)*87;
-	printf("%f\n",w);
-	/*for(i=0;i<10;i++){
-		FILE *f=fopen("a.txt","a+");
-		fprintf(f,"%d\n",i);
-		fclose(f);
-	}*/
-
+	int arr[2][2]={{1,4},{4,3}};
+	int s=3,d=5;
+	int **p,*p1[5],i,*k;
+	//p=malloc(sizeof(int*)*10);
+	p1[0]=s;
+	p1[1]=d;
+	k=&p1;
+	printf("%d\n",*k[0]);
 	return 0;
 }

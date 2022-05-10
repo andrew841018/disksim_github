@@ -8,34 +8,34 @@ Sumcount = 367940,Hitcount = 326625 Hit = 88.77
 [CHEN] Trace File=/home/andrew/Desktop/disksim/block striping/trace/run1_Postmark_2475.txt, max_req=1, MEM Size=262144
 [CHEN] Pd_FA_count=0,Pd_R_count=73
 [CHEN] FA_count=0,R_count=0
-[CHEN] tot_Rtime=130398,prstime=0.354400
+[CHEN] tot_Rtime=103412,prstime=0.281057
 [CHEN] fa_hint_count=0
 [CHEN] ft_hint_count=473381
 [CHEN] rp_hint_count=4860
 [CHEN] total_hint_count=478241
 [CHEN] RWRATIO=0.400000, EVICTWINDOW=0.300000
 [CHEN] WB_size = 4000
-[YIFEN] write hit count = 12103 write miss count = 173615 write hit rate = 0.065169
-[YIFEN] read hit count = 170 read miss count = 3016 read hit rate = 0.053358
-[YIFEN] all hit rate = 0.064970
+[YIFEN] write hit count = 11930 write miss count = 173793 write hit rate = 0.064235
+[YIFEN] read hit count = 175 read miss count = 3011 read hit rate = 0.054928
+[YIFEN] all hit rate = 0.064078
 ---[YIFEN] State0=0, State1=0, State2=0
----[YIFEN] kick_channel_times = 169616 
+---[YIFEN] kick_channel_times = 169800 
 
 ****Striping 資訊****
-[YIFEN] kick_page_striping_page_count=2727, kick_block_striping_page_count=166889, kick_all_page_count = 169616
----[YIFEN] kick_block_strip_node = 52762 | kick_block_strip_sumpage = 247656|avg_block_strip_size =4.693833
+[YIFEN] kick_page_striping_page_count=2664, kick_block_striping_page_count=167136, kick_all_page_count = 169800
+---[YIFEN] kick_block_strip_node = 49823 | kick_block_strip_sumpage = 225045|avg_block_strip_size =4.516890
 
 [Yifen] kick_count=0
 
 **** GC ****
-ytc94u total_live_page_cp_count2 = 8079,total_gc_count = 1795
-ytc94u average live page num in  victim block = 4.500836
-ytc94u GC_count_per_elem = 1795,GC_count_per_plane = 3590 ,average = 2
-ytc94u average block associate logical block = 46.991642
+ytc94u total_live_page_cp_count2 = 7680,total_gc_count = 1720
+ytc94u average live page num in  victim block = 4.465116
+ytc94u GC_count_per_elem = 1720,GC_count_per_plane = 3440 ,average = 2
+ytc94u average block associate logical block = 46.864099
 
 ****Response time****
-all req avg response time: n=62987 average=0.199529 std. deviation=1.841792
-write req avg response time: n=60212 average=0.202338 std. deviation=1.878803
-write_page avg response time: n=185548 average=0.065661 std. deviation=1.074457
-read req avgresponse time: n=2775 average=0.138577 std. deviation=0.632788
-read_page avg response time: n=3186 average=0.120701 std. deviation=0.592388
+all req avg response time: n=62987 average=0.196226 std. deviation=1.739165
+write req avg response time: n=60212 average=0.199434 std. deviation=1.778715
+write_page avg response time: n=185548 average=0.064718 std. deviation=1.017550
+read req avgresponse time: n=2775 average=0.126624 std. deviation=0.027756
+read_page avg response time: n=3186 average=0.110290 std. deviation=0.049725
