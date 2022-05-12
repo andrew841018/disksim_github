@@ -20,11 +20,8 @@ void a(int *b,int *c){
 int main(){	
 	int arr[2][2]={{1,4},{4,3}};
 	int s=3,d=5;
-	int **p,*p1[5],i,*k;
-	//p=malloc(sizeof(int*)*10);
-	p1[0]=s;
-	p1[1]=d;
-	k=&p1;
-	printf("%d\n",*k[0]);
+	char a='0';
+	int g=a-48;
+	printf("%d\n",g);
 	return 0;
 }
