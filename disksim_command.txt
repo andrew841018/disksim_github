@@ -1,18 +1,3 @@
-
-for window(vmware): 
-
-
-./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/andrew/Desktop/disksim/block striping/trace/run1_Postmark_2475.txt' 1 262144
-
-
-for Linux:
-
- ./src/syssim ./ssdmodel/valid/ssd-iozone.parv output.txt 2676846 '/home/jen/Desktop/disksim/block striping/trace/run1_Postmark_2475.txt' 1 262144
-
-
-
-
-
-reqcount(error):336640
-
-
+version https://git-lfs.github.com/spec/v1
+oid sha256:5f5411cfb2ef5159c238b230097f3c87126df90fe3885f005757f66ac0d98580
+size 364

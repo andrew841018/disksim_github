@@ -1,34 +1,3 @@
-Unique page=933015
-flush個數=420864, replacement個數=46439
-Sumcount = 1574648,Hitcount = 641633 Hit = 40.75
-,miss_ratio=59.252290
-
-****參數顯示****
-[CHEN] HINTGROUP=5, alpha=0.800000
-[CHEN] Trace File=/home/osnet/Downloads/Testtrace/run1_ug15.txt, max_req=1, MEM Size=5280
-[CHEN] Pd_FA_count=306,Pd_R_count=49940
-[CHEN] FA_count=411,R_count=46439
-[CHEN] RWRATIO=0.400000, EVICTWINDOW=0.200000
-[CHEN] WB_size = 4000
-[YIFEN] write hit count = 10126 write miss count = 457177 write hit rate = 0.021669
-[YIFEN] read hit count = 32606 read miss count = 445956 read hit rate = 0.068133
-[YIFEN] all hit rate = 0.045178
----[YIFEN] State0=19238, State1=0, State2=2276
----[YIFEN] kick_channel_times = 56648 
-
-****Striping 資訊****
-[YIFEN] kick_page_striping_page_count=531, kick_block_striping_page_count=452653, kick_all_page_count = 453184
----[YIFEN] kick_block_strip_node = 26752 | kick_block_strip_sumpage = 749072|avg_block_strip_size =28.000598
-
-**** GC ****
-ytc94u total_live_page_cp_count2 = 19563,total_gc_count = 6411
-ytc94u average live page num in  victim block = 3.051474
-ytc94u GC_count_per_elem = 6411,GC_count_per_plane = 12822 ,average = 2
-ytc94u average block associate logical block = 10.912033
-
-****Response time****
-all req avg response time: n=149465 average=0.280526 std. deviation=2.457390
-write req avg response time: n=105329 average=0.295359 std. deviation=2.911601
-write_page avg response time: n=467303 average=0.066573 std. deviation=1.387812
-read req avgresponse time: n=44136 average=0.245126 std. deviation=0.466082
-read_page avg response time: n=478562 average=0.022607 std. deviation=0.158319
+version https://git-lfs.github.com/spec/v1
+oid sha256:b52473ae190f9dfcf8c02f384061d8d02686edd6bafab42f7af43c927030a1c6
+size 1628
