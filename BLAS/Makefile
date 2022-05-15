@@ -33,7 +33,8 @@ include .paths
 
 SUBDIRS=libddbg libparam diskmodel memsmodel ssdmodel src
 
-all: 	
+all:
+	rm -f src/syssim_driver.o ssdmodel/ssd.o 	
 	$(MAKE) -C libddbg
 	$(MAKE) -C libparam
 	$(MAKE) -C diskmodel

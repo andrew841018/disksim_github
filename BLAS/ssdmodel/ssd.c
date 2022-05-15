@@ -5923,6 +5923,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
   fprintf(finaloutput,"---[YIFEN] State0=%d, State1=%d, State2=%d\n",State0, State1, State2);
   printf(LIGHT_BLUE"---[YIFEN] kick_channel_times = %d \n"NONE,kick_channel_times);
   fprintf(finaloutput,"---[YIFEN] kick_channel_times = %d \n",kick_channel_times);
+  printf(YELLOW"kick node count:%d\n",kick_node);
   printf("\n****Striping 資訊****\n");
   fprintf(finaloutput,"\n****Striping 資訊****\n");
   printf(YELLOW"[YIFEN] kick_page_striping_page_count=%d, kick_block_striping_page_count=%d, kick_all_page_count = %d\n"NONE, kick_page_striping_page_count, kick_block_striping_page_count,statistic.kick_write_intensive_page_count);

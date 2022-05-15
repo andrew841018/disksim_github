@@ -4554,6 +4554,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	if(ptr_buffer_cache->r_hit_count + ptr_buffer_cache->r_miss_count != 0)
 	printf("ytc94u read hit count = %u read miss count = %u read hit rate = %lf\n",ptr_buffer_cache->r_hit_count,ptr_buffer_cache->r_miss_count,\
 		(double)ptr_buffer_cache->r_hit_count/(double)(ptr_buffer_cache->r_hit_count + ptr_buffer_cache->r_miss_count));
+	printf(LIGHT_BLUE"[YIFEN] all hit rate = %lf\n"NONE,(double)(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->r_hit_count)/(double)(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count+ptr_buffer_cache->r_hit_count + ptr_buffer_cache->r_miss_count));
 
 	printf("ytc94u kick_read_intensive_page_count = %d kick_write_intensive_page_count = %d kick_page_striping_page_count=%d\n",\
 							statistic.kick_read_intensive_page_count,statistic.kick_write_intensive_page_count, kick_page_striping_page_count);
