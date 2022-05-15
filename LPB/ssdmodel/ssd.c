@@ -4533,9 +4533,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
   printf(YELLOW"[LPB] kick_page_striping_page_count=%d, kick_block_striping_page_count=%d\n"NONE, kick_page_striping_page_count, kick_block_striping_page_count);
   //printf(YELLOW"[YIFEN] kick_Lg_count = %d kick_Pg_count = %d \n"NONE,kick_Lg_count,kick_Pg_count);
   printf(LIGHT_BLUE"[YIFEN] kick_channel_times = %d \n"NONE,kick_channel_times);
-	printf(YELLOW"\n[YIFEN] kick_node=%d|kick_sum_page=%d|avg kick page=%lf|kick_LG_block_striping=%d\n"NONE, kick_node, kick_sum_page, (double)kick_sum_page/(double)kick_node, kick_LG_block_striping);
-  printf("\nkick_node=%lf | kick_sum_page =%lf | avg kick page=%lf\n", my_kick_node, my_kick_sum_page, my_kick_sum_page/my_kick_node);
- 
+	printf(YELLOW"\n[YIFEN] kick_node=%d|kick_sum_page=%d|avg kick page=%lf|kick_LG_block_striping=%d\n"NONE, kick_node, kick_sum_page, (double)kick_sum_page/(double)kick_node, kick_LG_block_striping); 
   // //printf("[NEW] kick_block_striping_page_count=%d | avg kick page=%lf\n",kick_block_striping_page_count,(double)kick_block_striping_page_count/(double)my_kick_node); 
   //printf("[NEW] kick_block_striping_page_count=%lf | avg kick page=%lf\n",my_kick_sum_page,my_kick_sum_page/(double)kick_block_striping_page_count); 
   printf(YELLOW"\n[YIFEN] kick_count=%d\n"NONE, kick_count);

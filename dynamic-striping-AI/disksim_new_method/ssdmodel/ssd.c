@@ -6494,7 +6494,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
   printf(YELLOW"---[YIFEN] kick_block_strip_node = %d | kick_block_strip_sumpage = %d|avg_block_strip_size =%lf\n"NONE,kick_block_strip_node, kick_block_strip_sumpage, (double)kick_block_strip_sumpage/(double)kick_block_strip_node);
   fprintf(finaloutput,"---[YIFEN] kick_block_strip_node = %d | kick_block_strip_sumpage = %d|avg_block_strip_size =%lf\n",kick_block_strip_node, kick_block_strip_sumpage, (double)kick_block_strip_sumpage/(double)kick_block_strip_node);
   printf("\n[Yifen] kick_count=%d\n", kick_count);
-  fprintf(finaloutput,"\n[Yifen] kick_count=%d\n", kick_count);
+  printf("\n[Yifen] kick_node_count=%d\n", kick_node);
   printf("\n**** GC ****\n");
   fprintf(finaloutput,"\n**** GC ****\n");
   printf("ytc94u total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
