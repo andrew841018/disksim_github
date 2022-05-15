@@ -4397,11 +4397,11 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
 		ptr_buffer_cache->current_mark_offset = 0;
     if(ptr_buffer_cache->ptr_current_mark_node->group_type==0)
     {
-      kick_node++;
+      //kick_node++;
       kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
     }
 	}
-
+	kick_node++;
 	free(ptr_lru_node);
   ptr_buffer_cache->total_buffer_block_num--;
 
