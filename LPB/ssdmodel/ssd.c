@@ -4523,7 +4523,6 @@ double remove_special_node(unsigned int logical_number)
 }
 
 
-
 void show_result(buffer_cache *ptr_buffer_cache)
 {
 
@@ -4587,10 +4586,3 @@ void show_result(buffer_cache *ptr_buffer_cache)
   printf("logical_count:%d\n",logical_count);
   printf("physical_count%d\n",physical_count);
 }
-
-
-
-
-
-
-
