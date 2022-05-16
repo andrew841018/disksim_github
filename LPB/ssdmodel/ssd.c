@@ -2869,7 +2869,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 			break;
 		if(ptr_lru_node == ptr_buffer_cache->hash[logical_node_num % HASHSIZE]->h_prev)
 		{
-			ptr_lru_node == NULL;
+			ptr_lru_node = NULL;
 			break;
 		}
 		ptr_lru_node = ptr_lru_node->next;
@@ -4122,7 +4122,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         }
         if(find_page == 0)
         {
-          no_page_can_evict = 0;
+          no_page_can_evict = 1;
         }
       }
       else
