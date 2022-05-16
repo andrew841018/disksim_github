@@ -3719,11 +3719,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     }
     Pg_node = Pg_node->next;
   }
-  if(ptr_buffer_cache->w_miss_count>0){
-	FILE *hit=fopen("hit_count.txt","w");
-	fprintf(hit,"hit count:%d miss count:%d hit ratio:%f\n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count));
-	fclose(hit);
-  }
   if(Pg_node == NULL)
   {
     //printf("add node\n");
