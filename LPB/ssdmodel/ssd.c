@@ -1615,7 +1615,7 @@ static void ssd_media_access_request_element (ioreq_event *curr)
 		* */
     if(!(curr->flags&READ))
     {
-    //record read times 
+    //record read tim4es 
 			//record_read_and_write_count(ssd_logical_pageno(curr->blkno,currdisk),curr->bcount/currdisk->params.page_size,'w');
       //printf("add\n");
       //fprintf(lpb_ppn, "write req\t");
@@ -2794,14 +2794,15 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     else
     {
       flag=0;
-      flag=Y_add_Pg_page_to_cache_buffer(lpn,ptr_buffer_cache);
+      flag=Y_add_Pg_page_to_cache_buffer(lpn,ptr_buffer_cache);     
       physical_count++;
     }
-
+    
     /*if(flag==1)  //
     {
       Y_add_Pg_page_to_cache_buffer(lpn,ptr_buffer_cache);
     }
+    
     else
     {
       Y_add_Lg_page_to_cache_buffer(lpn,ptr_buffer_cache);
@@ -2814,6 +2815,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		count -= scount;
 		blkno += scount;
 	}
+	//printf("hit ratio:%d\n",ptr_buffer_cache->w_hit_count);
       lru=ptr_buffer_cache->ptr_head;
       /*printf("full_cache == LRU___page cache : \n");
       while(1)
@@ -3188,7 +3190,7 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 	}
 	else
 	{
-    ptr_buffer_cache->w_hit_count ++;
+    //ptr_buffer_cache->w_hit_count ++;
 		//ptr_buffer_cache->r_hit_count ++;
 		return 1;				//cahce hit
 	}
@@ -3386,7 +3388,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	}
 	
 }
-
+int flush_count=0;
 void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_node,int flag)
 {
 	unsigned int logical_node_num = ptr_lru_node->logical_node_num;
@@ -3463,10 +3465,10 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
       // kick_node++;
       // kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
     }
-    my_kick_node++;
-    my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
+		my_kick_node++;
+		my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
 	}
-
+	flush_count++;
 	free(ptr_lru_node);
 
 }
@@ -4523,6 +4525,7 @@ double remove_special_node(unsigned int logical_number)
 }
 
 
+
 void show_result(buffer_cache *ptr_buffer_cache)
 {
 
@@ -4532,10 +4535,9 @@ void show_result(buffer_cache *ptr_buffer_cache)
   printf(YELLOW"[LPB] kick_page_striping_page_count=%d, kick_block_striping_page_count=%d\n"NONE, kick_page_striping_page_count, kick_block_striping_page_count);
   //printf(YELLOW"[YIFEN] kick_Lg_count = %d kick_Pg_count = %d \n"NONE,kick_Lg_count,kick_Pg_count);
   printf(LIGHT_BLUE"[YIFEN] kick_channel_times = %d \n"NONE,kick_channel_times);
-	printf(YELLOW"\n[YIFEN] kick_node=%d|kick_sum_page=%d|avg kick page=%lf|kick_LG_block_striping=%d\n"NONE, kick_node, kick_sum_page, (double)kick_sum_page/(double)kick_node, kick_LG_block_striping); 
   // //printf("[NEW] kick_block_striping_page_count=%d | avg kick page=%lf\n",kick_block_striping_page_count,(double)kick_block_striping_page_count/(double)my_kick_node); 
   //printf("[NEW] kick_block_striping_page_count=%lf | avg kick page=%lf\n",my_kick_sum_page,my_kick_sum_page/(double)kick_block_striping_page_count); 
-  printf(YELLOW"\n[YIFEN] kick_count=%d\n"NONE, kick_count);
+  printf(YELLOW"\n[YIFEN] flush_count=%d\n"NONE, flush_count);
   
   printf("ytc94u w_multiple = %lf ,cache_size = %d\n",w_multiple,ptr_buffer_cache->max_buffer_page_num);
 	printf(" ytc94u total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
@@ -4586,3 +4588,10 @@ void show_result(buffer_cache *ptr_buffer_cache)
   printf("logical_count:%d\n",logical_count);
   printf("physical_count%d\n",physical_count);
 }
+
+
+
+
+
+
+

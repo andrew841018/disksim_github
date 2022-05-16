@@ -4411,7 +4411,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	if(ptr_buffer_cache->r_hit_count + ptr_buffer_cache->r_miss_count != 0)
 	printf("ytc94u read hit count = %u read miss count = %u read hit rate = %lf\n",ptr_buffer_cache->r_hit_count,ptr_buffer_cache->r_miss_count,\
 		(double)ptr_buffer_cache->r_hit_count/(double)(ptr_buffer_cache->r_hit_count + ptr_buffer_cache->r_miss_count));
-	printf("kick node count:%d\n",kick_node);
+
 	printf("ytc94u kick_read_intensive_page_count = %d kick_write_intensive_page_count = %d kick_page_striping_page_count=%d\n",\
 							statistic.kick_read_intensive_page_count,statistic.kick_write_intensive_page_count, kick_page_striping_page_count);
 	//printf("[Yifen] kick_Lg_count=%d, kick_Pg_count=%d\n", kick_Lg_count,kick_Pg_count);
