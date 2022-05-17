@@ -100,7 +100,6 @@
 
 
 #include "disksim_ioqueue.h"
-#include "syssim_driver.h"
 
 
 #include "modules/modules.h"
@@ -3195,7 +3194,6 @@ double ioqueue_add_new_request (ioqueue *queue, ioreq_event *new)
 /*
 fprintf (outputfile, "Entering ioqueue_add_new_request: %d\n", new->blkno);
 */
-   //fprintf(outputssd,"$$$ioqueue_add_new_request--simtime=%lf\n", simtime);
    new->time = simtime;
    ioqueue_update_arrival_stats(queue, new);
    tmp = (iobuf *) getfromextraq();

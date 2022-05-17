@@ -1,5 +1,5 @@
 // DiskSim SSD support
-// ©2008 Microsoft Corporation. All Rights Reserved
+// ï¿½2008 Microsoft Corporation. All Rights Reserved
 
 #include "disksim_global.h"
 #include "disksim_iosim.h"

@@ -77,6 +77,8 @@ FILE * finaloutput;
 FILE * lpb_ppn;
 FILE * gc_info;
 FILE * gc_info2;
+FILE *iniwrite;
+FILE *outputchannel;
 
 typedef struct RW_count
 {
