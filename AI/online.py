@@ -18,7 +18,12 @@ finish=15
 c=0
 output=""
 result=np.array([])
+content=[]#store write block....data[2]=physical block
 while(finish!=len(data)):
+    if data[finish][2] in content:
+        start+=1
+        finish+=1
+        continue;
     for i in range(start,finish,1):
         tmp[c]=data_for_predict[i]
         c+=1
@@ -32,6 +37,7 @@ while(finish!=len(data)):
         output=2   
     with open('online(iozone)_duration.txt','a') as f:
         f.write(str(data[finish][2])+" "+str(output)+"\n")
+    content.append(data[finish][2])
     #print(output)
     tmp=tmp.reshape(16,6)
     start+=1
