@@ -25,7 +25,7 @@ from collections import OrderedDict
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
 duration=np.loadtxt(addr+'duration_value\\duration(iozone).txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'AI input feature\\'
-req=np.loadtxt(addr1+"info(iozone).txt",delimiter=' ',usecols=range(7))
+req=np.loadtxt(addr1+"info(iozone2).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
 req_for_predict=np.delete(req_for_predict,2,axis=1)#delete physical_block_number
 duration_label=np.zeros(shape=(200000,1)) 
@@ -79,10 +79,10 @@ for i in predict:
 '''
 
 
-for i in range(4):
+for i in range(12):
     x_train = np.delete(x_train,0, axis = 0)
     y_train = np.delete(y_train,0, axis = 0)
-for i in range(13):
+for i in range(8):
     x_test=np.delete(x_test,0,axis=0)
     y_test=np.delete(y_test,0, axis = 0)
 index=0
@@ -100,8 +100,8 @@ for i in range(len(x_test)):
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
-x_train=x_train.reshape(43691,16,6)
-x_test=x_test.reshape(10922,16,6)
+x_train=x_train.reshape(4829,16,6)
+x_test=x_test.reshape(1207,16,6)
 y_test=np_utils.to_categorical(y_test,3)
 y_train=np_utils.to_categorical(y_train,3)
 zero=0
@@ -154,7 +154,7 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.1796090290528134,1:11.167689161554192,2: 15.944525547445256}
+weight={0:1.4956629491945477,1:4.733333333333333,2: 8.324137931034484}
 history=model.fit(x_train,y_train,epochs=600,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
