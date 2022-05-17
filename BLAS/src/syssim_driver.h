@@ -68,8 +68,15 @@ typedef struct Hint_Queue
 struct Hint_Queue *global_Hint_Queue;
 FILE * outputfd;
 FILE * outputssd;
-FILE * outputchannel;
-FILE * iniwrite;
+FILE * myoutput;
+FILE * myoutput2;
+FILE * myoutput3;
+FILE * myoutput4;
+FILE * myoutput5;
+FILE * finaloutput;
+FILE * lpb_ppn;
+FILE * gc_info;
+FILE * gc_info2;
 
 typedef struct RW_count
 {
@@ -77,8 +84,21 @@ typedef struct RW_count
   unsigned r_count;
   unsigned w_count;
 } RW_count;
+typedef struct kick_req
+{
+  RW_count page[1024];
+  unsigned page_count;
+} kick_req;
+
+
+int global_HQ[10000];
+int global_HQ_node[10000];
+int global_HQ_size;
+int global_HQ_node_size;
 
 struct RW_count *page_RW_count;
+struct kick_req *req_RW_count;
+
 
 
 /* exported by syssim_driver.c */
@@ -88,6 +108,7 @@ void syssim_deschedule_callback(double, void *);
 
 /* YuCheng */
 void syssim_print_systime();
+
 
 
 

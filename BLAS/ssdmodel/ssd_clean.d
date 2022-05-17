@@ -47,4 +47,5 @@ ssd_clean.o: ssd_clean.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  ../diskmodel/include/diskmodel/dm_types.h /usr/include/inttypes.h \
  /usr/lib/gcc/i686-linux-gnu/4.8/include/stdint.h /usr/include/stdint.h \
  /usr/include/i386-linux-gnu/bits/wchar.h ../src//disksim_bus.h \
- ../src//config.h ssd_clean.h modules/ssdmodel_ssd_param.h ssd_utils.h
+ ../src//config.h ssd_clean.h modules/ssdmodel_ssd_param.h ssd_utils.h \
+ ../src//syssim_driver.h ../src//disksim_interface.h

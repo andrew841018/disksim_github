@@ -62,8 +62,7 @@ ifeq ($(MODULEDEPS),)
 MODULEDEPS = modules
 endif
 #syssim
-
-all: disksim rms hplcomb syssim
+all: disksim rms hplcomb syssim 
 
 clean:
 	rm -f TAGS *.o disksim syssim rms hplcomb core libdisksim.a 
@@ -132,7 +131,7 @@ disksim : $(MODULEDEPS) libdisksim.a disksim_main.o
 syssim: syssim_driver.o libdisksim.a
 	$(CC) $(CFLAGS) -o $@ syssim_driver.o disksim_interface.o $(LDFLAGS)
 
-#cleanblas_syssim: syssim_driver.o libdisksim.a
+#Yifen_syssim: syssim_driver.o libdisksim.a
 #	$(CC) $(CFLAGS) -o $@ syssim_driver.o disksim_interface.o $(LDFLAGS)
 
 

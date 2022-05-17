@@ -297,6 +297,9 @@ typedef struct ioreq_ev {
    int    rw_intensive;
    double arrive_time;
    int    tempint3;
+   //------------------
+   unsigned r_count;
+   unsigned w_count;
 } ioreq_event;
 
 typedef struct timer_ev {

@@ -1,17 +1,18 @@
 // DiskSim SSD support
-// ©2008 Microsoft Corporation. All Rights Reserved
+// ï¿½2008 Microsoft Corporation. All Rights Reserved
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include "ssd.h"
 #include "ssd_clean.h"
 #include "ssd_utils.h"
+#include "syssim_driver.h"
 
 /*
  * return true if two blocks belong to the same plane.
  */
 int GC_count_per_elem,GC_count_per_plane;
-extern int total_live_page_cp_count,total_gc_count;
+extern int total_live_page_cp_count,total_gc_count,my_gc_count,my_live_page_count;
 unsigned int total_live_page_cp_count2;
 extern page_level_mapping *lba_table;
 extern int req_count;
@@ -703,7 +704,9 @@ double _ssd_clean_block_fully(int blk, int plane_num, int elem_num, ssd_element_
     pm->num_cleans ++;
     s->elements[elem_num].stat.num_clean ++;
     total_live_page_cp_count += metadata->block_usage[blk].num_valid;
-		total_live_page_cp_count2 += metadata->block_usage[blk].num_valid;
+	total_live_page_cp_count2 += metadata->block_usage[blk].num_valid;
+    my_live_page_count += metadata->block_usage[blk].num_valid;
+    fprintf(gc_info,"live_page_count:%d\n",my_live_page_count);
 	//	fprintf(pf_gc_data,"\nelem = %u plane = %u blk = %u valid num page = %u \n",elem_num,plane_num,blk, metadata->block_usage[blk].num_valid);
     do {
 
@@ -1056,7 +1059,11 @@ double ssd_clean_element_copyback(int elem_num, ssd_t *s)
         }
     }
     if(clean_req == 1)
-			GC_count_per_elem ++;
+    {
+       GC_count_per_elem ++;
+       my_gc_count++;
+    }
+    fprintf(gc_info2,"gc_count:%d\n",my_gc_count);
     if (clean_req) {
         for (i = 0; i < SSD_PARUNITS_PER_ELEM(s); i ++) {
             double cleaning_cost = 0;
