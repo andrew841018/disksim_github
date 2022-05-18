@@ -5886,10 +5886,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 						current_block[channel_num][plane].offset_in_node=i;
 					}
 					else{
-						printf("max:%d pass_req_count:%d page:%d\n",max,target->page[i].pass_req_count,i);
 					}
 				}
-				printf("page:%d exist:%d\n",i,target->page[i].exist);
 			}
 			if(max==-1){
 				assign=1;
@@ -6056,9 +6054,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
   my_kick_node+=kick;
   my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
   //printf("end\n"); 
-  FILE *gc=fopen("gc.txt","w");
-  fprintf(gc,"gc count:%d\n",total_gc_count);
-  fclose(gc);
   
 }
 
