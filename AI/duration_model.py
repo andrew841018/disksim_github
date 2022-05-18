@@ -23,7 +23,7 @@ import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
-duration=np.loadtxt(addr+'duration_value\\duration(iozone).txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'duration_value\\duration(iozone2).txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'AI input feature\\'
 req=np.loadtxt(addr1+"info(iozone2).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
@@ -144,17 +144,17 @@ model.add(Dropout(0.2))
 #false.....只輸出最後一個time step output
 model.add(LSTM(128,activation='sigmoid'))
 model.add(Dropout(0.2))
-model.add(Dense(3,activation='softmax'))#classify into 1 class
+model.add(Dense(3,activation='softmax')#classify into 1 class
 
 #print(model.summary())
 #opt=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
-model.compile(optimizer='rmsprop',loss='categorical_crossentropy',metrics=metric)
+model.compile(optimizer='rmsprop',loss='categorical_crossentropy',metrics=['accuracy'])
 '''
 training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.4956629491945477,1:4.733333333333333,2: 8.324137931034484}
+weight={0:1.8260211800302573,1:3.279891304347826,2:  6.780898876404494}
 history=model.fit(x_train,y_train,epochs=600,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
