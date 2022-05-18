@@ -23,9 +23,9 @@ import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
-duration=np.loadtxt(addr+'duration_value\\duration(iozone2).txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'duration_value\\duration(run1_ug15).txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'AI input feature\\'
-req=np.loadtxt(addr1+"info(iozone2).txt",delimiter=' ',usecols=range(7))
+req=np.loadtxt(addr1+"info(run1_ug15).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
 req_for_predict=np.delete(req_for_predict,2,axis=1)#delete physical_block_number
 duration_label=np.zeros(shape=(200000,1)) 
@@ -79,7 +79,7 @@ for i in predict:
 '''
 
 
-for i in range(12):
+for i in range(13):
     x_train = np.delete(x_train,0, axis = 0)
     y_train = np.delete(y_train,0, axis = 0)
 for i in range(8):
@@ -100,8 +100,8 @@ for i in range(len(x_test)):
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
-x_train=x_train.reshape(4829,16,6)
-x_test=x_test.reshape(1207,16,6)
+x_train=x_train.reshape(16609,16,6)
+x_test=x_test.reshape(4152,16,6)
 y_test=np_utils.to_categorical(y_test,3)
 y_train=np_utils.to_categorical(y_train,3)
 zero=0
@@ -114,16 +114,16 @@ for i in y_test:
         one+=1
     if int(i[2])==1:
         two+=1
-zero_=0
-one_=0
-two_=0
+zero_1=0
+one_1=0
+two_1=0
 for i in y_train:
     if int(i[0])==1:
-        zero_+=1
+        zero_1+=1
     if int(i[1])==1:
-        one_+=1
+        one_1+=1
     if int(i[2])==1:
-        two_+=1
+        two_1+=1
 
 
 ########################### build model 
@@ -144,7 +144,7 @@ model.add(Dropout(0.2))
 #false.....只輸出最後一個time step output
 model.add(LSTM(128,activation='sigmoid'))
 model.add(Dropout(0.2))
-model.add(Dense(3,activation='softmax')#classify into 1 class
+model.add(Dense(3,activation='softmax'))#classify into 1 class
 
 #print(model.summary())
 #opt=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
@@ -154,7 +154,7 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.8260211800302573,1:3.279891304347826,2:  6.780898876404494}
+weight={0:1.068515182707154,1:34.45850622406639,2:  28.48885077186964}
 history=model.fit(x_train,y_train,epochs=600,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
