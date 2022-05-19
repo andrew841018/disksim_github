@@ -4086,7 +4086,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
 }
-int duration_arr[10000000][2]={0};//block number,duration label
+int duration_arr[10000000]={0};//duration_arr[block number]=duration label
 int dur_index=0,init=1;
 unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
@@ -4126,18 +4126,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		physical_block_num=atoi(substr1);
 		substr1=strtok(NULL,delim1);//duration label
 		duration_label=atoi(substr1);
-		duration_arr[dur_index][0]=physical_block_num;//physical_block_num=physical_node_num % HASHSIZE
-		duration_arr[dur_index][1]=duration_label;
-		dur_index++;
+		duration_arr[physical_block_num]=duration_label;
 	}	
 	while(fgets(buf1,1024,dur)!=NULL){
 		substr1=strtok(buf1,delim1);//block number	
 		physical_block_num=atoi(substr1);
 		substr1=strtok(NULL,delim1);//duration label
 		duration_label=atoi(substr1);
-		duration_arr[dur_index][0]=physical_block_num;//physical_block_num=physical_node_num % HASHSIZE
-		duration_arr[dur_index][1]=duration_label;
-		dur_index++;				
+		duration_arr[physical_block_num]=duration_label;				
 	} 			    
 	fclose(dur);
 	init=0;
@@ -4197,13 +4193,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   else
   {
     //remove the mark page int the hit node
-    for(i=0;i<10000000;i++){
-		if(duration_arr[i][0]==physical_node_num){
-			Pg_node->duration_label=duration_arr[i][1];
-			Pg_node->start_index=i+1;
-			break;
-		}
-	}
+    Pg_node->duration_label=duration_arr[physical_node_num];
 	switch(Pg_node->duration_label){
 		case 0:
 			Pg_node->duration_priority=ptr_buffer_cache->soon_max+0.001;
@@ -4520,13 +4510,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	ptr_node->group_type=flag;
 	ptr_node->logical_node_num = logical_node_num;
 	ptr_buffer_cache->total_buffer_block_num++;
-	for(i=0;i<10000000;i++){
-		if(duration_arr[i][0]==logical_node_num){
-			ptr_node->duration_label=duration_arr[i][1];
-			ptr_node->start_index=i+1;
-			break;
-		}
-	}
+	ptr_node->duration_label=duration_arr[logical_node_num];
 	ptr_node->select_victim=0;
 	switch(ptr_node->duration_label){
 		case 0:
