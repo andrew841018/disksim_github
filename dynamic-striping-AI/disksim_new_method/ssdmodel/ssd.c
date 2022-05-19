@@ -4942,7 +4942,6 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
     }
 	}
 	ptr_lru_node->select_victim=0;
-	printf("block:%d\n",ptr_lru_node->logical_node_num); 
 	free(ptr_lru_node);	
   ptr_buffer_cache->total_buffer_block_num--;
 
@@ -5260,7 +5259,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			strip_way=mark_for_page_striping_node(ptr_buffer_cache);		
 			if(strip_way==-2){//plane is full,can't mark	
 				ptr_buffer_cache->ptr_current_mark_node=p;	
-				printf("full...\n");
 				return;
 			}
 			else if(strip_way==1){//mark successfully
