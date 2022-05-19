@@ -7,6 +7,7 @@ from sklearn import preprocessing
 from keras.utils.np_utils import * 
 from pandas import DataFrame
 import random
+from sklearn.utils.class_weight import compute_class_weight
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing  import StandardScaler
 import math
@@ -23,9 +24,9 @@ import tensorflow as tf
 from collections import OrderedDict
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
-duration=np.loadtxt(addr+'duration_value\\duration(run1_ug15).txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'duration_value\\duration(usr_2).txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'AI input feature\\'
-req=np.loadtxt(addr1+"info(run1_ug15).txt",delimiter=' ',usecols=range(7))
+req=np.loadtxt(addr1+"info(usr_2).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
 req_for_predict=np.delete(req_for_predict,2,axis=1)#delete physical_block_number
 duration_label=np.zeros(shape=(200000,1)) 
@@ -108,7 +109,7 @@ zero=0
 one=0
 two=0
 for i in y_test:
-    if int(i[0])==1:
+    if int(i[0])==1:       
         zero+=1
     if int(i[1])==1:
         one+=1
@@ -154,8 +155,8 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.068515182707154,1:34.45850622406639,2:  28.48885077186964}
-history=model.fit(x_train,y_train,epochs=600,validation_data=(x_test,y_test),class_weight=weight)
+weight={0:0.06433350488934637,1:0.06433350488934637,2: 1.7152658662092624}
+history=model.fit(x_train,y_train,epochs=450,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
 plt.figure(dpi=250)#dpi越高，像素越高
@@ -164,7 +165,7 @@ plt.title('PR curve')
 plt.plot(history.history['recall'],history.history['precision'])#第一個參數表示x軸，第二個參數表示y軸
 plt.xlabel('recall')
 plt.ylabel('precision')
-plt.legend()#表示那些線條代表那些數值
+plt.legend()#表示那些線條代表那些數值 
 plt.subplot(2,2,2)#兩行兩列的方形中，第二張圖
 '''
 
