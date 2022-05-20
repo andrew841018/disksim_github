@@ -4504,7 +4504,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
   //fprintf(lpb_ppn, "add_a_node_to_buffer_cache\t");
 	lru_node *ptr_node;
 	int i;
-	ptr_node = malloc(sizeof(lru_node));
+	ptr_node = calloc(1,sizeof(lru_node));
 	assert(ptr_node);
 	memset(ptr_node,0,sizeof(struct _lru_node));
 	ptr_node->group_type=flag;

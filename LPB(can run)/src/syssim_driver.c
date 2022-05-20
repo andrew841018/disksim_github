@@ -2140,7 +2140,9 @@ int main(int argc, char *argv[])
       //fprintf(myoutput,"!!!!!!ALL = %ld\n",count_time);
       my_prev_time = time;
       //mytime = 0;
-       
+       if(ReqCount==300000){
+		break;
+	   }
     }///////////////////////////////////////////////////////////////////////////////////////////////////////////////////scanf
 
   }
