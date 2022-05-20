@@ -80,10 +80,10 @@ for i in predict:
 '''
 
 
-for i in range(13):
+for i in range(11):
     x_train = np.delete(x_train,0, axis = 0)
     y_train = np.delete(y_train,0, axis = 0)
-for i in range(8):
+for i in range(11):
     x_test=np.delete(x_test,0,axis=0)
     y_test=np.delete(y_test,0, axis = 0)
 index=0
@@ -101,8 +101,8 @@ for i in range(len(x_test)):
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
-x_train=x_train.reshape(16609,16,6)
-x_test=x_test.reshape(4152,16,6)
+x_train=x_train.reshape(19050,16,6)
+x_test=x_test.reshape(4762,16,6)
 y_test=np_utils.to_categorical(y_test,3)
 y_train=np_utils.to_categorical(y_train,3)
 zero=0
@@ -155,7 +155,7 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:0.06433350488934637,1:0.06433350488934637,2: 1.7152658662092624}
+weight={0:1.0527188328912467,1:46.46341463414634,2: 35.018382352941174}
 history=model.fit(x_train,y_train,epochs=450,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
 '''
