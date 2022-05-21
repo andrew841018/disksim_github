@@ -4,6 +4,7 @@
 #include<time.h>
 #include<unistd.h>
 #include<assert.h>
+#include "../build-model-after-simulation/a.h"
 typedef struct _profit{
 	int channel_num;
 	int plane;
@@ -18,10 +19,6 @@ void a(int *b,int *c){
 	*c=k;
 }
 int main(){	
-	int arr[2][2]={{1,4},{4,3}};
-	int s=3,d=5;
-	char a='0';
-	int g=a-48;
-	printf("%d\n",g);
+	printf("%d\n",asd);
 	return 0;
 }

@@ -83,6 +83,7 @@ one block=64 pages
 #include "syssim_driver.h"
 #include "disksim_interface.h"
 #include "disksim_rand48.h"
+#include "../../../trace_threshold.h"
 extern int sum_block_count[1000000] = {100}; //在my_ssd.c裡宣告
 extern int clean_replace = 0;
 extern int clean_flush1 = 0;
@@ -2143,7 +2144,7 @@ int main(int argc, char *argv[])
       //fprintf(myoutput,"!!!!!!ALL = %ld\n",count_time);
       my_prev_time = time;
       //mytime = 0;
-      if(ReqCount==300000){
+      if(ReqCount==number_of_trace_we_run){
 		  break;
 	  }
     }///////////////////////////////////////////////////////////////////////////////////////////////////////////////////scanf
