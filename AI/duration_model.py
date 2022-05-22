@@ -175,4 +175,5 @@ plt.plot(history.history['accuracy'])
 plt.xlabel('Epoch')
 plt.ylabel('accuracy')
 plt.show() 
-model.save('duration_model(Financial2forssd).h5') 
+addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\'
+model.save(addr+'duration_model(Financial2forssd).h5') 
