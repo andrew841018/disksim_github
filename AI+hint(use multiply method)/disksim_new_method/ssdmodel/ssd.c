@@ -4766,7 +4766,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
   
 // }
 
-
+int flush_page_count=0;
 void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,unsigned int verify_channel,unsigned int verify_plane,int flag)
 {
 	unsigned int channel_num = ptr_lru_node->page[offset_in_node].channel_num;
@@ -4787,7 +4787,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 
 	current_block[channel_num][plane].current_mark_count --;
 	current_block[channel_num][plane].current_write_offset ++;
-	
+	flush_page_count++;
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
     if(ptr_lru_node->group_type==0)
@@ -6445,7 +6445,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
   printf(YELLOW"---[YIFEN] kick_block_strip_node = %d | kick_block_strip_sumpage = %d|avg_block_strip_size =%lf\n"NONE,kick_block_strip_node, kick_block_strip_sumpage, (double)kick_block_strip_sumpage/(double)kick_block_strip_node);
   fprintf(finaloutput,"---[YIFEN] kick_block_strip_node = %d | kick_block_strip_sumpage = %d|avg_block_strip_size =%lf\n",kick_block_strip_node, kick_block_strip_sumpage, (double)kick_block_strip_sumpage/(double)kick_block_strip_node);
   printf("\n[Yifen] flush_count=%d\n", flush_count);
-  printf("\n[Yifen] kick_node_count=%d\n", kick_node);
+  printf("\n[Yifen] flush_page_count=%d\n", flush_page_count);
   fprintf(finaloutput,"\n[Yifen] kick_count=%d\n", kick_count);
   printf("\n**** GC ****\n");
   fprintf(finaloutput,"\n**** GC ****\n");

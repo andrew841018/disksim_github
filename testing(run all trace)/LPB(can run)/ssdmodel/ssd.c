@@ -3357,7 +3357,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
   }
 }
 
-
+int flush_page_count=0;
 void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,unsigned int verify_channel,unsigned int verify_plane,int flag)
 {
 	unsigned int channel_num = ptr_lru_node->page[offset_in_node].channel_num;
@@ -3375,7 +3375,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	
 	current_block[channel_num][plane].current_mark_count --;
 	current_block[channel_num][plane].current_write_offset ++;
-	
+	flush_page_count++;
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
     if(ptr_lru_node->group_type==0)
@@ -4522,7 +4522,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
   // //printf("[NEW] kick_block_striping_page_count=%d | avg kick page=%lf\n",kick_block_striping_page_count,(double)kick_block_striping_page_count/(double)my_kick_node); 
   //printf("[NEW] kick_block_striping_page_count=%lf | avg kick page=%lf\n",my_kick_sum_page,my_kick_sum_page/(double)kick_block_striping_page_count); 
   printf(YELLOW"\n[YIFEN] flush_count=%d\n"NONE, flush_count);
-  
+  printf(YELLOW"\n[YIFEN] flush page count=%d\n"NONE, flush_page_count);
   printf("ytc94u w_multiple = %lf ,cache_size = %d\n",w_multiple,ptr_buffer_cache->max_buffer_page_num);
 	printf(" ytc94u total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
   printf(" ytc94u total_live_page_cp_count = %d\n",total_live_page_cp_count );

@@ -3032,7 +3032,7 @@ void add_a_page_in_the_node(unsigned int logical_node_num,unsigned int offset_in
 	ptr_buffer_cache->ptr_head = ptr_lru_node;
 	
 }
-
+int flush_page_count=0;
 void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,unsigned int verify_channel,unsigned int verify_plane)
 {
 	unsigned int channel_num = ptr_lru_node->page[offset_in_node].channel_num;
@@ -3048,7 +3048,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	
 	current_block[channel_num][plane].current_mark_count --;
 	current_block[channel_num][plane].current_write_offset ++;
-	
+	flush_page_count++;
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
 		remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node);
@@ -3838,7 +3838,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
 	//report the last result 
 	statistic_the_data_in_every_stage();
-	printf("\n[Yifen] kick_count=%d\n", kick_count);
+	printf("\n[Yifen] flush_page_count=%d\n", flush_page_count);
 	printf(LIGHT_BLUE"\n[Yifen] flush_count=%d\n"NONE, flush_count);
   printf("ytc94u w_multiple = %lf ,cache_size = %d\n",w_multiple,ptr_buffer_cache->max_buffer_page_num);
 	printf(" ytc94u total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
