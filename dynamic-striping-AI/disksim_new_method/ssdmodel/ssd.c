@@ -4853,7 +4853,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 //   ptr_buffer_cache->total_buffer_block_num--;
 
 // }
-
+int flush_count=0;
 void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_node,int flag)
 {
 	unsigned int logical_node_num = ptr_lru_node->logical_node_num;
@@ -4926,6 +4926,7 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
     }
 	}
 	ptr_lru_node->select_victim=0;
+	flush_count++;
 	free(ptr_lru_node);	
   ptr_buffer_cache->total_buffer_block_num--;
 
@@ -6471,7 +6472,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
   printf(YELLOW"---[YIFEN] kick_block_strip_node = %d | kick_block_strip_sumpage = %d|avg_block_strip_size =%lf\n"NONE,kick_block_strip_node, kick_block_strip_sumpage, (double)kick_block_strip_sumpage/(double)kick_block_strip_node);
   fprintf(finaloutput,"---[YIFEN] kick_block_strip_node = %d | kick_block_strip_sumpage = %d|avg_block_strip_size =%lf\n",kick_block_strip_node, kick_block_strip_sumpage, (double)kick_block_strip_sumpage/(double)kick_block_strip_node);
   printf("\n[Yifen] kick_count=%d\n", kick_count);
-  printf("\n[Yifen] kick_node_count=%d\n", kick_node);
+  printf("\n[Yifen] flush_count=%d\n", flush_count);
   printf("\n**** GC ****\n");
   fprintf(finaloutput,"\n**** GC ****\n");
   printf("ytc94u total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
