@@ -5030,14 +5030,15 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     }
   }
 }
+int eviction_window=64;
 void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	double min_acc=10000;
-	int min_history_index,i,j;	
+	int min_history_index,i,j,scan=0;	
 	double overwrite_priority[1000000];//overwrite_priority[當下block的overwrite count]=當下block的duration_priority
 	int acc_count=0,history_index=0,history_index_1=0,history_index_2=0;  
 	lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
 	lru_node *history[1000],*history_mean[1000],*history_late[1000];
-	while(original!=ptr_buffer_cache->ptr_current_mark_node){
+	while(original!=ptr_buffer_cache->ptr_current_mark_node && scan<=eviction_window){
 		original->overwrite_num=0;
 		int overwrite_block_num;
 		up:		
@@ -5088,6 +5089,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 						}
 					break;
 			}	
+		scan++;
 		original=original->prev;
 	}
 	int target_label;
