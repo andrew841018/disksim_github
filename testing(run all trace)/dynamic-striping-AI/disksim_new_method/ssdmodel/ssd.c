@@ -5214,6 +5214,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 lru_node *p;
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
 {
+	no_block_can_kick=0;
 	p=NULL;
 	if(assign==1){
 		assign=0;

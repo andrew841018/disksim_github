@@ -5838,9 +5838,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
-          k++;
-          goto up;
-        }
+					k++;
+					goto up;
+				}
 			}
 			target=current_block[channel_num][plane].ptr_lru_node;	
 			int strip_way=target->StripWay;
@@ -5854,7 +5854,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				target->select_victim=0;
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-        target=current_block[channel_num][plane].ptr_lru_node;
+				target=current_block[channel_num][plane].ptr_lru_node;
 			}
   						
 			int max=-1;
