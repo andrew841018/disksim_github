@@ -5147,6 +5147,10 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				min=10000;
 				goto up;
 			}*/
+			if(min_acc==10000 || search_index==0){
+				target_label++;
+				goto Top1;
+			}
 			history[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
 			break;
@@ -5171,6 +5175,10 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				min_1=10000;
 				goto up;
 			}*/
+			if(min_acc==10000 || search_index==0){
+				target_label++;
+				goto Top1;
+			}
 			history_mean[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
 			break;
