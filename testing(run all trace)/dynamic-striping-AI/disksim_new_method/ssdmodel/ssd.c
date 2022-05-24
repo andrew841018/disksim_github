@@ -4041,7 +4041,9 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     else if( full_cache == 1)
     {
 	  //edit by andrew
-      mark_for_all_current_block(ptr_buffer_cache);
+	  if(ptr_buffer_cache->max_buffer_page_num >= ptr_buffer_cache->total_buffer_page_num){
+		mark_for_all_current_block(ptr_buffer_cache);
+	  }
     }
   }
   kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
@@ -5050,18 +5052,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					if(min>original->duration_priority && original->select_victim==0){
 						acc_count=0;//how many time curr block will be overwrite
 						history[history_index]=original;
-						for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-							for(j=0;j<global_HQ_size;j++){
-								if(original->page[i].lpn==global_HQ[j]){
-									acc_count++;
-									break;
-								}
-								if(original->page[i].exist==1 || original->page[i].exist==2){
-									original->block_size++;
-								}
-							}
-						}						
-						history[history_index]->overwrite_num=acc_count;
 						history_index++;
 						min=original->duration_priority;
 					}
@@ -5069,19 +5059,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				case 1:
 					if(min_1>original->duration_priority && original->select_victim==0){
 						acc_count=0;//how many time curr block will be overwrite
-						history_mean[history_index_1]=original;
-						for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-							for(j=0;j<global_HQ_size;j++){
-								if(original->page[i].lpn==global_HQ[j]){
-									acc_count++;
-									break;
-								}
-								if(original->page[i].exist==1 || original->page[i].exist==2){
-									original->block_size++;
-								}
-							}
-						}						
-						history_mean[history_index_1]->overwrite_num=acc_count;
+						history_mean[history_index_1]=original;						
 						history_index_1++;
 						min_1=original->duration_priority;
 					}
@@ -5090,18 +5068,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					if(min_2>original->duration_priority && original->select_victim==0){
 							acc_count=0;//how many time curr block will be overwrite
 							history_late[history_index_2]=original;
-							for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-								for(j=0;j<global_HQ_size;j++){
-									if(original->page[i].lpn==global_HQ[j]){
-										acc_count++;
-										break;
-									}
-									if(original->page[i].exist==1 || original->page[i].exist==2){
-										original->block_size++;
-									}
-								}
-							}						
-							history_late[history_index_2]->overwrite_num=acc_count;
 							history_index_2++;
 							min_2=original->duration_priority;						
 						}
@@ -5133,23 +5099,12 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history[i]->duration_priority && history[i]->select_victim==0){
+				if(min_acc>(float)history[i]->duration_priority){
 						min_acc=(float)history[i]->duration_priority;
 						min_history_index=i;
 						enter_loop=1;
 				}
 			}
-			//  *****with hint information--->AI + hint******************
-			/*if(enter_loop==0){
-				target_label++;
-				goto Top1;
-			}
-			if(history[min_history_index]->overwrite_num>0){//overwrite
-				history[min_history_index]->select_victim=1;
-				original=ptr_buffer_cache->ptr_current_mark_node->prev;
-				min=10000;
-				goto up;
-			}*/
 			if(min_acc==10000 || search_index==0){
 				target_label++;
 				goto Top1;
@@ -5161,23 +5116,12 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index_1;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_mean[i]->duration_priority && history_mean[i]->select_victim==0){
+				if(min_acc>(float)history_mean[i]->duration_priority){
 					min_acc=(float)history_mean[i]->duration_priority;
 					min_history_index=i;
 					enter_loop=1;
 				}
 			}
-			/*if(enter_loop==0){
-				target_label++;
-				goto Top1;
-			}
-			//  *****with hint information--->AI + hint******************
-			if(history_mean[min_history_index]->overwrite_num>0){//overwrite
-				history_mean[min_history_index]->select_victim=1;
-				original=ptr_buffer_cache->ptr_current_mark_node->prev;
-				min_1=10000;
-				goto up;
-			}*/
 			if(min_acc==10000 || search_index==0){
 				target_label++;
 				goto Top1;
@@ -5189,23 +5133,12 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			search_index=history_index_2;
 			for(i=0;i<search_index;i++){
 				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_late[i]->duration_priority && history_late[i]->select_victim==0){
+				if(min_acc>(float)history_late[i]->duration_priority){
 					min_acc=(float)history_late[i]->duration_priority;
 					min_history_index=i;
 					enter_loop=1;
 				}
 			}
-			/*if(enter_loop==0){
-				no_block_can_kick=1;
-				return;
-			}
-			//  *****with hint information--->AI + hint******************
-			if(history_late[min_history_index]->overwrite_num>0){//overwrite
-				history_late[min_history_index]->select_victim=1;
-				original=ptr_buffer_cache->ptr_current_mark_node->prev;
-				min_2=10000;
-				goto up;
-			}*/
 			history_late[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_late[min_history_index];
 			break;
@@ -5846,7 +5779,14 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			// }    
 			up:  	
 				channel_num = k%8;
-				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);		
+				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+				if(plane>=8){
+					for(i=0;i<8;i++){
+						printf("current_block[%d][%d].flush_count:%d\n",channel_num,i,current_block[channel_num][i].flush_w_count_in_current);
+					}
+				}
+				assert(channel_num<8);
+				assert(plane<8);		
 			if(current_block[channel_num][plane].ptr_lru_node==NULL){
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);

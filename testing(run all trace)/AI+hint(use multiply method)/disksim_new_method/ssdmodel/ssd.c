@@ -4042,7 +4042,9 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     else if( full_cache == 1)
     {
 	  //edit by andrew
-      mark_for_all_current_block(ptr_buffer_cache);
+	  if(ptr_buffer_cache->max_buffer_page_num >= ptr_buffer_cache->total_buffer_page_num){
+		mark_for_all_current_block(ptr_buffer_cache);
+	  }
     }
   }
   kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
@@ -5057,37 +5059,19 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			switch(original->duration_label){
 				case 0:
 					if(original->select_victim==0){
-						history[history_index]=original;
-						for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-							if(original->page[i].exist==1 || original->page[i].exist==2){
-								original->block_size++;
-								break;
-							}
-						}						
+						history[history_index]=original;						
 						history_index++;
 					}
 					break;
 				case 1:
 					if(original->select_victim==0){
-						history_mean[history_index_1]=original;
-						for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-							if(original->page[i].exist==1 || original->page[i].exist==2){
-								original->block_size++;
-								break;
-							}
-						}						
+						history_mean[history_index_1]=original;						
 						history_index_1++;
 					}
 					break;
 				case 2:
 					if(original->select_victim==0){
-							history_late[history_index_2]=original;
-							for(i=0;i<LRUSIZE;i++){//check host info,curr block overwrite or not						
-								if(original->page[i].exist==1 || original->page[i].exist==2){
-									original->block_size++;
-									break;
-								}
-							}						
+							history_late[history_index_2]=original;						
 							history_index_2++;
 						}
 					break;
@@ -5803,7 +5787,14 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 		  {    
 			up:  	
 				channel_num = k%8;
-				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);						
+				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+				if(plane>=8){
+					for(i=0;i<8;i++){
+						printf("current_block[%d][%d].flush_count:%d\n",channel_num,i,current_block[channel_num][i].flush_w_count_in_current);
+					}
+				}
+				assert(channel_num<8);
+				assert(plane<8);						
 			if(current_block[channel_num][plane].ptr_lru_node==NULL){
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
