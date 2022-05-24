@@ -5054,6 +5054,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 							for(j=0;j<global_HQ_size;j++){
 								if(original->page[i].lpn==global_HQ[j]){
 									acc_count++;
+									break;
 								}
 								if(original->page[i].exist==1 || original->page[i].exist==2){
 									original->block_size++;
@@ -5073,6 +5074,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 							for(j=0;j<global_HQ_size;j++){
 								if(original->page[i].lpn==global_HQ[j]){
 									acc_count++;
+									break;
 								}
 								if(original->page[i].exist==1 || original->page[i].exist==2){
 									original->block_size++;
@@ -5092,6 +5094,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 								for(j=0;j<global_HQ_size;j++){
 									if(original->page[i].lpn==global_HQ[j]){
 										acc_count++;
+										break;
 									}
 									if(original->page[i].exist==1 || original->page[i].exist==2){
 										original->block_size++;
@@ -5843,13 +5846,21 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			up:  	
 				channel_num = k%8;
 				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);		
-			if(current_block[channel_num][plane].ptr_lru_node==NULL || current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
+			if(current_block[channel_num][plane].ptr_lru_node==NULL){
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
-          k++;
-          goto up;
-        }
+					k++;
+					goto up;
+				}
+			}
+			else if(current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
+				assign=1;
+				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+				if(no_block_can_kick==1){
+					k++;
+					goto up;
+				}
 			}
 			target=current_block[channel_num][plane].ptr_lru_node;	
 			int strip_way=target->StripWay;
