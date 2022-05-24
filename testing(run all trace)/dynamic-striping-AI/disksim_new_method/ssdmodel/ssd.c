@@ -5823,14 +5823,11 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			max=-1;
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
-					if(max<target->page[i].pass_req_count){
-						max=target->page[i].pass_req_count;
-						channel_num=target->page[i].channel_num;
-						plane=target->page[i].plane;
-						current_block[channel_num][plane].offset_in_node=i;
-					}
-					else{
-					}
+					max=0;
+					channel_num=target->page[i].channel_num;
+					plane=target->page[i].plane;
+					current_block[channel_num][plane].offset_in_node=i;
+					break;
 				}
 			}
 			if(max==-1){
