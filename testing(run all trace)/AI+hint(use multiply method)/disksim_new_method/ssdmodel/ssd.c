@@ -5044,11 +5044,6 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		original->overwrite_num=0;
 		int overwrite_block_num;
 		up:		
-		  for(i=0;i<global_HQ_size;i++){
-			overwrite_block_num=(lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
-			if(overwrite_block_num==original->logical_node_num){//this block will be overwritten in the future.
-			  original->overwrite_num++;
-			}
 			for(j=0;j<LRUSIZE;j++){
 				if(global_HQ[i]==original->page[j].lpn){
 					original->overwrite_num++;
