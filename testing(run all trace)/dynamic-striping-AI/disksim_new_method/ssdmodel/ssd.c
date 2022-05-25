@@ -5191,22 +5191,22 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			kick_block_strip_sumpage+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
 		}
 		strip_way=ptr_buffer_cache->ptr_current_mark_node->StripWay;
-		int error=0;
+		if(strip_way==1)
+			printf("strip_way(mark...):%d\n",strip_way);
+		int error=0,strip;
 		while(strip_way==1){//read-intensive block
-			strip_way=mark_for_page_striping_node(ptr_buffer_cache);		
-			if(strip_way==-2){//plane is full,can't mark	
-				ptr_buffer_cache->ptr_current_mark_node=p;	
-				return;
-			}
-			else if(strip_way==1){//mark successfully
+			strip=mark_for_page_striping_node(ptr_buffer_cache);
+			if(strip==1){//mark successfully
 				ptr_buffer_cache->ptr_current_mark_node=p;	
 				return;
 			}
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			if(p==ptr_buffer_cache->ptr_current_mark_node){
+				printf("no block can kick(page striping):%d\n",no_block_can_kick);
+				no_block_can_kick=1;
 				break;
 			}
-		}			
+		}
 	}
 	int outout=0,i,j;	
      //trigger_mark_count++; //sinhome
@@ -5382,6 +5382,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
   //   break;
    // }
 	}
+	assert(current_block[channel_num][plane].ptr_lru_node!=NULL);
 	assert(mark_all_block==1);
   //printf("3237 current_block[%d][%d].ptr_lru_node = %d\n", channel_num, plane, current_block[channel_num][plane].ptr_lru_node->logical_node_num);
 	//assert(current_block[channel_num][plane].current_mark_count != 0);

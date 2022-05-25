@@ -5123,6 +5123,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
   double min_priority=10000,weight;
   p_weight=0.42;
   min_history_index=-1;
+  printf("target label:%d\n",target_label);
 	switch(target_label){
 		case 0: 
 			search_index=history_index;
@@ -5138,6 +5139,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				target_label++;
 				goto Top1;
 			}
+			printf("find victim in soon queue\n");
 			history[min_history_index]->select_victim=1;
 			
 			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
@@ -5156,6 +5158,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				target_label++;
 				goto Top1;
 			}	  
+			printf("find victim in mean queue\n");
 			history_mean[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
 			break;
@@ -5171,6 +5174,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 			assert(search_index>0);
 			assert(min_acc<10000);
+			printf("find victim in late queue\n");
 			history_late[min_history_index]->select_victim=1;
 			ptr_buffer_cache->ptr_current_mark_node=history_late[min_history_index];
 			assert(ptr_buffer_cache->ptr_current_mark_node->logical_node_num<1000000);
@@ -5185,6 +5189,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 	if(assign==1){
 		assign=0;
 		AI_predict_victim(ptr_buffer_cache);
+		printf("no block can kick:%d\n",no_block_can_kick);
 		if(no_block_can_kick==1)
 			return;	
 		int i,count=0,only_read=0,only_write=0,P_intensive,B_intensive,strip_way;
@@ -5219,20 +5224,18 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			kick_block_strip_sumpage+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
 		}
 		strip_way=ptr_buffer_cache->ptr_current_mark_node->StripWay;
-		int error=0;
+		int error=0,strip;
+		printf("strip_way:%d\n",strip_way);
 		while(strip_way==1){//read-intensive block
-			strip_way=mark_for_page_striping_node(ptr_buffer_cache);		
-			if(strip_way==-2){//plane is full,can't mark	
-				ptr_buffer_cache->ptr_current_mark_node=p;	
-				printf("full...\n");
-				return;
-			}
-			else if(strip_way==1){//mark successfully
+			strip=mark_for_page_striping_node(ptr_buffer_cache);		
+			if(strip==1){//mark successfully
 				ptr_buffer_cache->ptr_current_mark_node=p;	
 				return;
 			}
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			if(p==ptr_buffer_cache->ptr_current_mark_node){
+				printf("no block can kick...\n");
+				no_block_can_kick=1;
 				break;
 			}
 		}			
@@ -5827,7 +5830,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					k++;
 					goto up;
 				}
-			}
+			}//normally it won't enter there....
 			else if(current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
