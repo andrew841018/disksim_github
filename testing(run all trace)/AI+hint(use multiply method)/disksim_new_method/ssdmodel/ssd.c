@@ -4793,12 +4793,15 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	flush_page_count++;
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
-    if(ptr_lru_node->group_type==0)
-		remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
-    else if (ptr_lru_node->group_type==1)
-		remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
-	assert(current_block[channel_num][plane].ptr_lru_node->select_victim==0);
-	assert(current_block[channel_num][plane].victim_block_page_count==0);
+		int strip=ptr_lru_node->StripWay;
+		if(ptr_lru_node->group_type==0)
+			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
+		else if (ptr_lru_node->group_type==1)
+			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
+		assert(current_block[channel_num][plane].ptr_lru_node->select_victim==0);
+		if(strip==0)
+			assert(current_block[channel_num][plane].victim_block_page_count==0);
+		//if strip=1(page striping),then same channel same plane could contain different block...
 	}
 	
 }
@@ -4940,6 +4943,7 @@ void add_page_striping_page_to_channel(unsigned int page_offset,lru_node *ptr_lr
   //mark write intensive node
   current_block[channel_num][plane].ptr_lru_node = ptr_lru_node;
   current_block[channel_num][plane].offset_in_node = page_offset;
+  current_block[channel_num][plane].victim_block_page_count++;
   //assert(current_block[channel_num][plane].current_mark_count == 0);
   current_block[channel_num][plane].trigger = 1;
   if(current_block[channel_num][plane].current_mark_count == 0)
@@ -5201,7 +5205,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 				count++;
 			}
 		}
-		current_block[channel_num][plane].victim_block_page_count=ptr_buffer_cache->ptr_current_mark_node->block_size;
+		if(ptr_buffer_cache->ptr_current_mark_node->StripWay==0)
+			current_block[channel_num][plane].victim_block_page_count=ptr_buffer_cache->ptr_current_mark_node->block_size;
 		assert(count==ptr_buffer_cache->ptr_current_mark_node->buffer_page_num);
 		current_block[channel_num][plane].current_mark_count=0;
 		p=ptr_buffer_cache->ptr_current_mark_node;
@@ -5911,6 +5916,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			max=-1;
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
+					printf("target have been marked.\n");
 					mark=1;
 					change_block_count=0;
 					max=0;
@@ -5955,9 +5961,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 		  }
 		  if(current_block[channel_num][plane].current_mark_count == 0)
 		  {
-			//fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
-			//printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
-			continue;
+			//continue;
+			//edit by andrew
 		  }
 		  
 		//  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5993,14 +5998,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 		   //printf("* if the page already been marked|\n");
 			//printf("ptr_lru_node = %d .exist == 2\n", ptr_lru_node->page[offset_in_node].lpn);
 			current_block[channel_num][plane].trigger=2;
-			assert(current_block[channel_num][plane].current_mark_count != 0);  
+			//assert(current_block[channel_num][plane].current_mark_count != 0);  
+			//edit by andrew
 			statistic.kick_write_intensive_page_count ++;
-			//fprintf(lpb_ppn, "@@@@@ current_block[%d][%d].current_mark_count=%d\n", channel_num,plane, current_block[channel_num][plane].current_mark_count);
-			//fprintf(lpb_ppn, "@@@@@ kick %d[%d] channel=%d,plane=%d\n", ptr_lru_node->logical_node_num, offset_in_node, channel_num,plane);
-			//printf( "@@@@@ current_block[%d][%d].current_mark_count=%d\n", channel_num,plane, current_block[channel_num][plane].current_mark_count);
-			//add_to_ioqueue(curr,channel_num_Lg,plane_Lg,ptr_lru_node->page[i].lpn,0);
-			//remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
-
+			
 
 			add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->page[offset_in_node].lpn,0);        
 			if(ptr_lru_node->StripWay == 0)
