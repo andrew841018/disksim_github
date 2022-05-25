@@ -5204,7 +5204,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			if(p==ptr_buffer_cache->ptr_current_mark_node){
 				printf("no block can kick(page striping):%d\n",no_block_can_kick);
 				no_block_can_kick=1;
-				break;
+				return;
 			}
 		}
 	}
@@ -5797,6 +5797,15 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			if(current_block[channel_num][plane].ptr_lru_node==NULL){
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+				if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1){
+					for(i=0;i<LRUSIZE;i++){
+						if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==2){
+							channel_num=ptr_buffer_cache->ptr_current_mark_node->page[i].channel_num;
+							plane=ptr_buffer_cache->ptr_current_mark_node->page[i].plane;
+							break;
+						}
+					}
+				}
 				if(no_block_can_kick==1){
 					k++;
 					goto up;
@@ -5810,6 +5819,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 							k++;
 							goto up;
 						}
+					}
+					else{
+						printf("what the....\n");
 					}
 				}
 			target=current_block[channel_num][plane].ptr_lru_node;	
