@@ -127,6 +127,7 @@ typedef struct _current_block_info //¦¹structure¦³°O¿ýµÛ¸Ócur blk¦Y�
   unsigned int offset_in_node;          //the offset for pointer current mark node,only using in write intensive
   unsigned int current_mark_count;        //how many write intensive page in buffer be mark associate to current block
   unsigned int current_write_offset;        //how many page ready be written in current block
+  int victim_block_page_count;
   struct _buffer_page *ptr_read_intensive_buffer_page;//only using in read intensive
   unsigned int read_intenisve_mark_count;
   unsigned int flush_r_count_in_current;      //how many read page has been flushed in current element 
@@ -5023,10 +5024,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
-		assign=1;
-        mark_for_specific_current_block(ptr_buffer_cache,i,j);
-        if(no_block_can_kick==1)
-			return;
+		  if(current_block[i][j].victim_block_page_count==0){
+			assign=1;
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);
+			if(no_block_can_kick==1)
+				return;
+		  }
         //fprintf(outputssd,"after mark_for_specific_current_block\n");
       }
     }
@@ -5043,31 +5046,57 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		original->overwrite_num=0;
 		int overwrite_block_num;
 		up:		
-		  for(i=0;i<global_HQ_size;i++){
-			for(j=0;j<LRUSIZE;j++){
-				if(global_HQ[i]==original->page[j].lpn){
-					original->overwrite_num++;
-				}
-			}
-		  }
 			switch(original->duration_label){
 				case 0:
-					if(original->select_victim==0){
+					if(original->select_victim==0){						
+						for(i=0;i<LRUSIZE;i++){
+							if(original->page[i].exist==1 || original->page[i].exist==2){
+								original->block_size++;
+							}
+							for(j=0;j<global_HQ_size;j++){
+								if(global_HQ[j]==original->page[i].lpn){
+									original->overwrite_num++;
+									break;
+								}
+							}
+						}
 						history[history_index]=original;						
 						history_index++;
 					}
 					break;
 				case 1:
 					if(original->select_victim==0){
+						for(i=0;i<LRUSIZE;i++){
+							if(original->page[i].exist==1 || original->page[i].exist==2){
+								original->block_size++;
+							}
+							for(j=0;j<global_HQ_size;j++){
+								if(global_HQ[j]==original->page[i].lpn){
+									original->overwrite_num++;
+									break;
+								}
+							}
+						}
 						history_mean[history_index_1]=original;						
 						history_index_1++;
 					}
 					break;
 				case 2:
 					if(original->select_victim==0){
-							history_late[history_index_2]=original;						
-							history_index_2++;
+						for(i=0;i<LRUSIZE;i++){
+							if(original->page[i].exist==1 || original->page[i].exist==2){
+								original->block_size++;
+							}
+							for(j=0;j<global_HQ_size;j++){
+								if(global_HQ[j]==original->page[i].lpn){
+									original->overwrite_num++;
+									break;
+								}
+							}
 						}
+						history_late[history_index_2]=original;						
+						history_index_2++;
+					}
 					break;
 			}	
 		scan++;
@@ -5110,6 +5139,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				goto Top1;
 			}
 			history[min_history_index]->select_victim=1;
+			
 			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
 			break;
 		case 1:
@@ -5164,6 +5194,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 				count++;
 			}
 		}
+		current_block[channel_num][plane].victim_block_page_count=ptr_buffer_cache->ptr_current_mark_node->block_size;
 		assert(count==ptr_buffer_cache->ptr_current_mark_node->buffer_page_num);
 		current_block[channel_num][plane].current_mark_count=0;
 		p=ptr_buffer_cache->ptr_current_mark_node;
@@ -5937,6 +5968,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			  kick_page_striping_page_count++;
 			  ptr_lru_node->page[offset_in_node].strip = 0;
 			}
+			current_block[channel_num][plane].victim_block_page_count--;
 			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);		
 			current_block[channel_num][plane].flush_w_count_in_current ++;
 			k++;

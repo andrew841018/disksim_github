@@ -126,6 +126,7 @@ typedef struct _current_block_info //¦¹structure¦³°O¿ýµÛ¸Ócur blk¦Y�
   unsigned int offset_in_node;          //the offset for pointer current mark node,only using in write intensive
   unsigned int current_mark_count;        //how many write intensive page in buffer be mark associate to current block
   unsigned int current_write_offset;        //how many page ready be written in current block
+  int victim_block_page_count;
   struct _buffer_page *ptr_read_intensive_buffer_page;//only using in read intensive
   unsigned int read_intenisve_mark_count;
   unsigned int flush_r_count_in_current;      //how many read page has been flushed in current element 
@@ -4792,7 +4793,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	ptr_lru_node->page[offset_in_node].exist = 0;
 	ptr_lru_node->buffer_page_num --;
 	ptr_buffer_cache->total_buffer_page_num --;
-
+	current_block[channel_num][plane].victim_block_page_count--;
 	current_block[channel_num][plane].current_mark_count --;
 	current_block[channel_num][plane].current_write_offset ++;
 	flush_page_count++;
@@ -5028,10 +5029,12 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
-		assign=1;
-        mark_for_specific_current_block(ptr_buffer_cache,i,j);
-        if(no_block_can_kick==1)
-			return;
+		if(current_block[i][j].victim_block_page_count==0){
+			assign=1;
+			mark_for_specific_current_block(ptr_buffer_cache,i,j);
+			if(no_block_can_kick==1)
+				return;
+		}
         //fprintf(outputssd,"after mark_for_specific_current_block\n");
       }
     }
@@ -5172,6 +5175,9 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			}
 			if(ptr_buffer_cache->ptr_current_mark_node->page[i].w_count==1){
 				only_write++;
+			}
+			if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==1 || ptr_buffer_cache->ptr_current_mark_node->page[i].exist==2){
+				current_block[channel_num][plane].victim_block_page_count++;
 			}
 		}
 		P_intensive=only_read*LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0];
@@ -5788,37 +5794,35 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assert(channel_num<8);
 				assert(plane<8);		
 			if(current_block[channel_num][plane].ptr_lru_node==NULL){
-				while(current_block[channel_num][plane].ptr_lru_node==NULL && k<8){
-					channel_num=k%8;
-					plane=max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+				assign=1;
+				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+				if(no_block_can_kick==1){
 					k++;
-				}
-				if(k>=8){
-					k=0;
-					assign=1;
-					mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-					if(no_block_can_kick==1){
-						k++;
-						goto up;
-					}
+					goto up;
 				}
 			}
 			else if(current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
-				while(current_block[channel_num][plane].ptr_lru_node->select_victim==0 && k<8){
-					channel_num=k%8;
-					plane=max_free_page_in_plane(sta_die_num,currdisk,channel_num);
-					k++;
-				}
-				if(k>=8){
-					assign=1;
-					mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-					if(no_block_can_kick==1){
-						//k++;
-						//goto up;
+					if(current_block[channel_num][plane].victim_block_page_count==0){
+						assign=1;
+						mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+						if(no_block_can_kick==1){
+							k++;
+							goto up;
+						}
 					}
 				}
-			}
 			target=current_block[channel_num][plane].ptr_lru_node;	
+			int pass=0;	
+			for(i=0;i<LRUSIZE;i++){
+				if(target->page[i].exist==2){
+					pass=1;
+					break;
+				}
+			}
+			if(pass==0){
+				current_block[channel_num][plane].ptr_lru_node=NULL;
+				goto up;
+			}
 			int strip_way=target->StripWay;
 			while(strip_way==1){
 				ptr_buffer_cache->ptr_current_mark_node=target;
