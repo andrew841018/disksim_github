@@ -4775,14 +4775,17 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	unsigned int plane = ptr_lru_node->page[offset_in_node].plane;
 
   //printf("channel_num=%d |verify_channel=%d\n", channel_num,verify_channel);
-
+	int strip=ptr_lru_node->StripWay;
+	if(strip==1){//page striping
+		strip[channel_num][plane]=-1;
+	}
 	assert(channel_num == verify_channel);
 	assert(plane == verify_plane);
 	assert(ptr_lru_node->page[offset_in_node].exist == 2);
 	printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);
   ptr_lru_node->page[offset_in_node].rcover = 0 ;
   ptr_lru_node->page[offset_in_node].wcover = 0 ;
-
+	ptr_lru_node->select_victim=0;
 	ptr_lru_node->page[offset_in_node].exist = 0;
 	ptr_lru_node->buffer_page_num --;
 	ptr_buffer_cache->total_buffer_page_num --;
@@ -4790,8 +4793,13 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	current_block[channel_num][plane].current_mark_count --;
 	current_block[channel_num][plane].current_write_offset ++;
 	flush_page_count++;
+	
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
+		int strip=ptr_lru_node->StripWay;
+		if(strip==0){//block striping
+			strip[channel_num][plane]=-1;
+		}
 		if(ptr_lru_node->group_type==0)
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
 		else if (ptr_lru_node->group_type==1)
@@ -4932,7 +4940,11 @@ void add_page_striping_page_to_channel(unsigned int page_offset,lru_node *ptr_lr
   unsigned int channel_num,plane;
   channel_num = ptr_lru_node->page[page_offset].channel_num;
   plane = ptr_lru_node->page[page_offset].plane;
-
+	if(strip[channel_num][plane]==-1)
+		strip[channel_num][plane]=1;
+	else{
+		assert(0);
+	}
   //mark write intensive node
   current_block[channel_num][plane].ptr_lru_node = ptr_lru_node;
   current_block[channel_num][plane].offset_in_node = page_offset;
@@ -5040,38 +5052,37 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
 	lru_node *history[1000],*history_mean[1000],*history_late[1000];
 	while(original!=ptr_buffer_cache->ptr_current_mark_node){
-		up:			
-			switch(original->duration_label){
-				case 0:
-					if(min>original->duration_priority && original->select_victim==0){
-						acc_count=0;//how many time curr block will be overwrite
-						history[history_index]=original;
-						history_index++;
-						min=original->duration_priority;
-					}
-					break;
-				case 1:
-					if(min_1>original->duration_priority && original->select_victim==0){
-						acc_count=0;//how many time curr block will be overwrite
-						history_mean[history_index_1]=original;						
-						history_index_1++;
-						min_1=original->duration_priority;
-					}
-					break;
-				case 2:
-					if(min_2>original->duration_priority && original->select_victim==0){
-							acc_count=0;//how many time curr block will be overwrite
-							history_late[history_index_2]=original;
-							history_index_2++;
-							min_2=original->duration_priority;						
-						}
-					break;
-			}	
-		scan_count++;
+		switch(original->duration_label){
+			case 0:
+				if(min>original->duration_priority && original->select_victim==0){
+					history[history_index]=original;
+					history_index++;
+					min=original->duration_priority;
+					printf("soon\n");
+				}
+				break;
+			case 1:
+				if(min_1>original->duration_priority && original->select_victim==0){
+					history_mean[history_index_1]=original;						
+					history_index_1++;
+					min_1=original->duration_priority;
+					printf("mean\n");
+				}
+				break;
+			case 2:
+				if(min_2>original->duration_priority && original->select_victim==0){
+						history_late[history_index_2]=original;
+						history_index_2++;
+						min_2=original->duration_priority;		
+						printf("late\n");				
+				}
+				break;
+		}	
 		original=original->prev;		
 	}
 	int target_label;
 	if(min==10000 && min_1==10000 && min_2==10000){		
+		printf("no block left...\n");
 		no_block_can_kick=1;
 		return;
 	}
@@ -5140,11 +5151,23 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 }
 lru_node *p;
 int curr_mark_block;
+int strip[8][8];//strip[channel_num]=plane
+int strip_bool=0;
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
 {
 	curr_mark_block=-1;
 	no_block_can_kick=0;
 	p=NULL;
+	//initialize
+	if(strip_bool==0){
+		int i,j;
+		for(i=0;i<8;i++){
+			for(j=0;j<8;j++){
+				strip[i][j]=-1;
+			}
+		}
+		strip_bool=1;
+	}
 	if(assign==1){
 		assign=0;
 		AI_predict_victim(ptr_buffer_cache);
@@ -5175,6 +5198,11 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 				current_block[channel_num][plane].victim_block_page_count++;
 				
 			}
+		}
+		if(strip[channel_num][plane]==-1)
+			strip[channel_num][plane]=1;
+		else{
+			assert(0);
 		}
 		P_intensive=only_read*LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0];
 		B_intensive=only_write*LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1];
