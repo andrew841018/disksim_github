@@ -5803,16 +5803,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assert(plane<8);		
 			if(current_block[channel_num][plane].ptr_lru_node==NULL){
 				assign=1;
-				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-				if(ptr_buffer_cache->ptr_current_mark_node->StripWay==1){
-					for(i=0;i<LRUSIZE;i++){
-						if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==2){
-							channel_num=ptr_buffer_cache->ptr_current_mark_node->page[i].channel_num;
-							plane=ptr_buffer_cache->ptr_current_mark_node->page[i].plane;
-							break;
-						}
-					}
-				}
+				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);			
 				if(no_block_can_kick==1){
 					k++;
 					goto up;
@@ -5824,7 +5815,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				else{
 					target=ptr_buffer_cache->ptr_current_mark_node;
 				}
-			}
+			}//curr block is not victim block or has been overwritten
 			else if(current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
 				//if following code print invalid number,like: 245454545,it means current block not assign yet.(it is normal)
 				//because we print before we mark
@@ -5843,7 +5834,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				else{
 					target=ptr_buffer_cache->ptr_current_mark_node;
 				}
-			}
+			}//curr block is removed
 			else if(current_block[channel_num][plane].ptr_lru_node>500000){
 				printf("no this block....(maybe free before...)\n");
 				current_block[channel_num][plane].ptr_lru_node->select_victim=0;
@@ -5862,6 +5853,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					target=ptr_buffer_cache->ptr_current_mark_node;
 				}				
 			}
+			//check victim block(block striping) is marked and is not empty block
 			if(p==NULL || p->StripWay==0){
 				target=current_block[channel_num][plane].ptr_lru_node;	
 				int pass=0,exist=0;	
