@@ -5777,7 +5777,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       kick=1;
       lru_node *target;
       k=0;
-      while(k<8){
+      while(k<8){	  
 		  if(no_page_can_evict == 0)
 		  {
 			// if(k>8)
@@ -5785,6 +5785,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			//   k=0;
 			// }    
 			up:  	
+				if(ptr_buffer_cache->total_buffer_page_num <= ptr_buffer_cache->max_buffer_page_num){
+					return;
+				}
 				channel_num = k%8;
 				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
 				if(plane>=8){
@@ -5830,7 +5833,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			}//curr block is removed
 			else if(current_block[channel_num][plane].ptr_lru_node>500000){
 				printf("no this block....(maybe free before...):%d\n",current_block[channel_num][plane].ptr_lru_node);
-				current_block[channel_num][plane].ptr_lru_node->select_victim=0;
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
