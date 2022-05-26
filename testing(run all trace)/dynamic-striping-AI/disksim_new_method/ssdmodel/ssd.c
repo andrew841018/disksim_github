@@ -4042,9 +4042,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     else if( full_cache == 1)
     {
 	  //edit by andrew
-	  if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
 		mark_for_all_current_block(ptr_buffer_cache);
-	  }
     }
   }
   kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
@@ -4663,12 +4661,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		end=ptr_buffer_cache->ptr_current_mark_node;
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
-			start->pass_req_count++;
-			for(i=0;i<LRUSIZE;i++){
-				if(start->page[i].exist==1 || start->page[i].exist==2){
-					start->page[i].pass_req_count++;
-				}
-			}
+			start->pass_req_count++;		
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;				
 				start->duration_priority=0.001;
@@ -4786,7 +4779,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	assert(channel_num == verify_channel);
 	assert(plane == verify_plane);
 	assert(ptr_lru_node->page[offset_in_node].exist == 2);
-	printf("remove page\n");
+	printf("remove block:%d page:%d\n",ptr_lru_node->logical_node_num,offset_in_node);
   ptr_lru_node->page[offset_in_node].rcover = 0 ;
   ptr_lru_node->page[offset_in_node].wcover = 0 ;
 
@@ -5823,7 +5816,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
-					printf("no block...change channel(in else if)\n");
+					printf("no block...change channel(in else if...0)\n");
 					k++;
 					goto up;
 				} 
@@ -5836,12 +5829,12 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				}
 			}//curr block is removed
 			else if(current_block[channel_num][plane].ptr_lru_node>500000){
-				printf("no this block....(maybe free before...)\n");
+				printf("no this block....(maybe free before...):%d\n",current_block[channel_num][plane].ptr_lru_node);
 				current_block[channel_num][plane].ptr_lru_node->select_victim=0;
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
-					printf("no block...change channel(in else if.)\n");
+					printf("no block...change channel(in else if...1)\n");
 					k++;
 					goto up;
 				}
@@ -5867,7 +5860,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					}
 				}
 				assert(target->buffer_page_num==pass);
-				printf("pass count:%d\n",pass);
 				if(pass==0){
 					current_block[channel_num][plane].ptr_lru_node=NULL;
 					goto up;
@@ -5886,7 +5878,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
-					printf("no block...change channel(in else if..)\n");
+					printf("no block...change channel(in else if...2)\n");
 					k++;
 					goto up;
 				}
