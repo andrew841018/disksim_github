@@ -5817,7 +5817,13 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					k++;
 					goto up;
 				}
-				assert(current_block[channel_num][plane].ptr_lru_node->logical_node_num==curr_mark_block);
+				int strip=ptr_buffer_cache->ptr_current_mark_node->StripWay;
+				if(strip==0){
+					assert(current_block[channel_num][plane].ptr_lru_node->logical_node_num==curr_mark_block);
+				}
+				else{
+					target=ptr_buffer_cache->ptr_current_mark_node;
+				}
 			}
 			else if(current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
 				//if following code print invalid number,like: 245454545,it means current block not assign yet.(it is normal)
@@ -5830,7 +5836,13 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					k++;
 					goto up;
 				} 
-				assert(current_block[channel_num][plane].ptr_lru_node->logical_node_num==curr_mark_block);
+				int strip=ptr_buffer_cache->ptr_current_mark_node->StripWay;
+				if(strip==0){
+					assert(current_block[channel_num][plane].ptr_lru_node->logical_node_num==curr_mark_block);
+				}
+				else{
+					target=ptr_buffer_cache->ptr_current_mark_node;
+				}
 			}
 			else if(current_block[channel_num][plane].ptr_lru_node>500000){
 				printf("no this block....(maybe free before...)\n");
@@ -5842,37 +5854,58 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					k++;
 					goto up;
 				}
-				assert(current_block[channel_num][plane].ptr_lru_node->logical_node_num==curr_mark_block);
-			}
-			target=current_block[channel_num][plane].ptr_lru_node;	
-			int pass=0,exist=0;	
-			for(i=0;i<LRUSIZE;i++){
-				if(target->page[i].exist==2){
-					pass++;
+				int strip=ptr_buffer_cache->ptr_current_mark_node->StripWay;
+				if(strip==0){
+					assert(current_block[channel_num][plane].ptr_lru_node->logical_node_num==curr_mark_block);
 				}
-				if(target->page[i].exist==1){
-					exist++;
-					printf("exist=1 page[%d]\n",i);
+				else{
+					target=ptr_buffer_cache->ptr_current_mark_node;
+				}				
+			}
+			if(p==NULL || p->StripWay==0){
+				target=current_block[channel_num][plane].ptr_lru_node;	
+				int pass=0,exist=0;	
+				for(i=0;i<LRUSIZE;i++){
+					if(target->page[i].exist==2){
+						pass++;
+					}
+					if(target->page[i].exist==1){
+						exist++;
+						printf("exist=1 page[%d]\n",i);
+					}
+				}
+				assert(target->buffer_page_num==pass);
+				printf("pass count:%d\n",pass);
+				if(pass==0){
+					current_block[channel_num][plane].ptr_lru_node=NULL;
+					goto up;
 				}
 			}
-			assert(target->buffer_page_num==pass);
-			printf("pass count:%d\n",pass);
-			if(pass==0){
-				current_block[channel_num][plane].ptr_lru_node=NULL;
-				goto up;
-			}
+			//this should be done in mark_for_specific... here,just double check
 			int strip_way=target->StripWay;
 			while(strip_way==1){
 				ptr_buffer_cache->ptr_current_mark_node=target;
 				mark_for_page_striping_node(ptr_buffer_cache);
 				if(strip_way==1)//mark page striping node successfully
 					break;			
-			}
-			if(current_block[channel_num][plane].current_mark_count==0){
+			}//....
+			if(current_block[channel_num][plane].victim_block_page_count==0){
 				target->select_victim=0;
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-				target=current_block[channel_num][plane].ptr_lru_node;
+				if(no_block_can_kick==1){
+					printf("no block...change channel(in else if...)\n");
+					k++;
+					goto up;
+				}
+				int strip=ptr_buffer_cache->ptr_current_mark_node->StripWay;
+				if(strip==0){
+					assert(current_block[channel_num][plane].ptr_lru_node->logical_node_num==curr_mark_block);
+					target=current_block[channel_num][plane].ptr_lru_node;
+				}
+				else{
+					target=ptr_buffer_cache->ptr_current_mark_node;
+				}	
 			}	
 			int max=-1;
 		  Top:
