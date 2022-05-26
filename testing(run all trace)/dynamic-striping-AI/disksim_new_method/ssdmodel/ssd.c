@@ -4799,14 +4799,11 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	flush_page_count++;
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
-		int strip=ptr_lru_node->StripWay;
 		if(ptr_lru_node->group_type==0)
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
 		else if (ptr_lru_node->group_type==1)
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
 		assert(current_block[channel_num][plane].ptr_lru_node->select_victim==0);
-		if(strip==0)
-			assert(current_block[channel_num][plane].victim_block_page_count==0);
 	}
 	
 }
@@ -5174,7 +5171,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		p=ptr_buffer_cache->ptr_current_mark_node;
 		if(ptr_buffer_cache->current_mark_offset!=0)
 			ptr_buffer_cache->current_mark_offset=0;
-		int victim_count=0;
 		for(i=0;i<LRUSIZE;i++){
 			if(ptr_buffer_cache->ptr_current_mark_node->page[i].r_count==1){
 				only_read++;
@@ -5183,12 +5179,10 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 				only_write++;
 			}
 			if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==1 || ptr_buffer_cache->ptr_current_mark_node->page[i].exist==2){
-				victim_count++;
+				current_block[channel_num][plane].victim_block_page_count++;
 				
 			}
 		}
-		if(ptr_buffer_cache->ptr_current_mark_node->StripWay==0)
-			current_block[channel_num][plane].victim_block_page_count=victim_count;
 		P_intensive=only_read*LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0];
 		B_intensive=only_write*LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1];
 		if(P_intensive>B_intensive){
@@ -5897,8 +5891,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 		  }
 		  if(current_block[channel_num][plane].victim_block_page_count== 0)
 		  {
-			//fprintf(outputssd, "channel:%d,plane:%d no candidate\n", channel_num,plane);
-			//printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
+			
 			continue;
 		  }
 		  

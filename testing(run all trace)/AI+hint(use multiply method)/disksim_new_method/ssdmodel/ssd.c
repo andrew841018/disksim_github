@@ -4793,14 +4793,11 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	flush_page_count++;
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
-		int strip=ptr_lru_node->StripWay;
 		if(ptr_lru_node->group_type==0)
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
 		else if (ptr_lru_node->group_type==1)
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
 		assert(current_block[channel_num][plane].ptr_lru_node->select_victim==0);
-		if(strip==0)
-			assert(current_block[channel_num][plane].victim_block_page_count==0);
 		//if strip=1(page striping),then same channel same plane could contain different block...
 	}
 	
