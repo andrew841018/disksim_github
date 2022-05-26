@@ -4940,10 +4940,11 @@ void add_page_striping_page_to_channel(unsigned int page_offset,lru_node *ptr_lr
   unsigned int channel_num,plane;
   channel_num = ptr_lru_node->page[page_offset].channel_num;
   plane = ptr_lru_node->page[page_offset].plane;
+  //edit by andrew
 	if(strip[channel_num][plane]==-1)
 		strip[channel_num][plane]=1;
 	else{
-		assert(0);
+		//assert(0);
 	}
   //mark write intensive node
   current_block[channel_num][plane].ptr_lru_node = ptr_lru_node;
@@ -5202,7 +5203,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		if(strip[channel_num][plane]==-1)
 			strip[channel_num][plane]=1;
 		else{
-			assert(0);
+			//assert(0);
 		}
 		P_intensive=only_read*LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][0];
 		B_intensive=only_write*LPN_RWtimes[ptr_buffer_cache->ptr_current_mark_node->logical_node_num][1];
