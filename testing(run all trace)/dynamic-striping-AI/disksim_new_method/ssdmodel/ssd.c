@@ -4042,7 +4042,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     else if( full_cache == 1)
     {
 	  //edit by andrew
-	  if(ptr_buffer_cache->max_buffer_page_num >= ptr_buffer_cache->total_buffer_page_num){
+	  if(ptr_buffer_cache->max_buffer_page_num < ptr_buffer_cache->total_buffer_page_num){
 		mark_for_all_current_block(ptr_buffer_cache);
 	  }
     }
@@ -4786,7 +4786,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	assert(channel_num == verify_channel);
 	assert(plane == verify_plane);
 	assert(ptr_lru_node->page[offset_in_node].exist == 2);
-
+	printf("remove page\n");
   ptr_lru_node->page[offset_in_node].rcover = 0 ;
   ptr_lru_node->page[offset_in_node].wcover = 0 ;
 
@@ -4943,7 +4943,7 @@ void add_page_striping_page_to_channel(unsigned int page_offset,lru_node *ptr_lr
   //mark write intensive node
   current_block[channel_num][plane].ptr_lru_node = ptr_lru_node;
   current_block[channel_num][plane].offset_in_node = page_offset;
-  current_block[channel_num][plane].victim_block_page_count++;
+  current_block[channel_num][plane].victim_block_page_count=1;
   //assert(current_block[channel_num][plane].current_mark_count == 0);
   current_block[channel_num][plane].trigger = 1;
   if(current_block[channel_num][plane].current_mark_count == 0)
@@ -5027,16 +5027,14 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
   {
     for(j = 0;j < PLANE_NUM;j++)
     {   
-      if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
-      {
+		//edit by andrew
 		if(current_block[i][j].victim_block_page_count==0){
 			assign=1;
 			mark_for_specific_current_block(ptr_buffer_cache,i,j);
-			if(no_block_can_kick==1)
+			if(no_block_can_kick==1){
 				return;
+			}
 		}
-        //fprintf(outputssd,"after mark_for_specific_current_block\n");
-      }
     }
   }
 }
@@ -5172,6 +5170,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		p=ptr_buffer_cache->ptr_current_mark_node;
 		if(ptr_buffer_cache->current_mark_offset!=0)
 			ptr_buffer_cache->current_mark_offset=0;
+		//using the same striping method as the same as Yi-min chen	
 		for(i=0;i<LRUSIZE;i++){
 			if(ptr_buffer_cache->ptr_current_mark_node->page[i].r_count==1){
 				only_read++;
@@ -5206,7 +5205,7 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			}
 			ptr_buffer_cache->ptr_current_mark_node=ptr_buffer_cache->ptr_current_mark_node->prev;
 			if(p==ptr_buffer_cache->ptr_current_mark_node){
-				printf("no block can kick(page striping):%d\n",no_block_can_kick);
+				printf("no free space can kick(page striping):%d\n",no_block_can_kick);
 				no_block_can_kick=1;
 				return;
 			}
@@ -5425,6 +5424,7 @@ void remove_mark_in_the_node(lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cac
       {
         ptr_lru_node->page[i].exist = 1;
         current_block[ptr_lru_node->page[i].channel_num][ptr_lru_node->page[i].plane].current_mark_count --;
+        current_block[ptr_lru_node->page[i].channel_num][ptr_lru_node->page[i].plane].victim_block_page_count--;
       }
     }
   }
@@ -5823,7 +5823,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
-					printf("no block...change channel(in else if...)\n");
+					printf("no block...change channel(in else if)\n");
 					k++;
 					goto up;
 				} 
@@ -5841,7 +5841,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
-					printf("no block...change channel(in else if...)\n");
+					printf("no block...change channel(in else if.)\n");
 					k++;
 					goto up;
 				}
@@ -5886,7 +5886,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
-					printf("no block...change channel(in else if...)\n");
+					printf("no block...change channel(in else if..)\n");
 					k++;
 					goto up;
 				}
