@@ -4779,7 +4779,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	assert(channel_num == verify_channel);
 	assert(plane == verify_plane);
 	assert(ptr_lru_node->page[offset_in_node].exist == 2);
-	printf("remove block:%d page:%d\n",ptr_lru_node->logical_node_num,offset_in_node);
+	printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);
   ptr_lru_node->page[offset_in_node].rcover = 0 ;
   ptr_lru_node->page[offset_in_node].wcover = 0 ;
 
@@ -5895,7 +5895,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			}	
 			int max=-1;
 		  Top:
-			max=-1;
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
 					max=0;
@@ -5904,15 +5903,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					current_block[channel_num][plane].offset_in_node=i;
 					break;
 				}
-			}
-			if(max==-1){
-				assign=1;
-				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-				target=current_block[channel_num][plane].ptr_lru_node;
-				assert(no_block_can_kick==0);
-				goto Top;
-			}
-			assert(max>-1);
+			}			
 			assert(channel_num >=0 && channel_num < 8);
 			assert(plane >=0 && plane < 8);
 		  }
@@ -6062,7 +6053,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			//assert(ptr_lru_node->page[offset_in_node].exist == 0);//
 			current_block[channel_num][plane].offset_in_node++;
 		  }
-
 		kick_channel_times++;
 	}
   }
