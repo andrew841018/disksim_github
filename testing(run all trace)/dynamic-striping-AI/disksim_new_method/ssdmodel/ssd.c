@@ -5033,131 +5033,39 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 }
 
 void AI_predict_victim(buffer_cache *ptr_buffer_cache){
-	double min=10000,min_acc=10000;
-	double min_1=10000,min_2=10000;
-	int min_history_index,i,j;	
-	int acc_count=0,history_index=0,history_index_1=0,history_index_2=0;  
-	lru_node *original=ptr_buffer_cache->ptr_current_mark_node->prev,*tmp_node;
-	lru_node *history[1000],*history_mean[1000],*history_late[1000];
-	while(original!=ptr_buffer_cache->ptr_current_mark_node){
-		up:			
-			switch(original->duration_label){
-				case 0:
-					if(min>original->duration_priority && original->select_victim==0){
-						acc_count=0;//how many time curr block will be overwrite
-						history[history_index]=original;					
-						min=original->duration_priority;
-					}
-					break;
-				case 1:
-					if(min_1>original->duration_priority && original->select_victim==0){
-						acc_count=0;//how many time curr block will be overwrite
-						history_mean[history_index_1]=original;
-						min_1=original->duration_priority;
-					}
-					break;
-				case 2:
-					if(min_2>original->duration_priority && original->select_victim==0){
-							acc_count=0;//how many time curr block will be overwrite
-							history_late[history_index_2]=original;
-							min_2=original->duration_priority;						
-						}
-					break;
-			}	
+	//ptr_head=MRU, ptr_head->prev=LRU, ptr_head->next means from MRU to LRU
+	//ptr_head->prev means direct point to LRU end.
+	lru_node *original=ptr_buffer_cache->ptr_head->prev;
+	lru_node *mean=NULL,*late=NULL;
+	int mean_bool=0,late_bool=0;
+	while(original!=ptr_buffer_cache->ptr_head){
+		if(original->duration_label==0 && original->select_victim==0){
+			original->select_victim=1;
+			ptr_buffer_cache->ptr_current_mark_node=original;
+			return;
+		}
+		else if(original->duration_label==1 && original->select_victim==0 && mean_bool==0){
+			mean=original;
+			mean_bool=1;
+		}
+		else if(original->duration_label==2 && original->select_victim==0 && late_bool==0){
+			late=original;
+			late_bool=1;
+		}
 		original=original->prev;		
 	}
-	int target_label;
-	if(min==10000 && min_1==10000 && min_2==10000){		
-		no_block_can_kick=1;
-		return;
+	//in here,means soon queue have no block can kick
+	if(mean!=NULL){
+		mean->select_victim=1;
+		ptr_buffer_cache->ptr_current_mark_node=mean;
+		
 	}
-	if(min<10000){
-		target_label=0;
+	else if(late!=NULL){
+		late->select_victim=1;
+		ptr_buffer_cache->ptr_current_mark_node=late;
 	}
-	else if(min_1<10000){
-		target_label=1;
-	}
-	else if(min_2<10000){
-		target_label=2;
-	}
-	int search_index,enter_loop=0;
-  Top1:
-	min_acc=10000;
-	enter_loop=0;
-	switch(target_label){
-		case 0:
-			search_index=history_index;
-			for(i=0;i<search_index;i++){
-				//*****original version--->AI prediction only********
-				if(min_acc>(float)history[i]->duration_priority && history[i]->select_victim==0){
-						min_acc=(float)history[i]->duration_priority;
-						min_history_index=i;
-						enter_loop=1;
-				}
-			}
-			//  *****with hint information--->AI + hint******************
-			/*if(enter_loop==0){
-				target_label++;
-				goto Top1;
-			}
-			if(history[min_history_index]->overwrite_num>0){//overwrite
-				history[min_history_index]->select_victim=1;
-				original=ptr_buffer_cache->ptr_current_mark_node->prev;
-				min=10000;
-				goto up;
-			}*/
-			history[min_history_index]->select_victim=1;
-			ptr_buffer_cache->ptr_current_mark_node=history[min_history_index];
-			break;
-		case 1:
-			search_index=history_index_1;
-			for(i=0;i<search_index;i++){
-				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_mean[i]->duration_priority && history_mean[i]->select_victim==0){
-					min_acc=(float)history_mean[i]->duration_priority;
-					min_history_index=i;
-					enter_loop=1;
-				}
-			}
-			/*if(enter_loop==0){
-				target_label++;
-				goto Top1;
-			}
-			//  *****with hint information--->AI + hint******************
-			if(history_mean[min_history_index]->overwrite_num>0){//overwrite
-				history_mean[min_history_index]->select_victim=1;
-				original=ptr_buffer_cache->ptr_current_mark_node->prev;
-				min_1=10000;
-				goto up;
-			}*/
-			history_mean[min_history_index]->select_victim=1;
-			ptr_buffer_cache->ptr_current_mark_node=history_mean[min_history_index];
-			break;
-		case 2:
-			search_index=history_index_2;
-			for(i=0;i<search_index;i++){
-				//*****original version--->AI prediction only********
-				if(min_acc>(float)history_late[i]->duration_priority && history_late[i]->select_victim==0){
-					min_acc=(float)history_late[i]->duration_priority;
-					min_history_index=i;
-					enter_loop=1;
-				}
-			}
-			/*if(enter_loop==0){
-				no_block_can_kick=1;
-				return;
-			}
-			//  *****with hint information--->AI + hint******************
-			if(history_late[min_history_index]->overwrite_num>0){//overwrite
-				history_late[min_history_index]->select_victim=1;
-				original=ptr_buffer_cache->ptr_current_mark_node->prev;
-				min_2=10000;
-				goto up;
-			}*/
-			history_late[min_history_index]->select_victim=1;
-			ptr_buffer_cache->ptr_current_mark_node=history_late[min_history_index];
-			break;
-	}	
+	//no block can kick in late....
+	assert(0);
 }
 lru_node *p;
 void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int channel_num,unsigned int plane)
