@@ -4661,11 +4661,12 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
   
 // }
-
+int soon=0,mean=0,late=0;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	lru_node *start,*end;
-	int i,soon=0,mean=0,late=0;
+	int i;
+	soon=0,mean=0,late=0;
 	if(ptr_buffer_cache->ptr_head->prev!=NULL){
 		start=ptr_buffer_cache->ptr_head->prev;
 		end=ptr_buffer_cache->ptr_head;
@@ -4692,14 +4693,14 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		//accumulate the pass_req_count for every block in write buffer
 			while(start!=end){
 				start->pass_req_count++;
-				if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
+				if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
 					start->duration_label--;			
-					if(start->duration_label==0 && start->select_victim==0){
+					if(start->duration_label==0){
 						//put mean queue block to soon queue,so soon++ and mean--;
 						soon_count++;
 						mean_count--;
 					}	
-					else if(start->duration_label==1 && start->select_victim==0){
+					else if(start->duration_label==1){
 						//put late queue block to mean queue,so mean++ and late--;
 						mean_count++;
 						late_count--;
@@ -4725,14 +4726,14 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 				}
 				start=start->prev;
 			}
-			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
+			if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
 					start->duration_label--;			
-					if(start->duration_label==0 && start->select_victim==0){
+					if(start->duration_label==0){
 						//put mean queue block to soon queue,so soon++ and mean--;
 						soon_count++;
 						mean_count--;
 					}	
-					else if(start->duration_label==1 && start->select_victim==0){
+					else if(start->duration_label==1){
 						//put late queue block to mean queue,so mean++ and late--;
 						mean_count++;
 						late_count--;
