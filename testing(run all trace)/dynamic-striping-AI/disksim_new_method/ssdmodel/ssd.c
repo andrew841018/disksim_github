@@ -4202,7 +4202,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(ptr_buffer_cache->soon_max<Pg_node->duration_priority){
 				ptr_buffer_cache->soon_max=Pg_node->duration_priority;
 			}
-			soon_count++;
 			soon_time+=0.001;
 			break;
 		case 1:
@@ -4210,7 +4209,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(ptr_buffer_cache->mean_max<Pg_node->duration_priority){
 				ptr_buffer_cache->mean_max=Pg_node->duration_priority;
 			}
-			mean_count++;
 			mean_time+=0.001;
 			break;
 		case 2:
@@ -4218,13 +4216,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(ptr_buffer_cache->late_max<Pg_node->duration_priority){
 				ptr_buffer_cache->late_max=Pg_node->duration_priority;
 			}
-			late_count++;
 			late_time+=0.001;
 			break;
 	}
-	Pg_node->select_victim=0;
 	Pg_node->pass_req_count=0;
-    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+	//this function will let current_mark_count=0 and clear any marked pages.
+    //remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+    
+    //access any page in the block,the all block will be place to MRU,even if that page currently is not exist. 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
   return 0;
@@ -4676,10 +4675,14 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;			
 				if(start->duration_label==0 && start->select_victim==0){
+					//put mean queue block to soon queue,so soon++ and mean--;
 					soon_count++;
+					mean_count--;
 				}	
 				else if(start->duration_label==1 && start->select_victim==0){
+					//put late queue block to mean queue,so mean++ and late--;
 					mean_count++;
+					late_count--;
 				}
 				start->duration_priority=0.001;
 			}
@@ -4871,17 +4874,6 @@ int flush_count=0;
 void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_node,int flag)
 {
 	unsigned int logical_node_num = ptr_lru_node->logical_node_num;
-	switch(ptr_lru_node->duration_label){
-		case 0:
-			soon_count--;
-			break;
-		case 1:
-			mean_count--;
-			break;
-		case 2:
-			late_count--;
-			break;
-	}
 	block_exist[logical_node_num]=0;
 	//remove node from hash 
   if(flag==0)
@@ -5078,6 +5070,9 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 		}
 		else if(mean_count>0){
+			if(original->duration_label==0 && original->select_victim==0){
+				printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+			}
 			if(original->duration_label==1 && original->select_victim==0){
 				original->select_victim=1;
 				mean_count--;
@@ -5086,6 +5081,12 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 		}
 		else if(late_count>0){
+			if(original->duration_label==1 && original->select_victim==0){
+				printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+			}
+			if(original->duration_label==0 && original->select_victim==0){
+				printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+			}
 			if(original->duration_label==2 && original->select_victim==0){
 				original->select_victim=1;
 				late_count--;

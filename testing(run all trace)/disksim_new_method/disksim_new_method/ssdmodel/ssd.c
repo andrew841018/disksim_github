@@ -4266,7 +4266,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	assert(channel_num == verify_channel);
 	assert(plane == verify_plane);
 	assert(ptr_lru_node->page[offset_in_node].exist == 2);
-
+	printf("remove\n");
   ptr_lru_node->page[offset_in_node].rcover = 0 ;
   ptr_lru_node->page[offset_in_node].wcover = 0 ;
 
