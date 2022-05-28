@@ -66,6 +66,9 @@ unsigned int channel_plane_write_count[8][8]={0};
 //data struct-----------------------------------------------------------------------------------------------------------------
 typedef struct _buffer_cache
 {
+  //ptr_head=MRU end. ptr_head->next=從MRU端往LRU端掃，ptr_head->prev=因為next是往LRU端掃，那prev就會直接移到LRU端的那個node
+  //PS:ptr_head是一個circular link list
+  //prev:ptr_head第一次做prev，會直接找到LRU端的node，之後繼續做的話，會往MRU端走
   struct _lru_node *ptr_head;         //lru list ,point to the group node head
   unsigned int total_buffer_page_num;     //current buffer page number in the cache
   unsigned int total_buffer_block_num;
@@ -3731,9 +3734,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   }
   else
   {
-    //fprintf(lpb_ppn, "if(Pg_node != NULL)\tphysical_node_num=%d\n", physical_node_num);
-    //printf("find node\n");
+
     //remove the mark page int the hit node
+    //這會直接將current_block[channel_num][plane].current_mark_count=0，並將所有exist=2的page，改成exist=1
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     /* if(myssd.node_page_nm[logical_node_num][offset_in_node]==1)
     {
@@ -4152,7 +4155,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
   
 // }
-
+//就算page miss，只要當下的block是hit，整個block還是會被移動到MRU
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
   //fprintf(lpb_ppn, "add_a_page_in_the_node\t");
