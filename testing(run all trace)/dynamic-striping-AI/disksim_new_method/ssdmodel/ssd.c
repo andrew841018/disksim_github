@@ -4200,6 +4200,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(ptr_buffer_cache->soon_max<Pg_node->duration_priority){
 				ptr_buffer_cache->soon_max=Pg_node->duration_priority;
 			}
+			soon_count++;
 			soon_time+=0.001;
 			break;
 		case 1:
@@ -4207,6 +4208,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(ptr_buffer_cache->mean_max<Pg_node->duration_priority){
 				ptr_buffer_cache->mean_max=Pg_node->duration_priority;
 			}
+			mean_count++;
 			mean_time+=0.001;
 			break;
 		case 2:
@@ -4214,6 +4216,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(ptr_buffer_cache->late_max<Pg_node->duration_priority){
 				ptr_buffer_cache->late_max=Pg_node->duration_priority;
 			}
+			late_count++;
 			late_time+=0.001;
 			break;
 	}
@@ -4499,6 +4502,7 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 //   add_a_page_in_the_node(logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache);
 // }
 int soon_count=0,mean_count=0,late_count=0;
+int block_exist[1000000]={0};
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
 {
   //printf("innn add node | flag=%d \n", flag);
@@ -4520,6 +4524,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 				ptr_buffer_cache->soon_max=soon_time;
 			}
 			soon_count++;
+			block_exist[logical_node_num]=1;
 			soon_time+=0.001;
 			break;
 		case 1:
@@ -4528,6 +4533,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 				ptr_buffer_cache->mean_max=mean_time;
 			}
 			mean_count++;
+			block_exist[logical_node_num]=1;
 			mean_time+=0.001;
 			break;
 		case 2:
@@ -4536,6 +4542,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 				ptr_buffer_cache->late_max=late_time;
 			}
 			late_count++;
+			block_exist[logical_node_num]=1;
 			late_time+=0.001;
 			break;
 	}	
@@ -4666,7 +4673,13 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		while(start!=end){
 			start->pass_req_count++;
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
-				start->duration_label--;				
+				start->duration_label--;			
+				if(start->duration_label==0 && start->select_victim==0){
+					soon_count++;
+				}	
+				else if(start->duration_label==1 && start->select_victim==0){
+					mean_count++;
+				}
 				start->duration_priority=0.001;
 			}
 			start=start->prev;
@@ -4868,6 +4881,7 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
 			late_count--;
 			break;
 	}
+	block_exist[logical_node_num]=0;
 	//remove node from hash 
   if(flag==0)
   {
@@ -5049,14 +5063,15 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//ptr_head=MRU, ptr_head->prev=LRU, ptr_head->next means from MRU to LRU
 	//ptr_head->prev means direct point to LRU end.
+	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
-	lru_node *mean=NULL,*late=NULL;
-	int mean_bool=0,late_bool=0;
 	while(original!=ptr_buffer_cache->ptr_head){
-		printf("label:%d select_victim:%d\n",original->duration_label,original->select_victim);
+		printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+		//to do: accumlate soon,mean,late count, if its select_victim=0
 		if(soon_count>0){
 			if(original->duration_label==0 && original->select_victim==0){
 				original->select_victim=1;
+				soon_count--;
 				ptr_buffer_cache->ptr_current_mark_node=original;
 				return;
 			}
@@ -5064,6 +5079,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		else if(mean_count>0){
 			if(original->duration_label==1 && original->select_victim==0){
 				original->select_victim=1;
+				mean_count--;
 				ptr_buffer_cache->ptr_current_mark_node=original;
 				return;
 			}
@@ -5071,6 +5087,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		else if(late_count>0){
 			if(original->duration_label==2 && original->select_victim==0){
 				original->select_victim=1;
+				late_count--;
 				ptr_buffer_cache->ptr_current_mark_node=original;
 				return;
 			}
