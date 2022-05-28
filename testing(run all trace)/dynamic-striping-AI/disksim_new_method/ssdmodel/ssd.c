@@ -4088,6 +4088,8 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 }
 int duration_arr[10000000]={0};//duration_arr[block number]=duration label
 int dur_index=0,init=1;
+int soon_count=0,mean_count=0,late_count=0;
+int block_exist[1000000]={0};
 unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
 double benefit_value[10000000]={0};
@@ -4200,7 +4202,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(ptr_buffer_cache->soon_max<Pg_node->duration_priority){
 				ptr_buffer_cache->soon_max=Pg_node->duration_priority;
 			}
-			soon_count++;
 			soon_time+=0.001;
 			break;
 		case 1:
@@ -4208,7 +4209,6 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(ptr_buffer_cache->mean_max<Pg_node->duration_priority){
 				ptr_buffer_cache->mean_max=Pg_node->duration_priority;
 			}
-			mean_count++;
 			mean_time+=0.001;
 			break;
 		case 2:
@@ -4216,13 +4216,14 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 			if(ptr_buffer_cache->late_max<Pg_node->duration_priority){
 				ptr_buffer_cache->late_max=Pg_node->duration_priority;
 			}
-			late_count++;
 			late_time+=0.001;
 			break;
 	}
-	Pg_node->select_victim=0;
 	Pg_node->pass_req_count=0;
-    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+	//this function will let current_mark_count=0 and clear any marked pages.
+    //remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+    
+    //access any page in the block,the all block will be place to MRU,even if that page currently is not exist. 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
   return 0;
@@ -4501,8 +4502,7 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 //   }
 //   add_a_page_in_the_node(logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache);
 // }
-int soon_count=0,mean_count=0,late_count=0;
-int block_exist[1000000]={0};
+
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
 {
   //printf("innn add node | flag=%d \n", flag);
@@ -4675,10 +4675,14 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
 				start->duration_label--;			
 				if(start->duration_label==0 && start->select_victim==0){
+					//put mean queue block to soon queue,so soon++ and mean--;
 					soon_count++;
+					mean_count--;
 				}	
 				else if(start->duration_label==1 && start->select_victim==0){
+					//put late queue block to mean queue,so mean++ and late--;
 					mean_count++;
+					late_count--;
 				}
 				start->duration_priority=0.001;
 			}
@@ -4870,17 +4874,6 @@ int flush_count=0;
 void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_node,int flag)
 {
 	unsigned int logical_node_num = ptr_lru_node->logical_node_num;
-	switch(ptr_lru_node->duration_label){
-		case 0:
-			soon_count--;
-			break;
-		case 1:
-			mean_count--;
-			break;
-		case 2:
-			late_count--;
-			break;
-	}
 	block_exist[logical_node_num]=0;
 	//remove node from hash 
   if(flag==0)
@@ -5050,6 +5043,7 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
+		printf("inside mark_for_all\n");
 		assign=1;
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
         if(no_block_can_kick==1)
@@ -5066,8 +5060,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	while(original!=ptr_buffer_cache->ptr_head){
-		printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
-		//to do: accumlate soon,mean,late count, if its select_victim=0
+		//printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
 		if(soon_count>0){
 			if(original->duration_label==0 && original->select_victim==0){
 				original->select_victim=1;
@@ -5077,6 +5070,9 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 		}
 		else if(mean_count>0){
+			if(original->duration_label==0 && original->select_victim==0){
+				printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+			}
 			if(original->duration_label==1 && original->select_victim==0){
 				original->select_victim=1;
 				mean_count--;
@@ -5085,6 +5081,12 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			}
 		}
 		else if(late_count>0){
+			if(original->duration_label==1 && original->select_victim==0){
+				printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+			}
+			if(original->duration_label==0 && original->select_victim==0){
+				printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+			}
 			if(original->duration_label==2 && original->select_victim==0){
 				original->select_victim=1;
 				late_count--;
@@ -5740,6 +5742,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
 				if(plane==-1){
 					k++;
+					if(k>=20){
+						printf("dead lock....\n");
+						assert(0);
+					}
 					goto up;
 				}		
 			if(current_block[channel_num][plane].current_mark_count==0){
@@ -5773,6 +5779,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					channel_num=target->page[i].channel_num;
 					plane=target->page[i].plane;
 					current_block[channel_num][plane].offset_in_node=i;
+					break;
 				}
 			}
 			if(max==-1){
@@ -5874,8 +5881,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			  kick_page_striping_page_count++;
 			  ptr_lru_node->page[offset_in_node].strip = 0;
 			}
-			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);		
-			printf("number of time enter mark_for_specific before remove a page:%d\n",mark_count);
+			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+			if(mark_count>0){
+				printf("number of time enter mark_for_specific before remove a page:%d\n",mark_count);
+			}		
 			current_block[channel_num][plane].flush_w_count_in_current ++;
 			k++;
 			//fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
