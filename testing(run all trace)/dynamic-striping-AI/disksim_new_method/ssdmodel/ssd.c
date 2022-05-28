@@ -4665,29 +4665,101 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	lru_node *start,*end;
-	int i;
-	if(ptr_buffer_cache->ptr_current_mark_node!=NULL){
-		start=ptr_buffer_cache->ptr_current_mark_node->prev;
-		end=ptr_buffer_cache->ptr_current_mark_node;
-		//accumulate the pass_req_count for every block in write buffer
-		while(start!=end){
-			start->pass_req_count++;
-			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
-				start->duration_label--;			
-				if(start->duration_label==0 && start->select_victim==0){
-					//put mean queue block to soon queue,so soon++ and mean--;
-					soon_count++;
-					mean_count--;
-				}	
-				else if(start->duration_label==1 && start->select_victim==0){
-					//put late queue block to mean queue,so mean++ and late--;
-					mean_count++;
-					late_count--;
-				}
-				start->duration_priority=0.001;
+	int i,soon=0,mean=0,late=0;
+	if(ptr_buffer_cache->ptr_head->prev!=NULL){
+		start=ptr_buffer_cache->ptr_head->prev;
+		end=ptr_buffer_cache->ptr_head;
+		if(start==end){
+			switch(start->duration_label){
+				case 0:
+					if(start->select_victim==0){
+						soon++;
+					}
+					break;
+				case 1:
+					if(start->select_victim==0){
+						mean++;
+					}
+					break;
+				case 2:
+					if(start->select_victim==0){
+						late++;
+					}
+					break;
 			}
-			start=start->prev;
 		}
+		else{
+		//accumulate the pass_req_count for every block in write buffer
+			while(start!=end){
+				start->pass_req_count++;
+				if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
+					start->duration_label--;			
+					if(start->duration_label==0 && start->select_victim==0){
+						//put mean queue block to soon queue,so soon++ and mean--;
+						soon_count++;
+						mean_count--;
+					}	
+					else if(start->duration_label==1 && start->select_victim==0){
+						//put late queue block to mean queue,so mean++ and late--;
+						mean_count++;
+						late_count--;
+					}
+					start->duration_priority=0.001;
+				}
+				switch(start->duration_label){
+					case 0:
+						if(start->select_victim==0){
+							soon++;
+						}
+						break;
+					case 1:
+						if(start->select_victim==0){
+							mean++;
+						}
+						break;
+					case 2:
+						if(start->select_victim==0){
+							late++;
+						}
+						break;
+				}
+				start=start->prev;
+			}
+			if(start->pass_req_count>4000 && start->duration_label>0){//demoting...
+					start->duration_label--;			
+					if(start->duration_label==0 && start->select_victim==0){
+						//put mean queue block to soon queue,so soon++ and mean--;
+						soon_count++;
+						mean_count--;
+					}	
+					else if(start->duration_label==1 && start->select_victim==0){
+						//put late queue block to mean queue,so mean++ and late--;
+						mean_count++;
+						late_count--;
+					}
+					start->duration_priority=0.001;
+			}
+			switch(start->duration_label){
+				case 0:
+					if(start->select_victim==0){
+						soon++;
+					}
+					break;
+				case 1:
+					if(start->select_victim==0){
+						mean++;
+					}
+					break;
+				case 2:
+					if(start->select_victim==0){
+						late++;
+					}
+					break;
+			}	
+		}		
+		assert(soon==soon_count);
+		assert(mean==mean_count);
+		assert(late==late_count);
 	}
 	ptr_lru_node->page[offset_in_node].pass_req_count=0;
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
@@ -5060,7 +5132,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	while(original!=ptr_buffer_cache->ptr_head){
-		//printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+		printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
 		if(soon_count>0){
 			if(original->duration_label==0 && original->select_victim==0){
 				original->select_victim=1;
@@ -5069,10 +5141,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				return;
 			}
 		}
-		else if(mean_count>0){
-			if(original->duration_label==0 && original->select_victim==0){
-				printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
-			}
+		else if(mean_count>0){			
 			if(original->duration_label==1 && original->select_victim==0){
 				original->select_victim=1;
 				mean_count--;
@@ -5080,13 +5149,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				return;
 			}
 		}
-		else if(late_count>0){
-			if(original->duration_label==1 && original->select_victim==0){
-				printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
-			}
-			if(original->duration_label==0 && original->select_victim==0){
-				printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
-			}
+		else if(late_count>0){		
 			if(original->duration_label==2 && original->select_victim==0){
 				original->select_victim=1;
 				late_count--;
