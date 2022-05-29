@@ -4738,11 +4738,6 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
   lru_node *start,*end;
 	int i;
 	soon=0,mean=0,late=0;
-	if(logical_node_num==81960 || logical_node_num==32808){
-		FILE *rnn=fopen("rnn.txt","a+");
-		fprintf(rnn,"%d\n",logical_node_num);
-		fclose(rnn);
-	}
 	if(ptr_buffer_cache->ptr_head->prev!=NULL){
 		start=ptr_buffer_cache->ptr_head->prev;
 		end=ptr_buffer_cache->ptr_head;
@@ -4789,11 +4784,6 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 					case 0:
 						if(start->select_victim==0){
 							soon++;
-							if(logical_node_num==81960 || logical_node_num==32808){
-								FILE *rnn=fopen("rnn.txt","a+");
-								fprintf(rnn,"soon:%d block:%d\n",soon,start->logical_node_num);
-								fclose(rnn);
-							}
 						}
 						break;
 					case 1:
@@ -4829,11 +4819,6 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 				case 0:
 					if(start->select_victim==0){
 						soon++;
-						if(logical_node_num==81960 || logical_node_num==32808){
-							FILE *rnn=fopen("rnn.txt","a+");
-							fprintf(rnn,"soon:%d block:%d\n",soon,start->logical_node_num);
-							fclose(rnn);
-						}
 					}
 					break;
 				case 1:
@@ -4900,17 +4885,21 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	ptr_lru_node->page[offset_in_node].exist = 0;
 	ptr_lru_node->buffer_page_num --;
 	ptr_buffer_cache->total_buffer_page_num --;
-	printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);
 
 	current_block[channel_num][plane].current_mark_count --;
 	current_block[channel_num][plane].current_write_offset ++;
 	flush_page_count++;
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
-    if(ptr_lru_node->group_type==0)
-		remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
-    else if (ptr_lru_node->group_type==1)
-		remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
+		printf("*************remove all block:%d*************\n",ptr_lru_node->logical_node_num);
+		assert(current_block[channel_num][plane].current_mark_count==0);
+		if(ptr_lru_node->group_type==0)
+			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
+		else if (ptr_lru_node->group_type==1)
+			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
+	}
+	else{
+		printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);
 	}
 	
 }
@@ -5140,8 +5129,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
 		printf("inside mark_for_all\n");
 		assign=1;
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
-        if(no_block_can_kick==1)
-			return;
         //fprintf(outputssd,"after mark_for_specific_current_block\n");
       }
     }
@@ -5154,7 +5141,8 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	while(original!=ptr_buffer_cache->ptr_head){
-		printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+		if(original->select_victim==0)
+			printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
 		if(soon_count>0){
 			if(original->duration_label==0 && original->select_victim==0){
 				original->select_victim=1;
@@ -5181,6 +5169,31 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		}
 		original=original->prev;		
 	}	
+	if(soon_count>0){
+			if(original->duration_label==0 && original->select_victim==0){
+				original->select_victim=1;
+				soon_count--;
+				ptr_buffer_cache->ptr_current_mark_node=original;
+				return;
+			}
+		}
+	else if(mean_count>0){			
+		if(original->duration_label==1 && original->select_victim==0){
+			original->select_victim=1;
+			mean_count--;
+			ptr_buffer_cache->ptr_current_mark_node=original;
+			return;
+		}
+	}
+	else if(late_count>0){		
+		if(original->duration_label==2 && original->select_victim==0){
+			original->select_victim=1;
+			late_count--;
+			ptr_buffer_cache->ptr_current_mark_node=original;
+			return;
+		}
+	}
+	
 	//no block can kick in late....
 	assert(0);
 }
