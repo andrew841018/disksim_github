@@ -1422,7 +1422,7 @@ int max_free_page_in_plane(int die_num,ssd_t *currdisk,int elem_num)
       min_plane = plane_num;
     }
     elsei*/ 
-    if((min < pm->free_blocks*SSD_DATA_PAGES_PER_BLOCK(currdisk) - current_block[elem_num][plane_num].flush_w_count_in_current) && current_block[elem_num][plane_num].current_mark_count>0)
+    if((min < pm->free_blocks*SSD_DATA_PAGES_PER_BLOCK(currdisk) - current_block[elem_num][plane_num].flush_w_count_in_current))
     {
       min = pm->free_blocks*SSD_DATA_PAGES_PER_BLOCK(currdisk) - current_block[elem_num][plane_num].flush_w_count_in_current;
       min_plane = plane_num;
@@ -5326,6 +5326,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         // {
         //   k=0;
         // }
+        if(ptr_buffer_cache->total_buffer_page_num <= ptr_buffer_cache->max_buffer_page_num)
+			return;
         channel_num = k%8;
         //channel_num = min_response_elem(currdisk);
         // channel_num = kick_channel_num;
