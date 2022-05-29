@@ -4897,6 +4897,17 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	//in that case, the block can be selected as victim block.
 	if(current_block[channel_num][plane].current_mark_count==0 && ptr_lru_node->buffer_page_num>0){
 		ptr_lru_node->select_victim=0;
+		switch(ptr_lru_node->duration_label){
+			case 0:
+				soon_count++;
+				break;
+			case 1:
+				mean_count++;
+				break;
+			case 2:
+				late_count++;
+				break;
+		}
 		//we free the lock,so victim count--
 		victim_count--;
 	}	
