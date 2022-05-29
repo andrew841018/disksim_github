@@ -323,7 +323,7 @@ int fill_block_count = 0;
  * total logical block count is the number of a physical block associate what many logical block count
  * */
 int total_logical_block_count = 0;
-
+int victim_count=0;
   
 char  trace_file_name[200];
 
@@ -4183,7 +4183,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	FILE *hit=fopen("hit_ratio.txt","w");
 	fprintf(hit,"hit count:%d miss count:%d hit ratio:%f\n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count));
 	fclose(hit);
-  }
+  }  
   if(Pg_node == NULL)
   {
     //printf("add node\n");
@@ -4885,7 +4885,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	ptr_lru_node->page[offset_in_node].exist = 0;
 	ptr_lru_node->buffer_page_num --;
 	ptr_buffer_cache->total_buffer_page_num --;
-
+	assert(current_block[channel_num][plane].current_mark_count>0);
 	current_block[channel_num][plane].current_mark_count --;
 	current_block[channel_num][plane].current_write_offset ++;
 	flush_page_count++;
@@ -4897,9 +4897,11 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
 		else if (ptr_lru_node->group_type==1)
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
+		victim_count--;
+		assert(victim_count<64);
 	}
 	else{
-		printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);
+		printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
 	}
 	
 }
@@ -5127,6 +5129,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
 		printf("inside mark_for_all\n");
+		printf("current_block[%d][%d].current_mark_count:%d victim_count:%d\n",i,j,current_block[i][j].current_mark_count,victim_count);
+		assert(victim_count<64);
 		assign=1;
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
         //fprintf(outputssd,"after mark_for_specific_current_block\n");
@@ -5146,6 +5150,8 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		if(soon_count>0){
 			if(original->duration_label==0 && original->select_victim==0){
 				original->select_victim=1;
+				victim_count++;
+				assert(victim_count<=64);
 				soon_count--;
 				ptr_buffer_cache->ptr_current_mark_node=original;
 				return;
@@ -5154,6 +5160,8 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		else if(mean_count>0){			
 			if(original->duration_label==1 && original->select_victim==0){
 				original->select_victim=1;
+				victim_count++;
+				assert(victim_count<=64);
 				mean_count--;
 				ptr_buffer_cache->ptr_current_mark_node=original;
 				return;
@@ -5163,6 +5171,8 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			if(original->duration_label==2 && original->select_victim==0){
 				original->select_victim=1;
 				late_count--;
+				victim_count++;
+				assert(victim_count<=64);
 				ptr_buffer_cache->ptr_current_mark_node=original;
 				return;
 			}
@@ -5172,6 +5182,8 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	if(soon_count>0){
 			if(original->duration_label==0 && original->select_victim==0){
 				original->select_victim=1;
+				victim_count++;
+				assert(victim_count<=64);
 				soon_count--;
 				ptr_buffer_cache->ptr_current_mark_node=original;
 				return;
@@ -5180,6 +5192,8 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	else if(mean_count>0){			
 		if(original->duration_label==1 && original->select_victim==0){
 			original->select_victim=1;
+			victim_count++;
+			assert(victim_count<=64);
 			mean_count--;
 			ptr_buffer_cache->ptr_current_mark_node=original;
 			return;
@@ -5188,19 +5202,21 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	else if(late_count>0){		
 		if(original->duration_label==2 && original->select_victim==0){
 			original->select_victim=1;
+			victim_count++;
+			assert(victim_count<=64);
 			late_count--;
 			ptr_buffer_cache->ptr_current_mark_node=original;
 			return;
 		}
 	}
-	int i,j;
+	/*int i,j;
 	for(i=0;i<8;i++){
 		for(j=0;j<8;j++){
 			FILE *size=fopen("mark_count.txt","a+");
 			fprintf(size,"channel:%d plane:%d block:%d mark_count:%d\n",i,j,current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].current_mark_count);
 			fclose(size);
 		}
-	}
+	}*/
 	//no block can kick in late....
 	assert(0);
 }
@@ -5988,6 +6004,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			  ptr_lru_node->page[offset_in_node].strip = 0;
 			}
 			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+			FILE *victim=fopen("victim_count.txt","a+");
+			fprintf(victim,"victim count:%d\n",victim_count);
+			fclose(victim);
 			if(mark_count>0){
 				printf("number of time enter mark_for_specific before remove a page:%d\n",mark_count);
 			}		
