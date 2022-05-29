@@ -4920,6 +4920,9 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 		else if (ptr_lru_node->group_type==1)
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
 		victim_count--;
+		//this code is to avoid this block from kicking again,becasue even we free this block
+		//the corresponding select_victim won't change(=1)...
+		ptr_lru_node->select_victim=0;
 		assert(victim_count<64);
 	}
 	else{
@@ -5167,8 +5170,8 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	while(original!=ptr_buffer_cache->ptr_head){
-		if(original->select_victim==0)
-			printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
+		//if(original->select_victim==0)
+			//printf("label:%d select_victim:%d block number:%d\n",original->duration_label,original->select_victim,original->logical_node_num);
 		if(soon_count>0){
 			if(original->duration_label==0 && original->select_victim==0){
 				original->select_victim=1;
@@ -5901,10 +5904,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				assert(current_block[channel_num][plane].current_mark_count==0);
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-				if(no_block_can_kick==1){
-					k++;
-					goto up;
-				}
 			}
 			target=current_block[channel_num][plane].ptr_lru_node;	
 			int strip_way=target->StripWay;
@@ -6025,10 +6024,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			  kick_page_striping_page_count++;
 			  ptr_lru_node->page[offset_in_node].strip = 0;
 			}
-			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
-			FILE *victim=fopen("victim_count.txt","a+");
-			fprintf(victim,"victim count:%d\n",victim_count);
-			fclose(victim);
+			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);			
 			if(mark_count>0){
 				printf("number of time enter mark_for_specific before remove a page:%d\n",mark_count);
 			}		
