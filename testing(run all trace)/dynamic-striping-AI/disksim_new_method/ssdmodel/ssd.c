@@ -5193,7 +5193,14 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 			return;
 		}
 	}
-	
+	int i,j;
+	for(i=0;i<8;i++){
+		for(j=0;j<8;j++){
+			FILE *size=fopen("mark_count.txt","a+");
+			fprintf(size,"channel:%d plane:%d block:%d mark_count:%d\n",i,j,current_block[i][j].ptr_lru_node->logical_node_num,current_block[i][j].current_mark_count);
+			fclose(size);
+		}
+	}
 	//no block can kick in late....
 	assert(0);
 }
@@ -5853,6 +5860,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				goto up;
 			}
 			if(current_block[channel_num][plane].ptr_lru_node==NULL || current_block[channel_num][plane].ptr_lru_node->select_victim!=1){
+				assert(current_block[channel_num][plane].current_mark_count==0);
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(no_block_can_kick==1){
