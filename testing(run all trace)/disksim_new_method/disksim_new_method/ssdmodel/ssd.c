@@ -5326,8 +5326,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
         // {
         //   k=0;
         // }
-        if(ptr_buffer_cache->total_buffer_page_num <= ptr_buffer_cache->max_buffer_page_num)
-			return;
         channel_num = k%8;
         //channel_num = min_response_elem(currdisk);
         // channel_num = kick_channel_num;
