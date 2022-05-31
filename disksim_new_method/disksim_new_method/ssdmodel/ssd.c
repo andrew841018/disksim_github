@@ -4266,7 +4266,6 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	assert(channel_num == verify_channel);
 	assert(plane == verify_plane);
 	assert(ptr_lru_node->page[offset_in_node].exist == 2);
-
   ptr_lru_node->page[offset_in_node].rcover = 0 ;
   ptr_lru_node->page[offset_in_node].wcover = 0 ;
 
@@ -4408,9 +4407,8 @@ void remove_from_hash_and_lru(buffer_cache *ptr_buffer_cache,lru_node *ptr_lru_n
       // kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
     }
 	}
-
-	free(ptr_lru_node);
 	flush_count++;
+	free(ptr_lru_node);
   ptr_buffer_cache->total_buffer_block_num--;
 
 }
@@ -5947,10 +5945,9 @@ void show_result(buffer_cache *ptr_buffer_cache)
   fprintf(finaloutput,"[YIFEN] kick_page_striping_page_count=%d, kick_block_striping_page_count=%d, kick_all_page_count = %d\n", kick_page_striping_page_count, kick_block_striping_page_count,statistic.kick_write_intensive_page_count);
   printf(YELLOW"---[YIFEN] kick_block_strip_node = %d | kick_block_strip_sumpage = %d|avg_block_strip_size =%lf\n"NONE,kick_block_strip_node, kick_block_strip_sumpage, (double)kick_block_strip_sumpage/(double)kick_block_strip_node);
   fprintf(finaloutput,"---[YIFEN] kick_block_strip_node = %d | kick_block_strip_sumpage = %d|avg_block_strip_size =%lf\n",kick_block_strip_node, kick_block_strip_sumpage, (double)kick_block_strip_sumpage/(double)kick_block_strip_node);
-  printf("\n[Yifen]flush_page_count%d\n", flush_page_count);
-  printf("\n[Yifen] flush count=%d\n", flush_count);
-
-  fprintf(finaloutput,"\n[Yifen] kick_count=%d\n", kick_count);
+  printf("\n[Yifen] flush_count=%d\n", flush_count);
+  printf("\n[Yifen] flush_page_count=%d\n", flush_page_count);
+  fprintf(finaloutput,"\n[Yifen] flush_count=%d\n", flush_count);
   printf("\n**** GC ****\n");
   fprintf(finaloutput,"\n**** GC ****\n");
   printf("ytc94u total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
