@@ -1429,7 +1429,7 @@ int max_free_page_in_plane(int die_num,ssd_t *currdisk,int elem_num)
       min_plane = plane_num;
     }
     elsei*/ 
-    if((min < pm->free_blocks*SSD_DATA_PAGES_PER_BLOCK(currdisk) - current_block[elem_num][plane_num].flush_w_count_in_current) && current_block[elem_num][plane_num].ptr_lru_node->select_victim==1)
+    if((min < pm->free_blocks*SSD_DATA_PAGES_PER_BLOCK(currdisk) - current_block[elem_num][plane_num].flush_w_count_in_current) && current_block[elem_num][plane_num].ptr_lru_node->select_victim==1 && current_block[elem_num][plane_num].ptr_lru_node->logical_node_num<500000)
     {
       min = pm->free_blocks*SSD_DATA_PAGES_PER_BLOCK(currdisk) - current_block[elem_num][plane_num].flush_w_count_in_current;
       min_plane = plane_num;
@@ -4967,7 +4967,7 @@ void add_page_striping_page_to_channel(unsigned int page_offset,lru_node *ptr_lr
   //mark write intensive node
   current_block[channel_num][plane].ptr_lru_node = ptr_lru_node;
   current_block[channel_num][plane].offset_in_node = page_offset;
-  //assert(current_block[channel_num][plane].current_mark_count == 0);
+  assert(current_block[channel_num][plane].current_mark_count == 0);
   current_block[channel_num][plane].trigger = 1;
   if(current_block[channel_num][plane].current_mark_count == 0)
   {
@@ -5148,8 +5148,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 				count++;
 			}
 		}
+		assert(count>0);
 		assert(count==ptr_buffer_cache->ptr_current_mark_node->buffer_page_num);
-		current_block[channel_num][plane].current_mark_count=0;
 		p=ptr_buffer_cache->ptr_current_mark_node;
 		if(ptr_buffer_cache->current_mark_offset!=0)
 			ptr_buffer_cache->current_mark_offset=0;
@@ -5187,7 +5187,8 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 			if(p==ptr_buffer_cache->ptr_current_mark_node){
 				break;
 			}
-		}			
+		}
+		current_block[channel_num][plane].current_mark_count=0;
 	}
 	int outout=0,i,j;	
      //trigger_mark_count++; //sinhome
