@@ -4658,7 +4658,6 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
   
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
-	
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
 	{
     //fprintf(lpb_ppn, "w_hit_count ++\tw_hit_count=%d\t", ptr_buffer_cache->w_hit_count);
@@ -4728,8 +4727,9 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     
     ptr_buffer_cache->ptr_head = ptr_lru_node;
   }
-  lru_node *start,*end;
 	int i;
+	lru_node *start,*end;
+
 	if(ptr_buffer_cache->ptr_head->prev!=NULL){
 		start=ptr_buffer_cache->ptr_head->prev;
 		end=ptr_buffer_cache->ptr_head;
@@ -4740,8 +4740,6 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 				start->duration_label--;			
 				start->duration_priority=0.001;
 			}
-			//printf("(after demoting) soon:%d mean:%d late:%d block_num:%d\n",soon,mean,late,start->logical_node_num);
-			//printf("(after check write buffer) soon:%d mean:%d late:%d block_num:%d\n",soon,mean,late,start->logical_node_num);
 			start=start->prev;
 		}
 		if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
@@ -5062,14 +5060,16 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     }
   }
 }
-
+double p_weight;
 void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//ptr_head=MRU, ptr_head->prev=LRU, ptr_head->next means from MRU to LRU
 	//ptr_head->prev means direct point to LRU end.
 	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
-	lru_node *mean_tmp=NULL,*late_tmp=NULL;
+	lru_node *victim=NULL;
 	int b1=0,b2=0,i,j;
+	p_weight=0.42;
+	double benefit,min=10000;
 	while(original!=ptr_buffer_cache->ptr_head){
 		original->overwrite_num=0;
 		for(i=0;i<global_HQ_size;i++){
@@ -5079,23 +5079,33 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				}
 			}
 		}
+		benefit=p_weight*original->duration_priority+(1-p_weight)*original->overwrite_num;
+		//find min benefit node in write buffer
+		if(min>benefit && original->select_victim==0){
+			min=benefit;
+			victim=original;
+		}
 		original=original->prev;		
 	}	
 	original->overwrite_num=0;
-		for(i=0;i<global_HQ_size;i++){
-			for(j=0;j<LRUSIZE;j++){
-				if(original->page[j].lpn==global_HQ[i]){
-					original->overwrite_num++;
-				}
+	for(i=0;i<global_HQ_size;i++){
+		for(j=0;j<LRUSIZE;j++){
+			if(original->page[j].lpn==global_HQ[i]){
+				original->overwrite_num++;
 			}
 		}
-	double min=10000;
-	///Ving.....not finish yet....
-	original=ptr_buffer_cache->ptr_head->prev;
-	while(original!=ptr_buffer_cache->ptr_head){
-		
 	}
-	assert(0);
+	benefit=p_weight*original->duration_priority+(1-p_weight)*original->overwrite_num;
+	//find min benefit node in write buffer(check last node)
+	if(min>benefit && original->select_victim==0){
+		min=benefit;
+		victim=original;	
+	}
+	assert(victim!=NULL);
+	victim_count++;
+	victim->select_victim=1;
+	assert(victim_count<=64);
+	ptr_buffer_cache->ptr_current_mark_node=victim;
 }
 lru_node *p;
 int mark_count=0;
@@ -5106,8 +5116,6 @@ void mark_for_specific_current_block(buffer_cache *ptr_buffer_cache,unsigned int
 		assign=0;
 		AI_predict_victim(ptr_buffer_cache);
 		mark_count++;
-		if(no_block_can_kick==1)
-			return;	
 		int i,count=0,only_read=0,only_write=0,P_intensive,B_intensive,strip_way;
 		for(i=0;i<LRUSIZE;i++){
 			if(ptr_buffer_cache->ptr_current_mark_node->page[i].exist==2 || ptr_buffer_cache->ptr_current_mark_node->page[i].exist==1){
@@ -6345,7 +6353,10 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   statistic_the_data_in_every_stage();
-
+  FILE *result=fopen("performance.txt","a+");
+  fprintf(result,"weight:%f hit ratio:%f\n",p_weight,(double)ptr_buffer_cache->w_hit_count/(double)(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
+  fclose(result);
+  
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
