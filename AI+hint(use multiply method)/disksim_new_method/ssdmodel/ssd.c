@@ -5068,7 +5068,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *victim=NULL;
 	int b1=0,b2=0,i,j;
-	p_weight=0.9;
+	p_weight=0.28;
 	double benefit,min=10000;
 	while(original!=ptr_buffer_cache->ptr_head){
 		original->overwrite_num=0;
@@ -6356,7 +6356,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
   FILE *result=fopen("performance.txt","a+");
   fprintf(result,"weight:%f hit ratio:%f\n",p_weight,(double)ptr_buffer_cache->w_hit_count/(double)(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
   fclose(result);
-  
+  assert(0);
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
