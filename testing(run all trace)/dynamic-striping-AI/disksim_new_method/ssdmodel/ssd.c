@@ -5772,6 +5772,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				if(plane==-1){
 					k++;
 					if(k>=20){
+						return;
 						printf("dead lock....\n");
 						assert(0);
 					}
