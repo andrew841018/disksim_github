@@ -5068,7 +5068,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL;
 	int b1=0,b2=0,i,j;
-	p_weight=0.5;
+	p_weight=0.46;
 	double benefit,soon_min=10000,mean_min=10000,late_min=10000;
 	while(original!=ptr_buffer_cache->ptr_head){
 		original->overwrite_num=0;
