@@ -5138,14 +5138,17 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	if(soon!=NULL){
 		ptr_buffer_cache->ptr_current_mark_node=soon;
 		soon->select_victim=1;
+		return;
 	}
 	else if(mean!=NULL){
 		ptr_buffer_cache->ptr_current_mark_node=mean;
 		mean->select_victim=1;
+		return;
 	}
 	else if(late!=NULL){
 		ptr_buffer_cache->ptr_current_mark_node=late;
 		late->select_victim=1;
+		return;
 	}	
 	assert(0);
 }
