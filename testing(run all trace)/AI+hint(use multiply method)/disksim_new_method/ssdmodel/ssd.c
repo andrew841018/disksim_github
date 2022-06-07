@@ -4527,7 +4527,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	ptr_node->select_victim=0;
 	switch(ptr_node->duration_label){
 		case 0:
-			soon_time+=acc_count[logical_node_num];
+			//soon_time+=acc_count[logical_node_num];
 			ptr_node->duration_priority=soon_time;
 			if(ptr_buffer_cache->soon_max<soon_time){
 				ptr_buffer_cache->soon_max=soon_time;
@@ -4535,7 +4535,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 			soon_time+=0.001;
 			break;
 		case 1:
-			mean_time+=acc_count[logical_node_num];
+			//mean_time+=acc_count[logical_node_num];
 			ptr_node->duration_priority=mean_time;
 			if(ptr_buffer_cache->mean_max<mean_time){
 				ptr_buffer_cache->mean_max=mean_time;
@@ -4543,7 +4543,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 			mean_time+=0.001;
 			break;
 		case 2:
-			late_time+=acc_count[logical_node_num];
+			//late_time+=acc_count[logical_node_num];
 			ptr_node->duration_priority=late_time;
 			if(ptr_buffer_cache->late_max<late_time){
 				ptr_buffer_cache->late_max=late_time;
@@ -4747,7 +4747,8 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		while(start!=end){
 			start->pass_req_count++;
 			if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
-				start->duration_label--;			
+				start->duration_label--;	
+				start->pass_req_count=0;		
 				start->duration_priority=0.001;
 			}
 			start=start->prev;
@@ -6455,6 +6456,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
+	printf("first duration+demoting reset pass_req_count to zero\n");
     assert(0);
 }
 

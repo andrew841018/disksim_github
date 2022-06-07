@@ -5050,6 +5050,8 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
+		//printf("inside mark_for_all\n");
+		//printf("current_block[%d][%d].current_mark_count:%d victim_count:%d\n",i,j,current_block[i][j].current_mark_count,victim_count);
 		assert(victim_count<64);
 		assign=1;
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
@@ -5064,10 +5066,10 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//ptr_head->prev means direct point to LRU end.
 	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
-	lru_node *soon=NULL,*mean=NULL,*late=NULL;
+	lru_node *victim=NULL;
 	int b1=0,b2=0,i,j;
-	p_weight=0.9;
-	double benefit,soon_min=10000,mean_min=10000,late_min=10000;
+	p_weight=0.46;
+	double benefit,min=10000;
 	while(original!=ptr_buffer_cache->ptr_head){
 		original->overwrite_num=0;
 		for(i=0;i<global_HQ_size;i++){
@@ -5079,25 +5081,9 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		}
 		benefit=p_weight*original->duration_priority+(1-p_weight)*original->overwrite_num;
 		//find min benefit node in write buffer
-		switch(original->duration_label){
-			case 0:
-				if(soon_min>benefit && original->select_victim==0){
-					soon_min=benefit;
-					soon=original;
-				}
-				break;
-			case 1:
-				if(mean_min>benefit && original->select_victim==0){
-					mean_min=benefit;
-					mean=original;
-				}
-				break;
-			case 2:
-				if(late_min>benefit && original->select_victim==0){
-					late_min=benefit;
-					late=original;
-				}
-				break;
+		if(min>benefit && original->select_victim==0){
+			min=benefit;
+			victim=original;
 		}
 		original=original->prev;		
 	}	
@@ -5111,44 +5097,15 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	}
 	benefit=p_weight*original->duration_priority+(1-p_weight)*original->overwrite_num;
 	//find min benefit node in write buffer(check last node)
-	switch(original->duration_label){
-		case 0:
-			if(soon_min>benefit && original->select_victim==0){
-				soon_min=benefit;
-				soon=original;
-			}
-			break;
-		case 1:
-			if(mean_min>benefit && original->select_victim==0){
-				mean_min=benefit;
-				mean=original;
-			}
-			break;
-		case 2:
-			if(late_min>benefit && original->select_victim==0){
-				late_min=benefit;
-				late=original;
-			}
-			break;
+	if(min>benefit && original->select_victim==0){
+		min=benefit;
+		victim=original;	
 	}
+	assert(victim!=NULL);
 	victim_count++;
+	victim->select_victim=1;
 	assert(victim_count<=64);
-	if(soon!=NULL){
-		ptr_buffer_cache->ptr_current_mark_node=soon;
-		soon->select_victim=1;
-		return;
-	}
-	else if(mean!=NULL){
-		ptr_buffer_cache->ptr_current_mark_node=mean;
-		mean->select_victim=1;
-		return;
-	}
-	else if(late!=NULL){
-		ptr_buffer_cache->ptr_current_mark_node=late;
-		late->select_victim=1;
-		return;
-	}	
-	assert(0);
+	ptr_buffer_cache->ptr_current_mark_node=victim;
 }
 lru_node *p;
 int mark_count=0;
