@@ -4093,6 +4093,7 @@ unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
 double benefit_value[10000000]={0};
 double soon_time=0.001,mean_time=0.002,late_time=0.003;
+double hit_ratio;
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -4179,6 +4180,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     Pg_node = Pg_node->next;
   }
   if(ptr_buffer_cache->w_miss_count>0){
+	hit_ratio=(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count);
 	FILE *hit=fopen("hit_ratio.txt","w");
 	fprintf(hit,"hit count:%d miss count:%d hit ratio:%f\n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count));
 	fclose(hit);
@@ -4220,8 +4222,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}
 	Pg_node->pass_req_count=0;
 	//this function will let current_mark_count=0 and clear any marked pages.
-    //remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
-    
+    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+    Pg_node->select_victim=0;
+    victim_count--;
     //access any page in the block,the all block will be place to MRU,even if that page currently is not exist. 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
@@ -4522,7 +4525,6 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 			if(ptr_buffer_cache->soon_max<soon_time){
 				ptr_buffer_cache->soon_max=soon_time;
 			}
-			block_exist[logical_node_num]=1;
 			soon_time+=0.001;
 			break;
 		case 1:
@@ -4530,7 +4532,6 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 			if(ptr_buffer_cache->mean_max<mean_time){
 				ptr_buffer_cache->mean_max=mean_time;
 			}
-			block_exist[logical_node_num]=1;
 			mean_time+=0.001;
 			break;
 		case 2:
@@ -4538,7 +4539,6 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 			if(ptr_buffer_cache->late_max<late_time){
 				ptr_buffer_cache->late_max=late_time;
 			}
-			block_exist[logical_node_num]=1;
 			late_time+=0.001;
 			break;
 	}	
@@ -4823,7 +4823,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 		assert(victim_count<64);
 	}
 	else{
-		printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
+		//printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
 	}
 	
 }
@@ -5069,12 +5069,17 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *soon=NULL,*mean=NULL,*late=NULL;
 	int b1=0,b2=0,i,j;
 	p_weight=0.46;
+	int physical_node_num;
 	double benefit,soon_min=10000,mean_min=10000,late_min=10000;
 	while(original!=ptr_buffer_cache->ptr_head){
 		original->overwrite_num=0;
 		for(i=0;i<global_HQ_size;i++){
+			physical_node_num = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
 			for(j=0;j<LRUSIZE;j++){
 				if(original->page[j].lpn==global_HQ[i]){
+					original->overwrite_num++;
+				}
+				if(original->logical_node_num==physical_node_num){
 					original->overwrite_num++;
 				}
 			}
@@ -5089,13 +5094,13 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				}
 				break;
 			case 1:
-				if(mean_min>benefit && original->select_victim==0){
+				if(mean_min>benefit && original->select_victim==0 && mean==NULL){
 					mean_min=benefit;
 					mean=original;
 				}
 				break;
 			case 2:
-				if(late_min>benefit && original->select_victim==0){
+				if(late_min>benefit && original->select_victim==0 && late==NULL){
 					late_min=benefit;
 					late=original;
 				}
@@ -5105,8 +5110,12 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	}	
 	original->overwrite_num=0;
 	for(i=0;i<global_HQ_size;i++){
+		physical_node_num = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
 		for(j=0;j<LRUSIZE;j++){
 			if(original->page[j].lpn==global_HQ[i]){
+				original->overwrite_num++;
+			}
+			if(original->logical_node_num==physical_node_num){
 				original->overwrite_num++;
 			}
 		}
@@ -5115,19 +5124,19 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//find min benefit node in write buffer(check last node)
 	switch(original->duration_label){
 		case 0:
-			if(soon_min>benefit && original->select_victim==0){
+			if(soon_min>benefit && original->select_victim==0 && soon==NULL){
 				soon_min=benefit;
 				soon=original;
 			}
 			break;
 		case 1:
-			if(mean_min>benefit && original->select_victim==0){
+			if(mean_min>benefit && original->select_victim==0 && mean==NULL){
 				mean_min=benefit;
 				mean=original;
 			}
 			break;
 		case 2:
-			if(late_min>benefit && original->select_victim==0){
+			if(late_min>benefit && original->select_victim==0 && late==NULL){
 				late_min=benefit;
 				late=original;
 			}
