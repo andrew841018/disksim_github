@@ -4810,7 +4810,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	}
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
-		printf("*************remove all block:%d*************\n",ptr_lru_node->logical_node_num);
+		//printf("*************remove all block:%d*************\n",ptr_lru_node->logical_node_num);
 		assert(current_block[channel_num][plane].current_mark_count==0);
 		if(ptr_lru_node->group_type==0)
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
