@@ -4086,7 +4086,7 @@ void add_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
     add_a_page_in_the_node(lpn,logical_node_num,offset_in_node,ptr_lru_node,ptr_buffer_cache,0);
   }
 }
-int duration_arr[10000000]={0};//duration_arr[block number]=duration label
+int duration_arr[10000000];//duration_arr[block number]=duration label
 int dur_index=0,init=1;
 int block_exist[1000000]={0};
 unsigned int skip_block[10000000]={0};
@@ -4113,6 +4113,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   int i;
   if(init==1){	
+	int i;
+	for(i=0;i<10000000;i++)
+		duration_arr[i]=-1;
 	int physical_block_num=-1;
 	FILE *dur=fopen("duration.txt","r");
 	char buf1[1024];
@@ -4135,7 +4138,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		physical_block_num=atoi(substr1);
 		substr1=strtok(NULL,delim1);//duration label
 		duration_label=atoi(substr1);
-		duration_arr[physical_block_num]=duration_label;				
+		if(duration_arr[physical_block_num]==-1)
+			duration_arr[physical_block_num]=duration_label;
 	} 			    
 	fclose(dur);
 	init=0;
@@ -4223,8 +4227,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	Pg_node->pass_req_count=0;
 	//this function will let current_mark_count=0 and clear any marked pages.
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
-    Pg_node->select_victim=0;
-    victim_count--;
+    if(Pg_node->select_victim==1){
+		Pg_node->select_victim=0;
+		victim_count--;
+	}
     //access any page in the block,the all block will be place to MRU,even if that page currently is not exist. 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
@@ -5050,8 +5056,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
-		printf("inside mark_for_all\n");
-		printf("current_block[%d][%d].current_mark_count:%d victim_count:%d\n",i,j,current_block[i][j].current_mark_count,victim_count);
 		assert(victim_count<64);
 		assign=1;
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
