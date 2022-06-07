@@ -4094,6 +4094,7 @@ unsigned int page_count[1000][64];
 double benefit_value[10000000]={0};
 double soon_time=0.001,mean_time=0.002,late_time=0.003;
 double hit_ratio;
+int write_count[1000000][64];
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -4113,9 +4114,12 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
   int i;
   if(init==1){	
-	int i;
+	int i,j;
 	for(i=0;i<10000000;i++)
-		duration_arr[i]=-1;
+		duration_arr[i]=0;
+	for(i=0;i<1000000;i++)
+		for(j=0;j<LRUSIZE;j++)
+			write_count[i][j]=0;
 	int physical_block_num=-1;
 	FILE *dur=fopen("duration.txt","r");
 	char buf1[1024];
@@ -4138,7 +4142,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		physical_block_num=atoi(substr1);
 		substr1=strtok(NULL,delim1);//duration label
 		duration_label=atoi(substr1);
-		if(duration_arr[physical_block_num]==-1)
+		if(duration_arr[physical_block_num]==0)
 			duration_arr[physical_block_num]=duration_label;
 	} 			    
 	fclose(dur);
@@ -4200,6 +4204,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   else
   {
     //remove the mark page int the hit node
+    assert(duration_arr[physical_node_num]!=-1);
     Pg_node->duration_label=duration_arr[physical_node_num];
 	switch(Pg_node->duration_label){
 		case 0:
@@ -4234,6 +4239,21 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     //access any page in the block,the all block will be place to MRU,even if that page currently is not exist. 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
+  write_count[physical_node_num][phy_node_offset]++;
+    ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size=0;
+    int block_write_count=0,page_write_count=0;
+	for(i=0;i<LRUSIZE;i++){
+		if(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->page[i].exist==1){
+			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size++;
+		}
+		if(write_count[physical_node_num][i]>0){
+			block_write_count+=write_count[physical_node_num][i];
+		}
+	}
+  	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
+	FILE *t=fopen("info(run1_Postmark_2475).txt","a+");
+	fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
+	fclose(t);
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -4523,6 +4543,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	ptr_node->group_type=flag;
 	ptr_node->logical_node_num = logical_node_num;
 	ptr_buffer_cache->total_buffer_block_num++;
+	assert(duration_arr[logical_node_num]!=-1);
 	ptr_node->duration_label=duration_arr[logical_node_num];
 	ptr_node->select_victim=0;
 	switch(ptr_node->duration_label){
@@ -4754,7 +4775,8 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start=start->prev;
 		}
 		if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
-			start->duration_label--;			
+			start->duration_label--;
+			start->pass_req_count=0;			
 			start->duration_priority=0.001;
 		}
 	}
@@ -5798,6 +5820,14 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					}
 					goto up;
 				}		
+			assert(p!=NULL);
+			for(i=0;i<LRUSIZE;i++){
+				if(p->page[i].exist==2){
+					channel_num=p->page[i].channel_num;
+					plane=p->page[i].plane;
+				}
+			}
+			assert(current_block[channel_num][plane].current_mark_count>0); 
 			if(current_block[channel_num][plane].current_mark_count==0){
 				target=current_block[channel_num][plane].ptr_lru_node;	
 				target->select_victim=0;
@@ -5818,28 +5848,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				if(strip_way==1)//mark page striping node successfully
 					break;			
 			}						
-			int max=-1;
-		  Top:
-			max=-1;
-			for(i=0;i<LRUSIZE;i++){
-				if(target->page[i].exist==2){
-					max=0;
-					channel_num=target->page[i].channel_num;
-					plane=target->page[i].plane;
-					current_block[channel_num][plane].offset_in_node=i;
-					break;
-				}
-			}
-			if(max==-1){
-				assert(0);
-				assign=1;
-				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-				goto up;
-			}
-			assert(max>-1);
-			assert(channel_num >=0 && channel_num < 8);
-			assert(plane >=0 && plane < 8);
-		  }
+		 }
 		  else
 		  {
 			printf("no_page_can_evict\n");
@@ -5863,7 +5872,11 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			//printf("channel:%d,plane:%d no candidate\n", channel_num,plane);
 			continue;
 		  }
-		  
+		  for(i=0;i<LRUSIZE;i++){
+			if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==2){
+				current_block[channel_num][plane].offset_in_node=i;
+			}
+		  }
 		//  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
 		  //printf("ytc94u channel_num = %d plane = %d\n",channel_num,plane);
 		  ptr_lru_node = current_block[channel_num][plane].ptr_lru_node;
@@ -5929,14 +5942,17 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			  kick_page_striping_page_count++;
 			  ptr_lru_node->page[offset_in_node].strip = 0;
 			}
+			int enter=0;
 			for(i=0;i<LRUSIZE;i++){
 				if(ptr_lru_node->page[i].exist==2){
+					enter=1;
 					channel_num=ptr_lru_node->page[i].channel_num;
 					plane=ptr_lru_node->page[i].plane;
 					remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);				
 					current_block[channel_num][plane].flush_w_count_in_current ++;
 				}
 			}
+			assert(enter==1);
 			return;
 			k++;
 			//fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
