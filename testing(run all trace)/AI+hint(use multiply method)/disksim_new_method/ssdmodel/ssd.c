@@ -4116,7 +4116,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   if(init==1){	
 	int i,j;
 	for(i=0;i<10000000;i++)
-		duration_arr[i]=0;
+		duration_arr[i]=-1;
 	for(i=0;i<1000000;i++)
 		for(j=0;j<LRUSIZE;j++)
 			write_count[i][j]=0;
@@ -4142,7 +4142,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		physical_block_num=atoi(substr1);
 		substr1=strtok(NULL,delim1);//duration label
 		duration_label=atoi(substr1);
-		if(duration_arr[physical_block_num]==0)
+		if(duration_arr[physical_block_num]==-1)
 			duration_arr[physical_block_num]=duration_label;
 	} 			    
 	fclose(dur);
@@ -4193,6 +4193,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	fprintf(hit,"hit count:%d miss count:%d hit ratio:%f\n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count));
 	fclose(hit);
   }  
+  if(duration_arr[physical_node_num]==-1){
+	duration_arr[physical_node_num]=0;
+  }
   if(Pg_node == NULL)
   {
     //printf("add node\n");
