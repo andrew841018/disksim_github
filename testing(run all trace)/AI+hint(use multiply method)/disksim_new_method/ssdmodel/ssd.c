@@ -1429,7 +1429,7 @@ int max_free_page_in_plane(int die_num,ssd_t *currdisk,int elem_num)
       min_plane = plane_num;
     }
     elsei*/ 
-    if((min < pm->free_blocks*SSD_DATA_PAGES_PER_BLOCK(currdisk) - current_block[elem_num][plane_num].flush_w_count_in_current) && current_block[elem_num][plane_num].ptr_lru_node->select_victim==1)
+    if((min < pm->free_blocks*SSD_DATA_PAGES_PER_BLOCK(currdisk) - current_block[elem_num][plane_num].flush_w_count_in_current))
     {
       min = pm->free_blocks*SSD_DATA_PAGES_PER_BLOCK(currdisk) - current_block[elem_num][plane_num].flush_w_count_in_current;
       min_plane = plane_num;
@@ -4035,13 +4035,13 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
       //strip_way=check_which_node_to_evict(ptr_buffer_cache);
       ptr_buffer_cache->ptr_current_mark_node = ptr_buffer_cache->ptr_head->prev;
       ptr_buffer_cache->current_mark_offset = 0;
-      mark_for_all_current_block (ptr_buffer_cache);
+      //mark_for_all_current_block (ptr_buffer_cache);
       full_cache = 1;
     }
     else if( full_cache == 1)
     {
 	  //edit by andrew
-      mark_for_all_current_block(ptr_buffer_cache);
+    //  mark_for_all_current_block(ptr_buffer_cache);
     }
   }
   kick_page_from_buffer_cache(curr,ptr_buffer_cache,flag);
@@ -5788,6 +5788,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			up:  	
 				channel_num = k%8;
 				plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
+				assign=1;
+				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 				if(plane==-1){
 					k++;
 					if(k>=20){
@@ -5797,6 +5799,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					goto up;
 				}		
 			if(current_block[channel_num][plane].current_mark_count==0){
+				target=current_block[channel_num][plane].ptr_lru_node;	
 				target->select_victim=0;
 				assign=1;
 				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
@@ -6463,7 +6466,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
-  printf("remove mark+kick one block per time\n");
+  printf("remove mark+kick one block per time+without mark_for_all\n");
     assert(0);
 }
 
