@@ -4833,16 +4833,6 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	current_block[channel_num][plane].current_mark_count --;
 	current_block[channel_num][plane].current_write_offset ++;
 	flush_page_count++;
-	//if the current_block[channel_num][plane].ptr_lru_node already remove
-	//but since new request overwrite in this block,so this block still have some page
-	//and won't be removed, the select_victim remain 1
-	//so if  current_block[channel_num][plane].current_mark_count=0 means current page in 
-	//channel & plane has been removed, then we can free select_victim lock-->set to 0
-	//in that case, the block can be selected as victim block.
-	if(current_block[channel_num][plane].current_mark_count==0 && ptr_lru_node->buffer_page_num>0){
-		ptr_lru_node->select_victim=0;
-		victim_count--;
-	}
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
 		//printf("*************remove all block:%d*************\n",ptr_lru_node->logical_node_num);
