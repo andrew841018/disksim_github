@@ -4736,7 +4736,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
 			start->pass_req_count++;
-			if(start->pass_req_count>2000 && start->duration_label>0 && start->select_victim==0){//demoting...
+			if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
 				start->duration_label--;			
 				start->duration_priority=0.001;
 			}
@@ -4744,7 +4744,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			//printf("(after check write buffer) soon:%d mean:%d late:%d block_num:%d\n",soon,mean,late,start->logical_node_num);
 			start=start->prev;
 		}
-		if(start->pass_req_count>2000 && start->duration_label>0 && start->select_victim==0){//demoting...
+		if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
 			start->duration_label--;			
 			start->duration_priority=0.001;
 		}
