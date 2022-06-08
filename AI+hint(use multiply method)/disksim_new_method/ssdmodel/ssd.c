@@ -4233,11 +4233,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	}
 	Pg_node->pass_req_count=0;
 	//this function will let current_mark_count=0 and clear any marked pages.
-    remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
+    /*remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
     if(Pg_node->select_victim==1){
 		Pg_node->select_victim=0;
 		victim_count--;
-	}
+	}*/
     //access any page in the block,the all block will be place to MRU,even if that page currently is not exist. 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
@@ -5827,6 +5827,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				if(p->page[i].exist==2){
 					channel_num=p->page[i].channel_num;
 					plane=p->page[i].plane;
+					break;
 				}
 			}
 			assert(current_block[channel_num][plane].current_mark_count>0); 
@@ -5877,6 +5878,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 		  for(i=0;i<LRUSIZE;i++){
 			if(current_block[channel_num][plane].ptr_lru_node->page[i].exist==2){
 				current_block[channel_num][plane].offset_in_node=i;
+				break;
 			}
 		  }
 		//  plane = min_valid_page_in_plane(sta_die_num,currdisk,channel_num);
@@ -5955,7 +5957,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 				}
 			}
 			assert(enter==1);
-			return;
+			if(ptr_buffer_cache->total_buffer_page_num<=ptr_buffer_cache->max_buffer_page_num)
+				return;
 			k++;
 			//fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
 			//printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
