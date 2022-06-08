@@ -5955,6 +5955,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 					remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);				
 					current_block[channel_num][plane].flush_w_count_in_current ++;
 				}
+				else if(ptr_lru_node->page[i].exist==1){
+					assert(0);
+				}
 			}
 			assert(enter==1);
 			if(ptr_buffer_cache->total_buffer_page_num<=ptr_buffer_cache->max_buffer_page_num)
@@ -5968,8 +5971,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			  //printf("if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \n");
 			  current_block[channel_num][plane].current_write_offset = 0;
 			  //ENDIT by andrew
-			  assign=1;
-			  mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+			  //assign=1;
+			  //mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 
 			}
 			else if(current_block[channel_num][plane].current_mark_count == 0)
@@ -5978,8 +5981,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			  unsigned long diff;
 			  gettimeofday(&start, NULL);
 			  //edit by andrew
-			  assign=1;
-			  mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+			  //assign=1;
+			  //mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
 			  gettimeofday(&end, NULL);
 			  diff=1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
 			  //"!!!!!!KICK current_mark_count == 0 mark_for_specific_current_block TIME = %ld\n",diff);
