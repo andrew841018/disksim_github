@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\"
 duration_model = tf.keras.models.load_model(addr+'duration_model(run1_Postmark_2475).h5')
-addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\AI input feature\\"
+addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\AI input feature\\generate by current code\\"
 data=np.loadtxt(addr+'info(run1_Postmark_2475).txt',delimiter=' ',usecols=range(7))
 data_for_predict=data
 data_for_predict=np.delete(data_for_predict,2,axis=1)#delete physical_block_number
