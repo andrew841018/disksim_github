@@ -2193,7 +2193,32 @@
 |||||||can't find_idle_channel
 --------mark_for_page_striping_node
 |||||||can't find_idle_channel
---------|||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
 --------mark_for_page_striping_node
 |||||||can't find_idle_channel
 --------mark_for_page_striping_node
@@ -2265,6 +2290,63 @@
 --------mark_for_page_striping_node
 |||||||can't find_idle_channel
 --------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||an't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
 --------mark_for_page_striping_node
 |||||||can't find_idle_channel
 --------mark_for_page_striping_node
@@ -2310,9 +2392,648 @@
 --------mark_for_page_striping_node
 |||||||can't find_idle_channel
 --------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
 --------mark_for_page_striping_node
 |||||||can't find_idle_channel
 --------mark_for_page_striping_node
 |||||||can't find_idle_channel
 --------mark_for_page_striping_node
-|||||||c
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+-------_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+||mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+--------mark_for_page_striping_node
+|||||||can't find_idle_channel
