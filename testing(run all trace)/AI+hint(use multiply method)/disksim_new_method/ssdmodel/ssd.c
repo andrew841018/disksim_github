@@ -4253,7 +4253,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	FILE *t=fopen("info(Financial2forssd).txt","a+");
+	FILE *t=fopen("info(iozone).txt","a+");
 	fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
 	fclose(t);
   return 0;
@@ -5970,9 +5970,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			}
 			assert(kick_block==1);
 			assert(enter==1);
-			if(ptr_buffer_cache->total_buffer_page_num<=ptr_buffer_cache->max_buffer_page_num){				
+			/*if(ptr_buffer_cache->total_buffer_page_num<=ptr_buffer_cache->max_buffer_page_num){				
 				return;
-			}
+			}*/
 			k++;
 			//fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
 			//printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
@@ -6035,6 +6035,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
   }
   kick_count+=kick;
   my_kick_node+=kick;
+  my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
   my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
   //printf("end\n"); 
   
@@ -6501,8 +6502,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
-  printf("remove mark+kick one block per time+without mark_for_all\n");
-    assert(0);
+   assert(0);
 }
 
 
