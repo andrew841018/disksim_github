@@ -2700,7 +2700,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = max_buffer_page_num;
+  ptr_buffer_cache->max_buffer_page_num = 4000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4784,14 +4784,12 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 // }
 
 int flush_page_count=0;
-int remove_one_block=0;
 void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,unsigned int verify_channel,unsigned int verify_plane,int flag)
 {
 	unsigned int channel_num = ptr_lru_node->page[offset_in_node].channel_num;
 	unsigned int plane = ptr_lru_node->page[offset_in_node].plane;
 
   //printf("channel_num=%d |verify_channel=%d\n", channel_num,verify_channel);
-	remove_one_block=0;
 	assert(channel_num == verify_channel);
 	assert(plane == verify_plane);
 	assert(ptr_lru_node->page[offset_in_node].exist == 2);
@@ -4818,7 +4816,6 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	}
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
-		remove_one_block=1;
 		//printf("*************remove all block:%d*************\n",ptr_lru_node->logical_node_num);
 		assert(current_block[channel_num][plane].current_mark_count==0);
 		if(ptr_lru_node->group_type==0)
@@ -5743,7 +5740,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
       kick=1;
       lru_node *target;
       k=0;
-      while(remove_one_block==0 || k<8){
+      while(k<8){
 		  
 		  if(no_page_can_evict == 0)
 		  {
