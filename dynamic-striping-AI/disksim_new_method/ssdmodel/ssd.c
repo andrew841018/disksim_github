@@ -4844,7 +4844,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 		assert(victim_count<64);
 	}
 	else{
-		printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
+		//printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
 	}
 	
 }
@@ -5071,8 +5071,6 @@ void mark_for_all_current_block(buffer_cache *ptr_buffer_cache)
     {   
       if(current_block[i][j].current_mark_count == 0 && current_block[i][j].ptr_read_intensive_buffer_page == NULL) 
       {
-		printf("inside mark_for_all\n");
-		printf("current_block[%d][%d].current_mark_count:%d victim_count:%d\n",i,j,current_block[i][j].current_mark_count,victim_count);
 		assert(victim_count<64);
 		assign=1;
         mark_for_specific_current_block(ptr_buffer_cache,i,j);
