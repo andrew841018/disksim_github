@@ -2699,7 +2699,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = max_buffer_page_num;
+  ptr_buffer_cache->max_buffer_page_num = 4000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4251,7 +4251,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	FILE *t=fopen("info(wr_run1_ug3).txt","a+");
+	FILE *t=fopen("info(wr_run1_ug3).txt","w");
 	fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
 	fclose(t);
   return 0;
