@@ -4766,7 +4766,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
 			start->pass_req_count++;
-			if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
+			if(start->pass_req_count>ptr_buffer_cache->max_buffer_page_num && start->duration_label>0 && start->select_victim==0){//demoting...
 				start->duration_label--;
 				switch(start->duration_label){
 					case 0:
@@ -4779,7 +4779,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start=start->prev;
 		}
 		start->pass_req_count++;
-		if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
+		if(start->pass_req_count>ptr_buffer_cache->max_buffer_page_num && start->duration_label>0 && start->select_victim==0){//demoting...
 			start->duration_label--;
 			switch(start->duration_label){
 				case 0:
@@ -5101,7 +5101,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL,*victim=NULL;
 	int b1=0,b2=0,i,j;
-	p_weight=0.27;
+	p_weight=0.46;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
 	while(original!=ptr_buffer_cache->ptr_head){
