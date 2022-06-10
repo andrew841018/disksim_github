@@ -2699,7 +2699,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 4000;
+  ptr_buffer_cache->max_buffer_page_num = 8000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4755,7 +4755,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
 			start->pass_req_count++;
-			if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
+			if(start->pass_req_count>ptr_buffer_cache->max_buffer_page_num && start->duration_label>0 && start->select_victim==0){//demoting...
 				start->duration_label--;			
 				start->duration_priority=0.001;
 			}
@@ -4763,7 +4763,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			//printf("(after check write buffer) soon:%d mean:%d late:%d block_num:%d\n",soon,mean,late,start->logical_node_num);
 			start=start->prev;
 		}
-		if(start->pass_req_count>4000 && start->duration_label>0 && start->select_victim==0){//demoting...
+		if(start->pass_req_count>ptr_buffer_cache->max_buffer_page_num && start->duration_label>0 && start->select_victim==0){//demoting...
 			start->duration_label--;			
 			start->duration_priority=0.001;
 		}
@@ -6454,7 +6454,6 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
-    printf("demoting...2000\n");
 }
 
 
