@@ -4674,7 +4674,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-  
+int threshold=9000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	
@@ -4755,7 +4755,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		//accumulate the pass_req_count for every block in write buffer
 		while(start!=end){
 			start->pass_req_count++;
-			if(start->pass_req_count>ptr_buffer_cache->max_buffer_page_num && start->duration_label>0 && start->select_victim==0){//demoting...
+			if(start->pass_req_count>threshold && start->duration_label>0 && start->select_victim==0){//demoting...
 				start->duration_label--;			
 				start->duration_priority=0.001;
 			}
@@ -4763,7 +4763,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			//printf("(after check write buffer) soon:%d mean:%d late:%d block_num:%d\n",soon,mean,late,start->logical_node_num);
 			start=start->prev;
 		}
-		if(start->pass_req_count>ptr_buffer_cache->max_buffer_page_num && start->duration_label>0 && start->select_victim==0){//demoting...
+		if(start->pass_req_count>threshold && start->duration_label>0 && start->select_victim==0){//demoting...
 			start->duration_label--;			
 			start->duration_priority=0.001;
 		}
@@ -6454,6 +6454,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
+  assert(0);
 }
 
 
