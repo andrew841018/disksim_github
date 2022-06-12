@@ -2699,7 +2699,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 4000;
+  ptr_buffer_cache->max_buffer_page_num = 8000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -6482,7 +6482,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	}
   }
   for(i=0;i<400;i++){
-	  FILE *demote=fopen("demoting_info.txt","a+");
+	  FILE *demote=fopen("demoting_info(16000).txt","a+");
 	  fprintf(demote,"number of pass_req_count from %d to %d:%d\n",(i+1)*1000,(i+2)*1000,range[i]);
 	  fclose(demote);
   }
