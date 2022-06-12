@@ -2699,7 +2699,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 12000;
+  ptr_buffer_cache->max_buffer_page_num = 8000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4093,6 +4093,7 @@ unsigned int skip_block[10000000]={0};
 unsigned int page_count[1000][64];
 double benefit_value[10000000]={0};
 double soon_time=0.001,mean_time=0.002,late_time=0.003;
+int write_count[1000000][64];
 int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 {
   //printf("Y_add_Pg_page_to_cache_buffer\n");
@@ -4110,8 +4111,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   
   ptr_lru_node = ptr_buffer_cache->hash[logical_node_num % HASHSIZE];
   Pg_node = ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE];
-  int i;
+  int i,j;
   if(init==1){	
+	for(i=0;i<1000000;i++)
+		for(j=0;j<LRUSIZE;j++)
+			write_count[i][j]=0;  
 	int physical_block_num=-1;
 	FILE *dur=fopen("duration.txt","r");
 	char buf1[1024];
@@ -4224,6 +4228,23 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     
     //access any page in the block,the all block will be place to MRU,even if that page currently is not exist. 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
+	write_count[physical_node_num][phy_node_offset]++;
+    ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size=0;
+    int block_write_count=0,page_write_count=0;
+	for(i=0;i<LRUSIZE;i++){
+		if(ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->page[i].exist==1){
+			ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size++;
+		}
+		if(write_count[physical_node_num][i]>0){
+			block_write_count+=write_count[physical_node_num][i];
+		}
+	}
+  	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
+	/*if(ptr_buffer_cache->max_buffer_page_num==4000){
+		FILE *t=fopen("info(user_2).txt","a+");
+		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
+		fclose(t);
+	}*/
   }
   return 0;
 }
@@ -4655,7 +4676,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=11000;
+int threshold=9000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	
@@ -6436,6 +6457,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
+   printf("threshold:%d\n",threshold);
    assert(0); 
 }
 
