@@ -4674,7 +4674,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=8000;
+int threshold;
 int max=0;
 int range[10000]={0};//0->1000,1->2000....
 int each_block_pass_req_count[1000000]={0};
@@ -4750,8 +4750,9 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     
     ptr_buffer_cache->ptr_head = ptr_lru_node;
   }
-    /*lru_node *start,*end;
+    lru_node *start,*end;
 	int i;
+	threshold=ptr_buffer_cache->max_buffer_page_num;
 	if(ptr_buffer_cache->ptr_head->prev!=NULL){
 		start=ptr_buffer_cache->ptr_head->prev;
 		end=ptr_buffer_cache->ptr_head;
@@ -4770,8 +4771,8 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start->duration_label--;			
 			start->duration_priority=0.001;
 		}
-	}*/
-	lru_node *start,*end;
+	}
+	/*lru_node *start,*end;
 	int i;
 	if(ptr_buffer_cache->ptr_head->prev!=NULL){
 		start=ptr_buffer_cache->ptr_head->prev;
@@ -4782,7 +4783,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			each_block_pass_req_count[start->logical_node_num]=start->pass_req_count;
 			start=start->prev;
 		}
-	}
+	}*/
 }
 
 
@@ -6470,7 +6471,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
   int i,j;
-  for(i=0;i<1000000;i++){
+/*  for(i=0;i<1000000;i++){
 	if(each_block_pass_req_count[i]==0){
 		continue;
 	}
@@ -6482,10 +6483,10 @@ void show_result(buffer_cache *ptr_buffer_cache)
 	}
   }
   for(i=0;i<400;i++){
-	  FILE *demote=fopen("demoting_info(16000).txt","a+");
-	  fprintf(demote,"number of pass_req_count from %d to %d:%d\n",(i+1)*1000,(i+2)*1000,range[i]);
+	  FILE *demote=fopen("demoting_info.txt","a+");
+	  fprintf(demote,"number of pass_req_count from %d to %d:%d\n",i*1000,(i+1)*1000,range[i]);
 	  fclose(demote);
-  }
+  }*/
   printf("threshold:%d\n",threshold);
   assert(0);
 }
