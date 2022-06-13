@@ -4183,8 +4183,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     Pg_node = Pg_node->next;
   }
   if(ptr_buffer_cache->w_miss_count>0){
+	double total_hit_ratio=(double)(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->r_hit_count)/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count+ptr_buffer_cache->r_hit_count+ptr_buffer_cache->r_miss_count);
 	FILE *hit=fopen("hit_ratio.txt","w");
-	fprintf(hit,"hit count:%d miss count:%d hit ratio:%f\n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count));
+	fprintf(hit,"write hit count:%d write miss count:%d write hit ratio:%f total hit ratio:%f \n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count),total_hit_ratio);
 	fclose(hit);
   }  
   if(Pg_node == NULL)
@@ -4676,7 +4677,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=9000;
+int threshold=12000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	
@@ -4876,7 +4877,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 		assert(victim_count<64);
 	}
 	else{
-		printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
+		//printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
 	}
 	
 }
