@@ -4772,9 +4772,9 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 				start->duration_label--;
 				switch(start->duration_label){
 					case 0:
-						start->duration_priority=0.001;
-					case 1:
 						start->duration_priority=ptr_buffer_cache->soon_max+0.001;
+					case 1:
+						start->duration_priority=ptr_buffer_cache->mean_max+0.001;
 						break;
 				}		
 			}
@@ -4785,9 +4785,9 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start->duration_label--;
 			switch(start->duration_label){
 				case 0:
-					start->duration_priority=0.001;
-				case 1:
 					start->duration_priority=ptr_buffer_cache->soon_max+0.001;
+				case 1:
+					start->duration_priority=ptr_buffer_cache->mean_max+0.001;
 					break;
 			}
 		}

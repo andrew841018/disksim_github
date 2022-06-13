@@ -2686,12 +2686,12 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   pf = fopen("para_file2","r");
   //pf = fopen("para_file21","r");
   fscanf(pf,"%u",&init_locality);
-  fclose(pf);
+  fclose(pf); 
 //  record_all_request_access_count(trace_file_name);
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 8000;
+  ptr_buffer_cache->max_buffer_page_num = 16000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);

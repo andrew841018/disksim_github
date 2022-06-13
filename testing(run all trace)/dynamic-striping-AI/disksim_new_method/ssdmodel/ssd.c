@@ -4749,8 +4749,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     
     ptr_buffer_cache->ptr_head = ptr_lru_node;
   }
-  lru_node *start,*end;
-	int i;
+    lru_node *start,*end;
 	if(ptr_buffer_cache->ptr_head->prev!=NULL){
 		start=ptr_buffer_cache->ptr_head->prev;
 		end=ptr_buffer_cache->ptr_head;
@@ -4758,16 +4757,27 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		while(start!=end){
 			start->pass_req_count++;
 			if(start->pass_req_count>threshold && start->duration_label>0 && start->select_victim==0){//demoting...
-				start->duration_label--;			
-				start->duration_priority=0.001;
+				start->duration_label--;
+				switch(start->duration_label){
+					case 0:
+						start->duration_priority=ptr_buffer_cache->soon_max+0.001;
+					case 1:
+						start->duration_priority=ptr_buffer_cache->mean_max+0.001;
+						break;
+				}		
 			}
-			//printf("(after demoting) soon:%d mean:%d late:%d block_num:%d\n",soon,mean,late,start->logical_node_num);
-			//printf("(after check write buffer) soon:%d mean:%d late:%d block_num:%d\n",soon,mean,late,start->logical_node_num);
 			start=start->prev;
 		}
+		start->pass_req_count++;
 		if(start->pass_req_count>threshold && start->duration_label>0 && start->select_victim==0){//demoting...
-			start->duration_label--;			
-			start->duration_priority=0.001;
+			start->duration_label--;
+			switch(start->duration_label){
+				case 0:
+					start->duration_priority=ptr_buffer_cache->soon_max+0.001;
+				case 1:
+					start->duration_priority=ptr_buffer_cache->mean_max+0.001;
+					break;
+			}
 		}
 	}
 }
