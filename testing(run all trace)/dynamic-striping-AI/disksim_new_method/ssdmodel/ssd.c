@@ -2699,7 +2699,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 8000;
+  ptr_buffer_cache->max_buffer_page_num = 16000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4760,11 +4760,21 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 				start->duration_label--;
 				switch(start->duration_label){
 					case 0:
-						start->duration_priority=ptr_buffer_cache->soon_max+0.001;
+						start->duration_priority=ptr_buffer_cache->soon_max+0.001;					
 					case 1:
 						start->duration_priority=ptr_buffer_cache->mean_max+0.001;
 						break;
-				}		
+				}
+				//move to MRU
+				if(start!=ptr_buffer_cache->ptr_head){
+					start->prev->next = start->next;
+					start->next->prev = start->prev;
+					start->prev = ptr_buffer_cache->ptr_head->prev;
+					start->next = ptr_buffer_cache->ptr_head;
+					ptr_buffer_cache->ptr_head->prev->next = start;
+					ptr_buffer_cache->ptr_head->prev = start;
+					ptr_buffer_cache->ptr_head = start;	
+				}
 			}
 			start=start->prev;
 		}
@@ -4778,8 +4788,18 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 					start->duration_priority=ptr_buffer_cache->mean_max+0.001;
 					break;
 			}
+			//move to MRU
+			if(start!=ptr_buffer_cache->ptr_head){
+				start->prev->next = start->next;
+				start->next->prev = start->prev;
+				start->prev = ptr_buffer_cache->ptr_head->prev;
+				start->next = ptr_buffer_cache->ptr_head;
+				ptr_buffer_cache->ptr_head->prev->next = start;
+				ptr_buffer_cache->ptr_head->prev = start;
+				ptr_buffer_cache->ptr_head = start;	
+			}
 		}
-	}
+}
 }
 
 

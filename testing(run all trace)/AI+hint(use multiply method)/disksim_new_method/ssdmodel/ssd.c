@@ -4761,7 +4761,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     ptr_buffer_cache->ptr_head = ptr_lru_node;
   }
 	int i;
-	lru_node *start,*end;
+    lru_node *start,*end;
 	if(ptr_buffer_cache->ptr_head->prev!=NULL){
 		start=ptr_buffer_cache->ptr_head->prev;
 		end=ptr_buffer_cache->ptr_head;
@@ -4772,11 +4772,21 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 				start->duration_label--;
 				switch(start->duration_label){
 					case 0:
-						start->duration_priority=ptr_buffer_cache->soon_max+0.001;
+						start->duration_priority=ptr_buffer_cache->soon_max+0.001;					
 					case 1:
 						start->duration_priority=ptr_buffer_cache->mean_max+0.001;
 						break;
-				}		
+				}
+				//move to MRU
+				if(start!=ptr_buffer_cache->ptr_head){
+					start->prev->next = start->next;
+					start->next->prev = start->prev;
+					start->prev = ptr_buffer_cache->ptr_head->prev;
+					start->next = ptr_buffer_cache->ptr_head;
+					ptr_buffer_cache->ptr_head->prev->next = start;
+					ptr_buffer_cache->ptr_head->prev = start;
+					ptr_buffer_cache->ptr_head = start;	
+				}
 			}
 			start=start->prev;
 		}
@@ -4790,8 +4800,18 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 					start->duration_priority=ptr_buffer_cache->mean_max+0.001;
 					break;
 			}
+			//move to MRU
+			if(start!=ptr_buffer_cache->ptr_head){
+				start->prev->next = start->next;
+				start->next->prev = start->prev;
+				start->prev = ptr_buffer_cache->ptr_head->prev;
+				start->next = ptr_buffer_cache->ptr_head;
+				ptr_buffer_cache->ptr_head->prev->next = start;
+				ptr_buffer_cache->ptr_head->prev = start;
+				ptr_buffer_cache->ptr_head = start;	
+			}
 		}
-	}
+}
 }
 
 
