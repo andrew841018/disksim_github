@@ -4251,9 +4251,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	/*FILE *t=fopen("info(wr_run1_ug3).txt","w");
-	fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
-	fclose(t);*/
+	if(ptr_buffer_cache->max_buffer_page_num==8000){
+		FILE *t=fopen("info(iozone).txt","a+");
+		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
+		fclose(t);
+	}
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -4686,7 +4688,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=9000;
+int threshold=11000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
@@ -4759,7 +4761,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     ptr_buffer_cache->ptr_head = ptr_lru_node;
   }
 	int i;
-	lru_node *start,*end;
+    lru_node *start,*end;
 	if(ptr_buffer_cache->ptr_head->prev!=NULL){
 		start=ptr_buffer_cache->ptr_head->prev;
 		end=ptr_buffer_cache->ptr_head;
@@ -4770,11 +4772,21 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 				start->duration_label--;
 				switch(start->duration_label){
 					case 0:
-						start->duration_priority=0.001;
+						start->duration_priority=ptr_buffer_cache->soon_max+0.001;					
 					case 1:
-						start->duration_priority=ptr_buffer_cache->soon_max+0.001;
+						start->duration_priority=ptr_buffer_cache->mean_max+0.001;
 						break;
-				}		
+				}
+				//move to MRU
+				if(start!=ptr_buffer_cache->ptr_head){
+					start->prev->next = start->next;
+					start->next->prev = start->prev;
+					start->prev = ptr_buffer_cache->ptr_head->prev;
+					start->next = ptr_buffer_cache->ptr_head;
+					ptr_buffer_cache->ptr_head->prev->next = start;
+					ptr_buffer_cache->ptr_head->prev = start;
+					ptr_buffer_cache->ptr_head = start;	
+				}
 			}
 			start=start->prev;
 		}
@@ -4783,13 +4795,23 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			start->duration_label--;
 			switch(start->duration_label){
 				case 0:
-					start->duration_priority=0.001;
-				case 1:
 					start->duration_priority=ptr_buffer_cache->soon_max+0.001;
+				case 1:
+					start->duration_priority=ptr_buffer_cache->mean_max+0.001;
 					break;
 			}
+			//move to MRU
+			if(start!=ptr_buffer_cache->ptr_head){
+				start->prev->next = start->next;
+				start->next->prev = start->prev;
+				start->prev = ptr_buffer_cache->ptr_head->prev;
+				start->next = ptr_buffer_cache->ptr_head;
+				ptr_buffer_cache->ptr_head->prev->next = start;
+				ptr_buffer_cache->ptr_head->prev = start;
+				ptr_buffer_cache->ptr_head = start;	
+			}
 		}
-	}
+}
 }
 
 
@@ -5101,7 +5123,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL,*victim=NULL;
 	int b1=0,b2=0,i,j;
-	p_weight=0.2;
+	p_weight=0.24;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
 	while(original!=ptr_buffer_cache->ptr_head){
@@ -6423,7 +6445,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   statistic_the_data_in_every_stage();
-  /*FILE *result=fopen("performance.txt","a+");
+ /* FILE *result=fopen("performance.txt","a+");
   fprintf(result,"weight:%f hit ratio:%f\n",p_weight,(double)ptr_buffer_cache->w_hit_count/(double)(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
   fclose(result);*/
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
@@ -6482,6 +6504,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
+  printf("remove mark+kick one block per time+without mark_for_all\n");
     assert(0);
 }
 
