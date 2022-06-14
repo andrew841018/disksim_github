@@ -4241,8 +4241,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	/*if(ptr_buffer_cache->max_buffer_page_num==4000){
-		FILE *t=fopen("info(user_2).txt","a+");
+	/*if(ptr_buffer_cache->max_buffer_page_num==16000){
+		FILE *t=fopen("info(iozone).txt","a+");
 		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
 		fclose(t);
 	}*/
@@ -6431,7 +6431,9 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   statistic_the_data_in_every_stage();
-
+  FILE *result=fopen("performance.txt","a+");
+  fprintf(result,"threshold:%f hit ratio:%f\n",threshold,(double)ptr_buffer_cache->w_hit_count/(double)(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
+  fclose(result);
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);

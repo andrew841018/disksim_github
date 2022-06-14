@@ -2699,7 +2699,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 8000;
+  ptr_buffer_cache->max_buffer_page_num = 4000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4251,11 +4251,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	/*if(ptr_buffer_cache->max_buffer_page_num==8000){
+	if(ptr_buffer_cache->max_buffer_page_num==8000){
 		FILE *t=fopen("info(iozone).txt","a+");
 		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
 		fclose(t);
-	}*/
+	}
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -5123,7 +5123,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL,*victim=NULL;
 	int b1=0,b2=0,i,j;
-	p_weight=0.9;
+	p_weight=0.7;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
 	while(original!=ptr_buffer_cache->ptr_head){
@@ -5139,24 +5139,24 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		//find min benefit node in write buffer
 		switch(original->duration_label){
 			case 0:
-				if(min>benefit){
+				if(soon_min>benefit){
 					assert(original->select_victim==0);
-					min=benefit;
-					victim=original;
+					soon_min=benefit;
+					soon=original;
 				}
 				break;
 			case 1:
-				if(min>benefit){
+				if(mean_min>benefit){
 					assert(original->select_victim==0);
-					min=benefit;
-					victim=original;
+					mean_min=benefit;
+					mean=original;
 				}
 				break;
 			case 2:
-				if(min>benefit){
+				if(late_min>benefit){
 					assert(original->select_victim==0);
-					min=benefit;
-					victim=original;
+					late_min=benefit;
+					late=original;
 				}
 				break;
 		}
@@ -5174,34 +5174,44 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//find min benefit node in write buffer(check last node)
 	switch(original->duration_label){
 		case 0:
-			if(min>benefit){
+			if(soon_min>benefit){
 				assert(original->select_victim==0);
-				min=benefit;
-				victim=original;
+				soon_min=benefit;
+				soon=original;
 			}
 			break;
 		case 1:
-			if(min>benefit){
+			if(mean_min>benefit){
 				assert(original->select_victim==0);
-				min=benefit;
-				victim=original;
+				mean_min=benefit;
+				mean=original;
 			}
 			break;
 		case 2:
-			if(min>benefit){
+			if(late_min>benefit){
 				assert(original->select_victim==0);
-				min=benefit;
-				victim=original;
+				late_min=benefit;
+				late=original;
 			}
 			break;
-	}
+		}
 	victim_count++;
 	assert(victim_count<=64);
-	if(victim!=NULL){
-		victim->select_victim=1;
-		ptr_buffer_cache->ptr_current_mark_node=victim;
+	if(soon!=NULL){
+		soon->select_victim=1;
+		ptr_buffer_cache->ptr_current_mark_node=soon;
 		return;
-	}	
+	}
+	else if(mean!=NULL){
+		mean->select_victim=1;
+		ptr_buffer_cache->ptr_current_mark_node=mean;
+		return;
+	}
+	else if(late!=NULL){
+		late->select_victim=1;
+		ptr_buffer_cache->ptr_current_mark_node=late;
+		return;
+	}
 	assert(0);
 }
 lru_node *p;
@@ -6445,9 +6455,9 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   statistic_the_data_in_every_stage();
-  FILE *result=fopen("performance.txt","a+");
+ /* FILE *result=fopen("performance.txt","a+");
   fprintf(result,"weight:%f hit ratio:%f\n",p_weight,(double)ptr_buffer_cache->w_hit_count/(double)(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
-  fclose(result);
+  fclose(result);*/
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);

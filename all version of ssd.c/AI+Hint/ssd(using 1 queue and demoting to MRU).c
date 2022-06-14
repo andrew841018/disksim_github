@@ -2699,7 +2699,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 4000;
+  ptr_buffer_cache->max_buffer_page_num = 8000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4251,11 +4251,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	if(ptr_buffer_cache->max_buffer_page_num==8000){
+	/*if(ptr_buffer_cache->max_buffer_page_num==8000){
 		FILE *t=fopen("info(iozone).txt","a+");
 		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
 		fclose(t);
-	}
+	}*/
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -4688,7 +4688,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=8000;
+int threshold=7000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
@@ -5123,7 +5123,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL,*victim=NULL;
 	int b1=0,b2=0,i,j;
-	p_weight=0.3;
+	p_weight=0.9;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
 	while(original!=ptr_buffer_cache->ptr_head){
@@ -5139,24 +5139,24 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		//find min benefit node in write buffer
 		switch(original->duration_label){
 			case 0:
-				if(soon_min>benefit){
+				if(min>benefit){
 					assert(original->select_victim==0);
-					soon_min=benefit;
-					soon=original;
+					min=benefit;
+					victim=original;
 				}
 				break;
 			case 1:
-				if(mean_min>benefit){
+				if(min>benefit){
 					assert(original->select_victim==0);
-					mean_min=benefit;
-					mean=original;
+					min=benefit;
+					victim=original;
 				}
 				break;
 			case 2:
-				if(late_min>benefit){
+				if(min>benefit){
 					assert(original->select_victim==0);
-					late_min=benefit;
-					late=original;
+					min=benefit;
+					victim=original;
 				}
 				break;
 		}
@@ -5174,44 +5174,34 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//find min benefit node in write buffer(check last node)
 	switch(original->duration_label){
 		case 0:
-			if(soon_min>benefit){
+			if(min>benefit){
 				assert(original->select_victim==0);
-				soon_min=benefit;
-				soon=original;
+				min=benefit;
+				victim=original;
 			}
 			break;
 		case 1:
-			if(mean_min>benefit){
+			if(min>benefit){
 				assert(original->select_victim==0);
-				mean_min=benefit;
-				mean=original;
+				min=benefit;
+				victim=original;
 			}
 			break;
 		case 2:
-			if(late_min>benefit){
+			if(min>benefit){
 				assert(original->select_victim==0);
-				late_min=benefit;
-				late=original;
+				min=benefit;
+				victim=original;
 			}
 			break;
-		}
+	}
 	victim_count++;
 	assert(victim_count<=64);
-	if(soon!=NULL){
-		soon->select_victim=1;
-		ptr_buffer_cache->ptr_current_mark_node=soon;
+	if(victim!=NULL){
+		victim->select_victim=1;
+		ptr_buffer_cache->ptr_current_mark_node=victim;
 		return;
-	}
-	else if(mean!=NULL){
-		mean->select_victim=1;
-		ptr_buffer_cache->ptr_current_mark_node=mean;
-		return;
-	}
-	else if(late!=NULL){
-		late->select_victim=1;
-		ptr_buffer_cache->ptr_current_mark_node=late;
-		return;
-	}
+	}	
 	assert(0);
 }
 lru_node *p;
