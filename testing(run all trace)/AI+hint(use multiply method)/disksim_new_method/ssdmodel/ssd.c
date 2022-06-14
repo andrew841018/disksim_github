@@ -6504,6 +6504,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
+  printf("demoting threshold:%d p_weight:%f write buffer size:%d\n",threshold,p_weight,ptr_buffer_cache->max_buffer_page_num);
 }
 
 
