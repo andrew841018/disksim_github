@@ -2239,5 +2239,5 @@ int main(int argc, char *argv[])
   fclose(finaloutput);
   fclose(gc_info);
   fclose(gc_info2);
-  exit(0);
+  assert(0);
 }

@@ -6489,7 +6489,6 @@ void show_result(buffer_cache *ptr_buffer_cache)
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
    printf("threshold:%d\n",threshold);
-   assert(0); 
 }
 
 

@@ -6504,8 +6504,6 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
-  printf("remove mark+kick one block per time+without mark_for_all\n");
-    assert(0);
 }
 
 
