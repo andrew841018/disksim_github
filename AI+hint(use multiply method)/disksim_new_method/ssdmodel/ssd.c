@@ -5852,9 +5852,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			up:  	
 				if(kick_block==1){
 					channel_num = k%8;
-					plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);
-					assign=1;
-					mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+					plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);				
 					if(plane==-1){
 						k++;
 						if(k>=20){
@@ -5862,7 +5860,9 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 							assert(0);
 						}
 						goto up;
-					}		
+					}	
+					assign=1;
+					mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);	
 			}
 			assert(p!=NULL);
 			for(i=0;i<LRUSIZE;i++){

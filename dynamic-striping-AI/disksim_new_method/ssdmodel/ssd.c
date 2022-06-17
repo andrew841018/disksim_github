@@ -4241,11 +4241,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	/*if(ptr_buffer_cache->max_buffer_page_num==16000){
-		FILE *t=fopen("info(iozone).txt","a+");
+	if(ptr_buffer_cache->max_buffer_page_num==16000){
+		FILE *t=fopen("info(Financial).txt","a+");
 		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
 		fclose(t);
-	}*/
+	}
   }
   return 0;
 }
