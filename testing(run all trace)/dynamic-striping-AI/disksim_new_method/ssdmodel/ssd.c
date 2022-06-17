@@ -5850,12 +5850,17 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			}						
 			int max=-1;
 		  Top:
+			if(target->logical_node_num>500000){
+				assign=1;
+				mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
+				p=target;
+			}
 			max=-1;
 			for(i=0;i<LRUSIZE;i++){
-				if(p->page[i].exist==2){
+				if(target->page[i].exist==2){
 					max=0;
-					channel_num=p->page[i].channel_num;
-					plane=p->page[i].plane;
+					channel_num=target->page[i].channel_num;
+					plane=target->page[i].plane;
 					current_block[channel_num][plane].offset_in_node=i;
 					break;
 				}
