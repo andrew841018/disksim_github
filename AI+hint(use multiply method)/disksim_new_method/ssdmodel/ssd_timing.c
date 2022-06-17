@@ -457,7 +457,7 @@ void _ssd_alloc_active_block(int plane_num, int elem_num, ssd_t *s,int rwg)
             if (ssd_bitpos_to_plane(bitpos, s) != plane_num) {
                 printf("Error: this plane %d is full\n", plane_num);
                 printf("this case is not yet handled\n");
-                exit(1);
+                assert(0);
             }
         }
 

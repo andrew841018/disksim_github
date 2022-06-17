@@ -4241,11 +4241,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	/*if(ptr_buffer_cache->max_buffer_page_num==4000){
-		FILE *t=fopen("info(user_2).txt","a+");
+	if(ptr_buffer_cache->max_buffer_page_num==16000){
+		FILE *t=fopen("info(Financial2forssd).txt","a+");
 		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
 		fclose(t);
-	}*/
+	}
   }
   return 0;
 }
@@ -4676,7 +4676,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev->next = ptr_lru_node;
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=8000;
+int threshold=9000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	
@@ -5852,10 +5852,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 		  Top:
 			max=-1;
 			for(i=0;i<LRUSIZE;i++){
-				if(target->page[i].exist==2){
+				if(p->page[i].exist==2){
 					max=0;
-					channel_num=target->page[i].channel_num;
-					plane=target->page[i].plane;
+					channel_num=p->page[i].channel_num;
+					plane=p->page[i].plane;
 					current_block[channel_num][plane].offset_in_node=i;
 					break;
 				}
