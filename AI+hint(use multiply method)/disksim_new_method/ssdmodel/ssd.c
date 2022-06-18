@@ -5862,8 +5862,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 						goto up;
 					}	
 					assign=1;
-					mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);
-					k++;	
+					mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);	
 				}
 			assert(p!=NULL);
 			for(i=0;i<LRUSIZE;i++){
@@ -5988,6 +5987,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);				
 			current_block[channel_num][plane].flush_w_count_in_current ++;				
 			remove_page_count++;
+			k++;
 			//fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
 			//printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
 			if(current_block[channel_num][plane].current_mark_count == 0 && current_block[channel_num][plane].current_write_offset == \
