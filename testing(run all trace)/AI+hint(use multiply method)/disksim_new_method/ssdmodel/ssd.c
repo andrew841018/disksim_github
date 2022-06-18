@@ -2703,7 +2703,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 12000;
+  ptr_buffer_cache->max_buffer_page_num = 8000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -3996,9 +3996,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   // }
   // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
   int i;
-  for(i=0;i<1000000;i++){
-	special_used[i]=NULL;
-  }
   for(i=0;i<global_HQ_size;i++){
 	hint[global_HQ[i]]=1;//this lpn exist in global_HQ
   }
