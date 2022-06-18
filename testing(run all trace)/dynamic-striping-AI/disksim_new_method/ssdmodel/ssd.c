@@ -4677,7 +4677,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=5000;
+int threshold=10000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	
@@ -5852,6 +5852,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			int max=-1;
 		  Top:
 			max=-1;
+			target=current_block[channel_num][plane].ptr_lru_node;
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
 					max=0;

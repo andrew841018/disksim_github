@@ -1608,6 +1608,7 @@ void statistics_the_wait_time_by_striping(int elem_num)
 
 }
 ioreq_event *curr1;
+int hint[1000000]={0};//hint[i]=0 means i not in global_HQ 1 means i in global_HQ
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1647,6 +1648,9 @@ static void ssd_media_access_request_element (ioreq_event *curr)
    if(!(curr->flags&READ))
    {
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
+      for(i=0;i<global_HQ_size;i++){
+		hint[global_HQ[i]]=0;//reset
+	  }
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
       return ;
@@ -2699,7 +2703,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 4000;
+  ptr_buffer_cache->max_buffer_page_num = 8000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -3970,10 +3974,12 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 } 
 
 
-
+int first_enter_write_buffer=0;
+lru_node *special_used[1000000];
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
+  first_enter_write_buffer=1;
   static int full_cache = 0;
   unsigned int lpn,blkno,count,scount; //sector count
   ssd_t *currdisk;
@@ -3990,6 +3996,9 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   // }
   // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
   int i;
+  for(i=0;i<global_HQ_size;i++){
+	hint[global_HQ[i]]=1;//this lpn exist in global_HQ
+  }
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -4023,6 +4032,18 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	}
   }
   assert(match_HQ==1);*/
+  //deal with block new write
+  int physical_node_num,phy_node_offset;
+  for(i=0;i<global_HQ_size;i++){
+	physical_node_num = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
+	phy_node_offset = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576)) % LRUSIZE;
+	if(special_used[physical_node_num]!=NULL){
+		if(special_used[physical_node_num]->page[phy_node_offset].exist==0){
+			special_used[physical_node_num]->overwrite_num++;
+		}
+	}
+  }	
+  		
 		
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
@@ -4235,7 +4256,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	//this function will let current_mark_count=0 and clear any marked pages.
     remove_mark_in_the_node(Pg_node,ptr_buffer_cache);
 	Pg_node->select_victim=0;
-	victim_count--;
+	if(victim_count>0)
+		victim_count--;
     //access any page in the block,the all block will be place to MRU,even if that page currently is not exist. 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
@@ -4251,11 +4273,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	if(ptr_buffer_cache->max_buffer_page_num==4000){
-		FILE *t=fopen("info(user_2).txt","a+");
+	/*if(ptr_buffer_cache->max_buffer_page_num==4000){
+		FILE *t=fopen("info(iozone).txt","a+");
 		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
 		fclose(t);
-	}
+	}*/
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -4532,7 +4554,6 @@ int find_page_in_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
 //   }
 //   add_a_page_in_the_node(logical_node_num,offset_in_node,ptr_node,ptr_buffer_cache);
 // }
-
 void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,buffer_cache * ptr_buffer_cache,int flag)
 {
   //printf("innn add node | flag=%d \n", flag);
@@ -4544,11 +4565,13 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	memset(ptr_node,0,sizeof(struct _lru_node));
 	ptr_node->group_type=flag;
 	ptr_node->logical_node_num = logical_node_num;
+	special_used[logical_node_num]=ptr_node;
 	ptr_buffer_cache->total_buffer_block_num++;
 	assert(duration_arr[logical_node_num]!=-1);
 	ptr_node->duration_label=duration_arr[logical_node_num];
 	ptr_node->select_victim=0;
 	ptr_node->pass_req_count=0;
+	ptr_node->overwrite_num=0;
 	switch(ptr_node->duration_label){
 		case 0:
 			//soon_time+=acc_count[logical_node_num];
@@ -4688,9 +4711,67 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=10000;
+int threshold=5000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
+	lru_node *start,*end;
+	if(ptr_buffer_cache->ptr_head->prev!=NULL){
+		start=ptr_buffer_cache->ptr_head->prev;
+		end=ptr_buffer_cache->ptr_head;
+		//accumulate the pass_req_count for every block in write buffer
+		while(start!=end){
+			start->pass_req_count++;
+			if(start->pass_req_count>threshold && start->duration_label>0 && start->select_victim==0){//demoting...
+				start->duration_label--;
+				switch(start->duration_label){
+					case 0:
+						start->duration_priority=ptr_buffer_cache->soon_max+0.001;					
+					case 1:
+						start->duration_priority=ptr_buffer_cache->mean_max+0.001;
+						break;
+				}
+				//move to MRU
+				if(start!=ptr_buffer_cache->ptr_head){
+					start->prev->next = start->next;
+					start->next->prev = start->prev;
+					start->prev = ptr_buffer_cache->ptr_head->prev;
+					start->next = ptr_buffer_cache->ptr_head;
+					ptr_buffer_cache->ptr_head->prev->next = start;
+					ptr_buffer_cache->ptr_head->prev = start;
+					ptr_buffer_cache->ptr_head = start;	
+				}
+			}
+			if(first_enter_write_buffer==1){
+				start->overwrite_num=0;//when first enter write buffer initialize all block
+			}
+			start=start->prev;
+		}
+		if(first_enter_write_buffer==1){
+			start->overwrite_num=0;
+			first_enter_write_buffer=0;//after initial, we lock...
+		}
+		start->pass_req_count++;
+		if(start->pass_req_count>threshold && start->duration_label>0 && start->select_victim==0){//demoting...
+			start->duration_label--;
+			switch(start->duration_label){
+				case 0:
+					start->duration_priority=ptr_buffer_cache->soon_max+0.001;
+				case 1:
+					start->duration_priority=ptr_buffer_cache->mean_max+0.001;
+					break;
+			}
+			//move to MRU
+			if(start!=ptr_buffer_cache->ptr_head){
+				start->prev->next = start->next;
+				start->next->prev = start->prev;
+				start->prev = ptr_buffer_cache->ptr_head->prev;
+				start->next = ptr_buffer_cache->ptr_head;
+				ptr_buffer_cache->ptr_head->prev->next = start;
+				ptr_buffer_cache->ptr_head->prev = start;
+				ptr_buffer_cache->ptr_head = start;	
+			}
+		}
+	}
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
 	{
     //fprintf(lpb_ppn, "w_hit_count ++\tw_hit_count=%d\t", ptr_buffer_cache->w_hit_count);
@@ -4761,57 +4842,9 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     ptr_buffer_cache->ptr_head = ptr_lru_node;
   }
 	int i;
-    lru_node *start,*end;
-	if(ptr_buffer_cache->ptr_head->prev!=NULL){
-		start=ptr_buffer_cache->ptr_head->prev;
-		end=ptr_buffer_cache->ptr_head;
-		//accumulate the pass_req_count for every block in write buffer
-		while(start!=end){
-			start->pass_req_count++;
-			if(start->pass_req_count>threshold && start->duration_label>0 && start->select_victim==0){//demoting...
-				start->duration_label--;
-				switch(start->duration_label){
-					case 0:
-						start->duration_priority=ptr_buffer_cache->soon_max+0.001;					
-					case 1:
-						start->duration_priority=ptr_buffer_cache->mean_max+0.001;
-						break;
-				}
-				//move to MRU
-				if(start!=ptr_buffer_cache->ptr_head){
-					start->prev->next = start->next;
-					start->next->prev = start->prev;
-					start->prev = ptr_buffer_cache->ptr_head->prev;
-					start->next = ptr_buffer_cache->ptr_head;
-					ptr_buffer_cache->ptr_head->prev->next = start;
-					ptr_buffer_cache->ptr_head->prev = start;
-					ptr_buffer_cache->ptr_head = start;	
-				}
-			}
-			start=start->prev;
-		}
-		start->pass_req_count++;
-		if(start->pass_req_count>threshold && start->duration_label>0 && start->select_victim==0){//demoting...
-			start->duration_label--;
-			switch(start->duration_label){
-				case 0:
-					start->duration_priority=ptr_buffer_cache->soon_max+0.001;
-				case 1:
-					start->duration_priority=ptr_buffer_cache->mean_max+0.001;
-					break;
-			}
-			//move to MRU
-			if(start!=ptr_buffer_cache->ptr_head){
-				start->prev->next = start->next;
-				start->next->prev = start->prev;
-				start->prev = ptr_buffer_cache->ptr_head->prev;
-				start->next = ptr_buffer_cache->ptr_head;
-				ptr_buffer_cache->ptr_head->prev->next = start;
-				ptr_buffer_cache->ptr_head->prev = start;
-				ptr_buffer_cache->ptr_head = start;	
-			}
-		}
-}
+	if(hint[lpn]==1){//check lpn is in hint queue or not
+		ptr_lru_node->overwrite_num++;
+	}
 }
 
 
@@ -4866,7 +4899,8 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	flush_page_count++;
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
-		printf("*************remove all block:%d*************\n",ptr_lru_node->logical_node_num);
+		//printf("*************remove all block:%d*************\n",ptr_lru_node->logical_node_num);
+		special_used[ptr_lru_node->logical_node_num]=NULL;
 		assert(current_block[channel_num][plane].current_mark_count==0);
 		if(ptr_lru_node->group_type==0)
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,0);
@@ -4880,7 +4914,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 		assert(victim_count<64);
 	}
 	else{
-		printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
+		//printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
 	}
 	
 }
@@ -5122,19 +5156,11 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL,*victim=NULL;
-	int b1=0,b2=0,i,j;
-	p_weight=0.4;
+	int b1=0,b2=0,i,j,k=0;
+	p_weight=0.3;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
 	while(original!=ptr_buffer_cache->ptr_head){
-		original->overwrite_num=0;
-		for(i=0;i<global_HQ_size;i++){
-			for(j=0;j<LRUSIZE;j++){
-				if(original->page[j].lpn==global_HQ[i]){
-					original->overwrite_num++;
-				}
-			}
-		}
 		benefit=p_weight*original->duration_priority+(1-p_weight)*original->overwrite_num;
 		//find min benefit node in write buffer
 		switch(original->duration_label){
@@ -5143,6 +5169,11 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 					assert(original->select_victim==0);
 					soon_min=benefit;
 					soon=original;
+					if(original->overwrite_num==0){
+						soon->select_victim=1;
+						ptr_buffer_cache->ptr_current_mark_node=soon;
+						return;
+					}
 				}
 				break;
 			case 1:
@@ -5160,16 +5191,9 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 				}
 				break;
 		}
+		k++;
 		original=original->prev;		
 	}	
-	original->overwrite_num=0;
-	for(i=0;i<global_HQ_size;i++){
-		for(j=0;j<LRUSIZE;j++){
-			if(original->page[j].lpn==global_HQ[i]){
-				original->overwrite_num++;
-			}
-		}
-	}
 	benefit=p_weight*original->duration_priority+(1-p_weight)*original->overwrite_num;
 	//find min benefit node in write buffer(check last node)
 	switch(original->duration_label){
@@ -5826,7 +5850,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
   // "before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("ptr_buffer_cache->total_buffer_page_num=%d|ptr_buffer_cache->max_buffer_page_num=%d\n",ptr_buffer_cache->total_buffer_page_num,ptr_buffer_cache->max_buffer_page_num);
-  int kick=0,remove_page_count=0;
+  int kick=0;
   int k=0;
   enter=1;
   int kick_count=0;
@@ -5840,8 +5864,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     //fprintf(lpb_ppn, "inin channel=%d,plane=%d\n", channel_num,plane);     
       kick=1;
       lru_node *target;
-      remove_page_count=0;
-      while(remove_page_count<8 || kick_block==0){
+      k=0;
+      while(k<8 || kick_block==0){
 		  
 		  if(no_page_can_evict == 0)
 		  {
@@ -5852,7 +5876,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			up:  	
 				if(kick_block==1){
 					channel_num = k%8;
-					plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);				
+					plane = max_free_page_in_plane(sta_die_num,currdisk,channel_num);					
 					if(plane==-1){
 						k++;
 						if(k>=20){
@@ -5860,10 +5884,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 							assert(0);
 						}
 						goto up;
-					}	
+					}
 					assign=1;
-					mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);	
-				}
+					mark_for_specific_current_block(ptr_buffer_cache,channel_num,plane);		
+			}
 			assert(p!=NULL);
 			for(i=0;i<LRUSIZE;i++){
 				if(p->page[i].exist==2){
@@ -5960,7 +5984,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			//fprintf(lpb_ppn, "@@@@@ kick %d[%d] channel=%d,plane=%d\n", ptr_lru_node->logical_node_num, offset_in_node, channel_num,plane);
 			//printf( "@@@@@ current_block[%d][%d].current_mark_count=%d\n", channel_num,plane, current_block[channel_num][plane].current_mark_count);
 			//add_to_ioqueue(curr,channel_num_Lg,plane_Lg,ptr_lru_node->page[i].lpn,0);
-			//remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);		     
+			//remove_a_page_in_the_node(i,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);
+			add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->page[offset_in_node].lpn,0);        
 			if(ptr_lru_node->StripWay == 0)
 			{
 			  kick_block_striping_page_count++;
@@ -5983,10 +6008,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			  kick_page_striping_page_count++;
 			  ptr_lru_node->page[offset_in_node].strip = 0;
 			}
-			add_to_ioqueue(curr,channel_num,plane,ptr_lru_node->page[offset_in_node].lpn,0);   
 			remove_a_page_in_the_node(offset_in_node,ptr_lru_node,ptr_buffer_cache,channel_num,plane,flag);				
 			current_block[channel_num][plane].flush_w_count_in_current ++;				
-			remove_page_count++;
 			k++;
 			//fprintf(lpb_ppn, "current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
 			//printf("current_block[%d][%d].current_mark_count = %d\n", channel_num,plane,current_block[channel_num][plane].current_mark_count);
