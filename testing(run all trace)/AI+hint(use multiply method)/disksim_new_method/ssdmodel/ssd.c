@@ -2705,7 +2705,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 16000;
+  ptr_buffer_cache->max_buffer_page_num = 8000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4033,7 +4033,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 	}
   }
   assert(match_HQ==1);*/
-	int physical_node_num,phy_node_offset;
+	/*int physical_node_num,phy_node_offset;
 	for(i=0;i<global_HQ_size;i++){
 		physical_node_num = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
 		phy_node_offset = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576)) % LRUSIZE;
@@ -4042,7 +4042,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 				special_used[physical_node_num]->overwrite_num++;
 			}
 		}
-	}	
+	}*/	
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
   {
@@ -4698,7 +4698,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=8000;
+int threshold=5000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	lru_node *start,*end;
@@ -5154,7 +5154,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL,*victim=NULL;
 	int b1=0,b2=0,i,j,k=0;
-	p_weight=0.9;
+	p_weight=0.3;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
 	while(original!=ptr_buffer_cache->ptr_head){
