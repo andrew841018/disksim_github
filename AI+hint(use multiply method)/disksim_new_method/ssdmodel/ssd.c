@@ -2703,7 +2703,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 16000;
+  ptr_buffer_cache->max_buffer_page_num = 12000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4033,7 +4033,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   }
   assert(match_HQ==1);*/
   //deal with block new write
-  int physical_node_num,phy_node_offset;
+ /* int physical_node_num,phy_node_offset;
   for(i=0;i<global_HQ_size;i++){
 	physical_node_num = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
 	phy_node_offset = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576)) % LRUSIZE;
@@ -4042,8 +4042,8 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 			special_used[physical_node_num]->overwrite_num++;
 		}
 	}
-  }	
-  		
+  }	*/
+  
 		
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
@@ -4210,7 +4210,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   if(ptr_buffer_cache->w_miss_count>0){
 	double total_hit_ratio=(double)(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->r_hit_count)/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count+ptr_buffer_cache->r_hit_count+ptr_buffer_cache->r_miss_count);
 	FILE *hit=fopen("hit_ratio.txt","w");
-	fprintf(hit,"write hit count:%d write miss count:%d write hit ratio:%f total hit ratio:%f \n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count),total_hit_ratio);
+	fprintf(hit,"write buffer size:%d write hit count:%d write miss count:%d write hit ratio:%f total hit ratio:%f \n",ptr_buffer_cache->max_buffer_page_num,ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count),total_hit_ratio);
 	fclose(hit);
   }  
   if(duration_arr[physical_node_num]==-1){

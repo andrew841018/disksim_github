@@ -2703,7 +2703,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 8000;
+  ptr_buffer_cache->max_buffer_page_num = 16000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4210,7 +4210,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   if(ptr_buffer_cache->w_miss_count>0){
 	double total_hit_ratio=(double)(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->r_hit_count)/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count+ptr_buffer_cache->r_hit_count+ptr_buffer_cache->r_miss_count);
 	FILE *hit=fopen("hit_ratio.txt","w");
-	fprintf(hit,"write hit count:%d write miss count:%d write hit ratio:%f total hit ratio:%f \n",ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count),total_hit_ratio);
+	fprintf(hit,"write buffer size:%d write hit count:%d write miss count:%d write hit ratio:%f total hit ratio:%f \n",ptr_buffer_cache->max_buffer_page_num,ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count),total_hit_ratio);
 	fclose(hit);
   }  
   if(duration_arr[physical_node_num]==-1){
