@@ -51,7 +51,7 @@ int kick_Lg_count=0;
 int kick_Pg_count=0;
 double my_kick_node=0,my_kick_sum_page=0;
 int Pg_hit_Lg=0,kick_sum_page=0;
-
+extern int first_enter_write_buffer;
 int State0=0, State1=0, State2=0;//ch
 struct timeval start,start1;
 struct timeval end,end1;
@@ -298,6 +298,7 @@ int total_gc_count,total_live_page_cp_count,my_gc_count,my_live_page_count;
 extern unsigned int total_live_page_cp_count2;
 extern page_level_mapping *lba_table;
 unsigned int req_count;
+extern int hint[1000000];
 unsigned int clear_statistic_data_req_count;
 /*
  * the request will clare current statistic data 
@@ -1608,7 +1609,6 @@ void statistics_the_wait_time_by_striping(int elem_num)
 
 }
 ioreq_event *curr1;
-int hint[1000000]={0};//hint[i]=0 means i not in global_HQ 1 means i in global_HQ
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1648,9 +1648,6 @@ static void ssd_media_access_request_element (ioreq_event *curr)
    if(!(curr->flags&READ))
    {
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
-      for(i=0;i<global_HQ_size;i++){
-		hint[global_HQ[i]]=0;//reset
-	  }
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
       return ;
@@ -3974,13 +3971,11 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 } 
 
 
-int first_enter_write_buffer=0;
 lru_node *special_used[1000000];
 int not_exist_lpn[10000000];//-2->initial,-1->add,logical_node_num->not_exist
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
-  first_enter_write_buffer=1;
   static int full_cache = 0;
   unsigned int lpn,blkno,count,scount; //sector count
   ssd_t *currdisk;
@@ -3997,9 +3992,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   // }
   // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
   int i;
-  for(i=0;i<global_HQ_size;i++){
-	hint[global_HQ[i]]=1;//this lpn exist in global_HQ
-  }
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
