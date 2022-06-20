@@ -2703,7 +2703,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 16000;
+  ptr_buffer_cache->max_buffer_page_num = 4000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -3976,6 +3976,7 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 
 int first_enter_write_buffer=0;
 lru_node *special_used[1000000];
+int not_exist_lpn[10000000];//-2->initial,-1->add,logical_node_num->not_exist
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -4033,7 +4034,7 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   }
   assert(match_HQ==1);*/
   //deal with block new write
-  int physical_node_num,phy_node_offset;
+ /* int physical_node_num,phy_node_offset;
   for(i=0;i<global_HQ_size;i++){
 	physical_node_num = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576))/LRUSIZE;
 	phy_node_offset = (lba_table[global_HQ[i]].ppn+(lba_table[global_HQ[i]].elem_number*1048576)) % LRUSIZE;
@@ -4042,8 +4043,12 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 			special_used[physical_node_num]->overwrite_num++;
 		}
 	}
-  }	
-  		
+  }	*/
+  for(i=0;i<global_HQ_size;i++){
+	if(not_exist_lpn[global_HQ[i]]>=0 && special_used[not_exist_lpn[global_HQ[i]]]!=NULL){
+		special_used[not_exist_lpn[global_HQ[i]]]->overwrite_num++;
+	}
+  }
 		
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
@@ -4136,8 +4141,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   int i;
   if(init==1){	
 	int i,j;
-	for(i=0;i<10000000;i++)
+	for(i=0;i<10000000;i++){
 		duration_arr[i]=-1;
+		not_exist_lpn[i]=-1;
+	}
 	for(i=0;i<1000000;i++)
 		for(j=0;j<LRUSIZE;j++)
 			write_count[i][j]=0;
@@ -4845,6 +4852,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 	if(hint[lpn]==1){//check lpn is in hint queue or not
 		ptr_lru_node->overwrite_num++;
 	}
+	not_exist_lpn[lpn]=-2;
 }
 
 
@@ -4889,7 +4897,6 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 
   ptr_lru_node->page[offset_in_node].rcover = 0 ;
   ptr_lru_node->page[offset_in_node].wcover = 0 ;
-
 	ptr_lru_node->page[offset_in_node].exist = 0;
 	ptr_lru_node->buffer_page_num --;
 	ptr_buffer_cache->total_buffer_page_num --;
@@ -4914,6 +4921,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 		assert(victim_count<64);
 	}
 	else{
+		not_exist_lpn[ptr_lru_node->page[offset_in_node].lpn]=ptr_lru_node->logical_node_num;
 		//printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
 	}
 	
@@ -6479,9 +6487,9 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   statistic_the_data_in_every_stage();
-  FILE *result=fopen("performance.txt","a+");
+  /*FILE *result=fopen("performance.txt","a+");
   fprintf(result,"weight:%f hit ratio:%f\n",p_weight,(double)ptr_buffer_cache->w_hit_count/(double)(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
-  fclose(result);
+  fclose(result);*/
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
