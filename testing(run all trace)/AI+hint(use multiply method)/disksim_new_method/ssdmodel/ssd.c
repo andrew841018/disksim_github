@@ -51,7 +51,7 @@ int kick_Lg_count=0;
 int kick_Pg_count=0;
 double my_kick_node=0,my_kick_sum_page=0;
 int Pg_hit_Lg=0,kick_sum_page=0;
-
+extern int first_enter_write_buffer;
 int State0=0, State1=0, State2=0;//ch
 struct timeval start,start1;
 struct timeval end,end1;
@@ -298,6 +298,7 @@ int total_gc_count,total_live_page_cp_count,my_gc_count,my_live_page_count;
 extern unsigned int total_live_page_cp_count2;
 extern page_level_mapping *lba_table;
 unsigned int req_count;
+extern int hint[1000000];
 unsigned int clear_statistic_data_req_count;
 /*
  * the request will clare current statistic data 
@@ -1608,7 +1609,6 @@ void statistics_the_wait_time_by_striping(int elem_num)
 
 }
 ioreq_event *curr1;
-int hint[1000000]={0};//hint[i]=0 means i not in global_HQ 1 means i in global_HQ
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1648,9 +1648,6 @@ static void ssd_media_access_request_element (ioreq_event *curr)
    if(!(curr->flags&READ))
    {
       add_and_remove_page_to_buffer_cache(curr,&my_buffer_cache); //write req 進write buffer
-      for(i=0;i<global_HQ_size;i++){
-		hint[global_HQ[i]]=0;//reset
-	  }
       for(i=0;i<currdisk->params.nelements;i++)
         ssd_activate_elem(currdisk, i);
       return ;
@@ -2703,7 +2700,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 4000;
+  ptr_buffer_cache->max_buffer_page_num = 16000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -3974,13 +3971,11 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 } 
 
 
-int first_enter_write_buffer=0;
 lru_node *special_used[1000000];
 int not_exist_lpn[10000000];//-2->initial,-1->add,logical_node_num->not_exist
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
-  first_enter_write_buffer=1;
   static int full_cache = 0;
   unsigned int lpn,blkno,count,scount; //sector count
   ssd_t *currdisk;
@@ -3997,9 +3992,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
   // }
   // fprintf(myoutput3, "////////////////////Hint queue end/////////////////\n");
   int i;
-  for(i=0;i<global_HQ_size;i++){
-	hint[global_HQ[i]]=1;//this lpn exist in global_HQ
-  }
   while(count > 0)
   {
     int elem_num1 = lba_table[ssd_logical_pageno(blkno,currdisk)].elem_number;
@@ -4044,11 +4036,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		}
 	}
   }	*/
-  for(i=0;i<global_HQ_size;i++){
-	if(not_exist_lpn[global_HQ[i]]>=0 && special_used[not_exist_lpn[global_HQ[i]]]!=NULL){
-		special_used[not_exist_lpn[global_HQ[i]]]->overwrite_num++;
-	}
-  }
 		
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
@@ -4280,11 +4267,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	/*if(ptr_buffer_cache->max_buffer_page_num==4000){
-		FILE *t=fopen("info(iozone).txt","a+");
+	if(ptr_buffer_cache->max_buffer_page_num==4000){
+		FILE *t=fopen("info(Financial2forssd).txt","a+");
 		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
 		fclose(t);
-	}*/
+	}
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -4851,6 +4838,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 	int i;
 	if(hint[lpn]==1){//check lpn is in hint queue or not
 		ptr_lru_node->overwrite_num++;
+		hint[lpn]=0;
 	}
 	not_exist_lpn[lpn]=-2;
 }
@@ -5168,6 +5156,12 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	p_weight=0.3;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
+	for(i=0;i<global_HQ_size;i++){
+		if(not_exist_lpn[global_HQ[i]]>=0 && special_used[not_exist_lpn[global_HQ[i]]]!=NULL){
+			special_used[not_exist_lpn[global_HQ[i]]]->overwrite_num++;
+			not_exist_lpn[global_HQ[i]]=-1;
+		}
+	}
 	while(original!=ptr_buffer_cache->ptr_head){
 		benefit=p_weight*original->duration_priority+(1-p_weight)*original->overwrite_num;
 		//find min benefit node in write buffer

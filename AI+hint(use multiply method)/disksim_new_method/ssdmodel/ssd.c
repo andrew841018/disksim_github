@@ -4036,11 +4036,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
 		}
 	}
   }	*/
-  for(i=0;i<global_HQ_size;i++){
-	if(not_exist_lpn[global_HQ[i]]>=0 && special_used[not_exist_lpn[global_HQ[i]]]!=NULL){
-		special_used[not_exist_lpn[global_HQ[i]]]->overwrite_num++;
-	}
-  }
 		
   // mark buffer page for specific current block
   if(block_level_lru_no_parallel == 0)
@@ -4710,7 +4705,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=4000;
+int threshold=7000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	lru_node *start,*end;
@@ -4843,6 +4838,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 	int i;
 	if(hint[lpn]==1){//check lpn is in hint queue or not
 		ptr_lru_node->overwrite_num++;
+		hint[lpn]=0;
 	}
 	not_exist_lpn[lpn]=-2;
 }
@@ -5157,9 +5153,15 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL,*victim=NULL;
 	int b1=0,b2=0,i,j,k=0;
-	p_weight=0.1;
+	p_weight=0.9;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
+	for(i=0;i<global_HQ_size;i++){
+		if(not_exist_lpn[global_HQ[i]]>=0 && special_used[not_exist_lpn[global_HQ[i]]]!=NULL){
+			special_used[not_exist_lpn[global_HQ[i]]]->overwrite_num++;
+			not_exist_lpn[global_HQ[i]]=-1;
+		}
+	}
 	while(original!=ptr_buffer_cache->ptr_head){
 		benefit=p_weight*original->duration_priority+(1-p_weight)*original->overwrite_num;
 		//find min benefit node in write buffer

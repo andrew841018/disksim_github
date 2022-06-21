@@ -85,6 +85,8 @@ one block=64 pages
 #include "disksim_rand48.h"
 extern int sum_block_count[1000000] = {100}; //在my_ssd.c裡宣告
 extern int clean_replace = 0;
+extern int hint[1000000]={0};
+extern int first_enter_write_buffer=0;
 extern int clean_flush1 = 0;
 extern int clean_flush2 = 0;
 extern long long int replace_time = 0;
@@ -279,7 +281,7 @@ void write_back_hint(Hint_Queue* HintQ, Queue* queue , FILE *fwrite, struct disk
         {
           global_HQ[global_HQ_size]=current_Point->blockNumber/8;
           //fprintf(myoutput4, "WBH dirty incoming hint page = %d\n", global_HQ[global_HQ_size] );
-          
+		  hint[global_HQ[global_HQ_size]]=1;
           global_HQ_size++;
           int i,h=0;
           for(i=0;i<global_HQ_node_size;i++)
@@ -316,6 +318,7 @@ void write_back_hint(Hint_Queue* HintQ, Queue* queue , FILE *fwrite, struct disk
       if(current_Point->Dirty == 1 && current_Point->Hint_Dirty == 1) {//dirty page
          
         global_HQ[global_HQ_size]=current_Point->blockNumber/8;
+        hint[global_HQ[global_HQ_size]]=1;
         //fprintf(myoutput4, "WBH dirty incoming hint page = %d\n", global_HQ[global_HQ_size] );
         global_HQ_size++;
         int i,h=0;
@@ -538,6 +541,7 @@ void period_write_back_hint(Hint_Queue* HintQ, Hash *hash , Queue* queue , FILE 
        //fprintf(outputfd, "\t$$$$$$$dirty && time longer then %d, current_Point2->blockNumber=%d\n", old_dirty_time-(Thint_times*5),current_Point2->blockNumber);
         // Allocate memory and assign 'blockNumber'
         global_HQ[global_HQ_size]=current_Point2->blockNumber/8;
+        hint[global_HQ[global_HQ_size]]=1;
         global_HQ_size++;
         int i,h=0;
         for(i=0;i<global_HQ_node_size;i++)
@@ -914,6 +918,7 @@ void replacement_hint(Hint_Queue* HintQ, Queue* queue , FILE *fwrite , struct di
      //fprintf(outputfd, "dirty incoming hint page = %d\n", current_Point->blockNumber );
       global_HQ[global_HQ_size]=current_Point->blockNumber/8;
       //fprintf(myoutput, "RH dirty incoming hint page = %d\n", current_Point->blockNumber/8 );
+      hint[global_HQ[global_HQ_size]]=1;
       global_HQ_size++;
       int i,h=0;
         for(i=0;i<global_HQ_node_size;i++)
@@ -955,8 +960,12 @@ void replacement_hint(Hint_Queue* HintQ, Queue* queue , FILE *fwrite , struct di
 void Clear_Global_hint_Queue()
 {
   int i;
+  first_enter_write_buffer=1;
   for(i=0;i<10000;i++)
   {
+	if(global_HQ[i]>=0){
+		hint[global_HQ[i]]=0;//reset
+	}
     global_HQ[i]=-1;
     global_HQ_size=0;
     global_HQ_node[i]=-1;
@@ -1576,8 +1585,12 @@ void ReferencePage( Queue* queue, Hash* hash, double Req_time, long int Req_devn
        //fprintf(outputfd, "#######################!!!@@@定時flush hint@@@!!!#############################\n");
        //fprintf(outputfd, "Ref_dr=%lf >=0\n", Ref_dr);
         predict_Ttime=CacheTime;
+        first_enter_write_buffer=1;
         for(i=0;i<10000;i++)
         {
+		  if(global_HQ[i]>=0){
+			hint[global_HQ[i]]=0;//reset
+		  }
           global_HQ[i]=-1;
           global_HQ_size=0;
           global_HQ_node[i]=-1;
@@ -1984,9 +1997,12 @@ int main(int argc, char *argv[])
       page_RW_count->page_num=0;
       page_RW_count->r_count=0;
       page_RW_count->w_count=0;
-
+	  first_enter_write_buffer=1;
       for(i=0;i<10000;i++)
       {
+		if(global_HQ[i]>=0){
+			hint[global_HQ[i]]=0;//reset
+		}
         global_HQ[i]=-1;
         global_HQ_size=0;
         global_HQ_node[i]=-1;
