@@ -2700,7 +2700,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 16000;
+  ptr_buffer_cache->max_buffer_page_num = 8000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -5153,7 +5153,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL,*victim=NULL;
 	int b1=0,b2=0,i,j,k=0;
-	p_weight=0.3;
+	p_weight=0.8;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
 	for(i=0;i<global_HQ_size;i++){
@@ -6483,9 +6483,9 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   statistic_the_data_in_every_stage();
-  /*FILE *result=fopen("performance.txt","a+");
-  fprintf(result,"weight:%f hit ratio:%f\n",p_weight,(double)ptr_buffer_cache->w_hit_count/(double)(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
-  fclose(result);*/
+  FILE *result=fopen("performance.txt","a+");
+  fprintf(result,"weight:%f hit ratio:%f\n",p_weight,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
+  fclose(result);
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
@@ -6542,7 +6542,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
-  printf("(no dropout)demoting threshold:%d p_weight:%f write buffer size:%d\n",threshold,p_weight,ptr_buffer_cache->max_buffer_page_num);
+  printf("demoting threshold:%d p_weight:%f write buffer size:%d\n",threshold,p_weight,ptr_buffer_cache->max_buffer_page_num);
 }
 
 
