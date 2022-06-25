@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\"
-duration_model = tf.keras.models.load_model(addr+'duration_model(Financial2forssd).h5')
+duration_model = tf.keras.models.load_model(addr+'duration_model(run1_asim_ug2).h5')
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\AI input feature\\generate by current code\\AI\\"
-data=np.loadtxt(addr+'info(Financial).txt',delimiter=' ',usecols=range(7))
+data=np.loadtxt(addr+'info(run1_asim_ug2).txt',delimiter=' ',usecols=range(7))
 data_for_predict=data
 data_for_predict=np.delete(data_for_predict,2,axis=1)#delete physical_block_number
 
@@ -35,7 +35,7 @@ while(finish!=len(data)):
         output=1
     if duration_model.predict(tmp)[0][2]==np.max(duration_model.predict(tmp)):
         output=2   
-    with open('duration(Financial2forssd).txt','a') as f:
+    with open('duration(run1_asim_ug2).txt','a') as f:
         f.write(str(data[finish][2])+" "+str(output)+"\n")
     content.append(data[finish][2])
     #print(output)
