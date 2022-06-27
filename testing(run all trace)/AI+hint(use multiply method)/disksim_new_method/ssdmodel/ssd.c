@@ -9,6 +9,7 @@
 #include "ssd_init.h"
 #include "syssim_driver.h"
 #include "modules/ssdmodel_ssd_param.h"
+#include "disksim_global.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -52,6 +53,8 @@ int kick_Pg_count=0;
 double my_kick_node=0,my_kick_sum_page=0;
 int Pg_hit_Lg=0,kick_sum_page=0;
 extern int first_enter_write_buffer;
+extern struct timeval begin,finish;
+extern int ReqCount;
 int State0=0, State1=0, State2=0;//ch
 struct timeval start,start1;
 struct timeval end,end1;
@@ -1609,6 +1612,8 @@ void statistics_the_wait_time_by_striping(int elem_num)
 
 }
 ioreq_event *curr1;
+double avg_response_time;
+double total_response_time=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1727,10 +1732,14 @@ static void ssd_media_access_request_element (ioreq_event *curr)
          // add the request to the corresponding element's queue
        ioqueue_add_new_request(elem->queue, (ioreq_event *)tmp);
    }
-  
+	double total_time;
+	gettimeofday(&finish, NULL);
+	//since reqeuest enter page cache ~ here (usec)
+	total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+	total_response_time+=total_time;
+	avg_response_time=(double)total_response_time/ReqCount;
    for(i=0;i<currdisk->params.nelements;i++)
      ssd_activate_elem(currdisk, i);
-
 }
 
 static void ssd_media_access_request (ioreq_event *curr)
@@ -3972,6 +3981,7 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 
 
 lru_node *special_used[1000000];
+struct disksim_request *request;
 int not_exist_lpn[10000000];//-2->initial,-1->add,logical_node_num->not_exist
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
@@ -4018,6 +4028,9 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
+  //request=(struct disksim_request *)curr->buf;
+  //total_response_time+=(simtime-request->start);
+  //printf("(ssd)curr response time:%f\n",total_time);
  /* int match_HQ=0;
   for(i=0;i<global_HQ_size;i++){
 	if(global_HQ[i]==lpn){
@@ -4267,9 +4280,9 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	if(ptr_buffer_cache->max_buffer_page_num==8000){
-		FILE *t=fopen("info(run1_asim_ug2).txt","a+");
-		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count, write_count[physical_node_num][phy_node_offset]);
+	if(ptr_buffer_cache->max_buffer_page_num==4000){
+		FILE *t=fopen("info(iozone2).txt","a+");
+		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,write_count[physical_node_num][phy_node_offset]);
 		fclose(t);
 	}
   return 0;
@@ -4705,7 +4718,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=10000;
+int threshold=8000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	lru_node *start,*end;
@@ -4904,9 +4917,9 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 			remove_from_hash_and_lru(ptr_buffer_cache,ptr_lru_node,1);
 		victim_count--;
 		kick_block=1;
-		assert(victim_count<64);
 		//this code is to avoid this block from kicking again,becasue even we free this block
-		//the corresponding select_victim won't change(=1)...		
+		//the corresponding select_victim won't change(=1)...
+		assert(victim_count<64);
 	}
 	else{
 		not_exist_lpn[ptr_lru_node->page[offset_in_node].lpn]=ptr_lru_node->logical_node_num;
@@ -5153,7 +5166,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	lru_node *original=ptr_buffer_cache->ptr_head->prev;
 	lru_node *soon=NULL,*mean=NULL,*late=NULL,*victim=NULL;
 	int b1=0,b2=0,i,j,k=0;
-	p_weight=0.5;
+	p_weight=0.9;
 	int physical_node_num;
 	double benefit,soon_min=1000000,mean_min=1000000,late_min=1000000,min=1000000;
 	for(i=0;i<global_HQ_size;i++){
@@ -5846,6 +5859,12 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     }
     return ;
   }
+	double total_time;
+	gettimeofday(&finish, NULL);
+	//since reqeuest enter page cache ~ here (usec)
+	total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+	total_response_time+=total_time;
+	avg_response_time=(double)total_response_time/ReqCount;
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
@@ -6483,9 +6502,9 @@ void show_result(buffer_cache *ptr_buffer_cache)
 
   //report the last result 
   statistic_the_data_in_every_stage();
-  FILE *result=fopen("performance.txt","a+");
+  /*FILE *result=fopen("performance.txt","a+");
   fprintf(result,"weight:%f hit ratio:%f\n",p_weight,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count + ptr_buffer_cache->w_miss_count));
-  fclose(result);
+  fclose(result);*/
   printf(LIGHT_GREEN"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n"NONE, RWRATIO, EVICTWINDOW);
   fprintf(finaloutput,"[CHEN] RWRATIO=%lf, EVICTWINDOW=%f\n",RWRATIO, EVICTWINDOW);
   printf(LIGHT_GREEN"[CHEN] WB_size = %d\n"NONE, ptr_buffer_cache->max_buffer_page_num);
@@ -6542,7 +6561,9 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
+  avg_response_time=(double)total_response_time/ReqCount;
   printf("demoting threshold:%d p_weight:%f write buffer size:%d\n",threshold,p_weight,ptr_buffer_cache->max_buffer_page_num);
+  printf("average respose time(edit by andrew):%f\n",avg_response_time);
 }
 
 

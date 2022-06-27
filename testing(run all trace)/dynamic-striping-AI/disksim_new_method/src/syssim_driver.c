@@ -87,6 +87,7 @@ extern int sum_block_count[1000000] = {100}; //在my_ssd.c裡宣告
 extern int clean_replace = 0;
 extern int clean_flush1 = 0;
 extern int clean_flush2 = 0;
+extern int ReqCount=0;
 extern long long int replace_time = 0;
 extern long long int flush1_time = 0;
 extern long long int flush2_time = 0;
@@ -110,7 +111,6 @@ int read_miss = 0,read_hit = 0,write_miss = 0,write_hit = 0;
 unsigned int clean2dirty=0;
 SysTime predict_Ntime=0, predict_Ttime=0, Ntime=0, Ttime=0, Rtime=0, sum_req_time=0, replacement_diff=0,sum_time=0;
 int Thint_times=0;
-int ReqCount = 0;
 long long int evict_count = 0;
 long long int count_to_buffer = 0; 
 int Rpre_blk=-1;
@@ -123,7 +123,7 @@ unsigned MAXREQ;
 int unique_page=0;
 struct timeval start,start1;
 struct timeval end,end1;
-
+extern struct timeval begin,finish;
 int fa_hint_count=0;
 int ft_hint_count=0;
 int rp_hint_count=0;
@@ -1902,9 +1902,11 @@ int main(int argc, char *argv[])
     while(fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W)!= EOF) //接收新的request
     //while(myreqcount<reqamount)
     {
+		
       //myreqcount++;
       //fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W);
       //fprintf(myoutput,"time:%lf,devno:%ld,blnum:%ld,size:%ld,R_W:%ld\n",time,devno,blnum,size,R_W);
+      gettimeofday(&begin, NULL);
       ReqCount++;
       test_RQ++;
       printf("----接收新的request----|ReqCount=%d\n", ReqCount);

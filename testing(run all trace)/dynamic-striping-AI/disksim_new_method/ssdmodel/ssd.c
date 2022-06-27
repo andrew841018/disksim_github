@@ -1,5 +1,4 @@
 // DiskSim SSD support
-// DiskSim SSD support
 // ©2008 Microsoft Corporation. All Rights Reserved
 // 先搜尋 ininin 找到入口
  
@@ -52,7 +51,7 @@ int kick_Lg_count=0;
 int kick_Pg_count=0;
 double my_kick_node=0,my_kick_sum_page=0;
 int Pg_hit_Lg=0,kick_sum_page=0;
-
+extern int ReqCount;
 int State0=0, State1=0, State2=0;//ch
 struct timeval start,start1;
 struct timeval end,end1;
@@ -60,7 +59,7 @@ int have_hinted_node=0;
 int kick_channel_times=0;
 unsigned int kick_count=0;
 int kick_channel_num=0;
-
+extern struct timeval begin,finish;
 int LPN_RWtimes[1000000][2]={0};//0:read count/1:write count
 int LPN_pageRtimes[100000000]={0};//read count
 unsigned int channel_plane_write_count[8][8]={0};
@@ -1609,6 +1608,8 @@ void statistics_the_wait_time_by_striping(int elem_num)
 
 }
 ioreq_event *curr1;
+double avg_response_time;
+double total_response_time=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1727,7 +1728,12 @@ static void ssd_media_access_request_element (ioreq_event *curr)
          // add the request to the corresponding element's queue
        ioqueue_add_new_request(elem->queue, (ioreq_event *)tmp);
    }
-  
+	double total_time;
+	gettimeofday(&finish, NULL);
+	//since reqeuest enter page cache ~ here (usec)
+	total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+	total_response_time+=total_time;
+	avg_response_time=(double)total_response_time/ReqCount;
    for(i=0;i<currdisk->params.nelements;i++)
      ssd_activate_elem(currdisk, i);
 
@@ -2700,7 +2706,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 16000;
+  ptr_buffer_cache->max_buffer_page_num = 4000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -3971,7 +3977,6 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 } 
 
 
-
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
@@ -4242,11 +4247,11 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		}
 	}
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	/*if(ptr_buffer_cache->max_buffer_page_num==16000){
-		FILE *t=fopen("info(Financial).txt","a+");
-		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,1);
+	if(ptr_buffer_cache->max_buffer_page_num==4000){
+		FILE *t=fopen("info(run1_asim_ug2).txt","a+");
+		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,write_count[physical_node_num][phy_node_offset]);
 		fclose(t);
-	}*/
+	}
   }
   return 0;
 }
@@ -4678,7 +4683,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 //   ptr_buffer_cache->ptr_head->prev = ptr_lru_node;
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
-int threshold=10000;
+int threshold=8000;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	
@@ -5790,6 +5795,12 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     }
     return ;
   }
+	double total_time;
+	gettimeofday(&finish, NULL);
+	//since reqeuest enter page cache ~ here (usec)
+	total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+	total_response_time+=total_time;
+	avg_response_time=(double)total_response_time/ReqCount;
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
@@ -5853,7 +5864,6 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 			int max=-1;
 		  Top:
 			max=-1;
-			target=current_block[channel_num][plane].ptr_lru_node;
 			for(i=0;i<LRUSIZE;i++){
 				if(target->page[i].exist==2){
 					max=0;
@@ -6493,6 +6503,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
    printf("threshold:%d\n",threshold);
+   printf("average respose time(edit by andrew):%f\n",avg_response_time);
 }
 
 

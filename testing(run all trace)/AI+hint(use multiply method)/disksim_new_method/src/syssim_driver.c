@@ -92,6 +92,7 @@ extern int clean_flush2 = 0;
 extern long long int replace_time = 0;
 extern long long int flush1_time = 0;
 extern long long int flush2_time = 0;
+extern struct timeval begin,finish;
 extern int ssd_ARR = 0;
 int flush_direct = 0 ;
 int test_count2 = 0;
@@ -112,7 +113,7 @@ int read_miss = 0,read_hit = 0,write_miss = 0,write_hit = 0;
 unsigned int clean2dirty=0;
 SysTime predict_Ntime=0, predict_Ttime=0, Ntime=0, Ttime=0, Rtime=0, sum_req_time=0, replacement_diff=0,sum_time=0;
 int Thint_times=0;
-int ReqCount = 0;
+extern int ReqCount = 0;
 long long int evict_count = 0;
 long long int count_to_buffer = 0; 
 int Rpre_blk=-1;
@@ -1656,7 +1657,6 @@ add_statistics_page(Stat *s, int p, double x)
   s->sum += x;
   s->sqr += x*x;
 }
-
 void
 add_statistics(Stat *s, double x)
 {
@@ -1726,7 +1726,7 @@ syssim_deschedule_callback(double t, void *ctx)
   next_event = -1;
 }
  
-
+//SysTime t=disksim->simtime=(System time)
 void
 syssim_report_completion(SysTime t, struct disksim_request *r, void *ctx)
 {
@@ -1911,10 +1911,10 @@ int main(int argc, char *argv[])
       req_RW_count = rw;
       RW_count* prw = (RW_count *)malloc( sizeof( RW_count ) );//分配空間
       page_RW_count = prw;
-    
     while(fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W)!= EOF) //接收新的request
     //while(myreqcount<reqamount)
     {
+	  gettimeofday(&begin, NULL);
       //myreqcount++;
       //fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W);
       //fprintf(myoutput,"time:%lf,devno:%ld,blnum:%ld,size:%ld,R_W:%ld\n",time,devno,blnum,size,R_W);
