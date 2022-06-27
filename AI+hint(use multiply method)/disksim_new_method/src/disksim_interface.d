@@ -25,6 +25,8 @@ disksim_interface.o: disksim_interface.c /usr/include/stdc-predef.h \
  /usr/include/i386-linux-gnu/bits/waitstatus.h /usr/include/alloca.h \
  /usr/include/i386-linux-gnu/bits/stdlib-float.h /usr/include/string.h \
  /usr/include/xlocale.h /usr/include/math.h \
+ /usr/include/i386-linux-gnu/bits/math-vector.h \
+ /usr/include/i386-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/i386-linux-gnu/bits/huge_val.h \
  /usr/include/i386-linux-gnu/bits/huge_valf.h \
  /usr/include/i386-linux-gnu/bits/huge_vall.h \

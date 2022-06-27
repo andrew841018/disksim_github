@@ -100,7 +100,7 @@ int first_enter_write_buffer;
 
 struct RW_count *page_RW_count;
 struct kick_req *req_RW_count;
-
+struct timeval begin,finish;
 
 
 /* exported by syssim_driver.c */

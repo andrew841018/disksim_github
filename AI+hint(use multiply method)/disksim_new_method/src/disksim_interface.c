@@ -168,7 +168,6 @@ disksim_interface_io_done_notify (ioreq_event *curr, void *ctx)
 {
   struct disksim_interface *iface = (struct disksim_interface *)ctx;
   struct disksim_request *req = (struct disksim_request *) curr->buf;
-
   // wrong ctx -- should be the per-req one ... how to demux?
   iface->complete_fn(simtime, req, iface->ctx);
   return 0;

@@ -92,6 +92,7 @@ extern int clean_flush2 = 0;
 extern long long int replace_time = 0;
 extern long long int flush1_time = 0;
 extern long long int flush2_time = 0;
+extern struct timeval begin,finish;
 extern int ssd_ARR = 0;
 int flush_direct = 0 ;
 int test_count2 = 0;
@@ -1656,7 +1657,6 @@ add_statistics_page(Stat *s, int p, double x)
   s->sum += x;
   s->sqr += x*x;
 }
-
 void
 add_statistics(Stat *s, double x)
 {
@@ -1726,7 +1726,7 @@ syssim_deschedule_callback(double t, void *ctx)
   next_event = -1;
 }
  
-
+//SysTime t=disksim->simtime=(System time)
 void
 syssim_report_completion(SysTime t, struct disksim_request *r, void *ctx)
 {
@@ -1915,6 +1915,7 @@ int main(int argc, char *argv[])
     while(fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W)!= EOF) //接收新的request
     //while(myreqcount<reqamount)
     {
+	  gettimeofday(&begin, NULL);
       //myreqcount++;
       //fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W);
       //fprintf(myoutput,"time:%lf,devno:%ld,blnum:%ld,size:%ld,R_W:%ld\n",time,devno,blnum,size,R_W);
