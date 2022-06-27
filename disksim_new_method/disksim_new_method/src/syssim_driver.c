@@ -111,7 +111,8 @@ int read_miss = 0,read_hit = 0,write_miss = 0,write_hit = 0;
 unsigned int clean2dirty=0;
 SysTime predict_Ntime=0, predict_Ttime=0, Ntime=0, Ttime=0, Rtime=0, sum_req_time=0, replacement_diff=0,sum_time=0;
 int Thint_times=0;
-int ReqCount = 0;
+extern int ReqCount = 0;
+extern struct timeval begin,finish;
 long long int evict_count = 0;
 long long int count_to_buffer = 0; 
 int Rpre_blk=-1;
@@ -1809,6 +1810,8 @@ void calculate_predict()
 } 
 int main(int argc, char *argv[]) 
 {
+  double avg_response_time;
+  double total_response_time=0;
   unsigned long diffall;
   gettimeofday(&start1, NULL); 
   int i;
@@ -1906,9 +1909,11 @@ int main(int argc, char *argv[])
       //myreqcount++;
       //fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W);
       //fprintf(myoutput,"time:%lf,devno:%ld,blnum:%ld,size:%ld,R_W:%ld\n",time,devno,blnum,size,R_W);
+      gettimeofday(&begin, NULL);
       ReqCount++;
       test_RQ++;
       printf("----接收新的request----|ReqCount=%d\n", ReqCount);
+      
       if(blnum > 56000000 && R_W == 0)
         continue;
       //fprintf(outputfd, "----接收新的request----|ReqCount=%d\n", ReqCount);
@@ -2141,6 +2146,12 @@ int main(int argc, char *argv[])
       //fprintf(myoutput,"!!!!!!ALL = %ld\n",count_time);
       my_prev_time = time;
       //mytime = 0;
+		double total_time;
+		gettimeofday(&finish, NULL);
+		//since reqeuest enter page cache ~ here (usec)
+		total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+		total_response_time+=total_time;
+		avg_response_time=(double)total_response_time/ReqCount;
       if(ReqCount==number_of_trace_we_run){
 		break;
 	  }
@@ -2215,6 +2226,7 @@ int main(int argc, char *argv[])
   fprintf(finaloutput,"[CHEN] ft_hint_count=%d\n",ft_hint_count);
   fprintf(finaloutput,"[CHEN] rp_hint_count=%d\n",rp_hint_count);
   fprintf(finaloutput,"[CHEN] total_hint_count=%d\n",fa_hint_count+ft_hint_count+rp_hint_count);
+  printf("average response time(edit by andrew):%f\n",avg_response_time);
 //-----------------------------------------------------------------------------------------------------------------------   
  
   /* NOTE: it is bad to use this internal disksim call from external... */

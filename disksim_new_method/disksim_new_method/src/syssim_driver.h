@@ -64,7 +64,7 @@ typedef struct Hint_Queue
   long long int numberOfFrames; // total number of frames
   Hint_page *front, *rear;
 } Hint_Queue;
-
+struct timeval begin,finish;
 struct Hint_Queue *global_Hint_Queue;
 FILE * outputfd;
 FILE * outputssd;
@@ -95,7 +95,7 @@ int global_HQ[10000];
 int global_HQ_node[10000];
 int global_HQ_size;
 int global_HQ_node_size;
-
+int ReqCount;
 struct RW_count *page_RW_count;
 struct kick_req *req_RW_count;
 
