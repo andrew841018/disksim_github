@@ -1612,6 +1612,8 @@ void statistics_the_wait_time_by_striping(int elem_num)
 
 }
 ioreq_event *curr1;
+double avg_response_time;
+double total_response_time=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1730,10 +1732,14 @@ static void ssd_media_access_request_element (ioreq_event *curr)
          // add the request to the corresponding element's queue
        ioqueue_add_new_request(elem->queue, (ioreq_event *)tmp);
    }
-  
+	double total_time;
+	gettimeofday(&finish, NULL);
+	//since reqeuest enter page cache ~ here (usec)
+	total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+	total_response_time+=total_time;
+	avg_response_time=(double)total_response_time/ReqCount;
    for(i=0;i<currdisk->params.nelements;i++)
      ssd_activate_elem(currdisk, i);
-
 }
 
 static void ssd_media_access_request (ioreq_event *curr)
@@ -3975,8 +3981,6 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 
 
 lru_node *special_used[1000000];
-double avg_response_time;
-double total_response_time=0;
 struct disksim_request *request;
 int not_exist_lpn[10000000];//-2->initial,-1->add,logical_node_num->not_exist
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
