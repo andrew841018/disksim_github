@@ -54,7 +54,7 @@ double my_kick_node=0,my_kick_sum_page=0;
 int Pg_hit_Lg=0,kick_sum_page=0;
 extern int first_enter_write_buffer;
 extern struct timeval begin,finish;
-extern struct event;
+extern int ReqCount;
 int State0=0, State1=0, State2=0;//ch
 struct timeval start,start1;
 struct timeval end,end1;
@@ -2703,7 +2703,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 12000;
+  ptr_buffer_cache->max_buffer_page_num = 4000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -3975,7 +3975,6 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
 
 
 lru_node *special_used[1000000];
-int num_of_req=0;
 double avg_response_time;
 double total_response_time=0;
 struct disksim_request *request;
@@ -4025,13 +4024,6 @@ void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buf
     count -= scount;
     blkno += scount;
   }
-  num_of_req++;
-  double total_time;
-  gettimeofday(&finish, NULL);
-  //since reqeuest enter page cache ~ here (usec)
-  total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
-  total_response_time+=total_time;
-  avg_response_time=(double)total_response_time/num_of_req;
   //request=(struct disksim_request *)curr->buf;
   //total_response_time+=(simtime-request->start);
   //printf("(ssd)curr response time:%f\n",total_time);
@@ -5863,6 +5855,12 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     }
     return ;
   }
+	double total_time;
+	gettimeofday(&finish, NULL);
+	//since reqeuest enter page cache ~ here (usec)
+	total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+	total_response_time+=total_time;
+	avg_response_time=(double)total_response_time/ReqCount;
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
@@ -6559,7 +6557,7 @@ void show_result(buffer_cache *ptr_buffer_cache)
    printf("ytc94u fill_block_count == 0");
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
-  avg_response_time=(double)total_response_time/num_of_req;
+  avg_response_time=(double)total_response_time/ReqCount;
   printf("demoting threshold:%d p_weight:%f write buffer size:%d\n",threshold,p_weight,ptr_buffer_cache->max_buffer_page_num);
   printf("average respose time(edit by andrew):%f\n",avg_response_time);
 }

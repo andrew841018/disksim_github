@@ -113,7 +113,7 @@ int read_miss = 0,read_hit = 0,write_miss = 0,write_hit = 0;
 unsigned int clean2dirty=0;
 SysTime predict_Ntime=0, predict_Ttime=0, Ntime=0, Ttime=0, Rtime=0, sum_req_time=0, replacement_diff=0,sum_time=0;
 int Thint_times=0;
-int ReqCount = 0;
+extern int ReqCount = 0;
 long long int evict_count = 0;
 long long int count_to_buffer = 0; 
 int Rpre_blk=-1;
@@ -1911,7 +1911,6 @@ int main(int argc, char *argv[])
       req_RW_count = rw;
       RW_count* prw = (RW_count *)malloc( sizeof( RW_count ) );//分配空間
       page_RW_count = prw;
-    
     while(fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W)!= EOF) //接收新的request
     //while(myreqcount<reqamount)
     {
