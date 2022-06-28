@@ -2164,8 +2164,9 @@ int main(int argc, char *argv[])
       my_prev_time = time;
 	  gettimeofday(&finish, NULL);
 		//since reqeuest enter page cache ~ here (usec)
-	 total_response_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
-	 total_response_time-=remove_part;
+	  double curr_req_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+	  curr_req_time-=remove_part;
+	 total_response_time+=curr_req_time;
 	 avg_response_time=(double)total_response_time/ReqCount;
       //mytime = 0;
     }///////////////////////////////////////////////////////////////////////////////////////////////////////////////////scanf
