@@ -2236,6 +2236,7 @@ int main(int argc, char *argv[])
   printf("\n****Response time****");
   fprintf(finaloutput,"\n****Response time****");
   print_statistics(&st, &wst, &rst, &wstp, &rstp, "response time");
+  printf("average respose time(edit by andrew):%f\n",avg_response_time);
   //fclose(evict_fread);
   fclose(fread);
   fclose(fwrite);
