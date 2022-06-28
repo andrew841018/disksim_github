@@ -60,6 +60,7 @@ int kick_channel_times=0;
 unsigned int kick_count=0;
 int kick_channel_num=0;
 extern struct timeval begin,finish;
+extern double remove_part=0;
 int LPN_RWtimes[1000000][2]={0};//0:read count/1:write count
 int LPN_pageRtimes[100000000]={0};//read count
 unsigned int channel_plane_write_count[8][8]={0};
@@ -1608,8 +1609,6 @@ void statistics_the_wait_time_by_striping(int elem_num)
 
 }
 ioreq_event *curr1;
-double avg_response_time;
-double total_response_time=0;
 static void ssd_media_access_request_element (ioreq_event *curr)
 {
   //printf(LIGHT_BLUE"inininininin\n"NONE);
@@ -1728,12 +1727,6 @@ static void ssd_media_access_request_element (ioreq_event *curr)
          // add the request to the corresponding element's queue
        ioqueue_add_new_request(elem->queue, (ioreq_event *)tmp);
    }
-	double total_time;
-	gettimeofday(&finish, NULL);
-	//since reqeuest enter page cache ~ here (usec)
-	total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
-	total_response_time+=total_time;
-	avg_response_time=(double)total_response_time/ReqCount;
    for(i=0;i<currdisk->params.nelements;i++)
      ssd_activate_elem(currdisk, i);
 
@@ -4684,7 +4677,6 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
 int threshold=8000;
-double remove_part;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
 	
@@ -4810,7 +4802,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		}
 		gettimeofday(&end1, NULL);
 		//since reqeuest enter page cache ~ here (usec)
-		remove_part=(double)(1000000 * (end1.tv_sec-start1.tv_sec)+ end1.tv_usec-start1.tv_usec)/1000000;
+		remove_part+=(double)(1000000 * (end1.tv_sec-start1.tv_sec)+ end1.tv_usec-start1.tv_usec)/1000000;
 }
 }
 
@@ -5800,16 +5792,10 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
     }
     return ;
   }
-	double total_time;
-	gettimeofday(&finish, NULL);
-	//since reqeuest enter page cache ~ here (usec)
-	total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
-	total_response_time+=total_time;
-	total_response_time-=remove_part;
-	avg_response_time=(double)total_response_time/ReqCount;
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
    * */
+  gettimeofday(&start1, NULL);
   int no_page_can_evict=0;
   // "before while channel=%d,plane=%d\n", channel_num,plane);
   //printf("before while channel=%d,plane=%d\n", channel_num,plane);
@@ -6044,7 +6030,8 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
   my_kick_node+=kick;
   my_kick_sum_page+=ptr_buffer_cache->ptr_current_mark_node->buffer_page_num;
   //printf("end\n"); 
-  
+  gettimeofday(&end1, NULL);
+  remove_part+=(double)(1000000 * (end1.tv_sec-start1.tv_sec)+ end1.tv_usec-start1.tv_usec)/1000000;
 }
 
 
@@ -6509,7 +6496,6 @@ void show_result(buffer_cache *ptr_buffer_cache)
    fprintf(finaloutput,"ytc94u fill_block_count == 0");
   }
    printf("threshold:%d\n",threshold);
-   printf("average respose time(edit by andrew):%f\n",avg_response_time);
 }
 
 

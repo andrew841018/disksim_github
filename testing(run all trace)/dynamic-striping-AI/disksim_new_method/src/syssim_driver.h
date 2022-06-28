@@ -96,7 +96,7 @@ int global_HQ_node[10000];
 int global_HQ_size;
 int global_HQ_node_size;
 int ReqCount;
-
+double remove_part;
 struct RW_count *page_RW_count;
 struct kick_req *req_RW_count;
 

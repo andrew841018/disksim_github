@@ -92,6 +92,7 @@ extern long long int replace_time = 0;
 extern long long int flush1_time = 0;
 extern long long int flush2_time = 0;
 extern int ssd_ARR = 0;
+extern double remove_part;
 int flush_direct = 0 ;
 int test_count2 = 0;
 double Ref_temp = 0;
@@ -1808,6 +1809,8 @@ void calculate_predict()
 } 
 int main(int argc, char *argv[]) 
 {
+  double avg_response_time;
+  double total_response_time=0;
   unsigned long diffall;
   gettimeofday(&start1, NULL); 
   int i;
@@ -1906,6 +1909,7 @@ int main(int argc, char *argv[])
       //myreqcount++;
       //fscanf(fread,"%lf%ld%ld%ld%ld",&time,&devno,&blnum,&size,&R_W);
       //fprintf(myoutput,"time:%lf,devno:%ld,blnum:%ld,size:%ld,R_W:%ld\n",time,devno,blnum,size,R_W);
+      remove_part=0;
       gettimeofday(&begin, NULL);
       ReqCount++;
       test_RQ++;
@@ -2145,6 +2149,12 @@ int main(int argc, char *argv[])
       //fprintf(myoutput,"!!!!!!ALL = %ld\n",count_time);
       my_prev_time = time;
       //mytime = 0;
+      double curr_req_time;
+      gettimeofday(&finish, NULL);
+      curr_req_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+	  curr_req_time-=remove_part;
+	  total_response_time+=curr_req_time;
+	  avg_response_time=(double)total_response_time/ReqCount;
     }///////////////////////////////////////////////////////////////////////////////////////////////////////////////////scanf
 
   }
