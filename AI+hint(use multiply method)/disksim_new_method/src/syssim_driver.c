@@ -89,6 +89,7 @@ extern int hint[1000000]={0};
 extern int first_enter_write_buffer=0;
 extern int clean_flush1 = 0;
 extern int clean_flush2 = 0;
+extern double remove_part;
 extern long long int replace_time = 0;
 extern long long int flush1_time = 0;
 extern long long int flush2_time = 0;
@@ -1821,6 +1822,8 @@ void calculate_predict()
 } 
 int main(int argc, char *argv[]) 
 {
+  double avg_response_time;
+  double total_response_time=0;
   unsigned long diffall;
   gettimeofday(&start1, NULL); 
   int i;
@@ -1920,6 +1923,7 @@ int main(int argc, char *argv[])
       //fprintf(myoutput,"time:%lf,devno:%ld,blnum:%ld,size:%ld,R_W:%ld\n",time,devno,blnum,size,R_W);
       ReqCount++;
       test_RQ++;
+      remove_part=0;
       printf("----接收新的request----|ReqCount=%d\n", ReqCount);
       FILE *wb=fopen("wb.txt","w");      
       fprintf(wb,"request:%d\n",ReqCount);
@@ -2158,6 +2162,12 @@ int main(int argc, char *argv[])
       // }
       //fprintf(myoutput,"!!!!!!ALL = %ld\n",count_time);
       my_prev_time = time;
+	  gettimeofday(&finish, NULL);
+		//since reqeuest enter page cache ~ here (usec)
+	  double curr_req_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
+	  curr_req_time-=remove_part;
+	 total_response_time+=curr_req_time;
+	 avg_response_time=(double)total_response_time/ReqCount;
       //mytime = 0;
     }///////////////////////////////////////////////////////////////////////////////////////////////////////////////////scanf
 
@@ -2240,6 +2250,7 @@ int main(int argc, char *argv[])
   printf("\n****Response time****");
   fprintf(finaloutput,"\n****Response time****");
   print_statistics(&st, &wst, &rst, &wstp, &rstp, "response time");
+  printf("average respose time(edit by andrew):%f\n",avg_response_time);
   //fclose(evict_fread);
   fclose(fread);
   fclose(fwrite);

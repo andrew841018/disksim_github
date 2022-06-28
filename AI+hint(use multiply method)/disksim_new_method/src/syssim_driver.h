@@ -98,6 +98,7 @@ int hint[1000000];//hint[i]=0 means i not in global_HQ 1 means i in global_HQ
 int global_HQ_node_size;
 int first_enter_write_buffer;
 int ReqCount;
+double remove_part;
 
 struct RW_count *page_RW_count;
 struct kick_req *req_RW_count;
