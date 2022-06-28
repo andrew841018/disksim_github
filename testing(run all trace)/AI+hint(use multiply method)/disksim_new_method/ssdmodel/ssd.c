@@ -4268,7 +4268,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
     //access any page in the block,the all block will be place to MRU,even if that page currently is not exist. 
     add_a_page_in_the_node(lpn,physical_node_num,phy_node_offset,Pg_node,ptr_buffer_cache,0);
   }
-  write_count[physical_node_num][phy_node_offset]++;
+  /*write_count[physical_node_num][phy_node_offset]++;
     ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size=0;
     int block_write_count=0,page_write_count=0;
 	for(i=0;i<LRUSIZE;i++){
@@ -4278,13 +4278,13 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 		if(write_count[physical_node_num][i]>0){
 			block_write_count+=write_count[physical_node_num][i];
 		}
-	}
+	}*/
   	//arrive time,read count,physical_node_num,write count,block size,block_write_count,page_write_count
-	if(ptr_buffer_cache->max_buffer_page_num==4000){
+	/*if(ptr_buffer_cache->max_buffer_page_num==4000){
 		FILE *t=fopen("info(iozone2).txt","a+");
 		fprintf(t,"%f %d %d %d %d %d %d\n",curr1->arrive_time,LPN_RWtimes[physical_node_num][0],physical_node_num,LPN_RWtimes[physical_node_num][1],ptr_buffer_cache->hash_Pg[physical_node_num % HASHSIZE]->block_size,block_write_count,write_count[physical_node_num][phy_node_offset]);
 		fclose(t);
-	}
+	}*/
   return 0;
 }
 void Y_add_Lg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cache)
@@ -4719,8 +4719,10 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
   
 //   ptr_buffer_cache->ptr_head = ptr_lru_node;
 int threshold=8000;
+double remove_part;
 void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsigned int offset_in_node,lru_node *ptr_lru_node,buffer_cache *ptr_buffer_cache,int flag)
 {
+	gettimeofday(&start1, NULL);
 	lru_node *start,*end;
 	if(ptr_buffer_cache->ptr_head->prev!=NULL){
 		start=ptr_buffer_cache->ptr_head->prev;
@@ -4779,6 +4781,9 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 			}
 		}
 	}
+	gettimeofday(&end1, NULL);
+	//since reqeuest enter page cache ~ here (usec)
+	remove_part=(double)(1000000 * (end1.tv_sec-start1.tv_sec)+ end1.tv_usec-start1.tv_usec)/1000000;
 	if(ptr_lru_node->page[offset_in_node].exist != 0) // �O�_���ݩ�ۤv��LB�w�s�bcache��
 	{
     //fprintf(lpb_ppn, "w_hit_count ++\tw_hit_count=%d\t", ptr_buffer_cache->w_hit_count);
@@ -5864,6 +5869,7 @@ void kick_page_from_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cach
 	//since reqeuest enter page cache ~ here (usec)
 	total_time=(double)(1000000 * (finish.tv_sec-begin.tv_sec)+ finish.tv_usec-begin.tv_usec)/1000000;
 	total_response_time+=total_time;
+	total_response_time-=remove_part;
 	avg_response_time=(double)total_response_time/ReqCount;
   /*
    * when the cache size more than the max cache size,we flush the request to the ssd firstly
