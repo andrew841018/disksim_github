@@ -3976,7 +3976,7 @@ int check_which_node_to_evict2222(buffer_cache *ptr_buffer_cache)
   return strip_way;
 } 
 
-
+int num_of_req=0;
 void add_and_remove_page_to_buffer_cache(ioreq_event *curr,buffer_cache *ptr_buffer_cache)
 {
   int t=0,h=0;
