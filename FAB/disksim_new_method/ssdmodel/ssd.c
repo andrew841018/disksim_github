@@ -2702,7 +2702,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 4000;
+  ptr_buffer_cache->max_buffer_page_num = 8000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4771,6 +4771,7 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 	flush_page_count++;
 	if(ptr_lru_node->buffer_page_num == 0)
 	{
+		ptr_lru_node->select_victim=0;
 		//printf("*************remove all block:%d*************\n",ptr_lru_node->logical_node_num);
 		special_used[ptr_lru_node->logical_node_num]=NULL;
 		ptr_lru_node->select_victim=0;
@@ -4786,7 +4787,6 @@ void remove_a_page_in_the_node(unsigned int offset_in_node,lru_node *ptr_lru_nod
 		assert(victim_count<64);
 	}
 	else{
-		not_exist_lpn[ptr_lru_node->page[offset_in_node].lpn]=ptr_lru_node->logical_node_num;
 		//printf("****remove block:%d****   ****remove page:%d****\n",ptr_lru_node->logical_node_num,offset_in_node);		
 	}
 	
