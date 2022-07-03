@@ -5061,7 +5061,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){//only choose LRU...
 			//lpn=ssd_logical_pageno(blkno,currdisk);
 			//add_a_page_in_the_node(lpn,victim->logical_node_num,i,victim,ptr_buffer_cache,1);
 			//blkno+=currdisk->params.page_size;
-			ptr_buffer_cache->w_miss_count ++;
+			//ptr_buffer_cache->r_miss_count ++;
 			ptr_buffer_cache->total_buffer_page_num ++;
 			victim->buffer_page_num++;
 			victim->page[i].exist = 1;
