@@ -4175,6 +4175,8 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	double total_hit_ratio=(double)(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->r_hit_count)/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count+ptr_buffer_cache->r_hit_count+ptr_buffer_cache->r_miss_count);
 	FILE *hit=fopen("hit_ratio.txt","w");
 	fprintf(hit,"write buffer size:%d write hit count:%d write miss count:%d write hit ratio:%f total hit ratio:%f \n",ptr_buffer_cache->max_buffer_page_num,ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count),total_hit_ratio);
+	fprintf(hit,"..........GC....................\n");
+	fprintf(hit,"total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
 	fclose(hit);
   }  
   if(Pg_node == NULL)
@@ -4677,7 +4679,8 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 	{	
     //fprintf(lpb_ppn, "w_miss_count ++\tw_miss_count=%d\t", ptr_buffer_cache->w_miss_count);
     //fprintf(lpb_lpn, "w_miss\n");
-		ptr_buffer_cache->w_miss_count ++;
+		if(flag==0)
+			ptr_buffer_cache->w_miss_count ++;
 		ptr_buffer_cache->total_buffer_page_num ++;
 		ptr_lru_node->buffer_page_num++;
 		ptr_lru_node->page[offset_in_node].exist = 1;
@@ -5054,17 +5057,13 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	}
 	victim_count++;
 	//padding
-	//ssd_t *currdisk=getssd(curr1->devno);
-	//int blkno=curr1->blkno,lpn;
+	ssd_t *currdisk=getssd(curr1->devno);
+	int blkno=curr1->blkno,lpn;
 	for(i=0;i<LRUSIZE;i++){
 		if(victim->page[i].exist==0){
-			//lpn=ssd_logical_pageno(blkno,currdisk);
-			//add_a_page_in_the_node(lpn,victim->logical_node_num,i,victim,ptr_buffer_cache,1);
-			//blkno+=currdisk->params.page_size;
-			ptr_buffer_cache->r_miss_count ++;
-			ptr_buffer_cache->total_buffer_page_num ++;
-			victim->buffer_page_num++;
-			victim->page[i].exist = 1;
+			lpn=ssd_logical_pageno(blkno,currdisk);
+			add_a_page_in_the_node(lpn,victim->logical_node_num,i,victim,ptr_buffer_cache,1);
+			blkno+=currdisk->params.page_size;
 		}
 	}
 	ptr_buffer_cache->ptr_current_mark_node=victim;

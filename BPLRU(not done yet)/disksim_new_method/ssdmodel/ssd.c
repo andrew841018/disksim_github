@@ -2702,7 +2702,7 @@ void init_buffer_cache(buffer_cache *ptr_buffer_cache)
   ptr_buffer_cache->ptr_head = NULL;
   ptr_buffer_cache->total_buffer_page_num = 0;
   ptr_buffer_cache->total_buffer_block_num = 0;
-  ptr_buffer_cache->max_buffer_page_num = 8000;
+  ptr_buffer_cache->max_buffer_page_num = 4000;
   ptr_buffer_cache->w_hit_count = ptr_buffer_cache->w_miss_count = 0;
   ptr_buffer_cache->r_hit_count = ptr_buffer_cache->r_miss_count = 0;
   memset(ptr_buffer_cache->hash,0,sizeof(lru_node *)*HASHSIZE);
@@ -4173,8 +4173,10 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   }
   if(ptr_buffer_cache->w_miss_count>0){
 	double total_hit_ratio=(double)(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->r_hit_count)/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count+ptr_buffer_cache->r_hit_count+ptr_buffer_cache->r_miss_count);
-	FILE *hit=fopen("hit_ratio(1).txt","w");
+	FILE *hit=fopen("hit_ratio.txt","w");
 	fprintf(hit,"write buffer size:%d write hit count:%d write miss count:%d write hit ratio:%f total hit ratio:%f \n",ptr_buffer_cache->max_buffer_page_num,ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count),total_hit_ratio);
+	fprintf(hit,"..........GC....................\n");
+	fprintf(hit,"total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
 	fclose(hit);
   }  
   if(Pg_node == NULL)
@@ -5062,6 +5064,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){//only choose LRU...
 			//add_a_page_in_the_node(lpn,victim->logical_node_num,i,victim,ptr_buffer_cache,1);
 			//blkno+=currdisk->params.page_size;
 			//ptr_buffer_cache->r_miss_count ++;
+			//*******************//
 			ptr_buffer_cache->total_buffer_page_num ++;
 			victim->buffer_page_num++;
 			victim->page[i].exist = 1;
