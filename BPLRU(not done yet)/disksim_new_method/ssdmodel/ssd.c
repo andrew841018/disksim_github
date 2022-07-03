@@ -4173,7 +4173,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
   }
   if(ptr_buffer_cache->w_miss_count>0){
 	double total_hit_ratio=(double)(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->r_hit_count)/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count+ptr_buffer_cache->r_hit_count+ptr_buffer_cache->r_miss_count);
-	FILE *hit=fopen("hit_ratio.txt","w");
+	FILE *hit=fopen("hit_ratio(1).txt","w");
 	fprintf(hit,"write buffer size:%d write hit count:%d write miss count:%d write hit ratio:%f total hit ratio:%f \n",ptr_buffer_cache->max_buffer_page_num,ptr_buffer_cache->w_hit_count,ptr_buffer_cache->w_miss_count,(double)ptr_buffer_cache->w_hit_count/(ptr_buffer_cache->w_hit_count+ptr_buffer_cache->w_miss_count),total_hit_ratio);
 	fclose(hit);
   }  
@@ -5041,6 +5041,9 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){//only choose LRU...
 	if(LRU_compensation==1){
 		victim=ptr_buffer_cache->ptr_head;
 		victim->select_victim=1;
+		victim_count++;
+		ptr_buffer_cache->ptr_current_mark_node=victim;
+		return;
 	}
 	else{
 		while(original->select_victim==1){
