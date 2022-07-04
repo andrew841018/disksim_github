@@ -17,7 +17,7 @@ unsigned int total_live_page_cp_count2;
 extern page_level_mapping *lba_table;
 extern int req_count;
 FILE *pf_gc_data;
-
+extern ssd_element_metadata *metadata;
 static int ssd_same_plane_blocks (ssd_t *s, ssd_element_metadata *metadata, int from_blk, int to_blk)
 {
     return (metadata->block_usage[from_blk].plane_num == metadata->block_usage[to_blk].plane_num);
@@ -360,7 +360,7 @@ int ssd_migrate_cold_data(int to_blk, double *mcost, int plane_num, int elem_num
     int f2;
 #endif
 
-    ssd_element_metadata *metadata = &(s->elements[elem_num].metadata);
+    metadata = &(s->elements[elem_num].metadata);
 
     // first select the coldest of all blocks.
     // one way to select is to find the one that has the oldest
@@ -1046,7 +1046,7 @@ double ssd_clean_element_copyback(int elem_num, ssd_t *s)
     int i;
     double max_cleaning_cost = 0;
     int plane_to_clean[SSD_MAX_PARUNITS_PER_ELEM];
-    ssd_element_metadata *metadata = &s->elements[elem_num].metadata;
+    metadata = &s->elements[elem_num].metadata;
     int tot_cleans = 0;
 
     for (i = 0; i < SSD_PARUNITS_PER_ELEM(s); i ++) {

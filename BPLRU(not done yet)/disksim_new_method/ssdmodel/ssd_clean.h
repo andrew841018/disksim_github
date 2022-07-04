@@ -42,7 +42,7 @@
 
 #endif
 
-
+ssd_element_metadata *metadata;
 typedef struct _usage_table {
     int len;
     int temp;
