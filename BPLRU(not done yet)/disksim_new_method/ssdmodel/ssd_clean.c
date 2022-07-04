@@ -628,7 +628,7 @@ static double _ssd_clean_block_partially(int plane_num, int elem_num, ssd_t *s)
 		static int cp_page = 0;
     ASSERT(pm->clean_in_progress);
     block = pm->clean_in_block;
-
+	metadata->block_usage[block].num_valid=0;
     if (metadata->block_usage[block].num_valid > 0) {
         // pick a page that is not yet cleaned and move it
         for (i = 0; i < s->params.pages_per_block; i ++) {
