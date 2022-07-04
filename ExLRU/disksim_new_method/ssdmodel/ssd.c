@@ -4213,7 +4213,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 		ptr_lru_node->AFB=0;
 		for(i=0;i<LRUSIZE;i++){
 			if(ptr_lru_node->page[i].exist==1 || ptr_lru_node->page[i].exist==2){
-				ptr_lru_node->AFB+=(double)ptr_lru_node->page[i].AFP/i;
+				ptr_lru_node->AFB+=(double)ptr_lru_node->page[i].AFP/(i+1);
 			}
 		}
 		ptr_lru_node->UC=(double)ptr_lru_node->AFB/ptr_lru_node->buffer_page_num;	
