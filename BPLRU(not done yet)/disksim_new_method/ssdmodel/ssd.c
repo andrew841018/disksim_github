@@ -2126,7 +2126,7 @@ void ssd_get_mapping (int maptype, int devno, int blkno, int *cylptr, int *surfa
 
    if ((blkno < 0) || (blkno >= currdisk->numblocks)) {
       fprintf(stderr, "Invalid blkno at ssd_get_mapping: %d\n", blkno);
-      exit(1);
+      assert(0);
    }
 
    if (cylptr) {
@@ -4179,6 +4179,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	fprintf(hit,"total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
 	fclose(hit);
   }  
+  //printf("block number:%d page:%d lpn:%d ppn:%d element:%d\n",physical_node_num,phy_node_offset,lpn,lba_table[lpn].ppn,lba_table[lpn].elem_number);
   if(Pg_node == NULL)
   {
     //printf("add node\n");
@@ -5055,19 +5056,40 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){//only choose LRU...
 		victim->select_victim=1;
 	}
 	victim_count++;
+	int base_line_lpn=-1,base_line_index=-1;
+	for(i=0;i<LRUSIZE;i++){
+		if(victim->page[i].exist==1 || victim->page[i].exist==2){
+			base_line_lpn=victim->page[i].lpn;
+			base_line_index=i;
+			break;
+		}
+	}
+	assert(base_line_lpn!=-1 && base_line_index!=-1);
+	int lpn,j;
 	//padding
-	//ssd_t *currdisk=getssd(curr1->devno);
-	//int blkno=curr1->blkno,lpn;
 	for(i=0;i<LRUSIZE;i++){
 		if(victim->page[i].exist==0){
-			//lpn=ssd_logical_pageno(blkno,currdisk);
-			//add_a_page_in_the_node(lpn,victim->logical_node_num,i,victim,ptr_buffer_cache,1);
-			//blkno+=currdisk->params.page_size;
-			//ptr_buffer_cache->r_miss_count ++;
+			if(base_line_index>i){
+				lpn=base_line_lpn-(base_line_index-i)*8;
+			}
+			else{
+				lpn=base_line_lpn+(i-base_line_index)*8;
+			}
+			for(j=0;j<req_RW_count->page_count;j++)
+			{
+				if(req_RW_count->page[j].page_num == lpn)
+				{
+					page_RW_count->page_num = req_RW_count->page[j].page_num;
+					page_RW_count->r_count = req_RW_count->page[j].r_count;
+					page_RW_count->w_count = req_RW_count->page[j].w_count;
+				}
+			}
+			remove_mark_in_the_node(victim,ptr_buffer_cache);
+			add_a_page_in_the_node(lpn,victim->logical_node_num,i,victim,ptr_buffer_cache,1);
 			//*******************//
-			ptr_buffer_cache->total_buffer_page_num ++;
-			victim->buffer_page_num++;
-			victim->page[i].exist = 1;
+			//ptr_buffer_cache->total_buffer_page_num ++;
+			//victim->buffer_page_num++;
+			//victim->page[i].exist = 1;
 		}
 	}
 	ptr_buffer_cache->ptr_current_mark_node=victim;

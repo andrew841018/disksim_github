@@ -4179,6 +4179,7 @@ int Y_add_Pg_page_to_cache_buffer(unsigned int lpn,buffer_cache *ptr_buffer_cach
 	fprintf(hit,"total_live_page_cp_count2 = %d,total_gc_count = %d\n",total_live_page_cp_count2,total_gc_count );
 	fclose(hit);
   }  
+  printf("block number:%d page:%d\n",physical_node_num,phy_node_offset);
   if(Pg_node == NULL)
   {
     //printf("add node\n");
@@ -5041,7 +5042,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 		}
 	}
 	//choose MRU block
-	if(LRU_compensation==1){
+	if(LRU_compensation==1){ 
 		victim=ptr_buffer_cache->ptr_head;
 		victim->select_victim=1;
 		victim_count++;
