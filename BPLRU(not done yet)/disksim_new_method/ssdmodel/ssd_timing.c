@@ -335,8 +335,8 @@ double _ssd_write_page_osr(ssd_t *s, ssd_element_metadata *metadata, int lpn,int
             ASSERT(0);
         } else {
             prev_metadata->block_usage[prev_block].page[pagepos_in_prev_block] = -1;
-            //prev_metadata->block_usage[prev_block].num_valid --;
-            //prev_metadata->plane_meta[prev_plane].valid_pages --;
+            prev_metadata->block_usage[prev_block].num_valid --;
+            prev_metadata->plane_meta[prev_plane].valid_pages --;
             ssd_assert_valid_pages(prev_plane, prev_metadata, s);
         }
     		} else {
@@ -349,8 +349,8 @@ double _ssd_write_page_osr(ssd_t *s, ssd_element_metadata *metadata, int lpn,int
 
     // increment the usage count on the active block
     metadata->block_usage[active_block].page[pagepos_in_block] = lpn;
-    //metadata->block_usage[active_block].num_valid ++;
-    //metadata->plane_meta[active_plane].valid_pages ++;
+    metadata->block_usage[active_block].num_valid ++;
+    metadata->plane_meta[active_plane].valid_pages ++;
     ssd_assert_valid_pages(active_plane, metadata, s);
 
     // some sanity checking

@@ -5038,27 +5038,16 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){//only choose LRU...
 		victim=original;	
 	}
 	victim_count++;
-	int base_line_lpn=-1,base_line_index=-1;
+	int lpn,j,channel_num;
 	for(i=0;i<LRUSIZE;i++){
 		if(victim->page[i].exist==1 || victim->page[i].exist==2){
-			base_line_lpn=victim->page[i].lpn;
-			base_line_index=i;
+			channel_num=victim->page[i].channel_num;
 			break;
 		}
 	}
-	assert(base_line_lpn!=-1 && base_line_index!=-1);
-	int lpn,j;
 	//padding
 	for(i=0;i<LRUSIZE;i++){
 		if(victim->page[i].exist==0){
-			padding_index=i;
-			//printf("i:%d base_lpn:%d base_line_index:%d\n",i,base_line_lpn,base_line_index);
-			if(base_line_index>i){
-				lpn=base_line_lpn-(base_line_index-i)*8;
-			}
-			else{
-				lpn=base_line_lpn+(i-base_line_index)*8;
-			}
 			for(j=0;j<req_RW_count->page_count;j++)
 			{
 				if(req_RW_count->page[j].page_num == lpn)
@@ -5068,10 +5057,13 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){//only choose LRU...
 					page_RW_count->w_count = req_RW_count->page[j].w_count;
 				}
 			}
+			ssd_element_metadata *meta=&currdisk1->elements[channel_num].metadata;
+			lpn=meta->block_usage[victim->logical_node_num].page[i];
 			//*******************//
-			ptr_buffer_cache->total_buffer_page_num ++;
-			victim->buffer_page_num++;
-			victim->page[i].exist = 1;
+			add_a_page_in_the_node(lpn,victim->logical_node_num,i,victim,ptr_buffer_cache,1);
+			//ptr_buffer_cache->total_buffer_page_num ++;
+			//victim->buffer_page_num++;
+			//victim->page[i].exist = 1;
 		}
 	}
 	padding=0;
