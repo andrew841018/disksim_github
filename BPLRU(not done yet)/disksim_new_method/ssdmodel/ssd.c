@@ -109,6 +109,7 @@ typedef struct  _lru_node
   double duration_priority;//0~N
   int pass_req_count,select_victim,overwrite_num;
   double record_dur_prior,rw_ratio;
+  int logical_block_num;
   int block_count,sector_index,start_index,block_size;
   unsigned int buffer_page_num;       //how many update page in this node
   unsigned char rw_intensive;         //what type is about this node
@@ -4511,6 +4512,7 @@ void add_a_node_to_buffer_cache(unsigned int lpn,unsigned int logical_node_num,u
 	memset(ptr_node,0,sizeof(struct _lru_node));
 	ptr_node->group_type=flag;
 	ptr_node->logical_node_num = logical_node_num;
+	ptr_node->logical_block_num=lpn/LRUSIZE;
 	special_used[logical_node_num]=ptr_node;
 	ptr_buffer_cache->total_buffer_block_num++;
 	ptr_node->select_victim=0;
@@ -5058,7 +5060,7 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){//only choose LRU...
 				}
 			}
 			ssd_element_metadata *meta=&currdisk1->elements[channel_num].metadata;
-			lpn=meta->block_usage[victim->logical_node_num].page[i];
+			lpn=meta->block_usage[victim->logical_block_num].page[i];
 			//*******************//
 			add_a_page_in_the_node(lpn,victim->logical_node_num,i,victim,ptr_buffer_cache,1);
 			//ptr_buffer_cache->total_buffer_page_num ++;
