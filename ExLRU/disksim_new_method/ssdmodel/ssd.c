@@ -4239,13 +4239,16 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 	{	
     //fprintf(lpb_ppn, "w_miss_count ++\tw_miss_count=%d\t", ptr_buffer_cache->w_miss_count);
     //fprintf(lpb_lpn, "w_miss\n");
+		ptr_lru_node->page[offset_in_node].AFP=1;
+		ptr_lru_node->AFB+=(double)ptr_lru_node->page[offset_in_node].AFP/(offset_in_node+1);
+		ptr_lru_node->UC=(double)ptr_lru_node->AFB/ptr_lru_node->buffer_page_num;	
 		ptr_buffer_cache->w_miss_count ++;
 		ptr_buffer_cache->total_buffer_page_num ++;
 		ptr_lru_node->buffer_page_num++;
 		ptr_lru_node->page[offset_in_node].first_req_num=ReqCount;
 		ptr_lru_node->page[offset_in_node].curr_req_num=ReqCount;
 		ptr_lru_node->page[offset_in_node].exist = 1;
-		ptr_lru_node->page[offset_in_node].lpn = lpn;			
+		ptr_lru_node->page[offset_in_node].lpn = lpn;
     /*if(ptr_lru_node->logical_node_num == 41 && ptr_lru_node->group_type == 1)
     {
       fprintf(lpb_lpn,"ptr_lru_node->buffer_page_num=%d\n", ptr_lru_node->buffer_page_num);
@@ -4282,6 +4285,7 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
     
     ptr_buffer_cache->ptr_head = ptr_lru_node;
   }
+  //printf("AFP:%f AFB:%f UC:%f\n",ptr_lru_node->page[offset_in_node].AFP,ptr_lru_node->AFB,ptr_lru_node->UC); 
 }
 
 
@@ -4592,21 +4596,14 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//ptr_head->prev means direct point to LRU end.
 	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev,*end=ptr_buffer_cache->ptr_head;
-	double min=10000,min1=10000;
+	double min=10000;
 	lru_node *victim=NULL,*victim1;
 	while(original!=end){
-		if(original->select_victim==0 && min>original->UC && original->UC>0){
+		if(original->select_victim==0 && min>original->UC){
 			min=original->UC;
 			victim=original;
 		}
-		else if(original->select_victim==0 && original->UC==0 && min1>original->UC){
-			min1=original->UC;
-			victim1=original;
-		}
 		original=original->prev;
-	}
-	if(victim==NULL){
-		victim=victim1;
 	}
 	victim->select_victim=1;
 	ptr_buffer_cache->ptr_current_mark_node=victim;
