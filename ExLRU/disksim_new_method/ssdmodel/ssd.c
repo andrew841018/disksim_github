@@ -4592,14 +4592,21 @@ void AI_predict_victim(buffer_cache *ptr_buffer_cache){
 	//ptr_head->prev means direct point to LRU end.
 	//prev,means from LRU to MRU
 	lru_node *original=ptr_buffer_cache->ptr_head->prev,*end=ptr_buffer_cache->ptr_head;
-	double min=10000;
-	lru_node *victim;
+	double min=10000,min1=10000;
+	lru_node *victim=NULL,*victim1;
 	while(original!=end){
-		if(original->select_victim==0 && min>original->UC){
+		if(original->select_victim==0 && min>original->UC && original->UC>0){
 			min=original->UC;
 			victim=original;
 		}
+		else if(original->select_victim==0 && original->UC==0 && min1>original->UC){
+			min1=original->UC;
+			victim1=original;
+		}
 		original=original->prev;
+	}
+	if(victim==NULL){
+		victim=victim1;
 	}
 	victim->select_victim=1;
 	ptr_buffer_cache->ptr_current_mark_node=victim;
