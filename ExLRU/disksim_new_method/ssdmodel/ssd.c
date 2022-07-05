@@ -4238,13 +4238,13 @@ void add_a_page_in_the_node(unsigned int lpn,unsigned int logical_node_num,unsig
 	else//not in node
 	{	
     //fprintf(lpb_ppn, "w_miss_count ++\tw_miss_count=%d\t", ptr_buffer_cache->w_miss_count);
-    //fprintf(lpb_lpn, "w_miss\n");
-		ptr_lru_node->page[offset_in_node].AFP=1;
-		ptr_lru_node->AFB+=(double)ptr_lru_node->page[offset_in_node].AFP/(offset_in_node+1);
-		ptr_lru_node->UC=(double)ptr_lru_node->AFB/ptr_lru_node->buffer_page_num;	
+    //fprintf(lpb_lpn, "w_miss\n");	
 		ptr_buffer_cache->w_miss_count ++;
 		ptr_buffer_cache->total_buffer_page_num ++;
 		ptr_lru_node->buffer_page_num++;
+		ptr_lru_node->page[offset_in_node].AFP=1;
+		ptr_lru_node->AFB+=(double)ptr_lru_node->page[offset_in_node].AFP/(offset_in_node+1);
+		ptr_lru_node->UC=(double)ptr_lru_node->AFB/ptr_lru_node->buffer_page_num;
 		ptr_lru_node->page[offset_in_node].first_req_num=ReqCount;
 		ptr_lru_node->page[offset_in_node].curr_req_num=ReqCount;
 		ptr_lru_node->page[offset_in_node].exist = 1;
