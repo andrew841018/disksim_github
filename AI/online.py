@@ -4,12 +4,13 @@ from pandas import DataFrame
 import numpy as np
 import pandas as pd
 import time
+import math
 import matplotlib.pyplot as plt
 start=time.perf_counter()
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\"
-duration_model = tf.keras.models.load_model(addr+'duration_model(run1_Postmark_2475).h5')
+duration_model = tf.keras.models.load_model(addr+'duration_model(iozone).h5')
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\AI input feature\\generate by current code\\AI\\"
-data=np.loadtxt(addr+'info(run1_Postmark_2475).txt',delimiter=' ',usecols=range(7))
+data=np.loadtxt(addr+'info(iozone).txt',delimiter=' ',usecols=range(7))
 data_for_predict=data
 data_for_predict=np.delete(data_for_predict,2,axis=1)#delete physical_block_number
 
@@ -46,7 +47,7 @@ while(finish!=len(data)):
     finish+=1
 end=time.perf_counter()
 avg=(end-start)/len(data)
-print("avg request response time:",avg)
+print("avg request response time:",abs(avg))
 '''*** buffer part***
 tmp=np.zeros((16,6))
 start=0
