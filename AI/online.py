@@ -6,14 +6,37 @@ import pandas as pd
 import time
 import math
 import matplotlib.pyplot as plt
+from tensorflow.compat.v1.keras.backend import get_session
 start=time.perf_counter()
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\"
-duration_model = tf.keras.models.load_model(addr+'duration_model(iozone).h5')
+duration_model = tf.keras.models.load_model(addr+'duration_model(run1_Postmark_2475).h5')
 addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\AI input feature\\generate by current code\\AI\\"
-data=np.loadtxt(addr+'info(iozone).txt',delimiter=' ',usecols=range(7))
+data=np.loadtxt(addr+'info(run1_Postmark_2475).txt',delimiter=' ',usecols=range(7))
 data_for_predict=data
 data_for_predict=np.delete(data_for_predict,2,axis=1)#delete physical_block_number
-
+shap.initjs()
+sum1=0
+sum2=0
+sum3=0
+sum4=0
+sum5=0
+sum6=0
+total=len(shap_values)*len(shap_values[0])*len(shap_values[0][0])
+for i in range(len(shap_values)):
+    for j in range(len(shap_values[0])):
+        for k in range(len(shap_values[0][0])):
+            sum1+=shap_values[i][j][k][0]
+            sum2+=shap_values[i][j][k][1]
+            sum3+=shap_values[i][j][k][2]
+            sum4+=shap_values[i][j][k][3]
+            sum5+=shap_values[i][j][k][4]
+            sum6+=shap_values[i][j][k][5]
+avg1=sum1/total
+avg2=sum2/total
+avg3=sum3/total
+avg4=sum4/total
+avg5=sum5/total
+avg6=sum6/total
 ''' ***duration part****'''
 tmp=np.zeros((16,6))
 start=0

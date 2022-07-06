@@ -22,11 +22,12 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM#, CuDNNLSTM
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from collections import OrderedDict
+import shap
 #testing data的格式要和training data一樣，每一行也都要同樣意義
 addr='C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\collected data(from disksim)\\'
-duration=np.loadtxt(addr+'duration_value\\duration(run1_md7).txt',delimiter=' ')#cached request index,benefit,size,duration
+duration=np.loadtxt(addr+'duration_value\\already build model\\duration(wr_run1_ug3).txt',delimiter=' ')#cached request index,benefit,size,duration
 addr1=addr+'AI input feature\\'
-req=np.loadtxt(addr1+"info(run1_md7).txt",delimiter=' ',usecols=range(7))
+req=np.loadtxt(addr1+"generate by current code\\AI+Hint\\info(wr_run1_ug3).txt",delimiter=' ',usecols=range(7))
 req_for_predict=req
 req_for_predict=np.delete(req_for_predict,2,axis=1)#delete physical_block_number
 duration_label=np.zeros(shape=(200000,1)) 
@@ -80,10 +81,10 @@ for i in predict:
 '''
 
 
-for i in range(11):
+for i in range(4):
     x_train = np.delete(x_train,0, axis = 0)
     y_train = np.delete(y_train,0, axis = 0)
-for i in range(3):
+for i in range(5):
     x_test=np.delete(x_test,0,axis=0)
     y_test=np.delete(y_test,0, axis = 0)
 index=0
@@ -101,8 +102,8 @@ for i in range(len(x_test)):
     else:
         index+=1#確定第31,63,95...比答案不會被刪除
     c+=1
-x_train=x_train.reshape(1484,16,6)
-x_test=x_test.reshape(371,16,6)
+x_train=x_train.reshape(7681,16,6)
+x_test=x_test.reshape(1920,16,6)
 y_test=np_utils.to_categorical(y_test,3)
 y_train=np_utils.to_categorical(y_train,3)
 zero=0
@@ -128,6 +129,8 @@ for i in y_train:
 
 
 ########################### build model 
+from tensorflow.compat.v1.keras.backend import get_session
+tf.compat.v1.disable_v2_behavior()
 metric=[
         keras.metrics.BinaryAccuracy(name='accuracy'),
         keras.metrics.Precision(name='precision'),
@@ -146,7 +149,6 @@ model.add(Dropout(0.2))
 model.add(LSTM(128,activation='sigmoid'))
 model.add(Dropout(0.2))
 model.add(Dense(3,activation='softmax'))#classify into 1 class
-
 #print(model.summary())
 #opt=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
 model.compile(optimizer='rmsprop',loss='categorical_crossentropy',metrics=['accuracy'])
@@ -155,9 +157,45 @@ training data-->training, validation-->calculate accuracy
 input_shape format=(batch size,timestep,input dimension)
 PS:model.fit當中validation_data等同於evaluate功能，兩者選其一
 '''
-weight={0:1.0450704225352112,1: 34.51162790697674,2:70.66666666666667}
-history=model.fit(x_train,y_train,epochs=800,validation_data=(x_test,y_test),class_weight=weight)
+weight={0:1.4267917563826515,1: 6.115359261700725,2:7.374403815580286}
+history=model.fit(x_train,y_train,epochs=1,validation_data=(x_test,y_test),class_weight=weight)
 #注意，下面這個檔案會存在spyder當下所在，而非程式位置，可用cd更改位置
+##計算特徵重要性:
+addr="C:\\Users\\user\\Dropbox\\shared with ubuntu\\disksim_github\\AI\\model\\"
+model = tf.keras.models.load_model(addr+'duration_model(wr_run1_ug3).h5')
+explainer=shap.DeepExplainer(model,x_train[:1000])
+shap_values=explainer.shap_values(x_train[:1000])
+shap.initjs()
+sum1=0
+sum2=0
+sum3=0
+sum4=0
+sum5=0
+sum6=0
+total=len(shap_values)*len(shap_values[0])*len(shap_values[0][0])
+for i in range(len(shap_values)):
+    for j in range(len(shap_values[0])):
+        for k in range(len(shap_values[0][0])):
+            sum1+=shap_values[i][j][k][0]
+            sum2+=shap_values[i][j][k][1]
+            sum3+=shap_values[i][j][k][2]
+            sum4+=shap_values[i][j][k][3]
+            sum5+=shap_values[i][j][k][4]
+            sum6+=shap_values[i][j][k][5]
+avg1=sum1/total
+avg2=sum2/total
+avg3=sum3/total
+avg4=sum4/total
+avg5=sum5/total
+avg6=sum6/total
+print("importance:")
+print("feature1:",avg1)
+print("feature2:",avg2)
+print("feature3:",avg3)
+print("feature4:",avg4)
+print("feature5:",avg5)
+print("feature6:",avg6)
+            
 '''
 plt.figure(dpi=250)#dpi越高，像素越高
 plt.subplot(2,2,1)#兩行兩列的方形中，第一張圖
